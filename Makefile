@@ -22,7 +22,7 @@ install:
 
 .PHONY: lint ## Lint code.
 lint:
-	npx eslint src/**
+	npx eslint --no-error-on-unmatched-pattern src/**
 
 .PHONY: test ## Test code with coverage.
 test:
