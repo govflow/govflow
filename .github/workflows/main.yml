@@ -1,0 +1,80 @@
+name: general
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*.*.*"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: --health-cmd=pg_isready --health-interval=10s --health-timeout=5s --health-retries=5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: make install
+      - name: Lint code
+        run: make lint
+      - name: Test app
+        run: make test
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      - name: Report coverage
+        uses: codecov/codecov-action@v2
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build the Docker image
+        run: make docker-build
+      - name: Tag the Docker image
+        run: make docker-tag
+      - name: Publish the Docker Image to the package repository
+        run: make docker-push
+
+  # release:
+  #   if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+  #   runs-on: ubuntu-latest
+  #   needs: [test]
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
+  #     - name: Install node
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: '16'
+  #     - name: Install dependencies
+  #       run: make install
+  #     - name: Build distribution
+  #       run: make build
+  #     - name: Publish to npm
+  #       run: make publish
+  #       env:
+  #         NPM_API_KEY: ${{ secrets.NPM_API_KEY }}

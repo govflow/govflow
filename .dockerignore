@@ -1,0 +1,9 @@
+**/*.spec.ts
+**/*.map
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.eslintignore
+.eslintrc.json
+node_modules
