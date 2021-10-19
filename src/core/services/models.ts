@@ -1,5 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { ModelDefinition } from '../../types';
+import { isValidToSchema, serviceExtraAttrsSchema } from './schemas';
+
+const validExtras = isValidToSchema(serviceExtraAttrsSchema);
 
 const ServiceModel: ModelDefinition = {
     name: 'Service',
@@ -28,6 +31,13 @@ const ServiceModel: ModelDefinition = {
         keywords: {
             type: DataTypes.ARRAY(DataTypes.STRING),
             allowNull: true
+        },
+        extraAttrs: {
+            type: DataTypes.JSONB,
+            allowNull: true,
+            validate: {
+                validExtras
+            }
         },
         clientId: {
             type: DataTypes.STRING,
