@@ -1,4 +1,4 @@
-import { Model } from './models';
+import { ModelDefinition } from './models';
 import { Plugin } from './registry';
 
 interface ConfigItem {
@@ -11,7 +11,7 @@ interface ConfigItem {
 interface AppSettings {
     plugins: Plugin[],
     config: ConfigItem[],
-    models: Model[]
+    models: ModelDefinition[]
 }
 
 interface Config {

@@ -1,17 +1,13 @@
 import { DataTypes } from 'sequelize';
-import { Model } from '../../types';
+import { ModelDefinition } from '../../types';
 
-const ServiceModel: Model = {
+const ServiceModel: ModelDefinition = {
     name: 'Service',
     attributes: {
         code: {
-            allowNull: false,
             type: DataTypes.STRING,
-            unique: true
-        },
-        clientId: {
             allowNull: false,
-            type: DataTypes.STRING,
+            primaryKey: true
         },
         name: {
             allowNull: false,
@@ -20,6 +16,22 @@ const ServiceModel: Model = {
         description: {
             allowNull: true,
             type: DataTypes.STRING,
+        },
+        metadata: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        type: {
+            type: DataTypes.ENUM('realtime', 'batch', 'blackbox'),
+            defaultValue: 'realtime',
+        },
+        keywords: {
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            allowNull: true
+        },
+        clientId: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
     },
     options: {
