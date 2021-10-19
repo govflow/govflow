@@ -5,5 +5,7 @@ export interface JSONSchema {
     title?: string,
     description?: string,
     type: string,
-    properties: {} | []
+    properties: Record<string, unknown> | Array<unknown>
 }
+
+export type JSONBTarget = Record<string, unknown> | Array<unknown>

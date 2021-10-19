@@ -1,9 +1,9 @@
-import { validate as jsonSchemaValidate } from 'jsonschema';
+import { validate as jsonSchemaValidate, ValidatorResult } from 'jsonschema';
 import { homepage } from '../../../package.json';
-import { JSONSchema } from '../../types';
+import { JSONBTarget, JSONSchema } from '../../types';
 
-export function isValidToSchema(schema: JSONSchema) {
-    return (value: {} | []) => {
+export function isValidToSchema(schema: JSONSchema): (value: JSONBTarget) => ValidatorResult {
+    return (value: JSONBTarget): ValidatorResult => {
         return jsonSchemaValidate(value, schema)
 
     }
