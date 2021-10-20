@@ -40,18 +40,23 @@ async function verifyDatabaseConnection(databaseEngine: Sequelize): Promise<void
 function applyCoreModelRelations(models: typeof databaseEngine.models) {
     const { Service, ServiceRequest, Client, StaffUser } = models;
 
-    // StaffUser associations
-    StaffUser.belongsTo(Client, { foreignKey: 'clientId' })
+    Client.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'clientId' });
+    StaffUser.belongsTo(Client, { as: 'client' })
 
-    // Service associations
-    Service.belongsTo(Client, { foreignKey: 'clientId' });
-    Service.hasMany(Service, { foreignKey: { name: 'parentId', allowNull: true } });
-    Service.belongsTo(Service)
+    Client.hasMany(Service, { as: 'services', foreignKey: 'clientId' });
+    Service.belongsTo(Client, { as: 'client' });
 
-    // ServiceRequest associations
-    ServiceRequest.belongsTo(Client, { foreignKey: 'clientId' });
-    ServiceRequest.belongsTo(Service, { foreignKey: 'serviceId' });
-    ServiceRequest.belongsTo(StaffUser, { foreignKey: 'assignedTo' });
+    Client.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'clientId' });
+    ServiceRequest.belongsTo(Client, { as: 'client' });
+
+    Service.hasMany(Service, { as: 'children', foreignKey: 'parentId' });
+    Service.belongsTo(Service, { as: 'parent' });
+
+    Service.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'serviceId' });
+    ServiceRequest.belongsTo(Service, { as: 'service' });
+
+    StaffUser.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'assignedToId' });
+    ServiceRequest.belongsTo(StaffUser, { as: 'assignedTo' });
 
 }
 

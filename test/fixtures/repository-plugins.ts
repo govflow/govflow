@@ -18,6 +18,11 @@ class MyServiceRepository implements IServiceRepository {
         })
     }
 
+    async create(clientId: string, payload: Record<string, unknown>) {
+        payload;
+        return new Promise<QueryResult>((resolve, reject) => { return resolve({ clientId: clientId, id: '3', name: 'Test Service 3' }) });
+    }
+
 }
 
 let MyServiceRepositoryPlugin: Plugin = {

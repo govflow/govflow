@@ -7,6 +7,10 @@ export const ClientModel: ModelDefinition = {
         id: {
             type: DataTypes.STRING,
             primaryKey: true,
+        },
+        jurisdiction_id: {
+            type: DataTypes.STRING,
+            unique: true,
         }
     },
     options: {}

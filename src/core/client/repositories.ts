@@ -12,4 +12,8 @@ export class ClientRepository implements IClientRepository {
         });
     }
 
+    async create(payload: Record<string, unknown>): Promise<QueryResult> {
+        return await databaseEngine.models.Client.create(payload);
+    }
+
 }

@@ -5,8 +5,8 @@ export const serviceRouter = Router();
 serviceRouter.get('/', async (req: Request, res: Response) => {
     try {
         const { services } = res.app.repositories;
-        const { rows, count } = await services.findAll("CLIENT_ID");
-        return res.status(200).send({ data: rows, count: count });
+        const { rows: records, count } = await services.findAll("CLIENT_ID");
+        return res.status(200).send({ data: records, count: count });
     } catch (err) {
         logger.error(err);
         return res.status(500).send(err);
