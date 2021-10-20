@@ -7,9 +7,8 @@ const validExtras = isValidToSchema(serviceExtraAttrsSchema);
 const ServiceModel: ModelDefinition = {
     name: 'Service',
     attributes: {
-        code: {
+        id: { // save code here for Open311 integration
             type: DataTypes.STRING,
-            allowNull: false,
             primaryKey: true
         },
         name: {
@@ -38,11 +37,7 @@ const ServiceModel: ModelDefinition = {
             validate: {
                 validExtras
             }
-        },
-        clientId: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
+        }
     },
     options: {
         indexes: [{ unique: true, fields: ['name', 'parentId', 'clientId'] }]

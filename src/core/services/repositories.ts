@@ -1,26 +1,20 @@
 import { injectable } from 'inversify';
 import { databaseEngine } from '../../db';
-import { IServiceRepository, ReturnedModel } from '../../types';
+import { IServiceRepository, IterableQueryResult, QueryResult } from '../../types';
 
 @injectable()
 export class ServiceRepository implements IServiceRepository {
 
-    async findOne(clientId: string, code: string): Promise<ReturnedModel> {
+    async findOne(clientId: string, id: string): Promise<QueryResult> {
         return await databaseEngine.models.Service.findOne({
-            where: {
-                clientId,
-                code,
-            },
+            where: { clientId, id },
             raw: true,
         });
     }
 
-    async findAll(clientId: string): Promise<[ReturnedModel[], number]> {
+    async findAll(clientId: string): Promise<[IterableQueryResult, number]> {
         const { rows, count } = await databaseEngine.models.Service.findAndCountAll({
-            where: {
-                clientId,
-            },
-            order: [['parentId', 'ASC'], ['name', 'ASC']],
+            where: { clientId },
             raw: true,
         });
         return [rows, count];

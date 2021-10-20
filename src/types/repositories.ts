@@ -1,12 +1,26 @@
+import { IterableQueryResult, QueryResult } from ".";
+
 /* eslint-disable */
-export interface Repository {
+export interface Pluggable {
 
 }
 /* eslint-enable */
 
-/* eslint-disable */
-export interface IServiceRepository extends Repository {
-    findOne: (clientId: string, serviceId: string) => Promise<any>;
-    findAll: (clientId: string) => Promise<any[]>;
+export interface IClientRepository extends Pluggable {
+    findOne: (id: string) => Promise<QueryResult>;
 }
-/* eslint-disable */
+
+export interface IStaffUserRepository extends Pluggable {
+    findOne: (id: string, clientId: string) => Promise<QueryResult>;
+    findAll: (clientId: string) => Promise<[IterableQueryResult, number]>;
+}
+
+export interface IServiceRepository extends Pluggable {
+    findOne: (code: string, clientId: string) => Promise<QueryResult>;
+    findAll: (clientId: string) => Promise<[IterableQueryResult, number]>;
+}
+
+export interface IServiceRequestRepository extends Pluggable {
+    findOne: (id: string, clientId: string) => Promise<QueryResult>;
+    findAll: (clientId: string) => Promise<[IterableQueryResult, number]>;
+}

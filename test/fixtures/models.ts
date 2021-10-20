@@ -4,14 +4,10 @@ import { ModelDefinition } from '../../src/types';
 const MyServiceModel: ModelDefinition = {
     name: 'Service',
     attributes: {
-        code: {
+        id: {
             allowNull: false,
             type: DataTypes.STRING,
-            unique: true
-        },
-        clientId: {
-            allowNull: false,
-            type: DataTypes.STRING,
+            primaryKey: true
         },
         name: {
             allowNull: false,
@@ -27,7 +23,7 @@ const MyServiceModel: ModelDefinition = {
         },
     },
     options: {
-        indexes: [{ unique: true, fields: ['name', 'parentId', 'clientId'] }]
+        indexes: [{ unique: true, fields: ['name', 'parentId'] }]
     }
 }
 

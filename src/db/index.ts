@@ -38,22 +38,24 @@ async function verifyDatabaseConnection(databaseEngine: Sequelize): Promise<void
 }
 
 function applyCoreModelRelations(models: typeof databaseEngine.models) {
-    const { Service } = models;
+    const { Service, ServiceRequest, Client, StaffUser } = models;
 
-    // Services can have a nested hierarchy
-    Service.hasMany(Service, {
-        foreignKey: {
-            name: 'parentId',
-            allowNull: true
-        }
-    });
+    // StaffUser associations
+    StaffUser.belongsTo(Client, { foreignKey: 'clientId' })
+
+    // Service associations
+    Service.belongsTo(Client, { foreignKey: 'clientId' });
+    Service.hasMany(Service, { foreignKey: { name: 'parentId', allowNull: true } });
     Service.belongsTo(Service)
 
-    // TODO
+    // ServiceRequest associations
+    ServiceRequest.belongsTo(Client, { foreignKey: 'clientId' });
+    ServiceRequest.belongsTo(Service, { foreignKey: 'serviceId' });
+    ServiceRequest.belongsTo(StaffUser, { foreignKey: 'assignedTo' });
+
 }
 
 function registerModels(databaseEngine: Sequelize, coreModelDefinitions: ModelDefinition[], appSettings: AppSettings | void): Sequelize {
-
     coreModelDefinitions.forEach((model) => {
         const { name, attributes, options } = model;
         databaseEngine.define(name, attributes, options);
