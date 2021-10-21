@@ -14,7 +14,7 @@ describe('Hit Default Server Endpoints', () => {
             .get('/')
             .end((err, res) => {
                 res.should.have.status(200);
-                res.text.should.be.equal(`${name} ${version}`);
+                res.text.should.be.equal(JSON.stringify({ data: { name, version } }));
             });
     });
 });

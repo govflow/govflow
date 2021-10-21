@@ -1,25 +1,16 @@
 import { Request, Response, Router } from 'express';
-import logger from '../../logging';
+import { wrapAsync } from '../../helpers';
+
 export const serviceRouter = Router();
 
-serviceRouter.get('/', async (req: Request, res: Response) => {
-    try {
-        const { services } = res.app.repositories;
-        const { rows: records, count } = await services.findAll("CLIENT_ID");
-        return res.status(200).send({ data: records, count: count });
-    } catch (err) {
-        logger.error(err);
-        return res.status(500).send(err);
-    }
-})
+serviceRouter.get('/', wrapAsync(async (req: Request, res: Response) => {
+    const { Service } = res.app.repositories;
+    const { rows: records, count } = await Service.findAll("CLIENT_ID");
+    res.status(200).send({ data: records, count: count });
+}))
 
-serviceRouter.get('/:id', async (req: Request, res: Response) => {
-    try {
-        const { services } = res.app.repositories;
-        const data = await services.findOne('CLIENT_ID', req.params.id);
-        return res.status(200).send({ data: data });
-    } catch (err) {
-        logger.error(err);
-        return res.status(500).send(err);
-    }
-})
+serviceRouter.get('/:id', wrapAsync(async (req: Request, res: Response) => {
+    const { Service } = res.app.repositories;
+    const data = await Service.findOne('CLIENT_ID', req.params.id);
+    res.status(200).send({ data: data });
+}))

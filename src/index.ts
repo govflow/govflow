@@ -1,9 +1,8 @@
-import cors from 'cors';
-import express, { Application } from 'express';
+import type { Application } from 'express';
+import express from 'express';
 import 'reflect-metadata';
-import { name, version } from '../package.json';
 import { registerConfig } from './config';
-import { coreModels, coreRoutes } from './core';
+import { coreMiddlewares, coreModels, coreRoutes } from './core';
 import { initDb } from './db';
 import { bindImplementationsFromPlugins, getRespositories, registerPlugins } from './registry';
 import type { AppSettings, Config, DatabaseEngine, Plugin } from './types';
@@ -41,27 +40,23 @@ async function createApp(appSettings: AppSettings | void): Promise<Application> 
     await initDb(coreModels, appSettings);
 
     // Start bootstrapping the app itself.
-    const app = express()
+    const app = express();
 
     // Make our config available to the app.
-    app.config = config
+    app.config = config;
 
     // Make our plugin registry available to the app.
-    app.plugins = pluginRegistry
+    app.plugins = pluginRegistry;
 
     // Get our repositories from their container once, at composition
     // root, and make them available to the app.
-    app.repositories = getRespositories()
+    app.repositories = getRespositories();
 
     // Set our app-level middlewares.
-    app.use(cors())
-    app.use(express.json())
+    app.use(coreMiddlewares);
 
-    // Set any app-level routes.
-    app.get('/', (req, res) => { res.send(`${name} ${version}`) })
-
-    // Finally, mount our core routes.
-    app.use(coreRoutes);
+    // Then, mount our core routes.
+    app.use('/', coreRoutes);
 
     return app;
 }
