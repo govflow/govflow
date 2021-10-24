@@ -5,8 +5,7 @@ import { name, version } from '../../package.json';
 import { wrapAsync } from '../helpers';
 import { internalServerError, notFound } from '../middlewares';
 import type { ModelDefinition, Pluggable } from '../types';
-import { accountRouter, StaffUserModel, StaffUserRepository } from './accounts';
-import { ClientModel, ClientRepository, clientRouter, verifyClientMiddleware } from './client';
+import { accountRouter, ClientModel, ClientRepository, StaffUserModel, StaffUserRepository, verifyClientMiddleware } from './accounts';
 import { open311Router } from './open311';
 import { ServiceRequestModel, ServiceRequestRepository, serviceRequestRouter } from './service-requests';
 import { ServiceModel, ServiceRepository, serviceRouter } from './services';
@@ -19,7 +18,6 @@ coreRoutes.get('/', wrapAsync(async (req: Request, res: Response) => {
 coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
 coreRoutes.use('/accounts', accountRouter);
-coreRoutes.use('/clients', clientRouter);
 coreRoutes.use('/open311', open311Router);
 coreRoutes.use(notFound, internalServerError);
 

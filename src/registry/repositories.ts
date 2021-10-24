@@ -1,6 +1,5 @@
 import { Container } from 'inversify';
-import { StaffUserRepository } from '../core/accounts';
-import { ClientRepository } from '../core/client';
+import { ClientRepository, StaffUserRepository } from '../core/accounts';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import type { IClientRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Pluggable, Plugin } from '../types';
