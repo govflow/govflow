@@ -64,14 +64,14 @@ const ServiceModel: ModelDefinition = {
                 return this.getDataValue('parentId');
             },
             set(value) {
-                throw new Error('The `group` attribute is not allowed to be directly set: ${value}');
+                throw new Error(`The 'group' attribute is not allowed to be directly set: ${value}`);
             }
         },
         keywords: {
             type: DataTypes.VIRTUAL,
             get() {
                 let value = null;
-                let tags = this.getDataValue('tags');
+                const tags = this.getDataValue('tags');
                 if (!_.isNil(tags)) {
                     value = this.getDataValue('tags').join(',')
                 }

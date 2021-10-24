@@ -23,7 +23,9 @@ open311Router.get(['/services.json', '/services.xml'], wrapAsync(async (req: Req
     ifXml(req.path, res);
     const { Service } = res.app.repositories;
     const leafOnly = true;
+    /* eslint-disable  prefer-const */
     let [records, count] = await Service.findAll("CLIENT_ID", leafOnly);
+    /* eslint-enable prefer-const */
     records = records.map(serviceAs311);
     res.status(200).send({ data: records, count: count });
 }))

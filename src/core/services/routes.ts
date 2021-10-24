@@ -6,7 +6,9 @@ export const serviceRouter = Router();
 
 serviceRouter.get('/', wrapAsync(async (req: Request, res: Response) => {
     const { Service } = res.app.repositories;
+    /* eslint-disable  prefer-const */
     let [records, count] = await Service.findAll("CLIENT_ID");
+    /* eslint-enable  prefer-const */
     records = records.map(serviceWithout311);
     res.status(200).send({ data: records, count: count });
 }))
