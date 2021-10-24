@@ -25,7 +25,7 @@ function bindImplementationsFromPlugins(pluginRegistry: Plugin[]): void {
     })
 }
 
-function getRespositories(): Record<string, Pluggable> {
+function getRepositories(): Record<string, Pluggable> {
     const Client = repositoryContainer.get<IClientRepository>(repositoryIds.IClientRepository);
     const ServiceRequest = repositoryContainer.get<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository);
     const Service = repositoryContainer.get<IServiceRepository>(repositoryIds.IServiceRepository);
@@ -39,6 +39,6 @@ function getRespositories(): Record<string, Pluggable> {
 }
 
 export {
-    getRespositories,
+    getRepositories,
     bindImplementationsFromPlugins
 };

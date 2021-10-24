@@ -1,15 +1,20 @@
 import chai from 'chai';
+import type { Application } from 'express';
 import { createApp } from '../src/index';
 import type { AppSettings } from '../src/types';
 import { MyServiceRepositoryPlugin } from './fixtures/repository-plugins';
 
 describe('Verify Repository Plugins.', () => {
+    let app: Application;
+
+    before(async () => {
+        let appSettings = { plugins: [MyServiceRepositoryPlugin] }
+        app = await createApp(appSettings as AppSettings);
+    })
 
     it('should provide new query behavior for service repository', async () => {
-        let appSettings = { plugins: [MyServiceRepositoryPlugin] }
-        let app = await createApp(appSettings as AppSettings);
         let { Service } = app.repositories;
-        let clientId = '1';
+        let clientId = 'CLIENT_ID';
         let id = '1';
         let oneService = await Service.findOne(clientId, id);
         let [allServices, allServicesCount] = await Service.findAll(clientId);

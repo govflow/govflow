@@ -25,11 +25,31 @@ class MyServiceRepository implements IServiceRepository {
 
 }
 
-let MyServiceRepositoryPlugin: Plugin = {
+@injectable()
+class MyBrokenServiceRepository implements IServiceRepository {
+    // @ts-ignore
+    async findOne(clientId: string, id: string) {
+        throw Error()
+    }
+    // @ts-ignore
+    async findAll(clientId: string) {
+        return new Promise<[IterableQueryResult, number]>((resolve, reject) => {
+            throw Error()
+        })
+    }
+    // @ts-ignore
+    async create(clientId: string, payload: Record<string, unknown>) {
+        throw Error()
+    }
+
+}
+
+export const MyServiceRepositoryPlugin: Plugin = {
     serviceIdentifier: repositoryIds.IServiceRepository,
     implementation: MyServiceRepository
 }
 
-export {
-    MyServiceRepositoryPlugin
-};
+export const MyBrokenServiceRepositoryPlugin: Plugin = {
+    serviceIdentifier: repositoryIds.IServiceRepository,
+    implementation: MyBrokenServiceRepository
+}

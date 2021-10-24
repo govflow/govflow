@@ -5,7 +5,7 @@ export const clientRouter = Router();
 
 clientRouter.get('/', wrapAsync(async (req: Request, res: Response) => {
     const { Client } = res.app.repositories;
-    const { rows: records, count } = await Client.findAll();
+    const [records, count] = await Client.findAll();
     res.status(200).send({ data: records, count: count });
 }))
 

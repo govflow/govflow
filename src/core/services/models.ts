@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { DataTypes } from 'sequelize';
 import { ModelDefinition } from '../../types';
 import { isValidToSchema, serviceExtraAttrsSchema } from './schemas';
@@ -9,7 +10,7 @@ const ServiceModel: ModelDefinition = {
     attributes: {
         id: {
             type: DataTypes.STRING,
-            primaryKey: true
+            primaryKey: true,
         },
         name: {
             allowNull: false,
@@ -19,27 +20,19 @@ const ServiceModel: ModelDefinition = {
             allowNull: true,
             type: DataTypes.STRING,
         },
-        metadata: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
+        tags: {
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            allowNull: true,
         },
-        type: {
+        type: { // Comes from Open311 spec but generally useful
             type: DataTypes.ENUM('realtime', 'batch', 'blackbox'),
             defaultValue: 'realtime',
         },
-        keywords: {
-            type: DataTypes.ARRAY(DataTypes.STRING),
-            allowNull: true,
-            set(value) {
-                if (typeof value === "string") {
-                    // assume a comma-seperated string of keywords
-                    // e.g. this is what we get from open311 payload
-                    value = value.replaceAll(' ', '').split(',')
-                }
-                this.setDataValue('keywords', value);
-            }
+        metadata: { // Open311
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
         },
-        extraAttrs: {
+        extraAttrs: { // Open311
             type: DataTypes.JSONB,
             allowNull: true,
             validate: {
@@ -50,10 +43,7 @@ const ServiceModel: ModelDefinition = {
         service_code: {
             type: DataTypes.VIRTUAL,
             get() {
-                /* eslint-disable */
-                // @ts-ignore
-                return this.id;
-                /* eslint-enable */
+                return this.getDataValue('id');
             },
             set(value) {
                 this.setDataValue('id', value);
@@ -62,11 +52,7 @@ const ServiceModel: ModelDefinition = {
         service_name: {
             type: DataTypes.VIRTUAL,
             get() {
-                /* eslint-disable */
-                // @ts-ignore
-                const value = this.name
-                /* eslint-enable */
-                return value;
+                return this.getDataValue('name');
             },
             set(value) {
                 this.setDataValue('name', value);
@@ -75,17 +61,29 @@ const ServiceModel: ModelDefinition = {
         group: {
             type: DataTypes.VIRTUAL,
             get() {
-                /* eslint-disable */
-                // @ts-ignore
-                let group = this.parent.name;
-                /* eslint-enable */
-                return group;
+                return this.getDataValue('parentId');
             },
             set(value) {
-                value;
-                throw new Error('The `group` attribute is not allowed to be directly set.');
+                throw new Error('The `group` attribute is not allowed to be directly set: ${value}');
             }
-        }
+        },
+        keywords: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                let value = null;
+                let tags = this.getDataValue('tags');
+                if (!_.isNil(tags)) {
+                    value = this.getDataValue('tags').join(',')
+                }
+                return value;
+            },
+            set(value) {
+                if (typeof value === "string") {
+                    value = value.replaceAll(' ', '').split(',')
+                }
+                this.setDataValue('tags', value);
+            }
+        },
     },
     options: {
         indexes: [{ unique: true, fields: ['name', 'parentId', 'clientId'] }]

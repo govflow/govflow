@@ -55,7 +55,7 @@ publish:
 
 .PHONY: dropdb ## Drop the app database.
 dropdb:
-	dropdb $(NAME)
+	dropdb $(NAME) --if-exists
 
 .PHONY: createdb ## Create the app database.
 createdb:

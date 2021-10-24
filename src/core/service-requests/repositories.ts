@@ -13,11 +13,11 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
 
     async findAll(clientId: string): Promise<[IterableQueryResult, number]> {
-        const { rows: records, count } = await databaseEngine.models.ServiceRequest.findAndCountAll({
+        const records = await databaseEngine.models.ServiceRequest.findAll({
             where: { clientId },
             raw: true,
         });
-        return [records, count];
+        return [records, records.length];
     }
 
     async create(clientId: string, payload: Record<string, unknown>): Promise<QueryResult> {
