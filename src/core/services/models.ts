@@ -1,17 +1,16 @@
+import _ from 'lodash';
 import { DataTypes } from 'sequelize';
-import { Model } from '../../types';
+import { ModelDefinition } from '../../types';
+import { isValidToSchema, serviceExtraAttrsSchema } from './schemas';
 
-const ServiceModel: Model = {
+const validExtras = isValidToSchema(serviceExtraAttrsSchema);
+
+const ServiceModel: ModelDefinition = {
     name: 'Service',
     attributes: {
-        code: {
-            allowNull: false,
+        id: {
             type: DataTypes.STRING,
-            unique: true
-        },
-        clientId: {
-            allowNull: false,
-            type: DataTypes.STRING,
+            primaryKey: true,
         },
         name: {
             allowNull: false,
@@ -20,6 +19,70 @@ const ServiceModel: Model = {
         description: {
             allowNull: true,
             type: DataTypes.STRING,
+        },
+        tags: {
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            allowNull: true,
+        },
+        type: { // Comes from Open311 spec but generally useful
+            type: DataTypes.ENUM('realtime', 'batch', 'blackbox'),
+            defaultValue: 'realtime',
+        },
+        metadata: { // Open311
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        extraAttrs: { // Open311
+            type: DataTypes.JSONB,
+            allowNull: true,
+            validate: {
+                validExtras
+            }
+        },
+        // Virtual fields for Open311 compatibility.
+        service_code: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('id');
+            },
+            set(value) {
+                this.setDataValue('id', value);
+            }
+        },
+        service_name: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('name');
+            },
+            set(value) {
+                this.setDataValue('name', value);
+            }
+        },
+        group: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('parentId');
+            },
+            set(value) {
+                throw new Error(`The 'group' attribute is not allowed to be directly set: ${value}`);
+            }
+        },
+        keywords: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                let value = null;
+                const tags = this.getDataValue('tags');
+                if (!_.isNil(tags)) {
+                    value = this.getDataValue('tags').join(',')
+                }
+                return value;
+            },
+            set(value) {
+                if (typeof value === "string") {
+                    value = value.replaceAll(' ', '').split(',')
+                }
+                this.setDataValue('tags', value);
+            }
         },
     },
     options: {

@@ -1,7 +1,7 @@
 import chai from 'chai';
 import { createApp } from '../src/index';
 import type { AppSettings } from '../src/types';
-import { MyServiceRepositoryPlugin } from './fixtures/repository_plugins';
+import { MyServiceRepositoryPlugin } from './fixtures/repository-plugins';
 
 describe('Try different appSettings shapes.', () => {
 

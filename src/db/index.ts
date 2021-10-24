@@ -2,7 +2,7 @@ import { QueryInterface, Sequelize } from 'sequelize';
 import { SequelizeStorage, Umzug } from 'umzug';
 import { config } from '../config';
 import logger from '../logging';
-import type { AppSettings, Model } from '../types';
+import type { AppSettings, ModelDefinition } from '../types';
 
 export const databaseEngine = new Sequelize(config.get('database_url'), {
     logging: msg => logger.debug(msg),
@@ -17,7 +17,7 @@ export function getMigrator(sequelize: Sequelize): Umzug<QueryInterface> {
     });
 }
 
-export async function initDb(coreModels: Model[], appSettings: AppSettings | void): Promise<Sequelize> {
+export async function initDb(coreModels: ModelDefinition[], appSettings: AppSettings | void): Promise<Sequelize> {
     await verifyDatabaseConnection(databaseEngine);
     registerModels(databaseEngine, coreModels, appSettings);
     await databaseEngine.sync();
@@ -38,22 +38,29 @@ async function verifyDatabaseConnection(databaseEngine: Sequelize): Promise<void
 }
 
 function applyCoreModelRelations(models: typeof databaseEngine.models) {
-    const { Service } = models;
+    const { Service, ServiceRequest, Client, StaffUser } = models;
 
-    // Services can have a nested hierarchy
-    Service.hasMany(Service, {
-        foreignKey: {
-            name: 'parentId',
-            allowNull: true
-        }
-    });
-    Service.belongsTo(Service)
+    Client.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'clientId' });
+    StaffUser.belongsTo(Client, { as: 'client' })
 
-    // TODO
+    Client.hasMany(Service, { as: 'services', foreignKey: 'clientId' });
+    Service.belongsTo(Client, { as: 'client' });
+
+    Client.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'clientId' });
+    ServiceRequest.belongsTo(Client, { as: 'client' });
+
+    Service.hasMany(Service, { as: 'children', foreignKey: 'parentId' });
+    Service.belongsTo(Service, { as: 'parent' });
+
+    Service.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'serviceId' });
+    ServiceRequest.belongsTo(Service, { as: 'service' });
+
+    StaffUser.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'assignedToId' });
+    ServiceRequest.belongsTo(StaffUser, { as: 'assignedTo' });
+
 }
 
-function registerModels(databaseEngine: Sequelize, coreModelDefinitions: Model[], appSettings: AppSettings | void): Sequelize {
-
+function registerModels(databaseEngine: Sequelize, coreModelDefinitions: ModelDefinition[], appSettings: AppSettings | void): Sequelize {
     coreModelDefinitions.forEach((model) => {
         const { name, attributes, options } = model;
         databaseEngine.define(name, attributes, options);

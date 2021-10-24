@@ -1,17 +1,13 @@
 import { DataTypes } from 'sequelize';
-import { Model } from '../../src/types';
+import { ModelDefinition } from '../../src/types';
 
-const MyServiceModel: Model = {
+const MyServiceModel: ModelDefinition = {
     name: 'Service',
     attributes: {
-        code: {
+        id: {
             allowNull: false,
             type: DataTypes.STRING,
-            unique: true
-        },
-        clientId: {
-            allowNull: false,
-            type: DataTypes.STRING,
+            primaryKey: true
         },
         name: {
             allowNull: false,
@@ -27,11 +23,11 @@ const MyServiceModel: Model = {
         },
     },
     options: {
-        indexes: [{ unique: true, fields: ['name', 'parentId', 'clientId'] }]
+        indexes: [{ unique: true, fields: ['name', 'parentId'] }]
     }
 }
 
-const MyBlogPostModel: Model = {
+const MyBlogPostModel: ModelDefinition = {
     name: 'BlogPost',
     attributes: {
         title: {
