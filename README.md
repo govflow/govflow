@@ -1,30 +1,30 @@
-# zen311
+# Gov Flow
 
 An open, modular work order and workflow management system for local governments and resident satisfaction.
 
 # Getting started
 
-## Using zen311
+## Using Gov Flow
 
-**Install zen311 from npm:**
+**Install Gov Flow from npm:**
 
 ```bash
-npm install zen311
+npm install govflow
 ```
 
-If you are not modifying zen311 with plugins, or embedding zen311 into an existing application, you can run the default server.
+If you are not modifying Gov Flow with plugins, or embedding Gov Flow into an existing application, you can run the default server.
 
 **Run the default server:**
 
 ```bash
-npx zen311 start
+npx govflow start
 ```
 
 You can then visit `localhost:3000/` in your browser to see the base API endpoint.
 
 **Create a custom entrypoint:**
 
-If you plan to modify zen311 with plugins or any custom configuration or integrations, create your own entrypoint based on the following:
+If you plan to modify Gov Flow with plugins or any custom configuration or integrations, create your own entrypoint based on the following:
 
 ```typescript
 # my_src/index.ts
@@ -50,12 +50,12 @@ async function defaultServer(): Promise<Server> {
 
 *Note:* `createApp` is a factory function that takes custom configuration, and returns an `Express.js` app instance. See [Customization](#customization) for further information on this and other configuration entry points.
 
-## Developing zen311
+## Developing Gov Flow
 
 **Clone the codebase:**
 
 ```bash
-git clone https://github.com/pwalsh/zen311.git
+git clone https://github.com/govflow/govflow.git
 ```
 
 **View the primary runnable tasks:**
@@ -70,7 +70,7 @@ make
 make install
 ```
 
-Also ensure that you have Postgres running, and create a database called `zen311` for use.
+Also ensure that you have Postgres running, and create a database called `govflow` for use.
 
 **Lint code:**
 
@@ -98,11 +98,11 @@ The primary entry point is the `createApp` factory function defined in `src/inde
 
 ## Extensibility
 
-zen311 is designed to be shaped for specific use cases and system integrations. Existing behavior can be modified or extended via **plugins** or custom **models**. Over time, such customizations will be available as extensions, downloadable via npm, contributed by the core maintainers and the wider community of users.
+Gov Flow is designed to be shaped for specific use cases and system integrations. Existing behavior can be modified or extended via **plugins** or custom **models**. Over time, such customizations will be available as extensions, downloadable via npm, contributed by the core maintainers and the wider community of users.
 
 ### Plugins
 
-zen311 exposes a number of interfaces that can have their behaviour customized via plugins. All interfaces abstractions that can be customized in this way are prefixed with `I` and are bound to a concrete implementation via IoC containers instantiated in the `registry` module. The default concrete implementations are part of the `src/core` module - see the [Module](#modules) overview below for further information on the organization of the codebase.
+Gov Flow exposes a number of interfaces that can have their behaviour customized via plugins. All interfaces abstractions that can be customized in this way are prefixed with `I` and are bound to a concrete implementation via IoC containers instantiated in the `registry` module. The default concrete implementations are part of the `src/core` module - see the [Module](#modules) overview below for further information on the organization of the codebase.
 
 In the current release, `repository` interfaces can be customized via plugins. Repositories are a data access abstraction layer - see the tests for examples of how they are used, and how custom implementations can be provided.
 

@@ -5,7 +5,7 @@ nconf.defaults({
     env: process.env.NODE_ENV || 'development',
     debug: process.env.DEBUG || false,
     locales: ['en'],
-    database_url: process.env.DATABASE_URL || 'postgres://zen311_user@localhost:5432/zen311',
+    database_url: process.env.DATABASE_URL || 'postgres://govflow_user@localhost:5432/govflow',
     app_port: process.env.APP_PORT || 3000,
 });
 

@@ -1,8 +1,8 @@
 {
-  "name": "zen311",
+  "name": "govflow",
   "version": "0.0.1-alpha",
   "description": "",
-  "homepage": "https://github.com/pwalsh/zen311",
+  "homepage": "https://github.com/govflow/govflow",
   "main": "./src/index.js",
   "scripts": {
     "test": "nyc --reporter=lcov mocha --exit -r ts-node/register test/**",
