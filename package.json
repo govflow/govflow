@@ -1,12 +1,14 @@
 {
-  "name": "govflow",
+  "name": "@govflow/govflow",
   "version": "0.0.1-alpha",
-  "description": "",
+  "description": "An open, modular work order and workflow management system for local governments and resident satisfaction.",
   "homepage": "https://github.com/govflow/govflow",
-  "main": "./src/index.js",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "test": "nyc --reporter=lcov mocha --exit -r ts-node/register test/**",
-    "start": "ts-node ./src/default.ts"
+    "start": "ts-node ./src/default.ts",
+    "build": "tsc"
   },
   "license": "MIT",
   "dependencies": {
@@ -51,5 +53,16 @@
     "lines": "&gt;80",
     "functions": "&gt;80",
     "statements": "&gt;80"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/govflow/govflow.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/govflow/govflow/issues"
   }
 }

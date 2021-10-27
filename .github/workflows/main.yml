@@ -59,22 +59,23 @@ jobs:
       - name: Publish the Docker Image to the package repository
         run: make docker-push
 
-  # release:
-  #   if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-  #   runs-on: ubuntu-latest
-  #   needs: [test]
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
-  #     - name: Install node
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: '16'
-  #     - name: Install dependencies
-  #       run: make install
-  #     - name: Build distribution
-  #       run: make build
-  #     - name: Publish to npm
-  #       run: make publish
-  #       env:
-  #         NPM_API_KEY: ${{ secrets.NPM_API_KEY }}
+  release:
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies
+        run: make install
+      - name: Build distribution
+        run: make prepublish
+      - name: Publish to npm
+        run: make publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_TOKEN }}

@@ -3,6 +3,7 @@
     "target": "esnext",
     "module": "commonjs",
     "rootDir": "./",
+    "outDir": "dist",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -10,6 +11,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
+    "declaration": true,
     "typeRoots": [
       "./src/types",
       "./node_modules/@types"

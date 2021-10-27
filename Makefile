@@ -40,16 +40,16 @@ serve:
 
 ####
 
-.PHONY: build ## Build package distribution.
-build:
-	@echo "#TODO"
+.PHONY: prepublish ## Build package distribution.
+prepublish:
+	npm run build
 
 .PHONY: ts-clean ## Remove non-production files.
 	rm ./src/*.ts ./src/**/*.ts
 
 .PHONY: publish ## Publish the package to npm.
 publish:
-	@echo "#TODO"
+	npm publish --access public
 
 ####
 

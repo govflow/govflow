@@ -1,4 +1,4 @@
-import { ModelDefinition } from './models';
+import { ModelDefinition } from './db';
 import { Plugin } from './registry';
 
 interface ConfigItem {
