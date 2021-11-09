@@ -9,7 +9,10 @@ const ServiceModel: ModelDefinition = {
     name: 'Service',
     attributes: {
         id: {
+            // id could be uuid or could be any string
             type: DataTypes.STRING,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
             primaryKey: true,
         },
         name: {

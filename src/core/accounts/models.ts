@@ -5,22 +5,36 @@ export const ClientModel: ModelDefinition = {
     name: 'Client',
     attributes: {
         id: {
+            // may come from another system so we want control:
+            // not auto-increment, and not necessairly UUID.
             type: DataTypes.STRING,
+            allowNull: false,
             primaryKey: true,
         },
         jurisdictionId: {
             type: DataTypes.STRING,
+            allowNull: false,
             unique: true,
         }
     },
-    options: {}
+    options: {
+        indexes: [
+            {
+                unique: true,
+                fields: ['jurisdictionId']
+            }
+        ]
+    }
 }
 
 export const StaffUserModel: ModelDefinition = {
     name: 'StaffUser',
     attributes: {
-        id: { // may come from another system so we want control, not auto-increment.
+        id: {
+            // may come from another system so we want control:
+            // not auto-increment, and not necessairly UUID.
             type: DataTypes.STRING,
+            allowNull: false,
             primaryKey: true,
         },
         firstName: {
@@ -44,5 +58,12 @@ export const StaffUserModel: ModelDefinition = {
             }
         }
     },
-    options: {}
+    options: {
+        indexes: [
+            {
+                unique: true,
+                fields: ['id', 'clientId']
+            }
+        ]
+    }
 }

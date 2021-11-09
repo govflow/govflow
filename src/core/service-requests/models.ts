@@ -6,7 +6,9 @@ export const ServiceRequestModel: ModelDefinition = {
     name: 'ServiceRequest',
     attributes: {
         id: {
-            type: DataTypes.STRING,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
             primaryKey: true,
         },
         description: {
@@ -69,9 +71,28 @@ export const ServiceRequestModel: ModelDefinition = {
             validate: {
                 // isPhone: true TODO: write something like this with libphonenumber
             }
-        }
+        },
+        media_url: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('images')[0];
+            },
+            set(value) {
+                this.setDataValue('images', [value]);
+            }
+        },
     },
     options: {
+        indexes: [
+            {
+                unique: true,
+                fields: ['id', 'clientId']
+            },
+            {
+                unique: false,
+                fields: ['status']
+            }
+        ],
         validate: {
             oneOfAddressOrGeometry() {
                 if ((this.geometry === null) && (this.address === null)) {
@@ -90,4 +111,16 @@ export const ServiceRequestCommentModel: ModelDefinition = {
             allowNull: false,
         },
     },
+    options: {
+        indexes: [
+            {
+                unique: true,
+                fields: ['id', 'serviceRequestId']
+            },
+            {
+                unique: false,
+                fields: ['serviceRequestId']
+            }
+        ]
+    }
 }
