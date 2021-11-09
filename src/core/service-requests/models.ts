@@ -1,12 +1,17 @@
 import { DataTypes } from 'sequelize';
+import validator from 'validator';
 import { ModelDefinition } from '../../types';
 
 export const ServiceRequestModel: ModelDefinition = {
     name: 'ServiceRequest',
     attributes: {
+        id: {
+            type: DataTypes.STRING,
+            primaryKey: true,
+        },
         description: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
         },
         address: {
             allowNull: true,
@@ -16,6 +21,23 @@ export const ServiceRequestModel: ModelDefinition = {
             allowNull: true,
             type: DataTypes.ARRAY(DataTypes.STRING(2)),
         },
+        images: {
+            allowNull: true,
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            validate: {
+                memberURLs(value: string[]) {
+                    if (!value) return value;
+                    value.forEach((member: string) => {
+                        try {
+                            validator.isURL(member);
+                        } catch (error) {
+                            throw new Error(`Valid URLs are required for images: ${error}`);
+                        }
+                    })
+                    return value;
+                }
+            }
+        },
         // Very simple initial state management of requests
         status: {
             allowNull: false,
@@ -24,11 +46,11 @@ export const ServiceRequestModel: ModelDefinition = {
         },
         // PublicUser attributes. Even when we do support a PublicUser entity and login/etc.
         // We will still probably copy this info over here from that entity.
-        first_name: {
+        firstName: {
             allowNull: true,
             type: DataTypes.STRING,
         },
-        last_name: {
+        lastName: {
             allowNull: true,
             type: DataTypes.STRING,
         },
@@ -44,7 +66,9 @@ export const ServiceRequestModel: ModelDefinition = {
         phone: {
             allowNull: true,
             type: DataTypes.STRING,
-            validate: { isPhone: true }
+            validate: {
+                // isPhone: true TODO: write something like this with libphonenumber
+            }
         }
     },
     options: {
@@ -56,4 +80,14 @@ export const ServiceRequestModel: ModelDefinition = {
             }
         }
     }
+}
+
+export const ServiceRequestCommentModel: ModelDefinition = {
+    name: 'ServiceRequestComment',
+    attributes: {
+        comment: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+    },
 }

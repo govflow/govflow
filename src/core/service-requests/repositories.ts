@@ -5,23 +5,22 @@ import type { IServiceRequestRepository, IterableQueryResult, QueryResult } from
 @injectable()
 export class ServiceRequestRepository implements IServiceRequestRepository {
 
-    async findOne(id: string, clientId: string): Promise<QueryResult> {
-        return await databaseEngine.models.ServiceRequest.findOne({
-            where: { id, clientId },
-            raw: true,
-        });
+    async create(data: Record<string, unknown>): Promise<QueryResult> {
+        const { ServiceRequest } = databaseEngine.models;
+        return await ServiceRequest.create(data);
     }
 
-    async findAll(clientId: string): Promise<[IterableQueryResult, number]> {
-        const records = await databaseEngine.models.ServiceRequest.findAll({
-            where: { clientId },
-            raw: true,
-        });
+    async findOne(clientId: string, id: string): Promise<QueryResult> {
+        const { ServiceRequest } = databaseEngine.models;
+        const params = { where: { clientId, id }, raw: true, nest: true };
+        return await ServiceRequest.findOne(params);
+    }
+
+    async findAll(clientId: string, where: Record<any, unknown> = {}): Promise<[IterableQueryResult, number]> {
+        const { ServiceRequest } = databaseEngine.models;
+        const params = { where: Object.assign({}, where, { clientId }), raw: true, nest: true };
+        const records = await ServiceRequest.findAll(params);
         return [records, records.length];
-    }
-
-    async create(clientId: string, payload: Record<string, unknown>): Promise<QueryResult> {
-        return await databaseEngine.models.ServiceRequest.create(payload);
     }
 
 }

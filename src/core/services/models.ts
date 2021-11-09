@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { DataTypes } from 'sequelize';
 import { ModelDefinition } from '../../types';
-import { isValidToSchema, serviceExtraAttrsSchema } from './schemas';
+import { isValidToSchema, serviceExtraAttrsSchema } from '../schemas';
 
 const validExtras = isValidToSchema(serviceExtraAttrsSchema);
 
@@ -18,7 +18,7 @@ const ServiceModel: ModelDefinition = {
         },
         description: {
             allowNull: true,
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
         },
         tags: {
             type: DataTypes.ARRAY(DataTypes.STRING),

@@ -8,9 +8,11 @@ export const databaseEngine = new Sequelize(config.get('database_url'), {
     logging: msg => logger.debug(msg),
 });
 
+export const migrator = getMigrator(databaseEngine);
+
 export function getMigrator(sequelize: Sequelize): Umzug<QueryInterface> {
     return new Umzug({
-        migrations: { glob: './migrations/*.js' },
+        migrations: { glob: 'src/migrations/*.ts' },
         context: databaseEngine.getQueryInterface(),
         storage: new SequelizeStorage({ sequelize }),
         logger: logger,
@@ -22,7 +24,6 @@ export async function initDb(coreModels: ModelDefinition[], appSettings: AppSett
     registerModels(databaseEngine, coreModels, appSettings);
     await databaseEngine.sync();
     // check migrations, and apply migrations that have not been applied
-    const migrator = getMigrator(databaseEngine);
     await migrator.up();
     return databaseEngine;
 }
@@ -31,14 +32,14 @@ async function verifyDatabaseConnection(databaseEngine: Sequelize): Promise<void
     try {
         await databaseEngine.authenticate();
         logger.info('Successfully connected to database.');
-    } catch (err) {
-        logger.error('Cannot connext to database.');
-        throw err;
+    } catch (error) {
+        logger.error('Cannot connect to database.');
+        throw new Error(`${error}`);
     }
 }
 
 function applyCoreModelRelations(models: typeof databaseEngine.models) {
-    const { Service, ServiceRequest, Client, StaffUser } = models;
+    const { Service, ServiceRequest, Client, StaffUser, ServiceRequestComment, Event } = models;
 
     Client.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'clientId' });
     StaffUser.belongsTo(Client, { as: 'client' })
@@ -49,11 +50,17 @@ function applyCoreModelRelations(models: typeof databaseEngine.models) {
     Client.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'clientId' });
     ServiceRequest.belongsTo(Client, { as: 'client' });
 
+    Client.hasMany(Event, { as: 'events', foreignKey: 'clientId' });
+    Event.belongsTo(Client, { as: 'client' });
+
     Service.hasMany(Service, { as: 'children', foreignKey: 'parentId' });
     Service.belongsTo(Service, { as: 'parent' });
 
     Service.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'serviceId' });
     ServiceRequest.belongsTo(Service, { as: 'service' });
+
+    ServiceRequest.hasMany(ServiceRequestComment, { as: 'comments', foreignKey: 'serviceRequestId' });
+    ServiceRequestComment.belongsTo(ServiceRequest, { as: 'servicerequest' });
 
     StaffUser.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'assignedToId' });
     ServiceRequest.belongsTo(StaffUser, { as: 'assignedTo' });

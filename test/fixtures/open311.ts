@@ -1,4 +1,4 @@
-export const validServicePayload = [
+export const validServiceData = [
     {
         'service_code': '001',
         'service_name': 'Cans left out 24x7',
@@ -28,7 +28,7 @@ export const validServicePayload = [
     }
 ]
 
-export const validServiceDefinitionPayload = {
+export const validServiceDefinitionData = {
     // example service definition response from https://wiki.open311.org/GeoReport_v2/
     'service_code': 'DMV66',
     'attributes': [
@@ -54,7 +54,7 @@ export const validServiceDefinitionPayload = {
     ]
 }
 
-export const invalidServiceDefinitionPayload = {
+export const invalidServiceDefinitionData = {
     // similar but invalid data
     'service_code': 'DMV66',
     'attrs': [

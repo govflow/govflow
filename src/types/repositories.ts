@@ -7,24 +7,43 @@ export interface Pluggable {
 /* eslint-enable */
 
 export interface IClientRepository extends Pluggable {
+    create: (data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (id: string) => Promise<QueryResult>;
-    create: (payload: Record<string, unknown>) => Promise<QueryResult>;
+    findOneByJurisdiction: (jurisdictionId: string) => Promise<QueryResult>;
 }
 
 export interface IStaffUserRepository extends Pluggable {
-    findOne: (id: string, clientId: string) => Promise<QueryResult>;
-    findAll: (clientId: string) => Promise<[IterableQueryResult, number]>;
-    create: (clientId: string, payload: Record<string, unknown>) => Promise<QueryResult>;
+    create: (data: Record<string, unknown>) => Promise<QueryResult>;
+    findOne: (clientId: string, id: string) => Promise<QueryResult>;
+    findAll: (clientId: string, whereParams: Record<string, unknown>) => Promise<[IterableQueryResult, number]>;
 }
 
 export interface IServiceRepository extends Pluggable {
-    findOne: (code: string, clientId: string) => Promise<QueryResult>;
-    findAll: (clientId: string, leafOnly: boolean) => Promise<[IterableQueryResult, number]>;
-    create: (clientId: string, payload: Record<string, unknown>) => Promise<QueryResult>;
+    create: (data: Record<string, unknown>) => Promise<QueryResult>;
+    findOne: (clientId: string, id: string) => Promise<QueryResult>;
+    findAll: (clientId: string, whereParams: Record<string, unknown>, leafOnly: boolean) => Promise<[IterableQueryResult, number]>;
 }
 
 export interface IServiceRequestRepository extends Pluggable {
-    findOne: (id: string, clientId: string) => Promise<QueryResult>;
-    findAll: (clientId: string) => Promise<[IterableQueryResult, number]>;
-    create: (clientId: string, payload: Record<string, unknown>) => Promise<QueryResult>;
+    create: (data: Record<string, unknown>) => Promise<QueryResult>;
+    findOne: (clientId: string, id: string) => Promise<QueryResult>;
+    findAll: (clientId: string, whereParams: Record<string, unknown>) => Promise<[IterableQueryResult, number]>;
+}
+
+export interface IOpen311ServiceRepository extends Pluggable {
+    create: (data: Record<string, unknown>) => Promise<QueryResult>;
+    findOne: (jurisdictionId: string, code: string) => Promise<QueryResult>;
+    findAll: (jurisdictionId: string) => Promise<[IterableQueryResult, number]>;
+}
+
+export interface IOpen311ServiceRequestRepository extends Pluggable {
+    create: (data: Record<string, unknown>) => Promise<QueryResult>;
+    findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
+    findAll: (jurisdictionId: string, whereParams: Record<string, unknown>) => Promise<[IterableQueryResult, number]>;
+}
+
+export interface IEventRepository extends Pluggable {
+    create: (data: Record<string, unknown>) => Promise<QueryResult>;
+    findOne: (clientId: string, id: string) => Promise<QueryResult>;
+    findAll: (clientId: string, whereParams: Record<string, unknown>) => Promise<[IterableQueryResult, number]>;
 }

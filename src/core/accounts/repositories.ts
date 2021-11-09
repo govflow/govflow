@@ -5,15 +5,22 @@ import { IClientRepository, IStaffUserRepository, IterableQueryResult, QueryResu
 @injectable()
 export class ClientRepository implements IClientRepository {
 
-    async findOne(id: string): Promise<QueryResult> {
-        return await databaseEngine.models.Client.findOne({
-            where: { id },
-            raw: true,
-        });
+    async create(data: Record<string, unknown>): Promise<QueryResult> {
+        const { Client } = databaseEngine.models;
+        const params = data;
+        return await Client.create(params);
     }
 
-    async create(payload: Record<string, unknown>): Promise<QueryResult> {
-        return await databaseEngine.models.Client.create(payload);
+    async findOne(id: string): Promise<QueryResult> {
+        const { Client } = databaseEngine.models;
+        const params = { where: { id }, raw: true, nest: true };
+        return await Client.findOne(params);
+    }
+
+    async findOneByJurisdiction(jurisdictionId: string): Promise<QueryResult> {
+        const { Client } = databaseEngine.models;
+        const params = { where: { jurisdictionId }, raw: true, nest: true };
+        return await Client.findOne(params);
     }
 
 }
@@ -22,23 +29,24 @@ export class ClientRepository implements IClientRepository {
 @injectable()
 export class StaffUserRepository implements IStaffUserRepository {
 
-    async findOne(id: string, clientId: string): Promise<QueryResult> {
-        return await databaseEngine.models.StaffUser.findOne({
-            where: { id, clientId },
-            raw: true,
-        });
+    async create(data: Record<string, unknown>): Promise<QueryResult> {
+        const { StaffUser } = databaseEngine.models;
+        const params = data;
+        return await StaffUser.create(params);
+    }
+
+    async findOne(clientId: string, id: string): Promise<QueryResult> {
+        const { StaffUser } = databaseEngine.models;
+        const params = { where: { clientId, id } };
+        return await StaffUser.findOne(params);
     }
 
     async findAll(clientId: string): Promise<[IterableQueryResult, number]> {
-        const records = await databaseEngine.models.StaffUser.findAll({
-            where: { clientId },
-            raw: true,
-        });
+        const { StaffUser } = databaseEngine.models;
+        const params = { where: { clientId } };
+        const records = await StaffUser.findAll(params);
+        // @ts-ignore
         return [records, records.length];
-    }
-
-    async create(clientId: string, payload: Record<string, unknown>): Promise<QueryResult> {
-        return await databaseEngine.models.StaffUser.create(payload);
     }
 
 }

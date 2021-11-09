@@ -1,6 +1,6 @@
 import { validate as jsonSchemaValidate, ValidatorResult } from 'jsonschema';
-import { homepage } from '../../../package.json';
-import { JSONBTarget, JSONSchema } from '../../types';
+import { homepage } from '../../package.json';
+import { JSONBTarget, JSONSchema } from '../types';
 
 export function isValidToSchema(schema: JSONSchema): (value: JSONBTarget) => ValidatorResult {
     return (value: JSONBTarget): ValidatorResult => {
@@ -9,9 +9,23 @@ export function isValidToSchema(schema: JSONSchema): (value: JSONBTarget) => Val
     }
 }
 
+export const eventActorSchema: JSONSchema = {
+    '$schema': 'https://json-schema.org/draft/2020-12/schema',
+    '$id': `${homepage}/src/core/schemas/event-actor-schema.json`,
+    'title': 'Event Actor Schema',
+    'description': 'Event actors can be a number of different entities represented by models, or, the system itself.',
+    'type': 'object',
+    'required': ['id', 'name', 'type'],
+    'properties': {
+        'id': { 'type': 'string' },
+        'name': { 'type': 'string' },
+        'type': { 'type': 'string' },
+    }
+}
+
 export const serviceExtraAttrsSchema: JSONSchema = {
     '$schema': 'https://json-schema.org/draft/2020-12/schema',
-    '$id': `${homepage}/src/services/schemas/service-attr-schema.json`,
+    '$id': `${homepage}/src/core/schemas/service-attr-schema.json`,
     'title': 'Service Attributes Schema',
     'description': 'A service can declare additional attributes. When it does, they are declared according to this schema.',
     'type': 'object',

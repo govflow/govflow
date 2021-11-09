@@ -4,7 +4,7 @@ import 'reflect-metadata';
 import { registerConfig } from './config';
 import { coreMiddlewares, coreModels, coreRoutes } from './core';
 import { initDb } from './db';
-import { bindImplementationsFromPlugins, getRepositories, registerPlugins } from './registry';
+import { bindImplementationsFromPlugins, registerPlugins } from './registry';
 import type { AppSettings, Config, DatabaseEngine, Plugin } from './types';
 
 /* eslint-disable */
@@ -30,7 +30,7 @@ async function createApp(appSettings: AppSettings | void): Promise<Application> 
     // Currently, plugins can provide alternate implementations of
     // repositories and in future they will be able to provide
     // implementations of other aspects of the system.
-    bindImplementationsFromPlugins(pluginRegistry);
+    const repositories = bindImplementationsFromPlugins(pluginRegistry);
 
     // Read custom configurations from appSettings and register
     // onto config, including overriding existing configurations.
@@ -53,7 +53,7 @@ async function createApp(appSettings: AppSettings | void): Promise<Application> 
 
     // Get our repositories from their container once, at composition
     // root, and make them available to the app.
-    app.repositories = getRepositories();
+    app.repositories = repositories;
 
     // Set our app-level middlewares.
     app.use(coreMiddlewares);

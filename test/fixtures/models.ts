@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
-import { ModelDefinition } from '../../src/types';
+import type { ModelDefinition } from '../../src/types';
 
-const MyServiceModel: ModelDefinition = {
+export const MyServiceModel: ModelDefinition = {
     name: 'Service',
     attributes: {
         id: {
@@ -27,7 +27,7 @@ const MyServiceModel: ModelDefinition = {
     }
 }
 
-const MyBlogPostModel: ModelDefinition = {
+export const MyBlogPostModel: ModelDefinition = {
     name: 'BlogPost',
     attributes: {
         title: {
@@ -41,8 +41,3 @@ const MyBlogPostModel: ModelDefinition = {
         },
     }
 }
-
-export {
-    MyServiceModel,
-    MyBlogPostModel
-};

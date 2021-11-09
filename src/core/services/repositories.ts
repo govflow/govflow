@@ -1,63 +1,43 @@
 import { injectable } from 'inversify';
-import { Op } from 'sequelize';
 import { databaseEngine } from '../../db';
 import { IServiceRepository, IterableQueryResult, QueryResult } from '../../types';
+import { open311ExcludeFields, serviceWithout311 } from '../open311/helpers';
 
 @injectable()
 export class ServiceRepository implements IServiceRepository {
 
+    async create(data: Record<string, unknown>): Promise<QueryResult> {
+        const { Service } = databaseEngine.models;
+        return await Service.create(data);
+    }
+
     async findOne(clientId: string, id: string): Promise<QueryResult> {
         const { Service } = databaseEngine.models;
-        return await Service.findOne({
+        const params = {
             where: { clientId, id },
             include: [
-                { model: Service, as: 'parent' },
-                { model: Service, as: 'children' },
-            ]
-        });
-    }
-
-    async findAll(clientId: string, leafOnly: boolean): Promise<[IterableQueryResult, number]> {
-        const { Service } = databaseEngine.models;
-        const relatedExcludes = [
-            'service_code',
-            'service_name',
-            'metadata',
-            'type',
-            'keywords',
-            'group',
-            'extraAttrs',
-            'createdAt',
-            'updatedAt',
-            'parentId',
-            'clientId'
-        ];
-        const whereParams = leafOnly ? { clientId, parentId: { [Op.ne]: null } } : { clientId };
-        const records = await Service.findAll({
-            where: whereParams,
-            include: [
-                { model: Service, as: 'parent', attributes: { exclude: relatedExcludes } },
-                { model: Service, as: 'children', attributes: { exclude: relatedExcludes } },
+                { model: Service, as: 'parent', attributes: { exclude: open311ExcludeFields } },
+                { model: Service, as: 'children', attributes: { exclude: open311ExcludeFields } },
             ],
-        });
-        return [records, records.length];
+            raw: true,
+            nest: true
+        }
+        const record = await Service.findOne(params);
+        return serviceWithout311(record);
     }
 
-    async create(clientId: string, payload: Record<string, unknown>): Promise<QueryResult> {
+    async findAll(clientId: string, whereParams: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
         const { Service } = databaseEngine.models;
-        // handle group attribute from Open311
-        const { service_code, service_name, group } = payload;
-        delete payload.group;
-        /* eslint-disable @typescript-eslint/no-unused-vars */
-        const [parent, _] = await Service.findOrCreate({
-            where: { name: group, id: group, clientId },
+        const records = await Service.findAll({
+            where: Object.assign({}, whereParams, { clientId }),
+            include: [
+                { model: Service, as: 'parent', attributes: { exclude: open311ExcludeFields } },
+                { model: Service, as: 'children', attributes: { exclude: open311ExcludeFields } },
+            ],
+            raw: true,
+            nest: true
         });
-        /* eslint-enable @typescript-eslint/no-unused-vars */
-        /* eslint-disable */
-        // @ts-ignore
-        const params = Object.assign({}, payload, { clientId, parentId: parent.id, id: service_code, name: service_name });
-        /* eslint-enable */
-        return await Service.create(params);
+        return [records.map(serviceWithout311), records.length];
     }
 
 }

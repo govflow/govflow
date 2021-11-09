@@ -1,36 +1,31 @@
 import { Request, Response, Router } from 'express';
-import { wrapAsync } from '../../helpers';
+import { wrapHandler } from '../../helpers';
 
 export const accountRouter = Router();
 
-accountRouter.get('/staff', wrapAsync(async (req: Request, res: Response) => {
+accountRouter.get('/staff/:clientId', wrapHandler(async (req: Request, res: Response) => {
     const { StaffUser } = res.app.repositories;
-    const [records, count] = await StaffUser.findAll("CLIENT_ID");
+    const { clientId } = req.params;
+    const [records, count] = await StaffUser.findAll(clientId);
     res.status(200).send({ data: records, count: count });
-
 }))
 
-accountRouter.get('/staff/:id', wrapAsync(async (req: Request, res: Response) => {
+accountRouter.get('/staff/:clientId/:id', wrapHandler(async (req: Request, res: Response) => {
     const { StaffUser } = res.app.repositories;
-    const record = await StaffUser.findOne('CLIENT_ID', req.params.id);
+    const { clientId, id } = req.params;
+    const record = await StaffUser.findOne(clientId, id);
     res.status(200).send({ data: record });
 }))
 
-accountRouter.get('/client', wrapAsync(async (req: Request, res: Response) => {
-    const { Client } = res.app.repositories;
-    const [records, count] = await Client.findAll();
-    res.status(200).send({ data: records, count: count });
-}))
-
-accountRouter.get('/client/:id', wrapAsync(async (req: Request, res: Response) => {
+accountRouter.get('/client/:id', wrapHandler(async (req: Request, res: Response) => {
     const { Client } = res.app.repositories;
     const record = await Client.findOne(req.params.id);
     res.status(200).send({ data: record });
 }))
 
-accountRouter.post('/client', wrapAsync(async (req: Request, res: Response) => {
+accountRouter.post('/client', wrapHandler(async (req: Request, res: Response) => {
     const { Client } = res.app.repositories;
-    const { clientId: id } = req.body;
-    const record = await Client.create(id);
+    const { id, jurisdictionId } = req.body;
+    const record = await Client.create({ id, jurisdictionId });
     res.status(200).send({ data: record });
 }))

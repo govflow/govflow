@@ -11,3 +11,5 @@ export interface ModelDefinition {
 export type QueryResult = Model | Record<string, unknown> | null;
 
 export type IterableQueryResult = QueryResult[];
+
+export type UnknownQueryResult = QueryResult | IterableQueryResult;

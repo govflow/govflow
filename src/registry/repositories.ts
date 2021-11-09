@@ -1,43 +1,57 @@
 import { Container } from 'inversify';
 import { ClientRepository, StaffUserRepository } from '../core/accounts';
+import { EventRepository } from '../core/events';
+import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../core/open311';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
-import type { IClientRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Pluggable, Plugin } from '../types';
+import type { IClientRepository, IEventRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
 
 export const repositoryIds = {
     IClientRepository: Symbol('IClientRepository'),
+    IStaffUserRepository: Symbol('IStaffUserRepository'),
     IServiceRequestRepository: Symbol('IServiceRequestRepository'),
     IServiceRepository: Symbol('IServiceRepository'),
-    IStaffUserRepository: Symbol('IStaffUserRepository'),
+    IOpen311ServiceRepository: Symbol('IOpen311ServiceRepository'),
+    IOpen311ServiceRequestRepository: Symbol('IOpen311ServiceRequestRepository'),
+    IEventRepository: Symbol('IEventRepository'),
 };
 
-// default repository bindings
-const repositoryContainer = new Container();
-repositoryContainer.bind<IClientRepository>(repositoryIds.IClientRepository).to(ClientRepository);
-repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(ServiceRequestRepository);
-repositoryContainer.bind<IServiceRepository>(repositoryIds.IServiceRepository).to(ServiceRepository);
-repositoryContainer.bind<IStaffUserRepository>(repositoryIds.IStaffUserRepository).to(StaffUserRepository);
+function bindImplementationsFromPlugins(pluginRegistry: Plugin[]): Record<string, unknown> {
 
-function bindImplementationsFromPlugins(pluginRegistry: Plugin[]): void {
+    // default repository bindings
+    const repositoryContainer = new Container();
+    repositoryContainer.bind<IClientRepository>(repositoryIds.IClientRepository).to(ClientRepository);
+    repositoryContainer.bind<IStaffUserRepository>(repositoryIds.IStaffUserRepository).to(StaffUserRepository);
+    repositoryContainer.bind<IServiceRepository>(repositoryIds.IServiceRepository).to(ServiceRepository);
+    repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(ServiceRequestRepository);
+    repositoryContainer.bind<IOpen311ServiceRepository>(repositoryIds.IOpen311ServiceRepository).to(Open311ServiceRepository);
+    repositoryContainer.bind<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository).to(Open311ServiceRequestRepository);
+    repositoryContainer.bind<IEventRepository>(repositoryIds.IEventRepository).to(EventRepository);
+
+    // bind from plugins
     pluginRegistry.forEach((plugin) => {
         repositoryContainer.rebind(plugin.serviceIdentifier).to(plugin.implementation);
     })
-}
 
-function getRepositories(): Record<string, Pluggable> {
+    // get our implementations and return them
     const Client = repositoryContainer.get<IClientRepository>(repositoryIds.IClientRepository);
-    const ServiceRequest = repositoryContainer.get<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository);
-    const Service = repositoryContainer.get<IServiceRepository>(repositoryIds.IServiceRepository);
     const StaffUser = repositoryContainer.get<IStaffUserRepository>(repositoryIds.IStaffUserRepository);
+    const Service = repositoryContainer.get<IServiceRepository>(repositoryIds.IServiceRepository);
+    const ServiceRequest = repositoryContainer.get<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository);
+    const Open311Service = repositoryContainer.get<IOpen311ServiceRepository>(repositoryIds.IOpen311ServiceRepository);
+    const Open311ServiceRequest = repositoryContainer.get<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository);
+    const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
     return {
         Client,
-        ServiceRequest,
+        StaffUser,
         Service,
-        StaffUser
+        ServiceRequest,
+        Open311Service,
+        Open311ServiceRequest,
+        Event
     }
 }
 
 export {
-    getRepositories,
     bindImplementationsFromPlugins
 };

@@ -8,7 +8,7 @@ export const ClientModel: ModelDefinition = {
             type: DataTypes.STRING,
             primaryKey: true,
         },
-        jurisdiction_id: {
+        jurisdictionId: {
             type: DataTypes.STRING,
             unique: true,
         }
@@ -23,11 +23,11 @@ export const StaffUserModel: ModelDefinition = {
             type: DataTypes.STRING,
             primaryKey: true,
         },
-        first_name: {
+        firstName: {
             allowNull: false,
             type: DataTypes.STRING,
         },
-        last_name: {
+        lastName: {
             allowNull: false,
             type: DataTypes.STRING,
         },
@@ -39,7 +39,9 @@ export const StaffUserModel: ModelDefinition = {
         phone: {
             allowNull: true,
             type: DataTypes.STRING,
-            validate: { isPhone: true }
+            validate: {
+                // isPhone: true TODO: write something like this with libphonenumber
+            }
         }
     },
     options: {}
