@@ -6,7 +6,7 @@
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "scripts": {
-    "test": "nyc mocha --exit -r ts-node/register test/** && nyc report --reporter=json > coverage/coverage.json",
+    "test": "nyc mocha --exit -r ts-node/register test/** && nyc report --reporter=json > coverage.json",
     "start": "ts-node ./src/default.ts",
     "build": "tsc"
   },

@@ -23,6 +23,7 @@ dist
 # test and coverage
 .nyc_output
 coverage
+coverage.json
 
 # app logs
 *.log
