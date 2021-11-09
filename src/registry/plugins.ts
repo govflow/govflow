@@ -1,7 +1,7 @@
 import type { AppSettings, Plugin } from '../types';
 
 export function registerPlugins(appSettings: AppSettings | void): Plugin[] {
-    let pluginRegistry: Plugin[] = new Array();
+    const pluginRegistry: Plugin[] = [];
     if (appSettings && Object.hasOwnProperty.call(appSettings, 'plugins')) {
         appSettings.plugins.forEach((plugin) => {
             bindPlugin(plugin, pluginRegistry);

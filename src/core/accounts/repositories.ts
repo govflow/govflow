@@ -45,8 +45,10 @@ export class StaffUserRepository implements IStaffUserRepository {
         const { StaffUser } = databaseEngine.models;
         const params = { where: { clientId } };
         const records = await StaffUser.findAll(params);
+        /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         return [records, records.length];
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
 }

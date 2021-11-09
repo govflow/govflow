@@ -16,7 +16,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         return await ServiceRequest.findOne(params);
     }
 
-    async findAll(clientId: string, where: Record<any, unknown> = {}): Promise<[IterableQueryResult, number]> {
+    async findAll(clientId: string, where: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
         const { ServiceRequest } = databaseEngine.models;
         const params = { where: Object.assign({}, where, { clientId }), raw: true, nest: true };
         const records = await ServiceRequest.findAll(params);

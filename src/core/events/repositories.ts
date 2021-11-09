@@ -11,7 +11,7 @@ export class EventRepository implements IEventRepository {
         return await Event.findOne(params);
     }
 
-    async findAll(clientId: string, where: Record<string, any>): Promise<[IterableQueryResult, number]> {
+    async findAll(clientId: string, where: Record<string, unknown>): Promise<[IterableQueryResult, number]> {
         const { Event } = databaseEngine.models;
         const params = { where: Object.assign({}, where, { clientId }), raw: true, nest: true };
         const records = await Event.findAll(params);

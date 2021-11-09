@@ -16,10 +16,14 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         delete data.jurisdictionId;
         const client = await Client.findOne({ where: { jurisdictionId }, raw: true });
         if (!_.isNil(data.group)) {
+            /* eslint-disable @typescript-eslint/ban-ts-comment */
+            /* eslint-disable @typescript-eslint/no-unused-vars */
             // @ts-ignore
             const [parent, created] = await Service.findOrCreate({ where: { name: group, id: group, clientId: client.id }, raw: true });
+            /* eslint-enable @typescript-eslint/no-unused-vars */
             // @ts-ignore
             data.parentId = parent.id
+            /* eslint-enable @typescript-eslint/ban-ts-comment */
         }
         const record = await Service.create(data);
         return serviceAs311(record);
@@ -28,18 +32,22 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
     async findOne(jurisdictionId: string, code: string): Promise<QueryResult> {
         const { Service, Client } = databaseEngine.models;
         const client = await Client.findOne({ where: { jurisdictionId }, raw: true });
+        /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const params = { where: { clientId: client.id, id: code }, raw: true, }
         const record = await Service.findOne(params);
         // @ts-ignore
         return serviceAs311(record);
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
     async findAll(jurisdictionId: string, whereParams: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
         const { Service, Client } = databaseEngine.models;
         const client = await Client.findOne({ where: { jurisdictionId }, raw: true });
+        /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const mergedWhere = Object.assign({}, whereParams, { clientId: client.id }) // { parentId: { [Op.not]: null }}
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
         const records = await Service.findAll({ where: mergedWhere, raw: true });
         return [records.map(serviceAs311), records.length];
     }
@@ -55,8 +63,10 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
         // take jurisdictionId to get client, but dont save with service as currently client === jurisdiction.
         delete data.jurisdictionId;
         const client = await Client.findOne({ where: { jurisdictionId }, raw: true });
+        /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         return await ServiceRequest.create(Object.assign({}, data, { clientId: client.id }));
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
     async findOne(clientId: string, id: string): Promise<QueryResult> {
@@ -65,7 +75,7 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
         return await ServiceRequest.findOne(params);
     }
 
-    async findAll(clientId: string, where: Record<any, unknown> = {}): Promise<[IterableQueryResult, number]> {
+    async findAll(clientId: string, where: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
         const { ServiceRequest } = databaseEngine.models;
         const params = { where: Object.assign({}, where, { clientId }), raw: true, nest: true };
         const records = await ServiceRequest.findAll(params);
