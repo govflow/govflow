@@ -1,7 +1,6 @@
 import chai from 'chai';
 import type { Application } from 'express';
 import { createApp } from '../src/index';
-import type { AppSettings } from '../src/types';
 import makeTestData from './fixtures/data';
 import { validServiceData } from './fixtures/open311';
 
@@ -11,8 +10,7 @@ describe('Verify Core Repositories.', function () {
     let testData: Record<string, Record<string, unknown>[]>;
 
     before(async function () {
-        let appSettings = { forceSyncDb: true };
-        app = await createApp(appSettings as AppSettings);
+        app = await createApp();
         testData = makeTestData();
     })
 
