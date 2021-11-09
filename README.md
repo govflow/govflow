@@ -1,5 +1,7 @@
 # Gov Flow
 
+[![codecov](https://codecov.io/gh/govflow/govflow/branch/main/graph/badge.svg?token=YzXArcY8fH)](https://codecov.io/gh/govflow/govflow)
+
 An open, modular work order and workflow management system for local governments and resident satisfaction.
 
 # Getting started
