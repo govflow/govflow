@@ -150,6 +150,8 @@ describe('Hit all API endpoints', function () {
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, serviceRequestId);
             chai.assert.equal(res.body.data.clientId, clientId);
+            chai.assert.equal(res.body.data.comments.length, 2);
+            chai.assert.equal(res.body.data.comments[0].serviceRequestId, res.body.data.id);
         } catch (error) {
             throw error;
         }

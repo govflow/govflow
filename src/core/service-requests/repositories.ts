@@ -6,13 +6,21 @@ import type { IServiceRequestRepository, IterableQueryResult, QueryResult } from
 export class ServiceRequestRepository implements IServiceRequestRepository {
 
     async create(data: Record<string, unknown>): Promise<QueryResult> {
-        const { ServiceRequest } = databaseEngine.models;
-        return await ServiceRequest.create(data);
+        const { ServiceRequest, ServiceRequestComment } = databaseEngine.models;
+        const record = await ServiceRequest.create(data);
+        if (Object.hasOwnProperty.call(data, 'comments')) {
+            // @ts-ignore
+            for (const comment of data.comments) {
+                // @ts-ignore
+                await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }));
+            }
+        }
+        return record;
     }
 
     async findOne(clientId: string, id: string): Promise<QueryResult> {
-        const { ServiceRequest } = databaseEngine.models;
-        const params = { where: { clientId, id }, raw: true, nest: true };
+        const { ServiceRequest, ServiceRequestComment } = databaseEngine.models;
+        const params = { where: { clientId, id }, include: [{ model: ServiceRequestComment, as: 'comments' }], };
         return await ServiceRequest.findOne(params);
     }
 

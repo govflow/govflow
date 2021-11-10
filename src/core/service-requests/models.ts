@@ -107,7 +107,7 @@ export const ServiceRequestCommentModel: ModelDefinition = {
     name: 'ServiceRequestComment',
     attributes: {
         comment: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: false,
         },
     },
@@ -120,6 +120,14 @@ export const ServiceRequestCommentModel: ModelDefinition = {
             {
                 unique: false,
                 fields: ['serviceRequestId']
+            },
+            {
+                unique: false,
+                fields: ['createdAt']
+            },
+            {
+                unique: false,
+                fields: ['updatedAt']
             }
         ]
     }

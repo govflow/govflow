@@ -83,7 +83,7 @@ function makeEvent(options: Record<string, Record<string, unknown>>) {
 }
 
 export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: Record<string, Record<string, unknown>[]>) {
-    const { Client, StaffUser, Service, ServiceRequest, Event } = databaseEngine.models;
+    const { Client, StaffUser, Service, ServiceRequest, ServiceRequestComment, Event } = databaseEngine.models;
 
     for (const clientData of testData.clients) {
         await Client.create(clientData);
@@ -98,7 +98,12 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     }
 
     for (const serviceRequestData of testData.serviceRequests) {
-        await ServiceRequest.create(serviceRequestData);
+        const record = await ServiceRequest.create(serviceRequestData);
+        //@ts-ignore
+        for (const comment of serviceRequestData.comments) {
+            //@ts-ignore
+            await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }))
+        }
     }
 
     for (const eventData of testData.events) {

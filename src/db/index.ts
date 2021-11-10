@@ -60,7 +60,7 @@ function applyCoreModelRelations(models: typeof databaseEngine.models) {
     ServiceRequest.belongsTo(Service, { as: 'service' });
 
     ServiceRequest.hasMany(ServiceRequestComment, { as: 'comments', foreignKey: 'serviceRequestId' });
-    ServiceRequestComment.belongsTo(ServiceRequest, { as: 'servicerequest' });
+    ServiceRequestComment.belongsTo(ServiceRequest, { as: 'serviceRequest' });
 
     StaffUser.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'assignedToId' });
     ServiceRequest.belongsTo(StaffUser, { as: 'assignedTo' });

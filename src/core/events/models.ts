@@ -29,4 +29,16 @@ export const EventModel: ModelDefinition = {
             }
         },
     },
+    options: {
+        indexes: [
+            {
+                unique: false,
+                fields: ['createdAt']
+            },
+            {
+                unique: false,
+                fields: ['updatedAt']
+            }
+        ]
+    }
 }
