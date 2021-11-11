@@ -72,6 +72,38 @@ export const ServiceRequestModel: ModelDefinition = {
                 // isPhone: true TODO: write something like this with libphonenumber
             }
         },
+        // Fields for Open311 compatibility.
+        address_id: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        first_name: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('firstName');
+            },
+            set(value) {
+                this.setDataValue('firstName', value);
+            }
+        },
+        last_name: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('lastName');
+            },
+            set(value) {
+                this.setDataValue('lastName', value);
+            }
+        },
+        service_code: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('serviceId');
+            },
+            set(value) {
+                this.setDataValue('serviceId', value);
+            }
+        },
         media_url: {
             type: DataTypes.VIRTUAL,
             get() {
@@ -95,8 +127,8 @@ export const ServiceRequestModel: ModelDefinition = {
         ],
         validate: {
             oneOfAddressOrGeometry() {
-                if ((this.geometry === null) && (this.address === null)) {
-                    throw new Error('A Service Request requires one of geometry or address.');
+                if ((this.geometry === null) && (this.address === null) && (this.address_id === null)) {
+                    throw new Error('A Service Request requires one of geometry, address, or address_id.');
                 }
             }
         }

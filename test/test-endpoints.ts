@@ -226,21 +226,26 @@ describe('Hit all API endpoints', function () {
         }
     });
 
-    it('should return 501 not implemented error for GET all service requests as Open311 for a jurisdiction in JSON format', async function () {
+    it('should GET all service requests as Open311 for a jurisdiction in JSON format', async function () {
         let jurisdictionId = testData.clients[0].jurisdictionId;
         try {
             const res = await chai.request(app).get(`/open311/requests.json?jurisdiction_id=${jurisdictionId}`)
-            chai.assert.equal(res.status, 501);
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.type, 'application/json')
+            chai.assert.equal(res.body.count, 21);
         } catch (error) {
             throw error;
         }
     });
 
-    it('should return 501 not implemented error for GET all service requests as Open311 for a jurisdiction in XML format', async function () {
+    it('should GET all service requests as Open311 for a jurisdiction in XML format', async function () {
         let jurisdictionId = testData.clients[0].jurisdictionId;
         try {
             const res = await chai.request(app).get(`/open311/requests.xml?jurisdiction_id=${jurisdictionId}`)
-            chai.assert.equal(res.status, 501);
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.type, 'text/xml')
+            chai.assert(res.text.startsWith('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'))
+            chai.assert(res.text.endsWith('</service_requests>'))
         } catch (error) {
             throw error;
         }

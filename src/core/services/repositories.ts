@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 import { databaseEngine } from '../../db';
 import { IServiceRepository, IterableQueryResult, QueryResult } from '../../types';
-import { open311ExcludeFields, serviceWithout311 } from '../open311/helpers';
+import { open311ServiceExcludeFields, serviceWithout311 } from '../open311/helpers';
 
 @injectable()
 export class ServiceRepository implements IServiceRepository {
@@ -16,11 +16,9 @@ export class ServiceRepository implements IServiceRepository {
         const params = {
             where: { clientId, id },
             include: [
-                { model: Service, as: 'parent', attributes: { exclude: open311ExcludeFields } },
-                { model: Service, as: 'children', attributes: { exclude: open311ExcludeFields } },
-            ],
-            raw: true,
-            nest: true
+                { model: Service, as: 'parent', attributes: { exclude: open311ServiceExcludeFields } },
+                { model: Service, as: 'children', attributes: { exclude: open311ServiceExcludeFields } },
+            ]
         }
         const record = await Service.findOne(params);
         return serviceWithout311(record);
@@ -31,11 +29,9 @@ export class ServiceRepository implements IServiceRepository {
         const records = await Service.findAll({
             where: Object.assign({}, whereParams, { clientId }),
             include: [
-                { model: Service, as: 'parent', attributes: { exclude: open311ExcludeFields } },
-                { model: Service, as: 'children', attributes: { exclude: open311ExcludeFields } },
-            ],
-            raw: true,
-            nest: true
+                { model: Service, as: 'parent', attributes: { exclude: open311ServiceExcludeFields } },
+                { model: Service, as: 'children', attributes: { exclude: open311ServiceExcludeFields } },
+            ]
         });
         return [records.map(serviceWithout311), records.length];
     }
