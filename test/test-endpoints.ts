@@ -163,10 +163,54 @@ describe('Hit all API endpoints', function () {
         serviceRequestData.id = faker.datatype.uuid();
         serviceRequestData.clientId = clientId;
         try {
-            const res = await chai.request(app).post(`/service-requests/:clientId`).send(serviceRequestData)
+            const res = await chai.request(app).post(`/service-requests/${clientId}`).send(serviceRequestData)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, serviceRequestData.id);
             chai.assert.equal(res.body.data.clientId, serviceRequestData.clientId);
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should POST a service request comment for a client', async function () {
+        let clientId = testData.clients[0].id;
+        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        let commentData = { id: faker.datatype.uuid(), comment: 'This is my comment.' }
+        let serviceRequestId = serviceRequestData.id;
+        try {
+            const res = await chai.request(app).post(`/service-requests/comments/${clientId}/${serviceRequestId}`).send(commentData)
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.id, commentData.id);
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should POST an update to a service request comment for a client', async function () {
+        let clientId = testData.clients[0].id;
+        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        // @ts-ignore
+        let commentData = serviceRequestData.comments[0];
+        let commentDataId = commentData.id;
+        let comment = 'hey there';
+        let serviceRequestId = serviceRequestData.id;
+        try {
+            const res = await chai.request(app).post(`/service-requests/comments/${clientId}/${serviceRequestId}/${commentDataId}`).send({ comment })
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.id, commentData.id);
+            chai.assert.equal(res.body.data.comment, comment);
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should GET all service request statuses for a client', async function () {
+        let clientId = testData.clients[0].id;
+        try {
+            const res = await chai.request(app).get(`/service-requests/statuses/${clientId}`)
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.inbox, 'Inbox');
+            chai.assert.equal(res.body.data.todo, 'Todo');
         } catch (error) {
             throw error;
         }

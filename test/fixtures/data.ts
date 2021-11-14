@@ -64,6 +64,7 @@ function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
 
 function makeServiceRequestComment() {
     return {
+        id: faker.datatype.uuid(),
         comment: faker.lorem.sentences(5),
     }
 }

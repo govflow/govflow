@@ -129,11 +129,50 @@ describe('Verify Core Repositories.', function () {
     });
 
     it('should write service requests via repository', async function () {
-        const { ServiceRequest } = app.database.models;
+        const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
             let record = await ServiceRequest.create(serviceRequestData);
             chai.assert(record);
         }
+    });
+
+    it('should write service request comments via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        for (const serviceRequestData of testData.serviceRequests) {
+            //@ts-ignore
+            for (const comment of serviceRequestData.comments) {
+                let record = await ServiceRequest.createComment(serviceRequestData.clientId, serviceRequestData.id, comment);
+                chai.assert(record);
+            }
+        }
+    });
+
+    it('should update service request comments via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        for (const serviceRequestData of testData.serviceRequests) {
+            //@ts-ignore
+            for (const comment of serviceRequestData.comments) {
+                let record = await ServiceRequest.updateComment(serviceRequestData.clientId, serviceRequestData.id, comment.id, { comment: 'hey there' });
+                chai.assert(record);
+                chai.assert(record.comment = 'hey there');
+            }
+        }
+    });
+
+    it('should update a service request via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const serviceRequest = testData.serviceRequests[0];
+        const updateFields = { status: 'blocked' };
+        let record = await ServiceRequest.update(serviceRequest.clientId, serviceRequest.id, updateFields);
+        chai.assert(record.status === 'blocked');
+    });
+
+    it('should find a list of possible statuses for a service request via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const clientId = testData.serviceRequests[0].clientId;
+        let record = await ServiceRequest.findStatusList(clientId);
+        chai.assert(record.inbox === 'Inbox');
+        chai.assert(record.done === 'Done');
     });
 
     it('should find one service request by client via repository', async function () {
@@ -158,7 +197,7 @@ describe('Verify Core Repositories.', function () {
     });
 
     it('should write events via repository', async function () {
-        const { Event } = app.database.models;
+        const { Event } = app.repositories;
         for (const eventData of testData.events) {
             let record = await Event.create(eventData);
             chai.assert(record);
