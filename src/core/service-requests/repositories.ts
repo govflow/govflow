@@ -15,9 +15,8 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
 
     async update(clientId: string, id: string, data: Record<string, unknown>): Promise<QueryResult> {
-        const { ServiceRequest, ServiceRequestComment } = databaseEngine.models;
+        const { ServiceRequest } = databaseEngine.models;
         const allowUpdateFields = ['assignedTo', 'status', 'address', 'geometry', 'address_id']
-        const { comments } = data;
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, clientId });
         const record = await ServiceRequest.findByPk(id);
         for (const [key, value] of Object.entries(safeData)) {
@@ -46,11 +45,11 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const records = await ServiceRequest.findAll(params);
         return [records.map(requestWithout311), records.length];
     }
-
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     async findStatusList(clientId: string): Promise<Record<string, string>> {
         return Promise.resolve(REQUEST_STATUSES);
     }
-
+    /* eslint-enable @typescript-eslint/no-unused-vars */
     async createComment(clientId: string, serviceRequestId: string, data: Record<string, unknown>): Promise<QueryResult> {
         const { ServiceRequestComment } = databaseEngine.models;
         const record = await ServiceRequestComment.create(Object.assign({}, data, { serviceRequestId }));
