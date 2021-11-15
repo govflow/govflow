@@ -1,5 +1,6 @@
 import chai from 'chai';
 import type { Application } from 'express';
+import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from './fixtures/data';
 import { validServiceData } from './fixtures/open311';
@@ -80,6 +81,18 @@ describe('Verify Core Repositories.', function () {
             let record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
             chai.assert(record);
             chai.assert.equal(record.displayName, `${record.firstName} ${record.lastName}`);
+        }
+    });
+
+    it('should find staff user permissions for a staff user', async function () {
+        const { StaffUser } = app.repositories;
+        for (const staffUserData of testData.staffUsers) {
+            let record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            chai.assert(record);
+            chai.assert.equal(record.permissions.length, 2)
+            for (const permission of record.permissions) {
+                chai.assert(STAFF_USER_PERMISSIONS.includes(permission));
+            }
         }
     });
 

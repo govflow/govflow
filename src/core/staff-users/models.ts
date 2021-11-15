@@ -1,6 +1,15 @@
 import { DataTypes } from 'sequelize';
 import type { ModelDefinition } from '../../types';
 
+export const STAFF_USER_PERMISSIONS = [
+    'access-all-jurisdictions',
+    'read-contact-info',
+]
+
+export const PERMISSIONS = [
+    ...STAFF_USER_PERMISSIONS
+]
+
 export const StaffUserModel: ModelDefinition = {
     name: 'StaffUser',
     attributes: {
@@ -8,6 +17,12 @@ export const StaffUserModel: ModelDefinition = {
             // may come from another system so we want control:
             // not auto-increment, and not necessairly UUID.
             type: DataTypes.STRING,
+            allowNull: false,
+            primaryKey: true,
+        },
+        permissions: {
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            defaultValue: STAFF_USER_PERMISSIONS,
             allowNull: false,
             primaryKey: true,
         },
