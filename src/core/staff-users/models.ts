@@ -30,7 +30,16 @@ export const StaffUserModel: ModelDefinition = {
             validate: {
                 // isPhone: true TODO: write something like this with libphonenumber
             }
-        }
+        },
+        displayName: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return `${this.getDataValue('firstName')} ${this.getDataValue('lastName')}`;
+            },
+            set(value) {
+                throw new Error(`The 'displayName' attribute is not allowed to be directly set: ${value}`);
+            }
+        },
     },
     options: {
         indexes: [

@@ -74,6 +74,15 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should find a displayName for a staff user', async function () {
+        const { StaffUser } = app.repositories;
+        for (const staffUserData of testData.staffUsers) {
+            let record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            chai.assert(record);
+            chai.assert.equal(record.displayName, `${record.firstName} ${record.lastName}`);
+        }
+    });
+
     it('should find all staff users by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const jurisdictionData of testData.staffUsers) {
