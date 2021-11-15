@@ -5,25 +5,25 @@ import type { IServiceRepository, IterableQueryResult, Plugin, QueryResult } fro
 @injectable()
 class MyServiceRepository implements IServiceRepository {
 
-    async findOne(clientId: string, id: string) {
-        return new Promise<QueryResult>((resolve, reject) => { return resolve({ clientId: clientId, id: id, name: 'Test Service 1' }) });
+    async findOne(jurisdictionId: string, id: string) {
+        return new Promise<QueryResult>((resolve, reject) => { return resolve({ jurisdictionId: jurisdictionId, id: id, name: 'Test Service 1' }) });
     }
 
-    async findAll(clientId: string) {
+    async findAll(jurisdictionId: string) {
         return new Promise<[IterableQueryResult, number]>((resolve, reject) => {
             return resolve([[
-                { clientId: clientId, id: '1', name: 'Test Service 1' },
-                { clientId: clientId, id: '2', name: 'Test Service 2' }
+                { jurisdictionId: jurisdictionId, id: '1', name: 'Test Service 1' },
+                { jurisdictionId: jurisdictionId, id: '2', name: 'Test Service 2' }
             ], 2])
         })
     }
 
     async create(data: Record<string, unknown>) {
-        return new Promise<QueryResult>((resolve, reject) => { return resolve({ clientId: data.clientId, id: '3', name: 'Test Service 3' }) });
+        return new Promise<QueryResult>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId, id: '3', name: 'Test Service 3' }) });
     }
 
-    async createFrom311(clientId: string, data: Record<string, unknown>) {
-        return new Promise<QueryResult>((resolve, reject) => { return resolve({ clientId: data.clientId, id: '3', name: 'Test Service 3' }) });
+    async createFrom311(jurisdictionId: string, data: Record<string, unknown>) {
+        return new Promise<QueryResult>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId, id: '3', name: 'Test Service 3' }) });
     }
 
 }
@@ -31,11 +31,11 @@ class MyServiceRepository implements IServiceRepository {
 @injectable()
 class MyBrokenServiceRepository implements IServiceRepository {
     // @ts-ignore
-    async findOne(clientId: string, id: string) {
+    async findOne(jurisdictionId: string, id: string) {
         throw new Error()
     }
     // @ts-ignore
-    async findAll(clientId: string) {
+    async findAll(jurisdictionId: string) {
         return new Promise<[IterableQueryResult, number]>((resolve, reject) => {
             throw new Error()
         })

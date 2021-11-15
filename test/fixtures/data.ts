@@ -10,10 +10,9 @@ function factory(generator: Function, times: number, generatorOpts: {}) {
     return data;
 }
 
-function makeClient() {
+function makeJurisdiction() {
     return {
         id: faker.datatype.uuid(),
-        jurisdictionId: faker.datatype.uuid(),
     }
 }
 
@@ -25,7 +24,7 @@ function makeStaffUser(options: Record<string, unknown>) {
         email: faker.internet.email(),
         phone: faker.phone.phoneNumber(),
         // @ts-ignore
-        clientId: options.client.id,
+        jurisdictionId: options.jurisdiction.id,
     }
 }
 
@@ -37,7 +36,7 @@ function makeService(options: Record<string, unknown>) {
         tags: [faker.datatype.string(), faker.datatype.string()],
         type: faker.helpers.randomize(['realtime', 'batch', 'blackbox']),
         // @ts-ignore
-        clientId: options.client.id,
+        jurisdictionId: options.jurisdiction.id,
     }
 }
 
@@ -57,7 +56,7 @@ function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
         // @ts-ignore
         serviceId: faker.helpers.randomize(options.services.map((s) => { return s.id })),
         // @ts-ignore
-        clientId: options.client.id,
+        jurisdictionId: options.jurisdiction.id,
         comments: [makeServiceRequestComment(), makeServiceRequestComment()]
     }
 }
@@ -79,15 +78,15 @@ function makeEvent(options: Record<string, Record<string, unknown>>) {
             name: faker.datatype.string(),
             type: faker.datatype.string()
         },
-        clientId: options.client.id,
+        jurisdictionId: options.jurisdiction.id,
     }
 }
 
 export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: Record<string, Record<string, unknown>[]>) {
-    const { Client, StaffUser, Service, ServiceRequest, ServiceRequestComment, Event } = databaseEngine.models;
+    const { Jurisdiction, StaffUser, Service, ServiceRequest, ServiceRequestComment, Event } = databaseEngine.models;
 
-    for (const clientData of testData.clients) {
-        await Client.create(clientData);
+    for (const jurisdictionData of testData.jurisdictions) {
+        await Jurisdiction.create(jurisdictionData);
     }
 
     for (const staffUserData of testData.staffUsers) {
@@ -113,21 +112,21 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
 }
 
 export default function makeTestData(): Record<string, Record<string, unknown>[]> {
-    const clients = factory(makeClient, 3, {});
+    const jurisdictions = factory(makeJurisdiction, 3, {});
     let staffUsers: Record<string, unknown>[] = [];
     let services: Record<string, unknown>[] = [];
     let serviceRequests: Record<string, unknown>[] = [];
     let events: Record<string, unknown>[] = [];
 
-    for (const client of clients) {
-        staffUsers = staffUsers.concat(factory(makeStaffUser, 3, { client }))
-        services = services.concat(factory(makeService, 5, { client }))
-        serviceRequests = serviceRequests.concat(factory(makeServiceRequest, 20, { staffUsers, services, client }))
-        events = events.concat(factory(makeEvent, 20, { client }))
+    for (const jurisdiction of jurisdictions) {
+        staffUsers = staffUsers.concat(factory(makeStaffUser, 3, { jurisdiction }))
+        services = services.concat(factory(makeService, 5, { jurisdiction }))
+        serviceRequests = serviceRequests.concat(factory(makeServiceRequest, 20, { staffUsers, services, jurisdiction }))
+        events = events.concat(factory(makeEvent, 20, { jurisdiction }))
     }
 
     return {
-        clients,
+        jurisdictions,
         staffUsers,
         services,
         serviceRequests,

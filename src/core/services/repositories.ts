@@ -11,10 +11,10 @@ export class ServiceRepository implements IServiceRepository {
         return await Service.create(data);
     }
 
-    async findOne(clientId: string, id: string): Promise<QueryResult> {
+    async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
         const { Service } = databaseEngine.models;
         const params = {
-            where: { clientId, id },
+            where: { jurisdictionId, id },
             include: [
                 { model: Service, as: 'parent', attributes: { exclude: open311ServiceExcludeFields } },
                 { model: Service, as: 'children', attributes: { exclude: open311ServiceExcludeFields } },
@@ -24,10 +24,10 @@ export class ServiceRepository implements IServiceRepository {
         return serviceWithout311(record);
     }
 
-    async findAll(clientId: string, whereParams: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, whereParams: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
         const { Service } = databaseEngine.models;
         const records = await Service.findAll({
-            where: Object.assign({}, whereParams, { clientId }),
+            where: Object.assign({}, whereParams, { jurisdictionId }),
             include: [
                 { model: Service, as: 'parent', attributes: { exclude: open311ServiceExcludeFields } },
                 { model: Service, as: 'children', attributes: { exclude: open311ServiceExcludeFields } },

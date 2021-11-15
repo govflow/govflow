@@ -1,31 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { ModelDefinition } from '../../types';
-
-export const ClientModel: ModelDefinition = {
-    name: 'Client',
-    attributes: {
-        id: {
-            // may come from another system so we want control:
-            // not auto-increment, and not necessairly UUID.
-            type: DataTypes.STRING,
-            allowNull: false,
-            primaryKey: true,
-        },
-        jurisdictionId: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            unique: true,
-        }
-    },
-    options: {
-        indexes: [
-            {
-                unique: true,
-                fields: ['jurisdictionId']
-            }
-        ]
-    }
-}
+import type { ModelDefinition } from '../../types';
 
 export const StaffUserModel: ModelDefinition = {
     name: 'StaffUser',
@@ -62,7 +36,7 @@ export const StaffUserModel: ModelDefinition = {
         indexes: [
             {
                 unique: true,
-                fields: ['id', 'clientId']
+                fields: ['id', 'jurisdictionId']
             }
         ]
     }

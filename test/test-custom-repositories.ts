@@ -18,10 +18,10 @@ describe('Verify Repository Plugins.', () => {
 
     it('should provide new query behavior for service repository', async function () {
         let { Service } = app.repositories;
-        let clientId = 'CLIENT_ID';
+        let jurisdictionId = 'JURISDICTION_ID';
         let id = '1';
-        let oneService = await Service.findOne({ clientId, id });
-        let [allServices, allServicesCount] = await Service.findAll(clientId);
+        let oneService = await Service.findOne({ jurisdictionId, id });
+        let [allServices, allServicesCount] = await Service.findAll(jurisdictionId);
         chai.assert(oneService.name === 'Test Service 1');
         chai.assert(allServicesCount === 2);
         chai.assert(allServices[1].id === '2');

@@ -5,8 +5,9 @@ import { name, version } from '../../package.json';
 import { wrapHandler } from '../helpers';
 import { internalServerError, notFound } from '../middlewares';
 import type { ModelDefinition, Pluggable } from '../types';
-import { accountRouter, ClientModel, ClientRepository, StaffUserModel, StaffUserRepository, verifyClientMiddleware } from './accounts';
+import { accountRouter, StaffUserModel, StaffUserRepository } from './accounts';
 import { EventModel, EventRepository } from './events';
+import { JurisdictionModel, JurisdictionRepository } from './jurisdictions';
 import { open311Router } from './open311';
 import { ServiceRequestCommentModel, ServiceRequestModel, ServiceRequestRepository, serviceRequestRouter } from './service-requests';
 import { ServiceModel, ServiceRepository, serviceRouter } from './services';
@@ -23,7 +24,7 @@ coreRoutes.use('/open311', open311Router);
 coreRoutes.use(notFound, internalServerError);
 
 const coreModels: ModelDefinition[] = [
-    ClientModel,
+    JurisdictionModel,
     ServiceRequestModel,
     ServiceRequestCommentModel,
     ServiceModel,
@@ -32,7 +33,7 @@ const coreModels: ModelDefinition[] = [
 ]
 
 const coreRepositories: Pluggable[] = [
-    ClientRepository,
+    JurisdictionRepository,
     ServiceRequestRepository,
     ServiceRepository,
     StaffUserRepository,
@@ -42,7 +43,6 @@ const coreRepositories: Pluggable[] = [
 const coreMiddlewares: RequestHandler[] = [
     cors(),
     json(),
-    verifyClientMiddleware
 ]
 
 export {

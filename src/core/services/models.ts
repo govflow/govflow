@@ -89,7 +89,7 @@ const ServiceModel: ModelDefinition = {
         },
     },
     options: {
-        indexes: [{ unique: true, fields: ['name', 'parentId', 'clientId'] }]
+        indexes: [{ unique: true, fields: ['name', 'parentId', 'jurisdictionId'] }]
     }
 }
 

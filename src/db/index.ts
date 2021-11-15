@@ -39,19 +39,19 @@ async function verifyDatabaseConnection(databaseEngine: Sequelize): Promise<void
 }
 
 function applyCoreModelRelations(models: typeof databaseEngine.models) {
-    const { Service, ServiceRequest, Client, StaffUser, ServiceRequestComment, Event } = models;
+    const { Service, ServiceRequest, Jurisdiction, StaffUser, ServiceRequestComment, Event } = models;
 
-    Client.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'clientId' });
-    StaffUser.belongsTo(Client, { as: 'client' })
+    Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
+    StaffUser.belongsTo(Jurisdiction, { as: 'jurisdiction' })
 
-    Client.hasMany(Service, { as: 'services', foreignKey: 'clientId' });
-    Service.belongsTo(Client, { as: 'client' });
+    Jurisdiction.hasMany(Service, { as: 'services', foreignKey: 'jurisdictionId' });
+    Service.belongsTo(Jurisdiction, { as: 'jurisdiction' });
 
-    Client.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'clientId' });
-    ServiceRequest.belongsTo(Client, { as: 'client' });
+    Jurisdiction.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'jurisdictionId' });
+    ServiceRequest.belongsTo(Jurisdiction, { as: 'jurisdiction' });
 
-    Client.hasMany(Event, { as: 'events', foreignKey: 'clientId' });
-    Event.belongsTo(Client, { as: 'client' });
+    Jurisdiction.hasMany(Event, { as: 'events', foreignKey: 'jurisdictionId' });
+    Event.belongsTo(Jurisdiction, { as: 'jurisdiction' });
 
     Service.hasMany(Service, { as: 'children', foreignKey: 'parentId' });
     Service.belongsTo(Service, { as: 'parent' });

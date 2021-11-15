@@ -5,15 +5,15 @@ import type { IEventRepository, IterableQueryResult, QueryResult } from '../../t
 @injectable()
 export class EventRepository implements IEventRepository {
 
-    async findOne(clientId: string, id: string): Promise<QueryResult> {
+    async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
         const { Event } = databaseEngine.models;
-        const params = { where: { id, clientId }, raw: true, nest: true };
+        const params = { where: { id, jurisdictionId }, raw: true, nest: true };
         return await Event.findOne(params);
     }
 
-    async findAll(clientId: string, where: Record<string, unknown>): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, where: Record<string, unknown>): Promise<[IterableQueryResult, number]> {
         const { Event } = databaseEngine.models;
-        const params = { where: Object.assign({}, where, { clientId }), raw: true, nest: true };
+        const params = { where: Object.assign({}, where, { jurisdictionId }), raw: true, nest: true };
         const records = await Event.findAll(params);
         return [records, records.length];
     }

@@ -14,10 +14,10 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         return requestWithout311(record);
     }
 
-    async update(clientId: string, id: string, data: Record<string, unknown>): Promise<QueryResult> {
+    async update(jurisdictionId: string, id: string, data: Record<string, unknown>): Promise<QueryResult> {
         const { ServiceRequest } = databaseEngine.models;
         const allowUpdateFields = ['assignedTo', 'status', 'address', 'geometry', 'address_id']
-        const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, clientId });
+        const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         const record = await ServiceRequest.findByPk(id);
         for (const [key, value] of Object.entries(safeData)) {
             /* eslint-disable @typescript-eslint/ban-ts-comment */
@@ -32,31 +32,31 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         return requestWithout311(record);
     }
 
-    async findOne(clientId: string, id: string): Promise<QueryResult> {
+    async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
         const { ServiceRequest, ServiceRequestComment } = databaseEngine.models;
-        const params = { where: { clientId, id }, include: [{ model: ServiceRequestComment, as: 'comments' }], };
+        const params = { where: { jurisdictionId, id }, include: [{ model: ServiceRequestComment, as: 'comments' }], };
         const record = await ServiceRequest.findOne(params);
         return requestWithout311(record);
     }
 
-    async findAll(clientId: string, where: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, where: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
         const { ServiceRequest } = databaseEngine.models;
-        const params = { where: Object.assign({}, where, { clientId }) };
+        const params = { where: Object.assign({}, where, { jurisdictionId }) };
         const records = await ServiceRequest.findAll(params);
         return [records.map(requestWithout311), records.length];
     }
     /* eslint-disable @typescript-eslint/no-unused-vars */
-    async findStatusList(clientId: string): Promise<Record<string, string>> {
+    async findStatusList(jurisdictionId: string): Promise<Record<string, string>> {
         return Promise.resolve(REQUEST_STATUSES);
     }
     /* eslint-enable @typescript-eslint/no-unused-vars */
-    async createComment(clientId: string, serviceRequestId: string, data: Record<string, unknown>): Promise<QueryResult> {
+    async createComment(jurisdictionId: string, serviceRequestId: string, data: Record<string, unknown>): Promise<QueryResult> {
         const { ServiceRequestComment } = databaseEngine.models;
         const record = await ServiceRequestComment.create(Object.assign({}, data, { serviceRequestId }));
         return record;
     }
 
-    async updateComment(clientId: string, serviceRequestId: string, serviceRequestCommentId: string, data: Record<string, unknown>): Promise<QueryResult> {
+    async updateComment(jurisdictionId: string, serviceRequestId: string, serviceRequestCommentId: string, data: Record<string, unknown>): Promise<QueryResult> {
         const { ServiceRequestComment } = databaseEngine.models;
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore

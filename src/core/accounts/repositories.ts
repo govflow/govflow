@@ -1,30 +1,6 @@
 import { injectable } from 'inversify';
 import { databaseEngine } from '../../db';
-import { IClientRepository, IStaffUserRepository, IterableQueryResult, QueryResult } from '../../types';
-
-@injectable()
-export class ClientRepository implements IClientRepository {
-
-    async create(data: Record<string, unknown>): Promise<QueryResult> {
-        const { Client } = databaseEngine.models;
-        const params = data;
-        return await Client.create(params);
-    }
-
-    async findOne(id: string): Promise<QueryResult> {
-        const { Client } = databaseEngine.models;
-        const params = { where: { id }, raw: true, nest: true };
-        return await Client.findOne(params);
-    }
-
-    async findOneByJurisdiction(jurisdictionId: string): Promise<QueryResult> {
-        const { Client } = databaseEngine.models;
-        const params = { where: { jurisdictionId }, raw: true, nest: true };
-        return await Client.findOne(params);
-    }
-
-}
-
+import { IStaffUserRepository, IterableQueryResult, QueryResult } from '../../types';
 
 @injectable()
 export class StaffUserRepository implements IStaffUserRepository {
@@ -35,15 +11,15 @@ export class StaffUserRepository implements IStaffUserRepository {
         return await StaffUser.create(params);
     }
 
-    async findOne(clientId: string, id: string): Promise<QueryResult> {
+    async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
         const { StaffUser } = databaseEngine.models;
-        const params = { where: { clientId, id } };
+        const params = { where: { jurisdictionId, id } };
         return await StaffUser.findOne(params);
     }
 
-    async findAll(clientId: string): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string): Promise<[IterableQueryResult, number]> {
         const { StaffUser } = databaseEngine.models;
-        const params = { where: { clientId } };
+        const params = { where: { jurisdictionId } };
         const records = await StaffUser.findAll(params);
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore

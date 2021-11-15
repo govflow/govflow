@@ -26,7 +26,7 @@ describe('Check responses in common error scenarios', function () {
 
     it('should return 500 internal server error', async function () {
         try {
-            const res = await chai.request(app).get('/services/not-a-real-client-id')
+            const res = await chai.request(app).get('/services/not-a-real-jurisdiction-id')
             chai.assert.equal(res.status, 500);
         } catch (error) {
             throw error;

@@ -19,8 +19,8 @@ describe('Verify Core Models.', function () {
     })
 
     it('should find all models', async function () {
-        const { Client, StaffUser, Event, ServiceRequest, ServiceRequestComment, Service } = app.database.models;
-        chai.assert(Client);
+        const { Jurisdiction, StaffUser, Event, ServiceRequest, ServiceRequestComment, Service } = app.database.models;
+        chai.assert(Jurisdiction);
         chai.assert(StaffUser);
         chai.assert(Event);
         chai.assert(ServiceRequest);
@@ -28,11 +28,11 @@ describe('Verify Core Models.', function () {
         chai.assert(Service);
     });
 
-    it('should write clients to database', async function () {
-        const { Client } = app.database.models;
+    it('should write jurisdictions to database', async function () {
+        const { Jurisdiction } = app.database.models;
         // @ts-ignore
-        for (const clientData of testData.clients) {
-            let record = await Client.create(clientData);
+        for (const jurisdictionData of testData.jurisdictions) {
+            let record = await Jurisdiction.create(jurisdictionData);
             chai.assert(record);
         }
     });

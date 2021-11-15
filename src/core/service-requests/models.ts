@@ -129,7 +129,7 @@ export const ServiceRequestModel: ModelDefinition = {
         indexes: [
             {
                 unique: true,
-                fields: ['id', 'clientId']
+                fields: ['id', 'jurisdictionId']
             },
             {
                 unique: false,

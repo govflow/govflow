@@ -1,13 +1,14 @@
 import { Container } from 'inversify';
-import { ClientRepository, StaffUserRepository } from '../core/accounts';
+import { StaffUserRepository } from '../core/accounts';
 import { EventRepository } from '../core/events';
+import { JurisdictionRepository } from '../core/jurisdictions';
 import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../core/open311';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
-import type { IClientRepository, IEventRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
+import type { IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
 
 export const repositoryIds = {
-    IClientRepository: Symbol('IClientRepository'),
+    IJurisdictionRepository: Symbol('IJurisdictionRepository'),
     IStaffUserRepository: Symbol('IStaffUserRepository'),
     IServiceRequestRepository: Symbol('IServiceRequestRepository'),
     IServiceRepository: Symbol('IServiceRepository'),
@@ -20,7 +21,7 @@ function bindImplementationsFromPlugins(pluginRegistry: Plugin[]): Record<string
 
     // default repository bindings
     const repositoryContainer = new Container();
-    repositoryContainer.bind<IClientRepository>(repositoryIds.IClientRepository).to(ClientRepository);
+    repositoryContainer.bind<IJurisdictionRepository>(repositoryIds.IJurisdictionRepository).to(JurisdictionRepository);
     repositoryContainer.bind<IStaffUserRepository>(repositoryIds.IStaffUserRepository).to(StaffUserRepository);
     repositoryContainer.bind<IServiceRepository>(repositoryIds.IServiceRepository).to(ServiceRepository);
     repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(ServiceRequestRepository);
@@ -34,7 +35,7 @@ function bindImplementationsFromPlugins(pluginRegistry: Plugin[]): Record<string
     })
 
     // get our implementations and return them
-    const Client = repositoryContainer.get<IClientRepository>(repositoryIds.IClientRepository);
+    const Jurisdiction = repositoryContainer.get<IJurisdictionRepository>(repositoryIds.IJurisdictionRepository);
     const StaffUser = repositoryContainer.get<IStaffUserRepository>(repositoryIds.IStaffUserRepository);
     const Service = repositoryContainer.get<IServiceRepository>(repositoryIds.IServiceRepository);
     const ServiceRequest = repositoryContainer.get<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository);
@@ -42,7 +43,7 @@ function bindImplementationsFromPlugins(pluginRegistry: Plugin[]): Record<string
     const Open311ServiceRequest = repositoryContainer.get<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository);
     const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
     return {
-        Client,
+        Jurisdiction,
         StaffUser,
         Service,
         ServiceRequest,
