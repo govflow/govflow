@@ -5,12 +5,12 @@ import { name, version } from '../../package.json';
 import { wrapHandler } from '../helpers';
 import { internalServerError, notFound } from '../middlewares';
 import type { ModelDefinition, Pluggable } from '../types';
-import { accountRouter, StaffUserModel, StaffUserRepository } from './accounts';
 import { EventModel, EventRepository } from './events';
-import { JurisdictionModel, JurisdictionRepository } from './jurisdictions';
+import { JurisdictionModel, JurisdictionRepository, jurisdictionRouter } from './jurisdictions';
 import { open311Router } from './open311';
 import { ServiceRequestCommentModel, ServiceRequestModel, ServiceRequestRepository, serviceRequestRouter } from './service-requests';
 import { ServiceModel, ServiceRepository, serviceRouter } from './services';
+import { accountRouter, StaffUserModel, StaffUserRepository } from './staff-users';
 
 const coreRoutes = Router();
 
@@ -20,6 +20,7 @@ coreRoutes.get('/', wrapHandler(async (req: Request, res: Response) => {
 coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
 coreRoutes.use('/accounts', accountRouter);
+coreRoutes.use('/jurisdictions', jurisdictionRouter);
 coreRoutes.use('/open311', open311Router);
 coreRoutes.use(notFound, internalServerError);
 

@@ -36,7 +36,7 @@ describe('Hit all API endpoints', function () {
     it('should GET staff users for jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
-            const res = await chai.request(app).get(`/accounts/staff/${jurisdictionId}`)
+            const res = await chai.request(app).get(`/accounts/staff?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.count, 3);
             for (const staffUser of res.body.data) {
@@ -52,7 +52,7 @@ describe('Hit all API endpoints', function () {
         let staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
         let staffUserId = staffUsers[0].id;
         try {
-            const res = await chai.request(app).get(`/accounts/staff/${jurisdictionId}/${staffUserId}`)
+            const res = await chai.request(app).get(`/accounts/staff/${staffUserId}?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, staffUserId);
             chai.assert.equal(res.body.data.jurisdictionId, jurisdictionId);
@@ -64,7 +64,7 @@ describe('Hit all API endpoints', function () {
     it('should GET a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
-            const res = await chai.request(app).get(`/accounts/jurisdiction/${jurisdictionId}`)
+            const res = await chai.request(app).get(`/jurisdictions/${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, jurisdictionId);
         } catch (error) {
@@ -77,7 +77,7 @@ describe('Hit all API endpoints', function () {
         jurisdictionData.id = faker.datatype.uuid();
         jurisdictionData.jurisdictionId = faker.datatype.uuid();
         try {
-            const res = await chai.request(app).post(`/accounts/jurisdiction/`).send(jurisdictionData)
+            const res = await chai.request(app).post(`/jurisdictions`).send(jurisdictionData)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, jurisdictionData.id);
         } catch (error) {
@@ -88,7 +88,7 @@ describe('Hit all API endpoints', function () {
     it('should fail to POST a jurisdiction', async function () {
         let jurisdictionData = _.cloneDeep(testData.jurisdictions[0]);
         try {
-            const res = await chai.request(app).post(`/accounts/jurisdiction/`).send(jurisdictionData)
+            const res = await chai.request(app).post(`/jurisdictions`).send(jurisdictionData)
             chai.assert.equal(res.status, 500);
             chai.assert.equal(res.body.data.message, 'Internal Server Error.');
             chai.assert.equal(res.body.data.status_code, 500);
@@ -100,7 +100,7 @@ describe('Hit all API endpoints', function () {
     it('should GET all services for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
-            const res = await chai.request(app).get(`/services/${jurisdictionId}`)
+            const res = await chai.request(app).get(`/services?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.count, 5);
             for (const service of res.body.data) {
@@ -116,7 +116,7 @@ describe('Hit all API endpoints', function () {
         let services = _.filter(testData.services, { jurisdictionId });
         let serviceId = services[0].id;
         try {
-            const res = await chai.request(app).get(`/services/${jurisdictionId}/${serviceId}`)
+            const res = await chai.request(app).get(`/services/${serviceId}?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, serviceId);
             chai.assert.equal(res.body.data.jurisdictionId, jurisdictionId);
@@ -128,7 +128,7 @@ describe('Hit all API endpoints', function () {
     it('should GET all service requests for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
-            const res = await chai.request(app).get(`/service-requests/${jurisdictionId}`)
+            const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.count, 20);
             for (const serviceRequest of res.body.data) {
@@ -144,7 +144,7 @@ describe('Hit all API endpoints', function () {
         let serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
         let serviceRequestId = serviceRequests[0].id;
         try {
-            const res = await chai.request(app).get(`/service-requests/${jurisdictionId}/${serviceRequestId}`)
+            const res = await chai.request(app).get(`/service-requests/${serviceRequestId}?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, serviceRequestId);
             chai.assert.equal(res.body.data.jurisdictionId, jurisdictionId);
@@ -161,7 +161,7 @@ describe('Hit all API endpoints', function () {
         serviceRequestData.id = faker.datatype.uuid();
         serviceRequestData.jurisdictionId = jurisdictionId;
         try {
-            const res = await chai.request(app).post(`/service-requests/${jurisdictionId}`).send(serviceRequestData)
+            const res = await chai.request(app).post(`/service-requests/?jurisdictionId=${jurisdictionId}`).send(serviceRequestData)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, serviceRequestData.id);
             chai.assert.equal(res.body.data.jurisdictionId, serviceRequestData.jurisdictionId);
@@ -176,7 +176,7 @@ describe('Hit all API endpoints', function () {
         let commentData = { id: faker.datatype.uuid(), comment: 'This is my comment.' }
         let serviceRequestId = serviceRequestData.id;
         try {
-            const res = await chai.request(app).post(`/service-requests/comments/${jurisdictionId}/${serviceRequestId}`).send(commentData)
+            const res = await chai.request(app).post(`/service-requests/comments/${serviceRequestId}?jurisdictionId=${jurisdictionId}`).send(commentData)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, commentData.id);
         } catch (error) {
@@ -193,7 +193,7 @@ describe('Hit all API endpoints', function () {
         let comment = 'hey there';
         let serviceRequestId = serviceRequestData.id;
         try {
-            const res = await chai.request(app).post(`/service-requests/comments/${jurisdictionId}/${serviceRequestId}/${commentDataId}`).send({ comment })
+            const res = await chai.request(app).post(`/service-requests/comments/${serviceRequestId}/${commentDataId}?jurisdictionId=${jurisdictionId}`).send({ comment })
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, commentData.id);
             chai.assert.equal(res.body.data.comment, comment);
@@ -205,7 +205,7 @@ describe('Hit all API endpoints', function () {
     it('should GET all service request statuses for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
-            const res = await chai.request(app).get(`/service-requests/statuses/${jurisdictionId}`)
+            const res = await chai.request(app).get(`/service-requests/statuses/?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.inbox, 'Inbox');
             chai.assert.equal(res.body.data.todo, 'Todo');

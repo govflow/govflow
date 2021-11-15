@@ -5,7 +5,7 @@ import { registerConfig } from './config';
 import { coreMiddlewares, coreModels, coreRoutes } from './core';
 import { initDb } from './db';
 import { bindImplementationsFromPlugins, registerPlugins } from './registry';
-import type { AppSettings, Config, DatabaseEngine, Plugin } from './types';
+import type { AppSettings, Config, DatabaseEngine, Plugin, QueryResult } from './types';
 
 /* eslint-disable */
 // TODO: can we do this without using namespace?
@@ -16,6 +16,9 @@ declare global {
             config: Config;
             repositories: Record<string, any>;
             database: DatabaseEngine;
+        }
+        interface Request {
+            jurisdiction: QueryResult;
         }
     }
 }

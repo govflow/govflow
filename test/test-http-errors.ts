@@ -3,7 +3,7 @@ import chaiHttp from 'chai-http';
 import { Application } from 'express';
 import { createApp } from '../src/index';
 import type { AppSettings } from '../src/types';
-import { MyBrokenServiceRepositoryPlugin } from './fixtures/repositories';
+import { MyBrokenJurisdictionRepositoryPlugin } from './fixtures/repositories';
 
 chai.use(chaiHttp);
 
@@ -11,7 +11,7 @@ describe('Check responses in common error scenarios', function () {
     let app: Application;
 
     before(async function () {
-        const appSettings = { plugins: [MyBrokenServiceRepositoryPlugin] };
+        const appSettings = { plugins: [MyBrokenJurisdictionRepositoryPlugin] };
         app = await createApp(appSettings as AppSettings);
     })
 
@@ -26,7 +26,7 @@ describe('Check responses in common error scenarios', function () {
 
     it('should return 500 internal server error', async function () {
         try {
-            const res = await chai.request(app).get('/services/not-a-real-jurisdiction-id')
+            const res = await chai.request(app).get('/jurisdictions/not-a-real-jurisdiction-id')
             chai.assert.equal(res.status, 500);
         } catch (error) {
             throw error;

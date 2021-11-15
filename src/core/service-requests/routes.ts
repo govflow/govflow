@@ -1,45 +1,61 @@
 import { Request, Response, Router } from 'express';
 import { wrapHandler } from '../../helpers';
+import { resolveJurisdiction } from '../../middlewares';
 
 export const serviceRequestRouter = Router();
 
-serviceRequestRouter.get('/statuses/:jurisdictionId', wrapHandler(async (req: Request, res: Response) => {
+serviceRequestRouter.use(wrapHandler(resolveJurisdiction()));
+
+serviceRequestRouter.get('/statuses', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
-    const { jurisdictionId } = req.params;
-    const record = await ServiceRequest.findStatusList(jurisdictionId);
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    //@ts-ignore
+    const record = await ServiceRequest.findStatusList(req.jurisdiction.id);
+    /* eslint-enable @typescript-eslint/ban-ts-comment */
     res.status(200).send({ data: record });
 }))
 
-serviceRequestRouter.post('/comments/:jurisdictionId/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
+serviceRequestRouter.post('/comments/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
-    const { jurisdictionId, serviceRequestId } = req.params;
-    const record = await ServiceRequest.createComment(jurisdictionId, serviceRequestId, req.body);
+    const { serviceRequestId } = req.params;
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    //@ts-ignore
+    const record = await ServiceRequest.createComment(req.jurisdiction.id, serviceRequestId, req.body);
+    /* eslint-enable @typescript-eslint/ban-ts-comment */
     res.status(200).send({ data: record });
 }))
 
-serviceRequestRouter.post('/comments/:jurisdictionId/:serviceRequestId/:id', wrapHandler(async (req: Request, res: Response) => {
+serviceRequestRouter.post('/comments/:serviceRequestId/:id', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
-    const { jurisdictionId, serviceRequestId, id } = req.params;
-    const record = await ServiceRequest.updateComment(jurisdictionId, serviceRequestId, id, req.body);
+    const { serviceRequestId, id } = req.params;
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    //@ts-ignore
+    const record = await ServiceRequest.updateComment(req.jurisdiction.id, serviceRequestId, id, req.body);
+    /* eslint-enable @typescript-eslint/ban-ts-comment */
     res.status(200).send({ data: record });
 }))
 
-serviceRequestRouter.get('/:jurisdictionId', wrapHandler(async (req: Request, res: Response) => {
+serviceRequestRouter.get('/', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
-    const { jurisdictionId } = req.params;
-    const [records, count] = await ServiceRequest.findAll(jurisdictionId);
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    //@ts-ignore
+    const [records, count] = await ServiceRequest.findAll(req.jurisdiction.id);
+    /* eslint-enable @typescript-eslint/ban-ts-comment */
     res.status(200).send({ data: records, count: count });
 }))
 
 
-serviceRequestRouter.get('/:jurisdictionId/:id', wrapHandler(async (req: Request, res: Response) => {
+serviceRequestRouter.get('/:id', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
-    const { jurisdictionId, id } = req.params;
-    const record = await ServiceRequest.findOne(jurisdictionId, id);
+    const { id } = req.params;
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    //@ts-ignore
+    const record = await ServiceRequest.findOne(req.jurisdiction.id, id);
+    /* eslint-enable @typescript-eslint/ban-ts-comment */
     res.status(200).send({ data: record });
 }))
 
-serviceRequestRouter.post('/:jurisdictionId', wrapHandler(async (req: Request, res: Response) => {
+serviceRequestRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
     const record = await ServiceRequest.create(req.body);
     res.status(200).send({ data: record });

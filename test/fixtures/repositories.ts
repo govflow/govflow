@@ -29,7 +29,7 @@ class MyServiceRepository implements IServiceRepository {
 }
 
 @injectable()
-class MyBrokenServiceRepository implements IServiceRepository {
+class MyBrokenJurisdictionRepository implements IServiceRepository {
     // @ts-ignore
     async findOne(jurisdictionId: string, id: string) {
         throw new Error()
@@ -52,7 +52,7 @@ export const MyServiceRepositoryPlugin: Plugin = {
     implementation: MyServiceRepository
 }
 
-export const MyBrokenServiceRepositoryPlugin: Plugin = {
-    serviceIdentifier: repositoryIds.IServiceRepository,
-    implementation: MyBrokenServiceRepository
+export const MyBrokenJurisdictionRepositoryPlugin: Plugin = {
+    serviceIdentifier: repositoryIds.IJurisdictionRepository,
+    implementation: MyBrokenJurisdictionRepository
 }

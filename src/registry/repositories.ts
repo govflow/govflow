@@ -1,10 +1,10 @@
 import { Container } from 'inversify';
-import { StaffUserRepository } from '../core/accounts';
 import { EventRepository } from '../core/events';
 import { JurisdictionRepository } from '../core/jurisdictions';
 import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../core/open311';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
+import { StaffUserRepository } from '../core/staff-users';
 import type { IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
 
 export const repositoryIds = {
