@@ -24,7 +24,11 @@ declare global {
 }
 /* eslint-enable */
 
-async function createApp(appSettings: AppSettings | void): Promise<Application> {
+export async function createApp(appSettings: AppSettings | void): Promise<Application> {
+
+    // Read custom configurations from appSettings and register
+    // onto config, including overriding existing configurations.
+    const config = registerConfig(appSettings);
 
     // Read all plugins into a central plugin registry.
     const pluginRegistry: Plugin[] = registerPlugins(appSettings);
@@ -34,10 +38,6 @@ async function createApp(appSettings: AppSettings | void): Promise<Application> 
     // repositories and in future they will be able to provide
     // implementations of other aspects of the system.
     const repositories = bindImplementationsFromPlugins(pluginRegistry);
-
-    // Read custom configurations from appSettings and register
-    // onto config, including overriding existing configurations.
-    const config = registerConfig(appSettings);
 
     // Init the database with models, verify the connection, and return the engine.
     const databaseEngine = await initDb(coreModels, appSettings);
@@ -66,7 +66,3 @@ async function createApp(appSettings: AppSettings | void): Promise<Application> 
 
     return app;
 }
-
-export {
-    createApp
-};
