@@ -47,6 +47,23 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should GET a staff user lookup table for jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        try {
+            const res = await chai.request(app).get(`/accounts/staff/lookup?jurisdictionId=${jurisdictionId}`)
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.count, 3);
+            for (const staffUser of res.body.data) {
+                const keys = Object.keys(staffUser);
+                chai.assert.equal(keys.length, 2);
+                chai.assert(keys.includes('email'));
+                chai.assert(keys.includes('displayName'));
+            }
+        } catch (error) {
+            throw error;
+        }
+    });
+
     it('should GET a staff user for jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         let staffUsers = _.filter(testData.staffUsers, { jurisdictionId });

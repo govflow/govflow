@@ -89,7 +89,7 @@ describe('Verify Core Repositories.', function () {
         for (const staffUserData of testData.staffUsers) {
             let record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
             chai.assert(record);
-            chai.assert.equal(record.permissions.length, 2)
+            chai.assert.equal(record.permissions.length, 1)
             for (const permission of record.permissions) {
                 chai.assert(STAFF_USER_PERMISSIONS.includes(permission));
             }
@@ -98,11 +98,25 @@ describe('Verify Core Repositories.', function () {
 
     it('should find all staff users by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
-        for (const jurisdictionData of testData.staffUsers) {
-            let [records, recordCount] = await StaffUser.findAll(jurisdictionData.id);
+        for (const staffUserData of testData.staffUsers) {
+            let [records, recordCount] = await StaffUser.findAll(staffUserData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
-                chai.assert.equal(record.jurisdictionId, jurisdictionData.jurisdictionId);
+                chai.assert.equal(record.jurisdictionId, staffUserData.jurisdictionId);
+            }
+        }
+    });
+
+    it('should return a staff user lookup table by jurisdiction via repository', async function () {
+        const { StaffUser } = app.repositories;
+        for (const staffuserData of testData.staffUsers) {
+            const [records, count] = await StaffUser.lookupTable(staffuserData.jurisdictionId);
+            chai.assert(records);
+            for (const record of records) {
+                const keys = Object.keys(record);
+                chai.assert.equal(keys.length, 2);
+                chai.assert(keys.includes('email'));
+                chai.assert(keys.includes('displayName'));
             }
         }
     });
@@ -141,7 +155,7 @@ describe('Verify Core Repositories.', function () {
     it('should find all services by jurisdiction via repository', async function () {
         const { Service } = app.repositories;
         for (const serviceData of testData.services) {
-            let [records, recordCount] = await Service.findAll(serviceData.jurisdictionId, false);
+            let [records, recordCount] = await Service.findAll(serviceData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, serviceData.jurisdictionId);
