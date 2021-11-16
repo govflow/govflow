@@ -1,7 +1,7 @@
+import merge from 'deepmerge';
 import { injectable } from 'inversify';
-import _ from 'lodash';
 import { databaseEngine } from '../../db';
-import { queryParamstoSequelize } from '../../helpers';
+import { queryParamsToSequelize } from '../../helpers';
 import { IStaffUserRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 
 @injectable()
@@ -21,7 +21,7 @@ export class StaffUserRepository implements IStaffUserRepository {
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
         const { StaffUser } = databaseEngine.models;
-        const params = _.merge({}, queryParamstoSequelize(queryParams), { where: { jurisdictionId } });
+        const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await StaffUser.findAll(params);
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore

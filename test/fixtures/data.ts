@@ -41,6 +41,21 @@ function makeService(options: Record<string, unknown>) {
 }
 
 function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
+    const dates = [
+        new Date('2021-11-01T00:00:00.000Z'),
+        new Date('2021-11-01T00:00:00.000Z'),
+        new Date('2021-10-01T00:00:00.000Z'),
+        new Date('2021-09-01T00:00:00.000Z'),
+        new Date('2021-08-01T00:00:00.000Z'),
+        new Date('2021-07-01T00:00:00.000Z'),
+        new Date('2021-06-01T00:00:00.000Z'),
+        new Date('2021-05-01T00:00:00.000Z'),
+        new Date('2021-04-01T00:00:00.000Z'),
+        new Date('2021-03-01T00:00:00.000Z'),
+        new Date('2021-02-01T00:00:00.000Z'),
+        new Date('2021-01-01T00:00:00.000Z'),
+    ]
+
     return {
         id: faker.datatype.uuid(),
         description: faker.lorem.sentences(5),
@@ -51,6 +66,8 @@ function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
         lastName: faker.name.lastName(),
         email: faker.internet.email(),
         phone: faker.phone.phoneNumber(),
+        createdAt: faker.helpers.randomize(dates),
+        updatedAt: faker.helpers.randomize(dates),
         // @ts-ignore
         assignedTo: faker.helpers.randomize(options.staffUsers.map((u) => { return u.id })),
         // @ts-ignore

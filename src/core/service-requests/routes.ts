@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { wrapHandler } from '../../helpers';
+import { serviceRequestFiltersToSequelize, wrapHandler } from '../../helpers';
 import { resolveJurisdiction } from '../../middlewares';
 
 export const serviceRequestRouter = Router();
@@ -37,9 +37,12 @@ serviceRequestRouter.post('/comments/:serviceRequestId/:id', wrapHandler(async (
 
 serviceRequestRouter.get('/', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
+    const { dateFrom, dateTo, status } = req.query;
     /* eslint-disable @typescript-eslint/ban-ts-comment */
     //@ts-ignore
-    const [records, count] = await ServiceRequest.findAll(req.jurisdiction.id);
+    const queryParams = serviceRequestFiltersToSequelize({ dateFrom, dateTo, status })
+    //@ts-ignore
+    const [records, count] = await ServiceRequest.findAll(req.jurisdiction.id, queryParams);
     /* eslint-enable @typescript-eslint/ban-ts-comment */
     res.status(200).send({ data: records, count: count });
 }))

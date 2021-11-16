@@ -1,7 +1,8 @@
+import merge from 'deepmerge';
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import { databaseEngine } from '../../db';
-import { queryParamstoSequelize } from '../../helpers';
+import { queryParamsToSequelize } from '../../helpers';
 import type { IServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 import { requestWithout311 } from '../open311/helpers';
 import { REQUEST_STATUSES } from './models';
@@ -42,7 +43,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
         const { ServiceRequest } = databaseEngine.models;
-        const params = _.merge({}, queryParamstoSequelize(queryParams), { where: { jurisdictionId } });
+        const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await ServiceRequest.findAll(params);
         return [records.map(requestWithout311), records.length];
     }

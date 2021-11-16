@@ -155,6 +155,103 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should GET all service requests filtered by status todo for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        try {
+            const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&status=todo`)
+            chai.assert.equal(res.status, 200);
+            for (const serviceRequest of res.body.data) {
+                chai.assert.equal(serviceRequest.jurisdictionId, jurisdictionId);
+                chai.assert.equal(serviceRequest.status, 'todo');
+            }
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should GET all service requests filtered by status inbox for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        try {
+            const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&status=inbox`)
+            chai.assert.equal(res.status, 200);
+            for (const serviceRequest of res.body.data) {
+                chai.assert.equal(serviceRequest.jurisdictionId, jurisdictionId);
+                chai.assert.equal(serviceRequest.status, 'inbox');
+            }
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should GET all service requests filtered by dateFrom for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        const dateFrom = '2021-06-01T00:00:00.000Z';
+        try {
+            const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&dateFrom=${dateFrom}`)
+            chai.assert.equal(res.status, 200);
+            chai.assert(res.body.count < 20);
+            for (const serviceRequest of res.body.data) {
+                chai.assert.equal(serviceRequest.jurisdictionId, jurisdictionId);
+                chai.assert.isTrue(new Date(dateFrom) <= new Date(serviceRequest.createdAt));
+            }
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should GET all service requests filtered by dateTo for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        const dateTo = '2021-11-01T00:00:00.000Z';
+        try {
+            const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&dateTo=${dateTo}`)
+            chai.assert.equal(res.status, 200);
+            chai.assert(res.body.count < 20);
+            for (const serviceRequest of res.body.data) {
+                chai.assert.equal(serviceRequest.jurisdictionId, jurisdictionId);
+                chai.assert.isTrue(new Date(dateTo) >= new Date(serviceRequest.createdAt));
+            }
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should GET all service requests filtered by dateFrom/dateTo range for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        const dateFrom = '2021-03-01T00:00:00.000Z';
+        const dateTo = '2021-09-01T00:00:00.000Z';
+        try {
+            const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&dateFrom=${dateFrom}&dateTo=${dateTo}`)
+            chai.assert.equal(res.status, 200);
+            chai.assert(res.body.count < 20);
+            for (const serviceRequest of res.body.data) {
+                chai.assert.equal(serviceRequest.jurisdictionId, jurisdictionId);
+                chai.assert.isTrue(new Date(dateFrom) <= new Date(serviceRequest.createdAt));
+                chai.assert.isTrue(new Date(dateTo) >= new Date(serviceRequest.createdAt));
+            }
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should GET all service requests filtered by dateFrom/dateTo range and with a certain status for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        const dateFrom = '2021-03-01T00:00:00.000Z';
+        const dateTo = '2021-09-01T00:00:00.000Z';
+        try {
+            const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&dateFrom=${dateFrom}&dateTo=${dateTo}&status=doing`)
+            chai.assert.equal(res.status, 200);
+            chai.assert(res.body.count < 20);
+            for (const serviceRequest of res.body.data) {
+                chai.assert.equal(serviceRequest.jurisdictionId, jurisdictionId);
+                chai.assert.isTrue(new Date(dateFrom) <= new Date(serviceRequest.createdAt));
+                chai.assert.isTrue(new Date(dateTo) >= new Date(serviceRequest.createdAt));
+                chai.assert.equal(serviceRequest.status, 'doing');
+            }
+        } catch (error) {
+            throw error;
+        }
+    });
+
     it('should GET a service request for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         let serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });

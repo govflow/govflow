@@ -25,3 +25,9 @@ export interface QueryParamsAll extends QueryParamsOne {
     limit?: number,
     offset?: number,
 }
+
+export interface ServiceRequestFilterParams {
+    dateFrom?: string,
+    dateTo?: string,
+    status?: string
+}
