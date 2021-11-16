@@ -1,13 +1,17 @@
 import { DataTypes } from 'sequelize';
 import type { ModelDefinition } from '../../types';
 
-export const STAFF_USER_PERMISSIONS = [
+export const ADMIN_USER_PERMISSIONS = [
     'access-all-jurisdictions',
+]
+
+export const STAFF_USER_PERMISSIONS = [
     'read-contact-info',
 ]
 
 export const PERMISSIONS = [
-    ...STAFF_USER_PERMISSIONS
+    ...STAFF_USER_PERMISSIONS,
+    ...ADMIN_USER_PERMISSIONS,
 ]
 
 export const StaffUserModel: ModelDefinition = {
