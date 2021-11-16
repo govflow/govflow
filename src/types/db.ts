@@ -13,3 +13,15 @@ export type QueryResult = Model | Record<string, unknown> | null;
 export type IterableQueryResult = QueryResult[];
 
 export type UnknownQueryResult = QueryResult | IterableQueryResult;
+
+export interface QueryParamsOne {
+    whereParams?: Record<string, unknown>,
+    selectFields?: string[],
+
+}
+
+export interface QueryParamsAll extends QueryParamsOne {
+    orderFields?: string[],
+    limit?: number,
+    offset?: number,
+}

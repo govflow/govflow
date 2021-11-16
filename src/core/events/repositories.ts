@@ -1,6 +1,8 @@
 import { injectable } from 'inversify';
+import _ from 'lodash';
 import { databaseEngine } from '../../db';
-import type { IEventRepository, IterableQueryResult, QueryResult } from '../../types';
+import { queryParamstoSequelize } from '../../helpers';
+import type { IEventRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 
 @injectable()
 export class EventRepository implements IEventRepository {
@@ -11,9 +13,9 @@ export class EventRepository implements IEventRepository {
         return await Event.findOne(params);
     }
 
-    async findAll(jurisdictionId: string, where: Record<string, unknown>): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
         const { Event } = databaseEngine.models;
-        const params = { where: Object.assign({}, where, { jurisdictionId }), raw: true, nest: true };
+        const params = _.merge({}, queryParamstoSequelize(queryParams), { where: { jurisdictionId } });
         const records = await Event.findAll(params);
         return [records, records.length];
     }

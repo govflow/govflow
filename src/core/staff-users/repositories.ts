@@ -1,6 +1,8 @@
 import { injectable } from 'inversify';
+import _ from 'lodash';
 import { databaseEngine } from '../../db';
-import { IStaffUserRepository, IterableQueryResult, QueryResult } from '../../types';
+import { queryParamstoSequelize } from '../../helpers';
+import { IStaffUserRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 
 @injectable()
 export class StaffUserRepository implements IStaffUserRepository {
@@ -17,14 +19,29 @@ export class StaffUserRepository implements IStaffUserRepository {
         return await StaffUser.findOne(params);
     }
 
-    async findAll(jurisdictionId: string): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
         const { StaffUser } = databaseEngine.models;
-        const params = { where: { jurisdictionId } };
+        const params = _.merge({}, queryParamstoSequelize(queryParams), { where: { jurisdictionId } });
         const records = await StaffUser.findAll(params);
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         return [records, records.length];
         /* eslint-enable @typescript-eslint/ban-ts-comment */
+    }
+
+    async lookupTable(jurisdictionId: string): Promise<[IterableQueryResult, number]> {
+        const queryParams = {
+            // TODO: check why not working.
+            // selectFields: ['email', 'displayName']
+        };
+        const [records, count] = await this.findAll(jurisdictionId, queryParams);
+        return [
+            /* eslint-disable @typescript-eslint/ban-ts-comment */
+            // @ts-ignore
+            records.map((record) => { return { email: record.email, displayName: record.displayName } }),
+            /* eslint-enable @typescript-eslint/ban-ts-comment */
+            count
+        ];
     }
 
 }
