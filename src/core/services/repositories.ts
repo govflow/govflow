@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { databaseEngine } from '../../db';
-import { IServiceRepository, IterableQueryResult, QueryResult } from '../../types';
+import { IServiceRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 import { open311ServiceExcludeFields, serviceWithout311 } from '../open311/helpers';
 
 @injectable()
@@ -24,10 +24,10 @@ export class ServiceRepository implements IServiceRepository {
         return serviceWithout311(record);
     }
 
-    async findAll(jurisdictionId: string, whereParams: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
         const { Service } = databaseEngine.models;
         const records = await Service.findAll({
-            where: Object.assign({}, whereParams, { jurisdictionId }),
+            where: Object.assign({}, queryParams?.whereParams, { jurisdictionId }),
             include: [
                 { model: Service, as: 'parent', attributes: { exclude: open311ServiceExcludeFields } },
                 { model: Service, as: 'children', attributes: { exclude: open311ServiceExcludeFields } },

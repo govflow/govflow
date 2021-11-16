@@ -1,7 +1,8 @@
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import { databaseEngine } from '../../db';
-import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IterableQueryResult, QueryResult } from '../../types';
+import { queryParamstoSequelize } from '../../helpers';
+import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 import { requestAs311, serviceAs311 } from '../open311/helpers';
 
 @injectable()
@@ -39,11 +40,11 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
-    async findAll(jurisdictionId: string, whereParams: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
         const { Service } = databaseEngine.models;
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
-        const mergedWhere = Object.assign({}, whereParams, { jurisdictionId }) // { parentId: { [Op.not]: null }}
+        const mergedWhere = Object.assign({}, queryParams?.whereParams, { jurisdictionId }) // { parentId: { [Op.not]: null }}
         /* eslint-enable @typescript-eslint/ban-ts-comment */
         const records = await Service.findAll({ where: mergedWhere });
         return [records.map(serviceAs311), records.length];
@@ -73,11 +74,11 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
         return requestAs311(record);
     }
 
-    async findAll(jurisdictionId: string, where: Record<string, unknown> = {}): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
         const { ServiceRequest } = databaseEngine.models;
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
-        const params = { where: Object.assign({}, where, { jurisdictionId }) };
+        const params = _.merge({}, queryParamstoSequelize(queryParams), { where: { jurisdictionId } });
         /* eslint-enable @typescript-eslint/ban-ts-comment */
         const records = await ServiceRequest.findAll(params);
         return [records.map(requestAs311), records.length];
