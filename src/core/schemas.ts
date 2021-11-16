@@ -1,6 +1,7 @@
 import { validate as jsonSchemaValidate, ValidatorResult } from 'jsonschema';
-import { homepage } from '../../package.json';
 import { JSONBTarget, JSONSchema } from '../types';
+
+const homepage = 'https://github.com/govflow/govflow'
 
 export function isValidToSchema(schema: JSONSchema): (value: JSONBTarget) => ValidatorResult {
     return (value: JSONBTarget): ValidatorResult => {

@@ -1,10 +1,10 @@
 {
   "name": "@govflow/govflow",
-  "version": "0.0.2-alpha",
+  "version": "0.0.3-alpha",
   "description": "An open, modular work order and workflow management system for local governments and resident satisfaction.",
   "homepage": "https://github.com/govflow/govflow",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "nyc mocha --exit -r ts-node/register test/** && nyc report --reporter=json > coverage.json",
     "start": "ts-node ./src/default.ts",

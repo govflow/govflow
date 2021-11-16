@@ -3,7 +3,6 @@ import chaiHttp from 'chai-http';
 import type { Application } from 'express';
 import faker from 'faker';
 import _ from 'lodash';
-import { name, version } from '../package.json';
 import { createApp } from '../src';
 import makeTestData, { writeTestDataToDatabase } from './fixtures/data';
 
@@ -27,7 +26,7 @@ describe('Hit all API endpoints', function () {
         try {
             const res = await chai.request(app).get('/')
             chai.assert.equal(res.status, 200);
-            chai.assert.equal(res.text, JSON.stringify({ data: { name, version } }));
+            chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.3-alpha' } }));
         } catch (error) {
             throw error;
         }

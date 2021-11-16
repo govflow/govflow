@@ -5,7 +5,7 @@ NAME := govflow
 COMPOSE := docker-compose -f docker-compose/docker-compose.yml --compatibility
 REPOSITORY := $(USER)/$(NAME)
 DOCKER_HOST := ghcr.io
-DOCKER_VERSION := 0.0.2-alpha
+DOCKER_VERSION := 0.0.3-alpha
 
 ####
 

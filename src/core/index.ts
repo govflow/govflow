@@ -1,7 +1,6 @@
 import cors from 'cors';
 import type { Request, RequestHandler, Response } from 'express';
 import { json, Router } from 'express';
-import { name, version } from '../../package.json';
 import { wrapHandler } from '../helpers';
 import { internalServerError, notFound } from '../middlewares';
 import type { ModelDefinition, Pluggable } from '../types';
@@ -15,7 +14,7 @@ import { accountRouter, StaffUserModel, StaffUserRepository } from './staff-user
 const coreRoutes = Router();
 
 coreRoutes.get('/', wrapHandler(async (req: Request, res: Response) => {
-    res.status(200).send({ data: { name, version } });
+    res.status(200).send({ data: { name: 'govflow', version: '0.0.3-alpha' } });
 }))
 coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
