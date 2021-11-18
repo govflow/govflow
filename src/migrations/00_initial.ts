@@ -1,7 +1,7 @@
 import type { QueryInterface } from 'sequelize';
 import { DataTypes } from 'sequelize';
 
-export async function up({ context: queryInterface }: Record<string, QueryInterface>) {
+export async function up({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
 
     await queryInterface.createTable('Jurisdiction', {
         id: {
@@ -281,7 +281,7 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
 
 }
 
-export async function down({ context: queryInterface }: Record<string, QueryInterface>) {
+export async function down({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
 
     await queryInterface.dropTable('Jurisdiction');
     await queryInterface.dropTable('StaffUser');
