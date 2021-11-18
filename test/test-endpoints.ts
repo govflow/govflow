@@ -4,7 +4,8 @@ import type { Application } from 'express';
 import faker from 'faker';
 import _ from 'lodash';
 import { createApp } from '../src';
-import makeTestData, { writeTestDataToDatabase } from './fixtures/data';
+import { migrator } from '../src/db';
+import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 
 chai.use(chaiHttp);
 
@@ -13,6 +14,7 @@ describe('Hit all API endpoints', function () {
     let testData: Record<string, Record<string, unknown>[]>;
 
     before(async function () {
+        await migrator.up();
         app = await createApp();
         testData = makeTestData();
         await writeTestDataToDatabase(app.database, testData);

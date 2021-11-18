@@ -1,5 +1,6 @@
 import chai from 'chai';
 import type { Application } from 'express';
+import { migrator } from '../src/db';
 import { createApp } from '../src/index';
 import type { AppSettings } from '../src/types';
 import { MyServiceRepositoryPlugin } from './fixtures/repositories';
@@ -10,6 +11,7 @@ describe('Verify Repository Plugins.', () => {
     before(async function () {
         let appSettings = { plugins: [MyServiceRepositoryPlugin] }
         app = await createApp(appSettings as AppSettings);
+        await migrator.up();
     })
 
     after(async function () {

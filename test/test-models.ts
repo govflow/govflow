@@ -1,7 +1,8 @@
 import chai from 'chai';
 import type { Application } from 'express';
+import { migrator } from '../src/db';
 import { createApp } from '../src/index';
-import makeTestData from './fixtures/data';
+import makeTestData from '../src/tools/fake-data-generator';
 
 describe('Verify Core Models.', function () {
 
@@ -10,6 +11,7 @@ describe('Verify Core Models.', function () {
     let testData;
 
     before(async function () {
+        await migrator.up();
         app = await createApp();
         testData = makeTestData();
     })

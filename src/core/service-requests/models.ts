@@ -126,6 +126,7 @@ export const ServiceRequestModel: ModelDefinition = {
         },
     },
     options: {
+        freezeTableName: true,
         indexes: [
             {
                 unique: true,
@@ -161,6 +162,7 @@ export const ServiceRequestCommentModel: ModelDefinition = {
         },
     },
     options: {
+        freezeTableName: true,
         indexes: [
             {
                 unique: true,

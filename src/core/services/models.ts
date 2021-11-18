@@ -5,7 +5,7 @@ import { isValidToSchema, serviceExtraAttrsSchema } from '../schemas';
 
 const validExtras = isValidToSchema(serviceExtraAttrsSchema);
 
-const ServiceModel: ModelDefinition = {
+export const ServiceModel: ModelDefinition = {
     name: 'Service',
     attributes: {
         id: {
@@ -89,10 +89,7 @@ const ServiceModel: ModelDefinition = {
         },
     },
     options: {
+        freezeTableName: true,
         indexes: [{ unique: true, fields: ['name', 'parentId', 'jurisdictionId'] }]
     }
 }
-
-export {
-    ServiceModel
-};

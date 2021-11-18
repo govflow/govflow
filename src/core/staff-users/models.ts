@@ -61,6 +61,7 @@ export const StaffUserModel: ModelDefinition = {
         },
     },
     options: {
+        freezeTableName: true,
         indexes: [
             {
                 unique: true,
