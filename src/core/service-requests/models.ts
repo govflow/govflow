@@ -83,6 +83,10 @@ export const ServiceRequestModel: ModelDefinition = {
                 // isPhone: true TODO: write something like this with libphonenumber
             }
         },
+        assignedToId: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
         // Fields for Open311 compatibility.
         address_id: {
             allowNull: true,
