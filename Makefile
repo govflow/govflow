@@ -2,10 +2,11 @@
 SHELL := /bin/bash
 USER := govflow
 NAME := govflow
+VERSION := 0.0.5-alpha
 COMPOSE := docker-compose -f docker-compose/docker-compose.yml --compatibility
 REPOSITORY := $(USER)/$(NAME)
 DOCKER_HOST := ghcr.io
-DOCKER_VERSION := 0.0.5-alpha
+DOCKER_VERSION := $(VERSION)
 
 ####
 
@@ -43,6 +44,11 @@ fake-data:
 	npm run fake-data
 
 ####
+
+.PHONY: tag-release ## Create a git tag for release and push to origin.
+tag-release:
+	git tag -a $(VERSION) -m "version $(VERSION)"
+	git push --follow-tags
 
 .PHONY: prepublish ## Build package distribution.
 prepublish:
