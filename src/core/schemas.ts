@@ -14,13 +14,27 @@ export const eventActorSchema: JSONSchema = {
     '$schema': 'https://json-schema.org/draft/2020-12/schema',
     '$id': `${homepage}/src/core/schemas/event-actor-schema.json`,
     'title': 'Event Actor Schema',
-    'description': 'Event actors can be a number of different entities represented by models, or, the system itself.',
+    'description': 'Event actors initiate events, and are users or the system itself.',
     'type': 'object',
     'required': ['id', 'name', 'type'],
     'properties': {
         'id': { 'type': 'string' },
         'name': { 'type': 'string' },
         'type': { 'type': 'string' },
+    }
+}
+
+export const eventSenderSchema: JSONSchema = {
+    '$schema': 'https://json-schema.org/draft/2020-12/schema',
+    '$id': `${homepage}/src/core/schemas/event-sender-schema.json`,
+    'title': 'Event Sender Schema',
+    'description': 'Event senders are subsystems that events are triggered from.',
+    'type': 'object',
+    'required': ['id', 'name', 'type'],
+    'properties': {
+        'id': { 'type': 'string' },
+        'module': { 'type': 'string' },
+        'callable': { 'type': 'string' },
     }
 }
 

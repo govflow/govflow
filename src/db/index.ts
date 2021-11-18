@@ -5,7 +5,7 @@ import logger from '../logging';
 import type { AppSettings, ModelDefinition } from '../types';
 
 export const databaseEngine = new Sequelize(config.get('database_url'), {
-    logging: msg => logger.debug(msg),
+    logging: msg => logger.info(msg),
 });
 
 export const migrator = getMigrator(databaseEngine);
@@ -22,9 +22,6 @@ export function getMigrator(sequelize: Sequelize): Umzug<QueryInterface> {
 export async function initDb(coreModels: ModelDefinition[], appSettings: AppSettings | void): Promise<Sequelize> {
     await verifyDatabaseConnection(databaseEngine);
     registerModels(databaseEngine, coreModels, appSettings);
-    await databaseEngine.sync();
-    // check migrations, and apply migrations that have not been applied
-    await migrator.up();
     return databaseEngine;
 }
 
@@ -61,9 +58,6 @@ function applyCoreModelRelations(models: typeof databaseEngine.models) {
 
     ServiceRequest.hasMany(ServiceRequestComment, { as: 'comments', foreignKey: 'serviceRequestId' });
     ServiceRequestComment.belongsTo(ServiceRequest, { as: 'serviceRequest' });
-
-    StaffUser.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'assignedToId' });
-    ServiceRequest.belongsTo(StaffUser, { as: 'assignedTo' });
 
 }
 

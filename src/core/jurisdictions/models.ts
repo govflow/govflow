@@ -12,5 +12,7 @@ export const JurisdictionModel: ModelDefinition = {
             primaryKey: true,
         }
     },
-    options: {}
+    options: {
+        freezeTableName: true
+    }
 }

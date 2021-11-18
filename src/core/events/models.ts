@@ -1,8 +1,9 @@
 import { DataTypes } from 'sequelize';
 import { ModelDefinition } from '../../types';
-import { eventActorSchema, isValidToSchema } from '../schemas';
+import { eventActorSchema, eventSenderSchema, isValidToSchema } from '../schemas';
 
 const validActor = isValidToSchema(eventActorSchema);
+const validSender = isValidToSchema(eventSenderSchema);
 
 export const EventModel: ModelDefinition = {
     name: 'Event',
@@ -14,12 +15,11 @@ export const EventModel: ModelDefinition = {
             primaryKey: true,
         },
         sender: {
-            type: DataTypes.STRING,
+            type: DataTypes.JSONB,
             allowNull: false,
-        },
-        message: {
-            type: DataTypes.STRING,
-            allowNull: false,
+            validate: {
+                validSender
+            }
         },
         actor: {
             type: DataTypes.JSONB,
@@ -28,8 +28,13 @@ export const EventModel: ModelDefinition = {
                 validActor
             }
         },
+        message: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
     },
     options: {
+        freezeTableName: true,
         indexes: [
             {
                 unique: false,

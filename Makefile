@@ -28,15 +28,19 @@ lint:
 test:
 	npm run test
 
-.PHONY: test ## Test code with coverage, and push coverage to codecov.
-ci-test:
-	npm run ci-test
-
 ####
 
 .PHONY: serve ## Serve the default application.
 serve:
 	npm start
+
+.PHONY: migrate ## Run database migrations.
+migrate:
+	npm run migrate
+
+.PHONY: fake-data ## Populate an empty govflow database with fake data.
+fake-data:
+	npm run fake-data
 
 ####
 
