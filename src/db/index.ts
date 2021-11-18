@@ -10,9 +10,10 @@ export const databaseEngine = new Sequelize(config.get('database_url'), {
 
 export const migrator = getMigrator(databaseEngine);
 
-export function getMigrator(sequelize: Sequelize): Umzug<QueryInterface> {
+export function getMigrator(sequelize: Sequelize, extraMigrationPaths: string = ''): Umzug<QueryInterface> {
+    const globPattern = `{src/migrations/*.ts,${extraMigrationPaths}}`
     return new Umzug({
-        migrations: { glob: 'src/migrations/*.ts' },
+        migrations: { glob: globPattern },
         context: databaseEngine.getQueryInterface(),
         storage: new SequelizeStorage({ sequelize }),
         logger: logger,
