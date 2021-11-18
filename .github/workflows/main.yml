@@ -34,7 +34,7 @@ jobs:
       - name: Lint code
         run: make lint
       - name: Test app
-        run: make test
+        run: make migrate && make test
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
       - name: Report coverage
