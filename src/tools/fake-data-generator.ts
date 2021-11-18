@@ -1,14 +1,16 @@
 import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 
+/* eslint-disable @typescript-eslint/ban-types */
 function factory(generator: Function, times: number, generatorOpts: {}) {
     const iterations = [...Array(times).keys()];
-    let data: Record<string, unknown>[] = [];
+    const data: Record<string, unknown>[] = [];
     iterations.forEach(() => {
         data.push(generator(generatorOpts))
     })
     return data;
 }
+/* eslint-enable @typescript-eslint/ban-types */
 
 function makeJurisdiction() {
     return {
@@ -16,26 +18,24 @@ function makeJurisdiction() {
     }
 }
 
-function makeStaffUser(options: Record<string, unknown>) {
+function makeStaffUser(options: Record<string, Record<string, unknown>>) {
     return {
         id: faker.datatype.uuid(),
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
         email: faker.internet.email(),
         phone: faker.phone.phoneNumber(),
-        // @ts-ignore
         jurisdictionId: options.jurisdiction.id,
     }
 }
 
-function makeService(options: Record<string, unknown>) {
+function makeService(options: Record<string, Record<string, unknown>>) {
     return {
         id: faker.datatype.uuid(),
         name: faker.datatype.string(),
         description: faker.lorem.sentences(5),
         tags: [faker.datatype.string(), faker.datatype.string()],
         type: faker.helpers.randomize(['realtime', 'batch', 'blackbox']),
-        // @ts-ignore
         jurisdictionId: options.jurisdiction.id,
     }
 }
@@ -68,12 +68,14 @@ function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
         phone: faker.phone.phoneNumber(),
         createdAt: faker.helpers.randomize(dates),
         updatedAt: faker.helpers.randomize(dates),
+        /* eslint-disable */
         // @ts-ignore
         assignedTo: faker.helpers.randomize(options.staffUsers.map((u) => { return u.id })),
         // @ts-ignore
         serviceId: faker.helpers.randomize(options.services.map((s) => { return s.id })),
         // @ts-ignore
         jurisdictionId: options.jurisdiction.id,
+        /* eslint-enable */
         comments: [makeServiceRequestComment(), makeServiceRequestComment()]
     }
 }
@@ -99,7 +101,7 @@ function makeEvent(options: Record<string, Record<string, unknown>>) {
     }
 }
 
-export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: Record<string, Record<string, unknown>[]>) {
+export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: Record<string, Record<string, unknown>[]>): Promise<void> {
     const { Jurisdiction, StaffUser, Service, ServiceRequest, ServiceRequestComment, Event } = databaseEngine.models;
 
     for (const jurisdictionData of testData.jurisdictions) {
@@ -116,10 +118,12 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
 
     for (const serviceRequestData of testData.serviceRequests) {
         const record = await ServiceRequest.create(serviceRequestData);
+        /* eslint-disable */
         //@ts-ignore
         for (const comment of serviceRequestData.comments) {
             //@ts-ignore
             await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }))
+            /* eslint-enable */
         }
     }
 
