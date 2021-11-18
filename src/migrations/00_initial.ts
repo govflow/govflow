@@ -176,6 +176,10 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             allowNull: true,
             type: DataTypes.STRING,
         },
+        assignedToId: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
         createdAt: {
             allowNull: false,
             type: DataTypes.DATE
@@ -191,9 +195,6 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
                 model: 'Service',
                 key: 'id',
             }
-        },
-        assignedToId: {
-            type: DataTypes.STRING,
         },
         jurisdictionId: {
             type: DataTypes.STRING,
