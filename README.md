@@ -11,7 +11,7 @@ An open, modular work order and workflow management system for local governments
 **Install Gov Flow from npm:**
 
 ```bash
-npm install govflow
+npm install @govflow/govflow
 ```
 
 If you are not modifying Gov Flow with plugins, or embedding Gov Flow into an existing application, you can run the default server.
@@ -29,23 +29,29 @@ You can then visit `localhost:3000/` in your browser to see the base API endpoin
 If you plan to modify Gov Flow with plugins or any custom configuration or integrations, create your own entrypoint based on the following:
 
 ```typescript
-# my_src/index.ts
 
-import { Server } from 'http';
+// my-govflow-extension/config.ts
+import { MyServiceRepositoryPlugin } from './repositories';
+
+export const plugins = []; // your plugins here.
+export const settings = {}; // your settings here.
+
+// my-govflow-extension/index.ts
+import type { Server } from 'http';
 import { createApp } from '../index';
 import logger from '../logging';
 
-const APP_PORT: number = parseInt(process.env.APP_PORT || '3000');
-
 async function defaultServer(): Promise<Server> {
-    // optionally, you can pass appSettings to createApp for further customization
+    process.env.CONFIG_MODULE_PATH = './my-govflow-extension/config.ts';
     const app = await createApp();
-    return app.listen(APP_PORT, () => {
-        logger.info(`application listening on ${APP_PORT}.`)
+    const port = app.config.appPort;
+    return app.listen(port, () => {
+        logger.info(`application listening on ${port}.`)
     });
 }
 
-(async () => { return await defaultServer() })();
+export default defaultServer;
+
 ```
 
 *Note*: See `src/servers` for examples of ready-to-go server configurations.
@@ -90,17 +96,19 @@ make test
 
 ## Configuration
 
-Configuration is defined on the `Config` class in the `config` module. Configuration is read from environment variables, and/or, passed explicitly as `appSettings.config` to `createApp`.
+Provide a path to your custom configuration module via `process.env.CONFIG_MODULE_PATH`. See `src/config` for how this is read. You can provide new config and overwrite existing config.
 
 ## Entry point
 
-The primary entry point is the `createApp` factory function defined in `src/index.ts`. This function optionally accepts an `appSettings` object which allows for provision of custom plugins, custom configuration values, and custom models.
+The primary entry point is the `createApp` factory function defined in `src/index.ts`.
 
-`createApp` needs to be called in order to initialize the system correctly. `createApp` returns an Express.js `Application`instance `app`. `app` is provisioned with easy access to configuration at `app.config`, registered plugins at `app.plugins`, and repositories at `app.repositories` (repositories are used for all data access). The database is also configured via `createApp`, and is usable after `createApp` has been called by exporting `databaseEngine` from `src/db`.
+`createApp` calls `initConfig` which initializes the system correctly. All tools, such as the migration and fake data generator scripts, need to call `initConfig` as part of their initialization flow.
+
+`createApp` returns an Express.js `Application`instance `app`. `app` is provisioned with easy access to configuration at `app.config`, registered plugins at `app.plugins`, and repositories at `app.repositories` (repositories are used for all data access). The database is also configured via `createApp`, and is usable after `createApp` has been called by exporting `databaseEngine` from `src/db`.
 
 ## Extensibility
 
-Gov Flow is designed to be shaped for specific use cases and system integrations. Existing behavior can be modified or extended via **plugins** or custom **models**. Over time, such customizations will be available as extensions, downloadable via npm, contributed by the core maintainers and the wider community of users.
+Gov Flow is designed to be shaped for specific use cases and system integrations. Existing behavior can be modified or extended via **plugins**. Over time, such customizations will be available as extensions, downloadable via npm, contributed by the core maintainers and the wider community of users.
 
 ### Plugins
 
@@ -112,7 +120,7 @@ Future releases may see interfaces that can be customised via plugins for routes
 
 #### Providing a plugin
 
-See the tests, and the `createApp` function for examples of how to provide a plugin. Basically, `createApp` takes an optional `appSettings` object with an optional `appSettings.plugins` property. Each plugin is registered in a central registry, and then bound to the relevant part of the system.
+Provide a path to your custom configuration module via `process.env.CONFIG_MODULE_PATH`, and from that module export a member `plugins` which is an array of `Plugin` types. See examples in the test suite, and see where implementations are bound in `src/registry`.
 
 ### Models
 
