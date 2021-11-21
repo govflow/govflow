@@ -1,20 +1,18 @@
 import chai from 'chai';
 import type { Application } from 'express';
-import { migrator } from '../src/db';
 import { createApp } from '../src/index';
-import type { AppSettings } from '../src/types';
-import { MyServiceRepositoryPlugin } from './fixtures/repositories';
 
 describe('Verify Repository Plugins.', () => {
     let app: Application;
 
     before(async function () {
-        let appSettings = { plugins: [MyServiceRepositoryPlugin] }
-        app = await createApp(appSettings as AppSettings);
-        await migrator.up();
+        process.env.CONFIG_MODULE_PATH = './test/fixtures/custom-config-custom-repository.ts';
+        app = await createApp();
+        await app.migrator.up();
     })
 
     after(async function () {
+        process.env.CONFIG_MODULE_PATH = undefined;
         await app.database.drop({});
     })
 

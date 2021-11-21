@@ -6,6 +6,7 @@ import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
 import type { IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
+import { DatabaseEngine } from '../types';
 
 export const repositoryIds = {
     IJurisdictionRepository: Symbol('IJurisdictionRepository'),
@@ -17,7 +18,7 @@ export const repositoryIds = {
     IEventRepository: Symbol('IEventRepository'),
 };
 
-function bindImplementationsFromPlugins(pluginRegistry: Plugin[]): Record<string, unknown> {
+function bindImplementationsFromPlugins(pluginRegistry: Plugin[], databaseEngine: DatabaseEngine): Record<string, unknown> {
 
     // default repository bindings
     const repositoryContainer = new Container();
@@ -42,6 +43,15 @@ function bindImplementationsFromPlugins(pluginRegistry: Plugin[]): Record<string
     const Open311Service = repositoryContainer.get<IOpen311ServiceRepository>(repositoryIds.IOpen311ServiceRepository);
     const Open311ServiceRequest = repositoryContainer.get<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository);
     const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
+
+    Jurisdiction.models = databaseEngine.models
+    StaffUser.models = databaseEngine.models
+    Service.models = databaseEngine.models
+    ServiceRequest.models = databaseEngine.models
+    Open311Service.models = databaseEngine.models
+    Open311ServiceRequest.models = databaseEngine.models
+    Event.models = databaseEngine.models
+
     return {
         Jurisdiction,
         StaffUser,

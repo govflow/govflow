@@ -1,16 +1,14 @@
-import type { AppSettings, Plugin } from '../types';
+import type { Plugin, PluginRegistry } from '../types';
 
-export function registerPlugins(appSettings: AppSettings | void): Plugin[] {
-    const pluginRegistry: Plugin[] = [];
-    if (appSettings && Object.hasOwnProperty.call(appSettings, 'plugins')) {
-        appSettings.plugins.forEach((plugin) => {
-            bindPlugin(plugin, pluginRegistry);
-        });
-    }
+export function registerPlugins(customPlugins: Plugin[]): PluginRegistry {
+    const pluginRegistry: PluginRegistry = [];
+    customPlugins.forEach((plugin) => {
+        bindPlugin(plugin, pluginRegistry);
+    });
     return pluginRegistry;
 }
 
-function bindPlugin(plugin: Plugin, registry: Plugin[]): Plugin {
+function bindPlugin(plugin: Plugin, registry: PluginRegistry): Plugin {
     registry.push(plugin);
     return plugin;
 }

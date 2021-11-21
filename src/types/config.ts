@@ -1,28 +1,12 @@
-import { ModelDefinition } from './db';
-import { Plugin } from './registry';
+import type { DatabaseEngine, MigrationEngine, ModelDefinition, Plugin } from '.';
 
-interface ConfigItem {
-    key: string,
-    /* eslint-disable */
-    value: any
-    /* eslint-enable */
+export type AppSettings = Record<string, unknown>;
+
+export interface Config {
+    plugins?: Plugin[],
+    // TODO: models as plugins
+    models?: ModelDefinition[]
+    settings?: AppSettings,
+    database?: DatabaseEngine,
+    migrator?: MigrationEngine
 }
-
-interface AppSettings {
-    plugins: Plugin[],
-    config: ConfigItem[],
-    models: ModelDefinition[]
-}
-
-interface Config {
-    /* eslint-disable */
-    get: (key: string) => any,
-    set: (key: string, value: any) => any
-    /* eslint-enable */
-}
-
-export {
-    AppSettings,
-    ConfigItem,
-    Config
-};

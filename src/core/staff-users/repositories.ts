@@ -1,6 +1,5 @@
 import merge from 'deepmerge';
 import { injectable } from 'inversify';
-import { databaseEngine } from '../../db';
 import { queryParamsToSequelize } from '../../helpers';
 import { IStaffUserRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 
@@ -8,19 +7,28 @@ import { IStaffUserRepository, IterableQueryResult, QueryParamsAll, QueryResult 
 export class StaffUserRepository implements IStaffUserRepository {
 
     async create(data: Record<string, unknown>): Promise<QueryResult> {
-        const { StaffUser } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { StaffUser } = this.models;
+        /* eslint-enable */
         const params = data;
         return await StaffUser.create(params);
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
-        const { StaffUser } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { StaffUser } = this.models;
+        /* eslint-enable */
         const params = { where: { jurisdictionId, id } };
         return await StaffUser.findOne(params);
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
-        const { StaffUser } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { StaffUser } = this.models;
+        /* eslint-enable */
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await StaffUser.findAll(params);
         /* eslint-disable @typescript-eslint/ban-ts-comment */

@@ -1,11 +1,12 @@
 import type { Application } from 'express';
 import express from 'express';
+import _ from 'lodash';
 import 'reflect-metadata';
-import { registerConfig } from './config';
+import { initConfig } from './config';
 import { coreMiddlewares, coreModels, coreRoutes } from './core';
 import { initDb } from './db';
 import { bindImplementationsFromPlugins, registerPlugins } from './registry';
-import type { AppSettings, Config, DatabaseEngine, Plugin, QueryResult } from './types';
+import type { AppSettings, DatabaseEngine, MigrationEngine, Plugin, QueryResult } from './types';
 
 /* eslint-disable */
 // TODO: can we do this without using namespace?
@@ -13,9 +14,10 @@ declare global {
     namespace Express {
         interface Application {
             plugins: Plugin[];
-            config: Config;
+            config: AppSettings;
             repositories: Record<string, any>;
             database: DatabaseEngine;
+            migrator: MigrationEngine;
         }
         interface Request {
             jurisdiction: QueryResult;
@@ -24,44 +26,41 @@ declare global {
 }
 /* eslint-enable */
 
-export async function createApp(appSettings: AppSettings | void): Promise<Application> {
+export async function createApp(): Promise<Application> {
 
     // Read custom configurations from appSettings and register
     // onto config, including overriding existing configurations.
-    const config = registerConfig(appSettings);
+    const config = await initConfig();
+
+    // Normalize here to keep our init and bind functions clean.
+    let { plugins: customPlugins, models: customModels } = config;
+    if (_.isNil(customPlugins)) { customPlugins = [] }
+    if (_.isNil(customModels)) { customModels = [] }
+
+    // TODO: consolidate with above
+    initDb(config.database as DatabaseEngine, coreModels, customModels)
 
     // Read all plugins into a central plugin registry.
-    const pluginRegistry: Plugin[] = registerPlugins(appSettings);
+    const plugins = registerPlugins(customPlugins);
 
     // We use IoC containers to declare dependencies throughout the system.
     // Currently, plugins can provide alternate implementations of
     // repositories and in future they will be able to provide
     // implementations of other aspects of the system.
-    const repositories = bindImplementationsFromPlugins(pluginRegistry);
-
-    // Init the database with models, verify the connection, and return the engine.
-    const databaseEngine = await initDb(coreModels, appSettings);
+    const repositories = bindImplementationsFromPlugins(plugins, config.database as DatabaseEngine);
 
     // Start bootstrapping the app itself.
     const app = express();
 
-    // Make our config available to the app.
-    app.config = config;
-
-    // Make our plugin registry available to the app.
-    app.plugins = pluginRegistry;
-
-    // Make our database engine available to the app.
-    app.database = databaseEngine;
-
-    // Get our repositories from their container once, at composition
-    // root, and make them available to the app.
+    // Attach data to the app.
+    app.config = config.settings as AppSettings;
+    app.database = config.database as DatabaseEngine;
+    app.migrator = config.migrator as MigrationEngine;
+    app.plugins = plugins;
     app.repositories = repositories;
 
-    // Set our app-level middlewares.
+    // Use core middleware and mount routes.
     app.use(coreMiddlewares);
-
-    // Then, mount our core routes.
     app.use('/', coreRoutes);
 
     return app;

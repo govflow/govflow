@@ -1,7 +1,6 @@
-
-/* eslint-disable */
 export interface Plugin {
     serviceIdentifier: symbol,
-    implementation: { new(): any }
+    implementation: { new(): unknown }
 }
-/* eslint-disable */
+
+export type PluginRegistry = Plugin[];

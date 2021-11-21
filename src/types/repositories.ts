@@ -1,3 +1,4 @@
+import { Model, ModelCtor } from "sequelize/types";
 import { IterableQueryResult, QueryParamsAll, QueryResult } from ".";
 
 /* eslint-disable */
@@ -6,25 +7,31 @@ export interface Pluggable {
 }
 /* eslint-enable */
 
-export interface IJurisdictionRepository extends Pluggable {
+export interface RepositoryBase extends Pluggable {
+    /* eslint-disable */
+    models?: Record<string, ModelCtor<Model<any, any>>>
+    /* eslint-enable */
+}
+
+export interface IJurisdictionRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (id: string) => Promise<QueryResult>;
 }
 
-export interface IStaffUserRepository extends Pluggable {
+export interface IStaffUserRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
     lookupTable: (jurisdictionId: string) => Promise<[IterableQueryResult, number]>;
 }
 
-export interface IServiceRepository extends Pluggable {
+export interface IServiceRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }
 
-export interface IServiceRequestRepository extends Pluggable {
+export interface IServiceRequestRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<QueryResult>;
     update: (jurisdictionId: string, id: string, data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
@@ -34,19 +41,19 @@ export interface IServiceRequestRepository extends Pluggable {
     updateComment: (jurisdictionId: string, serviceRequestId: string, serviceRequestCommentId: string, data: Record<string, unknown>) => Promise<QueryResult>;
 }
 
-export interface IOpen311ServiceRepository extends Pluggable {
+export interface IOpen311ServiceRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (jurisdictionId: string, code: string) => Promise<QueryResult>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }
 
-export interface IOpen311ServiceRequestRepository extends Pluggable {
+export interface IOpen311ServiceRequestRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }
 
-export interface IEventRepository extends Pluggable {
+export interface IEventRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;

@@ -2,8 +2,6 @@ import chai from 'chai';
 import chaiHttp from 'chai-http';
 import { Application } from 'express';
 import { createApp } from '../src/index';
-import type { AppSettings } from '../src/types';
-import { MyBrokenJurisdictionRepositoryPlugin } from './fixtures/repositories';
 
 chai.use(chaiHttp);
 
@@ -11,8 +9,12 @@ describe('Check responses in common error scenarios', function () {
     let app: Application;
 
     before(async function () {
-        const appSettings = { plugins: [MyBrokenJurisdictionRepositoryPlugin] };
-        app = await createApp(appSettings as AppSettings);
+        process.env.CONFIG_MODULE_PATH = './test/fixtures/custom-config-broken-repository.ts';
+        app = await createApp();
+    })
+
+    after(async function () {
+        process.env.CONFIG_MODULE_PATH = undefined;
     })
 
     it('should return 404 not found for routes that do not exist', async function () {

@@ -1,7 +1,6 @@
 import merge from 'deepmerge';
 import { injectable } from 'inversify';
 import _ from 'lodash';
-import { databaseEngine } from '../../db';
 import { queryParamsToSequelize } from '../../helpers';
 import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 import { requestAs311, serviceAs311 } from '../open311/helpers';
@@ -10,7 +9,10 @@ import { requestAs311, serviceAs311 } from '../open311/helpers';
 export class Open311ServiceRepository implements IOpen311ServiceRepository {
 
     async create(data: Record<string, unknown>): Promise<QueryResult> {
-        const { Service, Jurisdiction } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { Service, Jurisdiction } = this.models;
+        /* eslint-enable */
         const { jurisdictionId, group } = data;
         // take group to create parent, but dont save with group.
         delete data.group;
@@ -31,7 +33,10 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
     }
 
     async findOne(jurisdictionId: string, code: string): Promise<QueryResult> {
-        const { Service } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { Service } = this.models;
+        /* eslint-enable */
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const params = { where: { jurisdictionId, id: code } }
@@ -42,7 +47,10 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
-        const { Service } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { Service } = this.models;
+        /* eslint-enable */
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const mergedWhere = Object.assign({}, queryParams?.whereParams, { jurisdictionId }) // { parentId: { [Op.not]: null }}
@@ -57,7 +65,10 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
 export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRepository {
 
     async create(data: Record<string, unknown>): Promise<QueryResult> {
-        const { ServiceRequest, Jurisdiction } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { ServiceRequest, Jurisdiction } = this.models;
+        /* eslint-enable */
         const { jurisdictionId } = data;
         delete data.jurisdictionId;
         const jurisdiction = await Jurisdiction.findOne({ where: { jurisdictionId } });
@@ -69,14 +80,20 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
-        const { ServiceRequest } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { ServiceRequest } = this.models;
+        /* eslint-enable */
         const params = { where: { jurisdictionId, id } };
         const record = await ServiceRequest.findOne(params);
         return requestAs311(record);
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
-        const { ServiceRequest } = databaseEngine.models;
+        /* eslint-disable */
+        //@ts-ignore
+        const { ServiceRequest } = this.models;
+        /* eslint-enable */
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await ServiceRequest.findAll(params);
         return [records.map(requestAs311), records.length];

@@ -27,3 +27,5 @@ coverage.json
 
 # app logs
 *.log
+
+.env

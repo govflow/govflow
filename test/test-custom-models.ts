@@ -1,31 +1,29 @@
-// import chai from 'chai';
-// import type { Application } from 'express';
-// import { databaseEngine } from '../src/db';
-// import { createApp } from '../src/index';
-// import type { AppSettings } from '../src/types';
-// import { MyBlogPostModel, MyServiceModel } from './fixtures/models';
+import chai from 'chai';
+import type { Application } from 'express';
+import { createApp } from '../src/index';
 
-// describe('Verify Custom Models.', () => {
+describe('Verify Custom Models.', () => {
 
-//     let app: Application;
+    let app: Application;
 
-//     before(async function () {
-//         let appSettings = { models: [MyServiceModel, MyBlogPostModel] };
-//         app = await createApp(appSettings as AppSettings);
-//         //await migrator.up();
-//     })
+    before(async function () {
+        process.env.CONFIG_MODULE_PATH = './test/fixtures/custom-config-custom-models.ts';
+        app = await createApp();
+        await app.migrator.up();
+    });
 
-//     after(async function () {
-//         await app.database.drop({});
-//     })
+    after(async function () {
+        process.env.CONFIG_MODULE_PATH = undefined;
+        // await app.database.drop({});
+    });
 
-//     it('should override a core model, adding an additional column', async function () {
-//         let modelFields = Object.keys(databaseEngine.models.Service.rawAttributes);
-//         chai.assert(modelFields.includes('internal_comments'));
-//     });
+    it('should override a core model, adding an additional column', async function () {
+        let modelFields = Object.keys(app.database.models.Service.rawAttributes);
+        chai.assert(modelFields.includes('internal_comments'));
+    });
 
-//     it('should produce an additional model to the core models', async function () {
-//         chai.assert(databaseEngine.models.BlogPost);
-//     });
+    it('should produce an additional model to the core models', async function () {
+        chai.assert(app.database.models.BlogPost);
+    });
 
-// });
+});
