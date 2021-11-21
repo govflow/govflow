@@ -8,7 +8,9 @@ export interface Pluggable {
 /* eslint-enable */
 
 export interface RepositoryBase extends Pluggable {
+    /* eslint-disable */
     models?: Record<string, ModelCtor<Model<any, any>>>
+    /* eslint-enable */
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {

@@ -19,6 +19,7 @@ async function verifyDatabaseConnection(databaseEngine: DatabaseEngine): Promise
 }
 
 function applyCoreModelRelations(models: Record<string, Model>) {
+    /* eslint-disable */
     const { Service, ServiceRequest, Jurisdiction, StaffUser, ServiceRequestComment, Event } = models;
     //@ts-ignore
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
@@ -48,6 +49,7 @@ function applyCoreModelRelations(models: Record<string, Model>) {
     ServiceRequest.hasMany(ServiceRequestComment, { as: 'comments', foreignKey: 'serviceRequestId' });
     //@ts-ignore
     ServiceRequestComment.belongsTo(ServiceRequest, { as: 'serviceRequest' });
+    /* eslint-enable */
 
 }
 
@@ -61,9 +63,10 @@ function registerModels(databaseEngine: DatabaseEngine, coreModels: ModelDefinit
         const { name, attributes, options } = model;
         databaseEngine.define(name, attributes, options);
     });
-
+    /* eslint-disable */
     //@ts-ignore
     applyCoreModelRelations(databaseEngine.models);
+    /* eslint-enable */
 
     // TODO: Apply relations for custom models?
 

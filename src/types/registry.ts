@@ -1,6 +1,6 @@
 export interface Plugin {
     serviceIdentifier: symbol,
-    implementation: { new(): any }
+    implementation: { new(): unknown }
 }
 
 export type PluginRegistry = Plugin[];

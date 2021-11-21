@@ -6,14 +6,18 @@ import { open311ServiceExcludeFields, serviceWithout311 } from '../open311/helpe
 export class ServiceRepository implements IServiceRepository {
 
     async create(data: Record<string, unknown>): Promise<QueryResult> {
+        /* eslint-disable */
         //@ts-ignore
         const { Service } = this.models;
+        /* eslint-enable */
         return await Service.create(data);
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
+        /* eslint-disable */
         //@ts-ignore
         const { Service } = this.models;
+        /* eslint-enable */
         const params = {
             where: { jurisdictionId, id },
             include: [
@@ -26,8 +30,10 @@ export class ServiceRepository implements IServiceRepository {
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
+        /* eslint-disable */
         //@ts-ignore
         const { Service } = this.models;
+        /* eslint-enable */
         const records = await Service.findAll({
             where: Object.assign({}, queryParams?.whereParams, { jurisdictionId }),
             include: [

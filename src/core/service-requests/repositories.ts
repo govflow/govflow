@@ -10,15 +10,19 @@ import { REQUEST_STATUSES } from './models';
 export class ServiceRequestRepository implements IServiceRequestRepository {
 
     async create(data: Record<string, unknown>): Promise<QueryResult> {
+        /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
+        /* eslint-enable */
         const record = await ServiceRequest.create(data);
         return requestWithout311(record);
     }
 
     async update(jurisdictionId: string, id: string, data: Record<string, unknown>): Promise<QueryResult> {
+        /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
+        /* eslint-enable */
         const allowUpdateFields = ['assignedTo', 'status', 'address', 'geometry', 'address_id']
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         const record = await ServiceRequest.findByPk(id);
@@ -36,16 +40,20 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
+        /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest, ServiceRequestComment } = this.models;
+        /* eslint-enable */
         const params = { where: { jurisdictionId, id }, include: [{ model: ServiceRequestComment, as: 'comments' }], };
         const record = await ServiceRequest.findOne(params);
         return requestWithout311(record);
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
+        /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
+        /* eslint-enable */
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await ServiceRequest.findAll(params);
         return [records.map(requestWithout311), records.length];
@@ -56,15 +64,19 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
     /* eslint-enable @typescript-eslint/no-unused-vars */
     async createComment(jurisdictionId: string, serviceRequestId: string, data: Record<string, unknown>): Promise<QueryResult> {
+        /* eslint-disable */
         //@ts-ignore
         const { ServiceRequestComment } = this.models;
+        /* eslint-enable */
         const record = await ServiceRequestComment.create(Object.assign({}, data, { serviceRequestId }));
         return record;
     }
 
     async updateComment(jurisdictionId: string, serviceRequestId: string, serviceRequestCommentId: string, data: Record<string, unknown>): Promise<QueryResult> {
+        /* eslint-disable */
         //@ts-ignore
         const { ServiceRequestComment } = this.models;
+        /* eslint-enable */
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const record = await ServiceRequestComment.findByPk(serviceRequestCommentId);
