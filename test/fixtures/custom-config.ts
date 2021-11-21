@@ -4,6 +4,6 @@ export const plugins = [MyServiceRepositoryPlugin];
 
 export const settings = {
     'myKey': 'myValue',
-    'databaseUrl': 'postgres://me@localhost:5432/govflow',
+    // 'databaseUrl': 'postgres://me:me@localhost:5432/govflow',
     'appPort': 9000
 };
