@@ -1,11 +1,10 @@
 
-import { databaseEngine } from '../db';
-import { createApp } from '../index';
+import { initConfig } from '../config';
 import makeTestData, { writeTestDataToDatabase } from '../tools/fake-data-generator';
+import { DatabaseEngine } from '../types';
 
-// dodgy, but we need it as the database is constructed as a side effect at present.
-// this also means that this only works without plugins.
-// this file could be copied and run with plugins etc. to get around that in specific cases.
-(async () => { return await createApp(); })();
-
-(async () => { return writeTestDataToDatabase(databaseEngine, makeTestData()); })();
+(async () => {
+    const config = await initConfig();
+    const { database } = config;
+    return writeTestDataToDatabase(database as DatabaseEngine, makeTestData());
+})();

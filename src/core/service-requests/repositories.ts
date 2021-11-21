@@ -1,7 +1,6 @@
 import merge from 'deepmerge';
 import { injectable } from 'inversify';
 import _ from 'lodash';
-import { databaseEngine } from '../../db';
 import { queryParamsToSequelize } from '../../helpers';
 import type { IServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 import { requestWithout311 } from '../open311/helpers';
@@ -11,13 +10,15 @@ import { REQUEST_STATUSES } from './models';
 export class ServiceRequestRepository implements IServiceRequestRepository {
 
     async create(data: Record<string, unknown>): Promise<QueryResult> {
-        const { ServiceRequest } = databaseEngine.models;
+        //@ts-ignore
+        const { ServiceRequest } = this.models;
         const record = await ServiceRequest.create(data);
         return requestWithout311(record);
     }
 
     async update(jurisdictionId: string, id: string, data: Record<string, unknown>): Promise<QueryResult> {
-        const { ServiceRequest } = databaseEngine.models;
+        //@ts-ignore
+        const { ServiceRequest } = this.models;
         const allowUpdateFields = ['assignedTo', 'status', 'address', 'geometry', 'address_id']
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         const record = await ServiceRequest.findByPk(id);
@@ -35,14 +36,16 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
-        const { ServiceRequest, ServiceRequestComment } = databaseEngine.models;
+        //@ts-ignore
+        const { ServiceRequest, ServiceRequestComment } = this.models;
         const params = { where: { jurisdictionId, id }, include: [{ model: ServiceRequestComment, as: 'comments' }], };
         const record = await ServiceRequest.findOne(params);
         return requestWithout311(record);
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
-        const { ServiceRequest } = databaseEngine.models;
+        //@ts-ignore
+        const { ServiceRequest } = this.models;
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await ServiceRequest.findAll(params);
         return [records.map(requestWithout311), records.length];
@@ -53,13 +56,15 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
     /* eslint-enable @typescript-eslint/no-unused-vars */
     async createComment(jurisdictionId: string, serviceRequestId: string, data: Record<string, unknown>): Promise<QueryResult> {
-        const { ServiceRequestComment } = databaseEngine.models;
+        //@ts-ignore
+        const { ServiceRequestComment } = this.models;
         const record = await ServiceRequestComment.create(Object.assign({}, data, { serviceRequestId }));
         return record;
     }
 
     async updateComment(jurisdictionId: string, serviceRequestId: string, serviceRequestCommentId: string, data: Record<string, unknown>): Promise<QueryResult> {
-        const { ServiceRequestComment } = databaseEngine.models;
+        //@ts-ignore
+        const { ServiceRequestComment } = this.models;
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const record = await ServiceRequestComment.findByPk(serviceRequestCommentId);
@@ -72,10 +77,8 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         }
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
-        record.save()
+        record.save();
         return record;
     }
-
-
 
 }

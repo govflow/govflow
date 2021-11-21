@@ -1,6 +1,8 @@
-import { Model, ModelAttributes, ModelOptions, Sequelize } from "sequelize/types";
+import { Model, ModelAttributes, ModelOptions, QueryInterface, Sequelize } from "sequelize/types";
+import { Umzug } from "umzug";
 
 export type DatabaseEngine = Sequelize;
+export type MigrationEngine = Umzug<QueryInterface>;
 
 export interface ModelDefinition {
     name: string,

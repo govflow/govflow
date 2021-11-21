@@ -1,7 +1,6 @@
 import chai from 'chai';
 import type { Application } from 'express';
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
-import { migrator } from '../src/db';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
 import { validServiceData } from './fixtures/open311';
@@ -12,8 +11,8 @@ describe('Verify Core Repositories.', function () {
     let testData: Record<string, Record<string, unknown>[]>;
 
     before(async function () {
-        await migrator.up();
         app = await createApp();
+        await app.migrator.up();
         testData = makeTestData();
     })
 

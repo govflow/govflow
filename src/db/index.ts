@@ -1,32 +1,14 @@
-import { QueryInterface, Sequelize } from 'sequelize';
-import { SequelizeStorage, Umzug } from 'umzug';
-import { config } from '../config';
+import { Model } from 'sequelize';
 import logger from '../logging';
-import type { AppSettings, ModelDefinition } from '../types';
+import type { DatabaseEngine, ModelDefinition } from '../types';
 
-export const databaseEngine = new Sequelize(config.get('database_url'), {
-    logging: msg => logger.info(msg),
-});
-
-export const migrator = getMigrator(databaseEngine);
-
-export function getMigrator(sequelize: Sequelize, extraMigrationPaths = ''): Umzug<QueryInterface> {
-    const globPattern = `{src/migrations/*.ts,${extraMigrationPaths}}`
-    return new Umzug({
-        migrations: { glob: globPattern },
-        context: databaseEngine.getQueryInterface(),
-        storage: new SequelizeStorage({ sequelize }),
-        logger: logger,
-    });
-}
-
-export async function initDb(coreModels: ModelDefinition[], appSettings: AppSettings | void): Promise<Sequelize> {
+export async function initDb(databaseEngine: DatabaseEngine, coreModels: ModelDefinition[], customModels: ModelDefinition[]): Promise<DatabaseEngine> {
     await verifyDatabaseConnection(databaseEngine);
-    registerModels(databaseEngine, coreModels, appSettings);
+    registerModels(databaseEngine, coreModels, customModels);
     return databaseEngine;
 }
 
-async function verifyDatabaseConnection(databaseEngine: Sequelize): Promise<void> {
+async function verifyDatabaseConnection(databaseEngine: DatabaseEngine): Promise<void> {
     try {
         await databaseEngine.authenticate();
         logger.info('Successfully connected to database.');
@@ -36,46 +18,51 @@ async function verifyDatabaseConnection(databaseEngine: Sequelize): Promise<void
     }
 }
 
-function applyCoreModelRelations(models: typeof databaseEngine.models) {
+function applyCoreModelRelations(models: Record<string, Model>) {
     const { Service, ServiceRequest, Jurisdiction, StaffUser, ServiceRequestComment, Event } = models;
-
+    //@ts-ignore
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
+    //@ts-ignore
     StaffUser.belongsTo(Jurisdiction, { as: 'jurisdiction' })
-
+    //@ts-ignore
     Jurisdiction.hasMany(Service, { as: 'services', foreignKey: 'jurisdictionId' });
+    //@ts-ignore
     Service.belongsTo(Jurisdiction, { as: 'jurisdiction' });
-
+    //@ts-ignore
     Jurisdiction.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'jurisdictionId' });
+    //@ts-ignore
     ServiceRequest.belongsTo(Jurisdiction, { as: 'jurisdiction' });
-
+    //@ts-ignore
     Jurisdiction.hasMany(Event, { as: 'events', foreignKey: 'jurisdictionId' });
+    //@ts-ignore
     Event.belongsTo(Jurisdiction, { as: 'jurisdiction' });
-
+    //@ts-ignore
     Service.hasMany(Service, { as: 'children', foreignKey: 'parentId' });
+    //@ts-ignore
     Service.belongsTo(Service, { as: 'parent' });
-
+    //@ts-ignore
     Service.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'serviceId' });
+    //@ts-ignore
     ServiceRequest.belongsTo(Service, { as: 'service' });
-
+    //@ts-ignore
     ServiceRequest.hasMany(ServiceRequestComment, { as: 'comments', foreignKey: 'serviceRequestId' });
+    //@ts-ignore
     ServiceRequestComment.belongsTo(ServiceRequest, { as: 'serviceRequest' });
 
 }
 
-function registerModels(databaseEngine: Sequelize, coreModelDefinitions: ModelDefinition[], appSettings: AppSettings | void): Sequelize {
-    coreModelDefinitions.forEach((model) => {
+function registerModels(databaseEngine: DatabaseEngine, coreModels: ModelDefinition[], customModels: ModelDefinition[]): DatabaseEngine {
+    coreModels.forEach((model) => {
         const { name, attributes, options } = model;
         databaseEngine.define(name, attributes, options);
     });
 
-    // This will override any previous definitions with a same name.
-    if (appSettings && Object.hasOwnProperty.call(appSettings, 'models')) {
-        appSettings.models.forEach((model) => {
-            const { name, attributes, options } = model;
-            databaseEngine.define(name, attributes, options);
-        });
-    }
+    customModels.forEach((model) => {
+        const { name, attributes, options } = model;
+        databaseEngine.define(name, attributes, options);
+    });
 
+    //@ts-ignore
     applyCoreModelRelations(databaseEngine.models);
 
     // TODO: Apply relations for custom models?

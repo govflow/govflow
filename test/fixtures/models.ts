@@ -30,6 +30,12 @@ export const MyServiceModel: ModelDefinition = {
 export const MyBlogPostModel: ModelDefinition = {
     name: 'BlogPost',
     attributes: {
+        id: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
+            primaryKey: true,
+        },
         title: {
             allowNull: false,
             type: DataTypes.STRING,
