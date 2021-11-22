@@ -73,7 +73,7 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
         /* eslint-enable */
         const { jurisdictionId } = data;
         delete data.jurisdictionId;
-        const jurisdiction = await Jurisdiction.findOne({ where: { jurisdictionId } });
+        const jurisdiction = await Jurisdiction.findOne({ where: { id: jurisdictionId } });
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const record = await ServiceRequest.create(Object.assign({}, data, { jurisdictionId: jurisdiction.id }));

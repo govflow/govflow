@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { DataTypes } from 'sequelize';
 import validator from 'validator';
 import { ModelDefinition } from '../../types';
@@ -135,7 +136,13 @@ export const ServiceRequestModel: ModelDefinition = {
         media_url: {
             type: DataTypes.VIRTUAL,
             get() {
+                const originalValue = this.getDataValue('images');
+                const isArray = _.isArray(originalValue)
+                if (isArray && originalValue.length > 0) {
                 return this.getDataValue('images')[0];
+                } else {
+                    return null;
+                }
             },
             set(value) {
                 this.setDataValue('images', [value]);

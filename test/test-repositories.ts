@@ -4,7 +4,7 @@ import faker from 'faker';
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
-import { validServiceData } from './fixtures/open311';
+import { validServiceData, validServiceRequestData } from './fixtures/open311';
 
 describe('Verify Core Repositories.', function () {
 
@@ -145,13 +145,25 @@ describe('Verify Core Repositories.', function () {
     });
 
     it('should write Open311 services via repository', async function () {
-        const { Open311Service, Jurisdiction } = app.repositories;
+        const { Open311Service } = app.repositories;
         const jurisdictionId = testData.jurisdictions[0].id
         for (const serviceData of validServiceData) {
             let record = await Open311Service.create(Object.assign({}, serviceData, { jurisdictionId }));
             chai.assert(record);
             chai.assert.equal(record.service_code, serviceData.service_code);
             chai.assert.equal(record.service_name, serviceData.service_name);
+        }
+    });
+
+    it('should write Open311 service requests via repository', async function () {
+        const { Open311ServiceRequest } = app.repositories;
+        const jurisdictionId = testData.jurisdictions[0].id
+        for (const serviceRequestData of validServiceRequestData) {
+            let record = await Open311ServiceRequest.create(Object.assign({}, serviceRequestData, { jurisdictionId }));
+            chai.assert(record);
+            chai.assert.equal(record.first_name, serviceRequestData.first_name);
+            chai.assert.equal(record.description, serviceRequestData.description);
+            chai.assert.equal(record.service_code, serviceRequestData.service_code);
         }
     });
 
