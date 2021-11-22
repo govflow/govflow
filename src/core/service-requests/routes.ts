@@ -35,13 +35,22 @@ serviceRequestRouter.post('/comments/:serviceRequestId/:id', wrapHandler(async (
     res.status(200).send({ data: record });
 }))
 
-serviceRequestRouter.put('/status/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
+serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
-    const { serviceRequestId } = req.params;
-    const { status } = req.body;
+    const { status, serviceRequestId } = req.body;
     /* eslint-disable @typescript-eslint/ban-ts-comment */
     //@ts-ignore
     const record = await ServiceRequest.updateStatus(req.jurisdiction.id, serviceRequestId, status);
+    /* eslint-enable @typescript-eslint/ban-ts-comment */
+    res.status(200).send({ data: record });
+}))
+
+serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Response) => {
+    const { ServiceRequest } = res.app.repositories;
+    const { assignedTo, serviceRequestId } = req.body;
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    //@ts-ignore
+    const record = await ServiceRequest.updateAssignedTo(req.jurisdiction.id, serviceRequestId, assignedTo);
     /* eslint-enable @typescript-eslint/ban-ts-comment */
     res.status(200).send({ data: record });
 }))

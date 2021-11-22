@@ -103,8 +103,17 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         // @ts-ignore
         const record = await ServiceRequest.findByPk(id);
         record.status = status;
+        return await record.save();
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
+    }
 
-        //const updated = await ServiceRequest.findByPk(id);
+    async updateAssignedTo(jurisdictionId: string, id: string, assignedTo: string): Promise<QueryResult> {
+        /* eslint-disable @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        const { ServiceRequest } = this.models;
+        // @ts-ignore
+        const record = await ServiceRequest.findByPk(id);
+        record.assignedTo = assignedTo;
         return await record.save();
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }

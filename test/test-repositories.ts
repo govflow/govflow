@@ -1,9 +1,11 @@
 import chai from 'chai';
 import type { Application } from 'express';
+import faker from 'faker';
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
 import { validServiceData } from './fixtures/open311';
+
 describe('Verify Core Repositories.', function () {
 
     let app: Application;
@@ -202,6 +204,17 @@ describe('Verify Core Repositories.', function () {
             let record = await ServiceRequest.updateStatus(serviceRequestData.jurisdictionId, serviceRequestData.id, status);
             chai.assert(record);
             chai.assert(record.status = status);
+        }
+    });
+
+    it('should update service request assignedTo via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const assignedTo = faker.datatype.uuid();
+        for (const serviceRequestData of testData.serviceRequests) {
+            //@ts-ignore
+            let record = await ServiceRequest.updateAssignedTo(serviceRequestData.jurisdictionId, serviceRequestData.id, assignedTo);
+            chai.assert(record);
+            chai.assert(record.assignedTo = assignedTo);
         }
     });
 

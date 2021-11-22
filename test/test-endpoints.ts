@@ -316,16 +316,31 @@ describe('Hit all API endpoints', function () {
         }
     });
 
-    it('should PUT an update to status for a service request for a jurisdiction', async function () {
+    it('should POST an update to status for a service request for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
         let serviceRequestId = serviceRequestData.id;
         let status = 'done';
         try {
-            const res = await chai.request(app).put(`/service-requests/status/${serviceRequestId}/?jurisdictionId=${jurisdictionId}`).send({ status })
+            const res = await chai.request(app).post(`/service-requests/status/?jurisdictionId=${jurisdictionId}`).send({ status, serviceRequestId })
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.id, serviceRequestId);
             chai.assert.equal(res.body.data.status, status);
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should POST an update to assignedTo for a service request for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        let serviceRequestId = serviceRequestData.id;
+        const assignedTo = faker.datatype.uuid();
+        try {
+            const res = await chai.request(app).post(`/service-requests/assign/?jurisdictionId=${jurisdictionId}`).send({ assignedTo, serviceRequestId })
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.id, serviceRequestId);
+            chai.assert.equal(res.body.data.assignedTo, assignedTo);
         } catch (error) {
             throw error;
         }

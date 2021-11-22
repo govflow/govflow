@@ -96,7 +96,7 @@ export const ServiceRequestModel: ModelDefinition = {
                 // isPhone: true TODO: write something like this with libphonenumber
             }
         },
-        assignedToId: {
+        assignedTo: {
             allowNull: true,
             type: DataTypes.STRING,
         },
