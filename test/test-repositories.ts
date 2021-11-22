@@ -133,6 +133,17 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should update a service via repository', async function () {
+        const { Service } = app.repositories;
+        for (const serviceData of testData.services) {
+            let name = faker.name.findName();
+            let record = await Service.update(serviceData.jurisdictionId, serviceData.id, { name });
+            chai.assert(record);
+            chai.assert.equal(record.jurisdictionId, serviceData.jurisdictionId);
+            chai.assert.equal(record.name, name);
+        }
+    });
+
     it('should write Open311 services via repository', async function () {
         const { Open311Service, Jurisdiction } = app.repositories;
         const jurisdictionId = testData.jurisdictions[0].id

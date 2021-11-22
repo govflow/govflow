@@ -142,6 +142,32 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should POST a service for a jurisdiction', async function () {
+        let serviceData = _.cloneDeep(testData.services[0]);
+        serviceData.id = faker.datatype.uuid();
+        const { jurisdictionId } = serviceData;
+        try {
+            const res = await chai.request(app).post(`/services?jurisdictionId=${jurisdictionId}`).send(serviceData)
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.id, serviceData.id);
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should PUT a service for a jurisdiction', async function () {
+        let serviceData = _.cloneDeep(testData.services[0]);
+        const { jurisdictionId, id } = serviceData;
+        const name = 'Updated name'
+        try {
+            const res = await chai.request(app).put(`/services/${id}/?jurisdictionId=${jurisdictionId}`).send({ name })
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.name, name);
+        } catch (error) {
+            throw error;
+        }
+    });
+
     it('should GET all service requests for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
@@ -373,7 +399,7 @@ describe('Hit all API endpoints', function () {
             const res = await chai.request(app).get(`/open311/services.json?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.type, 'application/json')
-            chai.assert.equal(res.body.count, 5);
+            chai.assert.equal(res.body.count, 6);
         } catch (error) {
             throw error;
         }
