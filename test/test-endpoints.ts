@@ -279,6 +279,16 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should GET stats for service requests for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        try {
+            const res = await chai.request(app).get(`/service-requests/stats?jurisdictionId=${jurisdictionId}`)
+            chai.assert(res.body.data.countByStats)
+        } catch (error) {
+            throw error;
+        }
+    });
+
     it('should GET a service request for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         let serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
@@ -375,7 +385,7 @@ describe('Hit all API endpoints', function () {
     it('should GET all service request statuses for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
-            const res = await chai.request(app).get(`/service-requests/statuses/?jurisdictionId=${jurisdictionId}`)
+            const res = await chai.request(app).get(`/service-requests/status-list?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.inbox, 'Inbox');
             chai.assert.equal(res.body.data.todo, 'Todo');

@@ -1,6 +1,7 @@
 import merge from 'deepmerge';
 import { injectable } from 'inversify';
 import _ from 'lodash';
+import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import type { IServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 import { requestWithout311 } from '../open311/helpers';
@@ -54,6 +55,30 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         return [records.map(requestWithout311), records.length];
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
+
+    async getStats(
+        jurisdictionId: string,
+        queryParams?: QueryParamsAll
+    ): Promise<Record<string, Record<string, number>>> {
+        /* eslint-disable @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        const { ServiceRequest } = this.models;
+        const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
+        params.attributes = ['status', [sequelize.fn('COUNT', 'id'), 'count']];
+        params.group = ['status'];
+        const records = await ServiceRequest.findAll(params);
+        // @ts-ignore
+        const recordsAsData = records.map((record) => { return record.get() })
+        const countByStatus: Record<string, number> = recordsAsData.reduce(
+            (agg: Record<string, number>, item: { status: string, count: string }) => (
+                { ...agg, [item.status]: parseInt(item.count, 10) }
+            ),
+            {},
+        );
+        return { countByStatus };
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
+    }
+
     /* eslint-disable @typescript-eslint/no-unused-vars */
     async findStatusList(jurisdictionId: string): Promise<Record<string, string>> {
         return Promise.resolve(REQUEST_STATUSES);

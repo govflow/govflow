@@ -290,6 +290,15 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should get unfiltered service request stats by jurisdiction via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        for (const serviceRequestData of testData.services) {
+            // @ts-ignore
+            let { countByStatus } = await ServiceRequest.getStats(serviceRequestData.jurisdictionId as string);
+            chai.assert(countByStatus);
+        }
+    });
+
     it('should write events via repository', async function () {
         const { Event } = app.repositories;
         for (const eventData of testData.events) {
