@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 USER := govflow
 NAME := govflow
-VERSION := 0.0.7-alpha
+VERSION := 0.0.8-alpha
 COMPOSE := docker-compose -f docker-compose/docker-compose.yml --compatibility
 REPOSITORY := $(USER)/$(NAME)
 DOCKER_HOST := ghcr.io
@@ -52,14 +52,15 @@ tag-release:
 
 .PHONY: prepublish ## Build package distribution.
 prepublish:
+	rm -r lib
 	npm run build
-
-.PHONY: ts-clean ## Remove non-production files.
-	rm ./src/*.ts ./src/**/*.ts
+	cp package*.json lib
+	cp LICENSE lib
+	cp README.md lib
 
 .PHONY: publish ## Publish the package to npm.
 publish:
-	npm publish --access public
+	cd lib && npm publish --access public
 
 ####
 
