@@ -8,10 +8,18 @@ export const REQUEST_STATUSES = {
     'doing': 'Doing',
     'blocked': 'Blocked',
     'done': 'Done'
-
 };
 
 const REQUEST_STATUS_KEYS = Object.keys(REQUEST_STATUSES);
+
+export const INPUT_CHANNELS = {
+    'webform': 'Web Form',
+    'bot': 'Bot',
+    'sms': 'SMS',
+    'email': 'Email',
+}
+
+const INPUT_CHANNEL_KEYS = Object.keys(INPUT_CHANNELS);
 
 export const ServiceRequestModel: ModelDefinition = {
     name: 'ServiceRequest',
@@ -21,6 +29,11 @@ export const ServiceRequestModel: ModelDefinition = {
             defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             primaryKey: true,
+        },
+        inputChannel: {
+            allowNull: false,
+            type: DataTypes.ENUM(...INPUT_CHANNEL_KEYS),
+            defaultValue: INPUT_CHANNEL_KEYS[0],
         },
         description: {
             allowNull: false,

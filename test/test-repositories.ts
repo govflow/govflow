@@ -205,6 +205,18 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should show default inputChannel as webform for service request via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        for (const serviceRequestData of testData.serviceRequests) {
+            //@ts-ignore
+            let [records, count] = await ServiceRequest.findAll(serviceRequestData.jurisdictionId);
+            for (const record of records) {
+                chai.assert(record);
+                chai.assert(record.inputChannel = 'webform');
+            }
+        }
+    });
+
     it('should update a service request via repository', async function () {
         const { ServiceRequest } = app.repositories;
         const serviceRequest = testData.serviceRequests[0];
