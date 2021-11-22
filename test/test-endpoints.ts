@@ -316,6 +316,21 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should PUT an update to status for a service request for a jurisdiction', async function () {
+        let jurisdictionId = testData.jurisdictions[0].id;
+        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        let serviceRequestId = serviceRequestData.id;
+        let status = 'done';
+        try {
+            const res = await chai.request(app).put(`/service-requests/status/${serviceRequestId}/?jurisdictionId=${jurisdictionId}`).send({ status })
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.id, serviceRequestId);
+            chai.assert.equal(res.body.data.status, status);
+        } catch (error) {
+            throw error;
+        }
+    });
+
     it('should GET all service request statuses for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {

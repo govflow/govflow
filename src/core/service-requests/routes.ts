@@ -35,6 +35,17 @@ serviceRequestRouter.post('/comments/:serviceRequestId/:id', wrapHandler(async (
     res.status(200).send({ data: record });
 }))
 
+serviceRequestRouter.put('/status/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
+    const { ServiceRequest } = res.app.repositories;
+    const { serviceRequestId } = req.params;
+    const { status } = req.body;
+    /* eslint-disable @typescript-eslint/ban-ts-comment */
+    //@ts-ignore
+    const record = await ServiceRequest.updateStatus(req.jurisdiction.id, serviceRequestId, status);
+    /* eslint-enable @typescript-eslint/ban-ts-comment */
+    res.status(200).send({ data: record });
+}))
+
 serviceRequestRouter.get('/', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
     const { dateFrom, dateTo, status } = req.query;

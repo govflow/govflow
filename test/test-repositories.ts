@@ -4,7 +4,6 @@ import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
 import { validServiceData } from './fixtures/open311';
-
 describe('Verify Core Repositories.', function () {
 
     let app: Application;
@@ -192,6 +191,17 @@ describe('Verify Core Repositories.', function () {
                 chai.assert(record);
                 chai.assert(record.comment = 'hey there');
             }
+        }
+    });
+
+    it('should update service request status via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const status = 'doing';
+        for (const serviceRequestData of testData.serviceRequests) {
+            //@ts-ignore
+            let record = await ServiceRequest.updateStatus(serviceRequestData.jurisdictionId, serviceRequestData.id, status);
+            chai.assert(record);
+            chai.assert(record.status = status);
         }
     });
 
