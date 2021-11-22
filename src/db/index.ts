@@ -45,7 +45,6 @@ function applyCoreModelRelations(models: Record<string, Model>) {
     ServiceRequest.hasMany(ServiceRequestComment, { as: 'comments', foreignKey: 'serviceRequestId' });
     //@ts-ignore
     ServiceRequestComment.belongsTo(ServiceRequest, { as: 'serviceRequest' });
-    /* eslint-enable */
     //@ts-ignore
     ServiceRequest.hasMany(Communication, { as: 'communications', foreignKey: 'serviceRequestId' });
     //@ts-ignore
