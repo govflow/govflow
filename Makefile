@@ -52,7 +52,7 @@ tag-release:
 
 .PHONY: prepublish ## Build package distribution.
 prepublish:
-	rm -r lib
+	rm -rf lib
 	npm run build
 	cp package*.json lib
 	cp LICENSE lib
