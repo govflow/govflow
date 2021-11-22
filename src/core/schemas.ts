@@ -42,7 +42,7 @@ export const serviceExtraAttrsSchema: JSONSchema = {
     '$schema': 'https://json-schema.org/draft/2020-12/schema',
     '$id': `${homepage}/src/core/schemas/service-attr-schema.json`,
     'title': 'Service Attributes Schema',
-    'description': 'A service can declare additional attributes. When it does, they are declared according to this schema.',
+    'description': 'A service can declare additional attributes according to this schema.',
     'type': 'object',
     'required': ['service_code', 'attributes'],
     'properties': {

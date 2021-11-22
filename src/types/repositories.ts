@@ -37,8 +37,16 @@ export interface IServiceRequestRepository extends RepositoryBase {
     findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
     findStatusList: (id: string) => Promise<Record<string, string>>;
-    createComment: (jurisdictionId: string, serviceRequestId: string, data: Record<string, unknown>) => Promise<QueryResult>;
-    updateComment: (jurisdictionId: string, serviceRequestId: string, serviceRequestCommentId: string, data: Record<string, unknown>) => Promise<QueryResult>;
+    createComment: (
+        jurisdictionId: string,
+        serviceRequestId: string,
+        data: Record<string, unknown>
+    ) => Promise<QueryResult>;
+    updateComment: (
+        jurisdictionId: string,
+        serviceRequestId: string,
+        serviceRequestCommentId: string,
+        data: Record<string, unknown>) => Promise<QueryResult>;
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {

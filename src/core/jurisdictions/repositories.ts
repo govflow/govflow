@@ -18,7 +18,7 @@ export class JurisdictionRepository implements IJurisdictionRepository {
         //@ts-ignore
         const { Jurisdiction } = this.models;
         /* eslint-enable */
-        const params = { where: { id }, raw: true, nest: true };
+        const params = { where: { id } };
         return await Jurisdiction.findOne(params);
     }
 

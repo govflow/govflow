@@ -1,9 +1,10 @@
 import chai from 'chai';
 import type { Application } from 'express';
+import faker from 'faker';
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
-import { validServiceData } from './fixtures/open311';
+import { validServiceData, validServiceRequestData } from './fixtures/open311';
 
 describe('Verify Core Repositories.', function () {
 
@@ -132,14 +133,37 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should update a service via repository', async function () {
+        const { Service } = app.repositories;
+        for (const serviceData of testData.services) {
+            let name = faker.name.findName();
+            let record = await Service.update(serviceData.jurisdictionId, serviceData.id, { name });
+            chai.assert(record);
+            chai.assert.equal(record.jurisdictionId, serviceData.jurisdictionId);
+            chai.assert.equal(record.name, name);
+        }
+    });
+
     it('should write Open311 services via repository', async function () {
-        const { Open311Service, Jurisdiction } = app.repositories;
+        const { Open311Service } = app.repositories;
         const jurisdictionId = testData.jurisdictions[0].id
         for (const serviceData of validServiceData) {
             let record = await Open311Service.create(Object.assign({}, serviceData, { jurisdictionId }));
             chai.assert(record);
             chai.assert.equal(record.service_code, serviceData.service_code);
             chai.assert.equal(record.service_name, serviceData.service_name);
+        }
+    });
+
+    it('should write Open311 service requests via repository', async function () {
+        const { Open311ServiceRequest } = app.repositories;
+        const jurisdictionId = testData.jurisdictions[0].id
+        for (const serviceRequestData of validServiceRequestData) {
+            let record = await Open311ServiceRequest.create(Object.assign({}, serviceRequestData, { jurisdictionId }));
+            chai.assert(record);
+            chai.assert.equal(record.first_name, serviceRequestData.first_name);
+            chai.assert.equal(record.description, serviceRequestData.description);
+            chai.assert.equal(record.service_code, serviceRequestData.service_code);
         }
     });
 
@@ -195,6 +219,40 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should update service request status via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const status = 'doing';
+        for (const serviceRequestData of testData.serviceRequests) {
+            //@ts-ignore
+            let record = await ServiceRequest.updateStatus(serviceRequestData.jurisdictionId, serviceRequestData.id, status);
+            chai.assert(record);
+            chai.assert(record.status = status);
+        }
+    });
+
+    it('should update service request assignedTo via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const assignedTo = faker.datatype.uuid();
+        for (const serviceRequestData of testData.serviceRequests) {
+            //@ts-ignore
+            let record = await ServiceRequest.updateAssignedTo(serviceRequestData.jurisdictionId, serviceRequestData.id, assignedTo);
+            chai.assert(record);
+            chai.assert(record.assignedTo = assignedTo);
+        }
+    });
+
+    it('should show default inputChannel as webform for service request via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        for (const serviceRequestData of testData.serviceRequests) {
+            //@ts-ignore
+            let [records, count] = await ServiceRequest.findAll(serviceRequestData.jurisdictionId);
+            for (const record of records) {
+                chai.assert(record);
+                chai.assert(record.inputChannel = 'webform');
+            }
+        }
+    });
+
     it('should update a service request via repository', async function () {
         const { ServiceRequest } = app.repositories;
         const serviceRequest = testData.serviceRequests[0];
@@ -229,6 +287,15 @@ describe('Verify Core Repositories.', function () {
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, serviceRequestData.jurisdictionId);
             }
+        }
+    });
+
+    it('should get unfiltered service request stats by jurisdiction via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        for (const serviceRequestData of testData.services) {
+            // @ts-ignore
+            let { countByStatus } = await ServiceRequest.getStats(serviceRequestData.jurisdictionId as string);
+            chai.assert(countByStatus);
         }
     });
 

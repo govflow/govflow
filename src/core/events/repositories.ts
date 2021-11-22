@@ -11,7 +11,7 @@ export class EventRepository implements IEventRepository {
         //@ts-ignore
         const { Event } = this.models;
         /* eslint-enable */
-        const params = { where: { id, jurisdictionId }, raw: true, nest: true };
+        const params = { where: { id, jurisdictionId } };
         return await Event.findOne(params);
     }
 

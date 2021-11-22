@@ -1,3 +1,4 @@
+
 export const validServiceData = [
     {
         'service_code': '001',
@@ -26,6 +27,18 @@ export const validServiceData = [
         'service_name': 'Curb or curb ramp defect',
         'description': 'Sidewalk curb or ramp has problems such as cracking, missing pieces, holes, and/or chipped curb.'
     }
+]
+
+export const validServiceRequestData = [
+    {
+        'service_code': '001',
+        'first_name': 'Peter',
+        'last_name': 'Pan',
+        'description': 'There is garbage all over the sidewalk.',
+        'address': 'Sunset Boulevarde, Hollywood',
+        'email': 'email@example.com',
+        'phone': '+1 972 609 9933'
+    },
 ]
 
 export const validServiceDefinitionData = {

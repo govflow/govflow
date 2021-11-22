@@ -18,16 +18,25 @@ export const repositoryIds = {
     IEventRepository: Symbol('IEventRepository'),
 };
 
-function bindImplementationsFromPlugins(pluginRegistry: Plugin[], databaseEngine: DatabaseEngine): Record<string, unknown> {
+function bindImplementationsFromPlugins(
+    pluginRegistry: Plugin[],
+    databaseEngine: DatabaseEngine
+): Record<string, unknown> {
 
     // default repository bindings
     const repositoryContainer = new Container();
     repositoryContainer.bind<IJurisdictionRepository>(repositoryIds.IJurisdictionRepository).to(JurisdictionRepository);
     repositoryContainer.bind<IStaffUserRepository>(repositoryIds.IStaffUserRepository).to(StaffUserRepository);
     repositoryContainer.bind<IServiceRepository>(repositoryIds.IServiceRepository).to(ServiceRepository);
-    repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(ServiceRequestRepository);
-    repositoryContainer.bind<IOpen311ServiceRepository>(repositoryIds.IOpen311ServiceRepository).to(Open311ServiceRepository);
-    repositoryContainer.bind<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository).to(Open311ServiceRequestRepository);
+    repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(
+        ServiceRequestRepository
+    );
+    repositoryContainer.bind<IOpen311ServiceRepository>(repositoryIds.IOpen311ServiceRepository).to(
+        Open311ServiceRepository
+    );
+    repositoryContainer.bind<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository).to(
+        Open311ServiceRequestRepository
+    );
     repositoryContainer.bind<IEventRepository>(repositoryIds.IEventRepository).to(EventRepository);
 
     // bind from plugins
@@ -41,7 +50,9 @@ function bindImplementationsFromPlugins(pluginRegistry: Plugin[], databaseEngine
     const Service = repositoryContainer.get<IServiceRepository>(repositoryIds.IServiceRepository);
     const ServiceRequest = repositoryContainer.get<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository);
     const Open311Service = repositoryContainer.get<IOpen311ServiceRepository>(repositoryIds.IOpen311ServiceRepository);
-    const Open311ServiceRequest = repositoryContainer.get<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository);
+    const Open311ServiceRequest = repositoryContainer.get<IOpen311ServiceRequestRepository>(
+        repositoryIds.IOpen311ServiceRequestRepository
+    );
     const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
 
     Jurisdiction.models = databaseEngine.models

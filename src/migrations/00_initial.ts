@@ -176,7 +176,7 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             allowNull: true,
             type: DataTypes.STRING,
         },
-        assignedToId: {
+        assignedTo: {
             allowNull: true,
             type: DataTypes.STRING,
         },

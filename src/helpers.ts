@@ -26,6 +26,7 @@ export function queryParamsToSequelize(queryParams: QueryParamsAll | QueryParams
     const nameMap: nameMapType = {
         'whereParams': 'where',
         'selectFields': 'attributes',
+        'groupFields': 'group',
         'orderFields': 'order',
         'limit': 'limit',
         'offset': 'offset'
@@ -61,6 +62,14 @@ export function serviceRequestFiltersToSequelize(filterParams: ServiceRequestFil
         whereParams = merge(whereParams, { status: cleaned.status })
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
+
+    if (!_.isNil(cleaned.assignedTo)) {
+        /* eslint-disable @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        whereParams = merge(whereParams, { assignedTo: cleaned.assignedTo })
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
+    }
+
     if (Object.getOwnPropertySymbols(createdAtParams).length > 0) {
         whereParams = merge(whereParams, { createdAt: createdAtParams });
     }

@@ -142,7 +142,9 @@ export default function makeTestData(): Record<string, Record<string, unknown>[]
     for (const jurisdiction of jurisdictions) {
         staffUsers = staffUsers.concat(factory(makeStaffUser, 3, { jurisdiction }))
         services = services.concat(factory(makeService, 5, { jurisdiction }))
-        serviceRequests = serviceRequests.concat(factory(makeServiceRequest, 20, { staffUsers, services, jurisdiction }))
+        serviceRequests = serviceRequests.concat(
+            factory(makeServiceRequest, 20, { staffUsers, services, jurisdiction })
+        )
         events = events.concat(factory(makeEvent, 20, { jurisdiction }))
     }
 

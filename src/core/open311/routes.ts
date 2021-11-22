@@ -35,9 +35,11 @@ open311Router.get(['/services.json', '/services.xml'], wrapHandler(async (req: R
     }
 }))
 
-open311Router.get(['/services/:service_code.json', '/services/:service_code.xml'], wrapHandler(async (req: Request, res: Response) => {
-    res.status(501).send("501 Not Implemented");
-}))
+open311Router.get(
+    ['/services/:service_code.json', '/services/:service_code.xml'],
+    wrapHandler(async (req: Request, res: Response) => {
+        res.status(501).send("501 Not Implemented");
+    }))
 
 open311Router.get(['/requests.json', '/requests.xml'], wrapHandler(async (req: Request, res: Response) => {
     const { Open311ServiceRequest } = res.app.repositories;
@@ -54,16 +56,23 @@ open311Router.get(['/requests.json', '/requests.xml'], wrapHandler(async (req: R
     }
 }))
 
-open311Router.get(['/requests/:service_request_id.json', '/requests/:service_request_id.xml'], wrapHandler(async (req: Request, res: Response) => {
-    res.status(501).send("501 Not Implemented");
-}))
+open311Router.get(
+    ['/requests/:service_request_id.json', '/requests/:service_request_id.xml'],
+    wrapHandler(async (req: Request, res: Response) => {
+        res.status(501).send("501 Not Implemented");
+    }))
 
-open311Router.post(['/requests.json', '/requests.xml'], xmlparser({ trim: false, explicitArray: false }), wrapHandler(async (req: Request, res: Response) => {
-    const { Open311ServiceRequest } = res.app.repositories;
-    const record = await Open311ServiceRequest.create(req.body);
-    res.status(200).send({ data: record, success: true });
-}))
+open311Router.post(
+    ['/requests.json', '/requests.xml'],
+    xmlparser({ trim: false, explicitArray: false }),
+    wrapHandler(async (req: Request, res: Response) => {
+        const { Open311ServiceRequest } = res.app.repositories;
+        const record = await Open311ServiceRequest.create(req.body);
+        res.status(200).send({ data: record, success: true });
+    }))
 
-open311Router.get(['/tokens/:token_id.json', '/tokens/:token_id.xml'], wrapHandler(async (req: Request, res: Response) => {
-    res.status(501).send("501 Not Implemented");
-}))
+open311Router.get(
+    ['/tokens/:token_id.json', '/tokens/:token_id.xml'],
+    wrapHandler(async (req: Request, res: Response) => {
+        res.status(501).send("501 Not Implemented");
+    }))

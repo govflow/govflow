@@ -24,6 +24,7 @@ export interface QueryParamsOne {
 
 export interface QueryParamsAll extends QueryParamsOne {
     orderFields?: string[],
+    groupFields?: string[],
     limit?: number,
     offset?: number,
 }
