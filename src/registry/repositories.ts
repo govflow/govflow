@@ -1,11 +1,12 @@
 import { Container } from 'inversify';
+import { CommunicationRepository } from '../core/communications';
 import { EventRepository } from '../core/events';
 import { JurisdictionRepository } from '../core/jurisdictions';
 import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../core/open311';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
+import type { ICommunicationRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
 import { DatabaseEngine } from '../types';
 
 export const repositoryIds = {
@@ -16,6 +17,7 @@ export const repositoryIds = {
     IOpen311ServiceRepository: Symbol('IOpen311ServiceRepository'),
     IOpen311ServiceRequestRepository: Symbol('IOpen311ServiceRequestRepository'),
     IEventRepository: Symbol('IEventRepository'),
+    ICommunicationRepository: Symbol('ICommunicationRepository'),
 };
 
 function bindImplementationsFromPlugins(
@@ -38,6 +40,7 @@ function bindImplementationsFromPlugins(
         Open311ServiceRequestRepository
     );
     repositoryContainer.bind<IEventRepository>(repositoryIds.IEventRepository).to(EventRepository);
+    repositoryContainer.bind<ICommunicationRepository>(repositoryIds.ICommunicationRepository).to(CommunicationRepository);
 
     // bind from plugins
     pluginRegistry.forEach((plugin) => {
@@ -54,6 +57,7 @@ function bindImplementationsFromPlugins(
         repositoryIds.IOpen311ServiceRequestRepository
     );
     const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
+    const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
 
     Jurisdiction.models = databaseEngine.models
     StaffUser.models = databaseEngine.models
@@ -62,6 +66,7 @@ function bindImplementationsFromPlugins(
     Open311Service.models = databaseEngine.models
     Open311ServiceRequest.models = databaseEngine.models
     Event.models = databaseEngine.models
+    Communication.models = databaseEngine.models
 
     return {
         Jurisdiction,
@@ -70,7 +75,8 @@ function bindImplementationsFromPlugins(
         ServiceRequest,
         Open311Service,
         Open311ServiceRequest,
-        Event
+        Event,
+        Communication
     }
 }
 

@@ -66,3 +66,7 @@ export interface IEventRepository extends RepositoryBase {
     findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }
+
+export interface ICommunicationRepository extends RepositoryBase {
+    dispatch: () => Promise<void>;
+}

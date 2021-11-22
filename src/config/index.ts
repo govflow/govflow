@@ -14,9 +14,15 @@ dotenv.config();
 
 const defaultSettings: AppSettings = {
     'env': process.env.NODE_ENV || 'development',
-    'databaseUrl': process.env.DATABASE_URL,
+    'databaseUrl': process.env.DATABASE_URL || '',
+    'databaseExtraMigrationPaths': '',
+    'sendGridApiKey': process.env.SENDGRID_API_KEY || '',
+    'sendGridFromEmail': process.env.SENDGRID_FROM_EMAIL || '',
+    'twilioAccountSid': process.env.TWILIO_ACCOUNT_SID,
+    'twilioAuthToken': process.env.TWILIO_AUTH_TOKEN,
+    'testToEmail': process.env.TEST_TO_EMAIL || '',
+    'testToPhone': process.env.TEST_TO_PHONE || '',
     'appPort': process.env.APP_PORT || 3000,
-    'databaseExtraMigrationPaths': ''
 }
 
 async function resolveCustomConfig(): Promise<Config> {
