@@ -17,5 +17,15 @@ module.exports = {
         '@typescript-eslint'
     ],
     'rules': {
+        'no-console': 0,
+        'max-len': [
+            2,
+            120,
+            4,
+            {
+                'ignoreComments': true,
+                'ignorePattern': '^import .* |^export .*'
+            }
+        ],
     }
 };

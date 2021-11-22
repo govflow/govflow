@@ -53,7 +53,11 @@ function applyCoreModelRelations(models: Record<string, Model>) {
 
 }
 
-function registerModels(databaseEngine: DatabaseEngine, coreModels: ModelDefinition[], customModels: ModelDefinition[]): DatabaseEngine {
+function registerModels(
+    databaseEngine: DatabaseEngine,
+    coreModels: ModelDefinition[],
+    customModels: ModelDefinition[]
+): DatabaseEngine {
     coreModels.forEach((model) => {
         const { name, attributes, options } = model;
         databaseEngine.define(name, attributes, options);

@@ -22,7 +22,9 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
             /* eslint-disable @typescript-eslint/ban-ts-comment */
             /* eslint-disable @typescript-eslint/no-unused-vars */
             // @ts-ignore
-            const [parent, created] = await Service.findOrCreate({ where: { name: group, id: group, jurisdictionId: jurisdiction.id } });
+            const [parent, created] = await Service.findOrCreate(
+                { where: { name: group, id: group, jurisdictionId: jurisdiction.id } }
+            );
             /* eslint-enable @typescript-eslint/no-unused-vars */
             // @ts-ignore
             data.parentId = parent.id

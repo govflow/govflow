@@ -61,7 +61,11 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
     /* eslint-enable @typescript-eslint/no-unused-vars */
 
-    async createComment(jurisdictionId: string, serviceRequestId: string, data: Record<string, unknown>): Promise<QueryResult> {
+    async createComment(
+        jurisdictionId: string,
+        serviceRequestId: string,
+        data: Record<string, unknown>
+    ): Promise<QueryResult> {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         /* eslint-disable @typescript-eslint/no-unused-vars */
         //@ts-ignore
@@ -72,7 +76,12 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
-    async updateComment(jurisdictionId: string, serviceRequestId: string, serviceRequestCommentId: string, data: Record<string, unknown>): Promise<QueryResult> {
+    async updateComment(
+        jurisdictionId: string,
+        serviceRequestId: string,
+        serviceRequestCommentId: string,
+        data: Record<string, unknown>
+    ): Promise<QueryResult> {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         const { ServiceRequestComment } = this.models;
@@ -83,7 +92,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
             record[key] = value;
         }
         // @ts-ignore
-        return await record.save();;
+        return await record.save();
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
