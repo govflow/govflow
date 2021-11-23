@@ -37,6 +37,8 @@ export async function createApp(): Promise<Application> {
     if (_.isNil(customPlugins)) { customPlugins = [] }
     if (_.isNil(customModels)) { customModels = [] }
 
+    const { middlewares: customMiddlewares } = config;
+
     // TODO: consolidate with above
     await initDb(config.database as DatabaseEngine, coreModels, customModels)
 
@@ -61,6 +63,9 @@ export async function createApp(): Promise<Application> {
 
     // Use core middleware and mount routes.
     app.use(coreMiddlewares);
+    if (customMiddlewares && customMiddlewares.length > 0) {
+        app.use(customMiddlewares);
+    }
     app.use('/', coreRoutes);
 
     return app;
