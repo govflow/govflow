@@ -38,6 +38,10 @@ export async function initConfig(): Promise<Config> {
         config.plugins = customConfig.plugins;
     }
 
+    if (Object.hasOwnProperty.call(customConfig, 'middlewares')) {
+        config.middlewares = customConfig.middlewares;
+    }
+
     if (Object.hasOwnProperty.call(customConfig, 'settings')) {
         config.settings = merge(defaultSettings, customConfig.settings as AppSettings);
     } else {
