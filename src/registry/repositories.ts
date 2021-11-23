@@ -40,7 +40,9 @@ function bindImplementationsFromPlugins(
         Open311ServiceRequestRepository
     );
     repositoryContainer.bind<IEventRepository>(repositoryIds.IEventRepository).to(EventRepository);
-    repositoryContainer.bind<ICommunicationRepository>(repositoryIds.ICommunicationRepository).to(CommunicationRepository);
+    repositoryContainer.bind<ICommunicationRepository>(repositoryIds.ICommunicationRepository).to(
+        CommunicationRepository
+    );
 
     // bind from plugins
     pluginRegistry.forEach((plugin) => {
