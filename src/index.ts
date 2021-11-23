@@ -38,7 +38,7 @@ export async function createApp(): Promise<Application> {
     if (_.isNil(customModels)) { customModels = [] }
 
     // TODO: consolidate with above
-    initDb(config.database as DatabaseEngine, coreModels, customModels)
+    await initDb(config.database as DatabaseEngine, coreModels, customModels)
 
     // Read all plugins into a central plugin registry.
     const plugins = registerPlugins(customPlugins);
