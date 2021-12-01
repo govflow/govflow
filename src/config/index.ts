@@ -5,6 +5,11 @@ import { initEngine, initMigrator } from '../db/engine';
 import logger from '../logging';
 import type { AppSettings, Config } from '../types';
 
+declare global {
+    // eslint-disable-next-line no-var
+    var config: Config
+}
+
 dotenv.config();
 
 const defaultSettings: AppSettings = {
@@ -15,6 +20,10 @@ const defaultSettings: AppSettings = {
 }
 
 async function resolveCustomConfig(): Promise<Config> {
+    if (global.config) {
+        return global.config;
+    }
+
     const customConfigModule = process.env.CONFIG_MODULE_PATH || '';
     try {
         const resolvedPath = path.resolve(customConfigModule);
