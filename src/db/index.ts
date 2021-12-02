@@ -38,10 +38,6 @@ function applyCoreModelRelations(models: Record<string, Model>) {
     //@ts-ignore
     Event.belongsTo(Jurisdiction, { as: 'jurisdiction' });
     //@ts-ignore
-    Service.hasMany(Service, { as: 'children', foreignKey: 'parentId' });
-    //@ts-ignore
-    Service.belongsTo(Service, { as: 'parent' });
-    //@ts-ignore
     Service.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'serviceId' });
     //@ts-ignore
     ServiceRequest.belongsTo(Service, { as: 'service' });

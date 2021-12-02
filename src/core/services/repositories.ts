@@ -35,11 +35,7 @@ export class ServiceRepository implements IServiceRepository {
         /* eslint-enable */
         const params = {
             where: { jurisdictionId, id },
-            include: [
-                { model: Service, as: 'parent', attributes: { exclude: open311ServiceExcludeFields } },
-                { model: Service, as: 'children', attributes: { exclude: open311ServiceExcludeFields } },
-            ]
-        }
+        };
         const record = await Service.findOne(params);
         return serviceWithout311(record);
     }
@@ -51,10 +47,6 @@ export class ServiceRepository implements IServiceRepository {
         /* eslint-enable */
         const records = await Service.findAll({
             where: Object.assign({}, queryParams?.whereParams, { jurisdictionId }),
-            include: [
-                { model: Service, as: 'parent', attributes: { exclude: open311ServiceExcludeFields } },
-                { model: Service, as: 'children', attributes: { exclude: open311ServiceExcludeFields } },
-            ]
         });
         return [records.map(serviceWithout311), records.length];
     }

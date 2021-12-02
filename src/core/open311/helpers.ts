@@ -7,10 +7,9 @@ export const open311ServiceExcludeFields = [
     'metadata',
     'type',
     'keywords',
-    'group'
 ];
 
-export const open311ServiceFields = [...open311ServiceExcludeFields, 'description'];
+export const open311ServiceFields = [...open311ServiceExcludeFields, 'description', 'group'];
 
 export const open311RequestExcludeFields = [
     'media_url',

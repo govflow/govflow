@@ -1,6 +1,5 @@
 import merge from 'deepmerge';
 import { injectable } from 'inversify';
-import _ from 'lodash';
 import { queryParamsToSequelize } from '../../helpers';
 import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
 import { requestAs311, serviceAs311 } from '../open311/helpers';
@@ -13,23 +12,9 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         //@ts-ignore
         const { Service, Jurisdiction } = this.models;
         /* eslint-enable */
-        const { jurisdictionId, group } = data;
         // take group to create parent, but dont save with group.
         delete data.group;
         delete data.jurisdictionId;
-        const jurisdiction = await Jurisdiction.findOne({ where: { id: jurisdictionId } });
-        if (!_.isNil(data.group)) {
-            /* eslint-disable @typescript-eslint/ban-ts-comment */
-            /* eslint-disable @typescript-eslint/no-unused-vars */
-            // @ts-ignore
-            const [parent, created] = await Service.findOrCreate(
-                { where: { name: group, id: group, jurisdictionId: jurisdiction.id } }
-            );
-            /* eslint-enable @typescript-eslint/no-unused-vars */
-            // @ts-ignore
-            data.parentId = parent.id
-            /* eslint-enable @typescript-eslint/ban-ts-comment */
-        }
         const record = await Service.create(data);
         return serviceAs311(record);
     }
@@ -55,7 +40,7 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         /* eslint-enable */
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
-        const mergedWhere = Object.assign({}, queryParams?.whereParams, { jurisdictionId }) // { parentId: { [Op.not]: null }}
+        const mergedWhere = Object.assign({}, queryParams?.whereParams, { jurisdictionId });
         /* eslint-enable @typescript-eslint/ban-ts-comment */
         const records = await Service.findAll({ where: mergedWhere });
         return [records.map(serviceAs311), records.length];

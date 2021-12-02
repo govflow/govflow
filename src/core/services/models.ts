@@ -15,6 +15,10 @@ export const ServiceModel: ModelDefinition = {
             allowNull: false,
             primaryKey: true,
         },
+        group: {
+            allowNull: false,
+            type: DataTypes.STRING,
+        },
         name: {
             allowNull: false,
             type: DataTypes.STRING,
@@ -61,15 +65,6 @@ export const ServiceModel: ModelDefinition = {
                 this.setDataValue('name', value);
             }
         },
-        group: {
-            type: DataTypes.VIRTUAL,
-            get() {
-                return this.getDataValue('parentId');
-            },
-            set(value) {
-                throw new Error(`The 'group' attribute is not allowed to be directly set: ${value}`);
-            }
-        },
         keywords: {
             type: DataTypes.VIRTUAL,
             get() {
@@ -90,6 +85,6 @@ export const ServiceModel: ModelDefinition = {
     },
     options: {
         freezeTableName: true,
-        indexes: [{ unique: true, fields: ['name', 'parentId', 'jurisdictionId'] }]
+        indexes: [{ unique: true, fields: ['name', 'group', 'jurisdictionId'] }]
     }
 }
