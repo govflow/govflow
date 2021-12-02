@@ -50,7 +50,6 @@ export interface IServiceRequestRepository extends RepositoryBase {
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<QueryResult>;
     findOne: (jurisdictionId: string, code: string) => Promise<QueryResult>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }

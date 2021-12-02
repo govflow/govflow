@@ -44,9 +44,9 @@ describe('Check responses in common error scenarios', function () {
         }
     });
 
-    it('should return 403 error when no jurisdiction_id query param', async function () {
+    it.skip('should return 403 error when no jurisdiction_id query param', async function () {
         try {
-            const res = await chai.request(app).get('/open311/services.json')
+            const res = await chai.request(app).get('/open311/services.json');
             chai.assert.equal(res.status, 403);
         } catch (error) {
             throw error;
@@ -55,7 +55,7 @@ describe('Check responses in common error scenarios', function () {
 
     it('should return 501 (not 403) error for a route exluded from required jurisdiction_id query param', async function () {
         try {
-            const res = await chai.request(app).get('/open311/discovery')
+            const res = await chai.request(app).get('/open311/v2/discovery');
             chai.assert.equal(res.status, 501);
         } catch (error) {
             throw error;

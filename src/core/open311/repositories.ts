@@ -6,19 +6,6 @@ import { requestAs311, serviceAs311 } from '../open311/helpers';
 
 @injectable()
 export class Open311ServiceRepository implements IOpen311ServiceRepository {
-
-    async create(data: Record<string, unknown>): Promise<QueryResult> {
-        /* eslint-disable */
-        //@ts-ignore
-        const { Service, Jurisdiction } = this.models;
-        /* eslint-enable */
-        // take group to create parent, but dont save with group.
-        delete data.group;
-        delete data.jurisdictionId;
-        const record = await Service.create(data);
-        return serviceAs311(record);
-    }
-
     async findOne(jurisdictionId: string, code: string): Promise<QueryResult> {
         /* eslint-disable */
         //@ts-ignore
@@ -45,7 +32,6 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         const records = await Service.findAll({ where: mergedWhere });
         return [records.map(serviceAs311), records.length];
     }
-
 }
 
 @injectable()
