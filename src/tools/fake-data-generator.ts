@@ -32,6 +32,7 @@ function makeStaffUser(options: Record<string, Record<string, unknown>>) {
 function makeService(options: Record<string, Record<string, unknown>>) {
     return {
         id: faker.datatype.uuid(),
+        group: faker.datatype.string(),
         name: faker.datatype.string(),
         description: faker.lorem.sentences(5),
         tags: [faker.datatype.string(), faker.datatype.string()],
