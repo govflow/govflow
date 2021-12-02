@@ -20,7 +20,7 @@ coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
 coreRoutes.use('/accounts', accountRouter);
 coreRoutes.use('/jurisdictions', jurisdictionRouter);
-coreRoutes.use('/open311', open311Router);
+coreRoutes.use('/open311/v2', open311Router);
 coreRoutes.use(notFound, internalServerError);
 
 const coreModels: ModelDefinition[] = [

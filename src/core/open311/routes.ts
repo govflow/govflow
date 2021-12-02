@@ -13,7 +13,7 @@ function isXML(path: string) {
 }
 
 open311Router.get('/', wrapHandler(async (req: Request, res: Response) => {
-    res.redirect('/open311/discovery');
+    res.redirect('/open311/v2/discovery');
 }))
 
 open311Router.get('/discovery', wrapHandler(async (req: Request, res: Response) => {
@@ -23,7 +23,7 @@ open311Router.get('/discovery', wrapHandler(async (req: Request, res: Response) 
 open311Router.get(['/services.json', '/services.xml'], wrapHandler(async (req: Request, res: Response) => {
     const { Open311Service } = res.app.repositories;
     const { jurisdiction_id: jurisdictionId } = req.query;
-    const [records, count] = await Open311Service.findAll(jurisdictionId);
+    const [records] = await Open311Service.findAll(jurisdictionId);
     const asXML = isXML(req.path);
     if (asXML) {
         const builder = new xml2js.Builder({ rootName: 'services' });
@@ -31,7 +31,7 @@ open311Router.get(['/services.json', '/services.xml'], wrapHandler(async (req: R
         const XMLBody = builder.buildObject({ service: records })
         res.status(200).send(XMLBody);
     } else {
-        res.status(200).send({ data: records, count: count });
+        res.status(200).send(records);
     }
 }))
 
@@ -52,7 +52,7 @@ open311Router.get(['/requests.json', '/requests.xml'], wrapHandler(async (req: R
         const XMLBody = builder.buildObject({ request: records })
         res.status(200).send(XMLBody);
     } else {
-        res.status(200).send({ data: records, count: count });
+        res.status(200).send(records);
     }
 }))
 
