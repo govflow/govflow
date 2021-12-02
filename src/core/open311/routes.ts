@@ -2,11 +2,12 @@ import { Request, Response, Router } from 'express';
 import xmlparser from 'express-xml-bodyparser';
 import xml2js from 'xml2js';
 import { wrapHandler } from '../../helpers';
-import { resolveJurisdiction } from '../../middlewares';
+// import { resolveJurisdiction } from '../../middlewares';
 
 export const open311Router = Router();
 
-open311Router.use(wrapHandler(resolveJurisdiction('jurisdiction_id', ['/discovery'])));
+// TODO use once we support resolving based on POST body
+// open311Router.use(wrapHandler(resolveJurisdiction('jurisdiction_id', ['/discovery'])));
 
 function isXML(path: string) {
     if (path.endsWith('xml')) { return true } else { return false; }
