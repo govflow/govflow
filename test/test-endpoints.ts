@@ -27,7 +27,7 @@ describe('Hit all API endpoints', function () {
         try {
             const res = await chai.request(app).get('/')
             chai.assert.equal(res.status, 200);
-            chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.13-alpha' } }));
+            chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.14-alpha' } }));
         } catch (error) {
             throw error;
         }
