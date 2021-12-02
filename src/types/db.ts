@@ -30,7 +30,8 @@ export interface QueryParamsAll extends QueryParamsOne {
 }
 
 export interface ServiceRequestFilterParams {
-    dateFrom?: string,
-    dateTo?: string,
-    status?: string
+    dateFrom?: string;
+    dateTo?: string;
+    status?: string;
+    assignedTo?: string;
 }
