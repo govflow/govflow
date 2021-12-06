@@ -4,7 +4,6 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import type { IServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
-import { requestWithout311 } from '../open311/helpers';
 import { REQUEST_STATUSES } from './models';
 
 @injectable()
@@ -16,7 +15,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const { ServiceRequest } = this.models;
         /* eslint-enable */
         const record = await ServiceRequest.create(data);
-        return requestWithout311(record);
+        return record;
     }
 
     async update(jurisdictionId: string, id: string, data: Record<string, unknown>): Promise<QueryResult> {
@@ -33,7 +32,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         // @ts-ignore
 
         /* eslint-enable @typescript-eslint/ban-ts-comment */
-        return requestWithout311(await record.save());
+        return await record.save();
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
@@ -42,7 +41,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const { ServiceRequest, ServiceRequestComment } = this.models;
         const params = { where: { jurisdictionId, id }, include: [{ model: ServiceRequestComment, as: 'comments' }], };
         const record = await ServiceRequest.findOne(params);
-        return requestWithout311(record);
+        return record;
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
@@ -52,7 +51,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const { ServiceRequest } = this.models;
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await ServiceRequest.findAll(params);
-        return [records.map(requestWithout311), records.length];
+        return [records, records.length];
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 

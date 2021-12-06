@@ -1,5 +1,7 @@
 import { Model, ModelCtor } from "sequelize/types";
 import { IterableQueryResult, QueryParamsAll, QueryResult } from ".";
+import { IOpen311Service, IOpen311ServiceRequest } from '../core/open311/types';
+import { toOpen311Service } from '../core/open311/helpers';
 
 /* eslint-disable */
 export interface Pluggable {
@@ -50,14 +52,14 @@ export interface IServiceRequestRepository extends RepositoryBase {
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {
-    findOne: (jurisdictionId: string, code: string) => Promise<QueryResult>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
+    findOne: (jurisdictionId: string, code: string) => Promise<IOpen311Service>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<IOpen311Service[]>;
 }
 
 export interface IOpen311ServiceRequestRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<QueryResult>;
-    findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
+    create: (data: Record<string, unknown>) => Promise<IOpen311ServiceRequest>;
+    findOne: (jurisdictionId: string, id: string) => Promise<IOpen311ServiceRequest>;
+    // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }
 
 export interface IEventRepository extends RepositoryBase {

@@ -1,7 +1,6 @@
 import { injectable } from 'inversify';
 import _ from 'lodash';
 import { IServiceRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
-import { open311ServiceExcludeFields, serviceWithout311 } from '../open311/helpers';
 
 @injectable()
 export class ServiceRepository implements IServiceRepository {
@@ -37,7 +36,7 @@ export class ServiceRepository implements IServiceRepository {
             where: { jurisdictionId, id },
         };
         const record = await Service.findOne(params);
-        return serviceWithout311(record);
+        return record;
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
@@ -48,7 +47,7 @@ export class ServiceRepository implements IServiceRepository {
         const records = await Service.findAll({
             where: Object.assign({}, queryParams?.whereParams, { jurisdictionId }),
         });
-        return [records.map(serviceWithout311), records.length];
+        return [records, records.length];
     }
 
 }

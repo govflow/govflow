@@ -159,10 +159,8 @@ describe('Verify Core Repositories.', function () {
         const { Open311ServiceRequest } = app.repositories;
         const jurisdictionId = testData.jurisdictions[0].id
         for (const serviceRequestData of validServiceRequestData) {
-            console.log('!!! writing', JSON.stringify(serviceRequestData, null, 4));
             let record = await Open311ServiceRequest.create(Object.assign({}, serviceRequestData, { jurisdiction_id: jurisdictionId }));
             chai.assert(record);
-            chai.assert.equal(record.first_name, serviceRequestData.first_name);
             chai.assert.equal(record.description, serviceRequestData.description);
             chai.assert.equal(record.service_code, serviceRequestData.service_code);
         }

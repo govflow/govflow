@@ -1,56 +1,60 @@
-import _ from 'lodash';
-import type { QueryResult } from '../../types';
+import { IOpen311Service, IOpen311ServiceRequest, IOpen311ServiceRequestCreatePayload } from './types';
 
-export const open311ServiceExcludeFields = [
-    'service_code',
-    'service_name',
-    'metadata',
-    'type',
-    'keywords',
-];
-
-export const open311ServiceFields = [...open311ServiceExcludeFields, 'description', 'group'];
-
-export const open311RequestExcludeFields = [
-    'media_url',
-    'address_id',
-    'first_name',
-    'last_name',
-    'service_code'
-];
-
-export const open311RequestFields = [
-    ...open311RequestExcludeFields,
-    'id',
-    'description',
-    'address',
-    'geometry',
-];
-
-export function serviceAs311(service: QueryResult): Record<string, unknown> {
-    /* eslint-disable @typescript-eslint/ban-ts-comment */
-    //@ts-ignore
-    return _.pick(service.get(), open311ServiceFields);
-    /* eslint-enable @typescript-eslint/ban-ts-comment */
+interface IServiceAttributes {
+    id: string;
+    name: string;
+    group: string;
+    jurisdictionId: number;
 }
 
-export function serviceWithout311(service: QueryResult): Record<string, unknown> {
-    /* eslint-disable @typescript-eslint/ban-ts-comment */
-    //@ts-ignore
-    return _.omit(service.get(), open311ServiceExcludeFields);
-    /* eslint-enable @typescript-eslint/ban-ts-comment */
+interface IServiceRequestAttributes {
+    id: string;
+    serviceId?: string;
+    jurisdictionId: string;
+    description: string;
+    address: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    status: string;
+    assignedTo: string;
+    createdAt: Date;
+    updatedAt: Date;
+    images: string[];
 }
 
-export function requestAs311(request: QueryResult): Record<string, unknown> {
-    /* eslint-disable @typescript-eslint/ban-ts-comment */
-    //@ts-ignore
-    return _.pick(request.get(), open311RequestFields);
-    /* eslint-enable @typescript-eslint/ban-ts-comment */
-}
+export const toOpen311Service = (service: IServiceAttributes): IOpen311Service => ({
+    service_code: service.id,
+    service_name: service.name,
+    metadata: false,
+    type: 'realtime',
+    group: service.group,
+});
 
-export function requestWithout311(request: QueryResult): Record<string, unknown> {
-    /* eslint-disable @typescript-eslint/ban-ts-comment */
-    //@ts-ignore
-    return _.omit(request.get(), open311RequestExcludeFields);
-    /* eslint-enable @typescript-eslint/ban-ts-comment */
-}
+export const toOpen311ServiceRequest = (serviceRequest: IServiceRequestAttributes): IOpen311ServiceRequest => ({
+    service_request_id: serviceRequest.id,
+    description: serviceRequest.description,
+    address: serviceRequest.address,
+    status: serviceRequest.status === 'done' ? 'closed' : 'open',
+    service_name: '', // TODO populate field and return service name
+    service_code: serviceRequest.serviceId || '',
+    requested_datetime: serviceRequest.createdAt.toISOString(),
+    updated_datetime: serviceRequest.updatedAt.toISOString(),
+    address_id: '',
+    lat: 0,
+    long: 0,
+    zipcode: '',
+    media_url: serviceRequest.images?.length > 0 ? serviceRequest.images[0] : '',
+});
+
+export const toGovflowServiceRequest = (payload: IOpen311ServiceRequestCreatePayload): Partial<IServiceRequestAttributes> => ({
+    jurisdictionId: payload.jurisdiction_id,
+    serviceId: payload.service_code,
+    description: payload.description || '',
+    address: payload.address_string || '',
+    firstName: payload.first_name,
+    lastName: payload.last_name,
+    phone: payload.phone,
+    email: payload.email,
+});

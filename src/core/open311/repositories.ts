@@ -1,12 +1,11 @@
-import merge from 'deepmerge';
 import { injectable } from 'inversify';
-import { queryParamsToSequelize } from '../../helpers';
-import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
-import { requestAs311, serviceAs311 } from '../open311/helpers';
+import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, QueryParamsAll } from '../../types';
+import { toOpen311Service, toOpen311ServiceRequest, toGovflowServiceRequest } from './helpers';
+import { IOpen311Service, IOpen311ServiceRequest, IOpen311ServiceRequestCreatePayload } from './types';
 
 @injectable()
 export class Open311ServiceRepository implements IOpen311ServiceRepository {
-    async findOne(jurisdictionId: string, code: string): Promise<QueryResult> {
+    async findOne(jurisdictionId: string, code: string): Promise<IOpen311Service> {
         /* eslint-disable */
         //@ts-ignore
         const { Service } = this.models;
@@ -16,11 +15,11 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         const params = { where: { jurisdictionId, id: code } }
         const record = await Service.findOne(params);
         // @ts-ignore
-        return serviceAs311(record);
+        return toOpen311Service(record);
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
-    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<IOpen311Service[]> {
         /* eslint-disable */
         //@ts-ignore
         const { Service } = this.models;
@@ -30,46 +29,43 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         const mergedWhere = Object.assign({}, queryParams?.whereParams, { jurisdictionId });
         /* eslint-enable @typescript-eslint/ban-ts-comment */
         const records = await Service.findAll({ where: mergedWhere });
-        return [records.map(serviceAs311), records.length];
+        return [records.map(toOpen311Service), records.length];
     }
 }
 
 @injectable()
 export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRepository {
 
-    async create(data: Record<string, unknown>): Promise<QueryResult> {
+    async create(data: Record<string, unknown>): Promise<IOpen311ServiceRequest> {
         /* eslint-disable */
         //@ts-ignore
-        const { ServiceRequest, Jurisdiction } = this.models;
-        /* eslint-enable */
-        const { jurisdiction_id } = data;
-        delete data.jurisdictionId;
-        const jurisdiction = await Jurisdiction.findOne({ where: { id: jurisdiction_id } });
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        // @ts-ignore
-        const record = await ServiceRequest.create(Object.assign({}, data, { jurisdictionId: jurisdiction.id }));
-        return requestAs311(record);
+        const { ServiceRequest } = this.models;
+
+        const govflowServiceRequest = toGovflowServiceRequest(data as unknown as IOpen311ServiceRequestCreatePayload);
+
+        const record = await ServiceRequest.create(govflowServiceRequest);
+        return toOpen311ServiceRequest(record);
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
-    async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
+    async findOne(jurisdictionId: string, id: string): Promise<IOpen311ServiceRequest> {
         /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
         /* eslint-enable */
         const params = { where: { jurisdictionId, id } };
         const record = await ServiceRequest.findOne(params);
-        return requestAs311(record);
+        return toOpen311ServiceRequest(record);
     }
 
-    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
-        /* eslint-disable */
-        //@ts-ignore
-        const { ServiceRequest } = this.models;
-        /* eslint-enable */
-        const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
-        const records = await ServiceRequest.findAll(params);
-        return [records.map(requestAs311), records.length];
-    }
+    // async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
+    //     /* eslint-disable */
+    //     //@ts-ignore
+    //     const { ServiceRequest } = this.models;
+    //     /* eslint-enable */
+    //     const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
+    //     const records = await ServiceRequest.findAll(params);
+    //     return [records.map(toOpen311ServiceRequest), records.length];
+    // }
 
 }

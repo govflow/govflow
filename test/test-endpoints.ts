@@ -448,7 +448,7 @@ describe('Hit all API endpoints', function () {
         }
     });
 
-    it('should GET all service requests as Open311 for a jurisdiction in JSON format', async function () {
+    it.skip('should GET all service requests as Open311 for a jurisdiction in JSON format', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/requests.json?jurisdiction_id=${jurisdictionId}`)
@@ -460,7 +460,7 @@ describe('Hit all API endpoints', function () {
         }
     });
 
-    it('should GET all service requests as Open311 for a jurisdiction in XML format', async function () {
+    it.skip('should GET all service requests as Open311 for a jurisdiction in XML format', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/requests.xml?jurisdiction_id=${jurisdictionId}`)
