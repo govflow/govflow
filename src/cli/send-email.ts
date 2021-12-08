@@ -1,5 +1,6 @@
+import 'reflect-metadata';
 import { initConfig } from '../config';
-import { sendEmail } from '../core/communications/email';
+import { sendEmail } from '../core/communications';
 import { AppSettings } from '../types';
 
 (async () => {

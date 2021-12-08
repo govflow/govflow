@@ -10,6 +10,8 @@
     "start": "ts-node ./src/default.ts",
     "migrate": "ts-node ./src/cli/migrate up",
     "fake-data": "ts-node ./src/cli/fake-data",
+    "send-email": "ts-node ./src/cli/send-email",
+    "send-sms": "ts-node ./src/cli/send-sms",
     "build": "tsc"
   },
   "license": "MIT",

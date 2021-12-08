@@ -20,6 +20,7 @@ const defaultSettings: AppSettings = {
     'sendGridFromEmail': process.env.SENDGRID_FROM_EMAIL || '',
     'twilioAccountSid': process.env.TWILIO_ACCOUNT_SID,
     'twilioAuthToken': process.env.TWILIO_AUTH_TOKEN,
+    'twilioFromPhone': process.env.TWILIO_FROM_PHONE || '',
     'testToEmail': process.env.TEST_TO_EMAIL || '',
     'testToPhone': process.env.TEST_TO_PHONE || '',
     'appPort': process.env.APP_PORT || 3000,

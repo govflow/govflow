@@ -21,6 +21,12 @@ export const INPUT_CHANNELS = {
 
 const INPUT_CHANNEL_KEYS = Object.keys(INPUT_CHANNELS);
 
+export const COMMUNICATION_CHANNELS = {
+    'sms': 'SMS',
+    'email': 'Email',
+}
+const COMMUNICATION_CHANNEL_KEYS = Object.keys(COMMUNICATION_CHANNELS);
+
 export const ServiceRequestModel: ModelDefinition = {
     name: 'ServiceRequest',
     attributes: {
@@ -108,6 +114,30 @@ export const ServiceRequestModel: ModelDefinition = {
         address_id: {
             allowNull: true,
             type: DataTypes.STRING,
+        },
+        // Fields for communication capabilities with the public submitter of this request.
+        communicationChannel: {
+            allowNull: true,
+            type: DataTypes.ENUM(...COMMUNICATION_CHANNEL_KEYS),
+            /* eslint-disable @typescript-eslint/no-unused-vars */
+            set(value) {
+                /* eslint-enable @typescript-eslint/no-unused-vars */
+                const email = this.getDataValue('email');
+                const phone = this.getDataValue('phone');
+                if (email) {
+                    this.setDataValue('communicationChannel', 'email')
+                } else if (phone) {
+                    this.setDataValue('communicationChannel', 'phone')
+                }
+            }
+        },
+        // if, when communicating, we find out that the email/phone is not valid
+        // then we set to false, if is valid set to true, and, if value is null
+        // then we dont know yet.
+        communicationChannelValid: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: null,
+            allowNull: true,
         },
     },
     options: {

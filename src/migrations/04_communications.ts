@@ -19,15 +19,25 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             defaultValue: false,
             allowNull: false,
         },
+        dispatchPayload: {
+            type: DataTypes.JSONB,
+            allowNull: false,
+        },
+        dispatchResponse: {
+            type: DataTypes.JSONB,
+            allowNull: false,
+        },
+        accepted: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: null,
+            allowNull: false,
+        },
         delivered: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false,
         },
-        response: {
-            type: DataTypes.JSONB,
-            allowNull: false,
-        },
+
         createdAt: {
             allowNull: false,
             type: DataTypes.DATE
@@ -50,8 +60,21 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
     await queryInterface.addIndex('Communication', ['createdAt']);
     await queryInterface.addIndex('Communication', ['updatedAt']);
 
+    await queryInterface.addColumn(
+        'ServiceRequest',
+        'communicationChannel',
+        { allowNull: true, defaultValue: null, type: DataTypes.ENUM('sms', 'email'), }
+    );
+    await queryInterface.addColumn(
+        'ServiceRequest',
+        'communicationChannelValid',
+        { type: DataTypes.BOOLEAN, defaultValue: null, allowNull: true, }
+    );
+
 }
 
 export async function down({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
     await queryInterface.dropTable('Communication');
+    await queryInterface.removeColumn('ServiceRequest', 'communicationChannel')
+    await queryInterface.removeColumn('ServiceRequest', 'communicationChannelValid')
 }
