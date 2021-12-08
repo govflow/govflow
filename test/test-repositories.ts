@@ -163,6 +163,8 @@ describe('Verify Core Repositories.', function () {
             chai.assert(record);
             chai.assert.equal(record.description, serviceRequestData.description);
             chai.assert.equal(record.service_code, serviceRequestData.service_code);
+            chai.assert.equal(record.lat, serviceRequestData.lat);
+            chai.assert.equal(record.long, serviceRequestData.long);
         }
     });
 

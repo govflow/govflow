@@ -43,7 +43,7 @@ function makeService(options: Record<string, Record<string, unknown>>) {
 
 function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
     const dates = [
-        new Date('2021-11-01T00:00:00.000Z'),
+        new Date('2021-12-01T00:00:00.000Z'),
         new Date('2021-11-01T00:00:00.000Z'),
         new Date('2021-10-01T00:00:00.000Z'),
         new Date('2021-09-01T00:00:00.000Z'),
@@ -61,6 +61,8 @@ function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
         id: faker.datatype.uuid(),
         description: faker.lorem.sentences(5),
         address: faker.address.streetAddress(),
+        lat: faker.datatype.number({ precision: 0.0001 }),
+        lon: faker.datatype.number({ precision: 0.0001 }),
         images: [faker.image.imageUrl(), faker.image.imageUrl()],
         status: faker.helpers.randomize(['inbox', 'todo', 'doing', 'blocked', 'done']),
         firstName: faker.name.firstName(),

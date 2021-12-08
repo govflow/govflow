@@ -22,6 +22,8 @@ interface IServiceRequestAttributes {
     createdAt: Date;
     updatedAt: Date;
     images: string[];
+    lat: number;
+    lon: number
 }
 
 export const toOpen311Service = (service: IServiceAttributes): IOpen311Service => ({
@@ -42,8 +44,8 @@ export const toOpen311ServiceRequest = (serviceRequest: IServiceRequestAttribute
     requested_datetime: serviceRequest.createdAt.toISOString(),
     updated_datetime: serviceRequest.updatedAt.toISOString(),
     address_id: '',
-    lat: 0,
-    long: 0,
+    lat: serviceRequest.lat,
+    long: serviceRequest.lon,
     zipcode: '',
     media_url: serviceRequest.images?.length > 0 ? serviceRequest.images[0] : '',
 });
@@ -57,4 +59,6 @@ export const toGovflowServiceRequest = (payload: IOpen311ServiceRequestCreatePay
     lastName: payload.last_name,
     phone: payload.phone,
     email: payload.email,
+    lat: payload.lat as number,
+    lon: payload.long as number
 });

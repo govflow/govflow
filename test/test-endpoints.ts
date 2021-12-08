@@ -5,6 +5,7 @@ import faker from 'faker';
 import _ from 'lodash';
 import { createApp } from '../src';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
+import { validServiceRequestData } from './fixtures/open311';
 
 chai.use(chaiHttp);
 
@@ -228,7 +229,7 @@ describe('Hit all API endpoints', function () {
 
     it('should GET all service requests filtered by dateTo for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
-        const dateTo = '2021-11-01T00:00:00.000Z';
+        const dateTo = '2021-12-01T00:00:00.000Z';
         try {
             const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&dateTo=${dateTo}`)
             chai.assert.equal(res.status, 200);
@@ -423,6 +424,24 @@ describe('Hit all API endpoints', function () {
             chai.assert.equal(res.type, 'text/xml')
             chai.assert(res.text.startsWith('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'))
             chai.assert(res.text.endsWith('</services>'))
+        } catch (error) {
+            throw error;
+        }
+    });
+
+    it('should POST a service request as Open311 for a jurisdiction', async function () {
+        let jurisdiction_id = testData.jurisdictions[0].id;
+        let jurisdiction_services = _.filter(testData.services, { jurisdictionId: jurisdiction_id });
+        let service_code = jurisdiction_services[0].id;
+        let serviceRequestData = _.cloneDeep(validServiceRequestData[0]);
+        // @ts-ignore
+        serviceRequestData.jurisdiction_id = jurisdiction_id;
+        // @ts-ignore
+        serviceRequestData.service_code = service_code;
+        try {
+            const res = await chai.request(app).post(`/open311/v2/requests.json`).send(serviceRequestData)
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.service_code, serviceRequestData.service_code);
         } catch (error) {
             throw error;
         }

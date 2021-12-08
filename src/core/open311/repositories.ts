@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, QueryParamsAll } from '../../types';
-import { toOpen311Service, toOpen311ServiceRequest, toGovflowServiceRequest } from './helpers';
+import { toGovflowServiceRequest, toOpen311Service, toOpen311ServiceRequest } from './helpers';
 import { IOpen311Service, IOpen311ServiceRequest, IOpen311ServiceRequestCreatePayload } from './types';
 
 @injectable()
@@ -40,9 +40,7 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
         /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
-
         const govflowServiceRequest = toGovflowServiceRequest(data as unknown as IOpen311ServiceRequestCreatePayload);
-
         const record = await ServiceRequest.create(govflowServiceRequest);
         return toOpen311ServiceRequest(record);
         /* eslint-enable @typescript-eslint/ban-ts-comment */

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { DataTypes } from 'sequelize';
 import validator from 'validator';
 import { ModelDefinition } from '../../types';
@@ -44,9 +43,13 @@ export const ServiceRequestModel: ModelDefinition = {
             allowNull: true,
             type: DataTypes.STRING,
         },
-        geometry: {
-            allowNull: true,
-            type: DataTypes.ARRAY(DataTypes.STRING(2)),
+        lat: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
+        },
+        lon: {
+            type: DataTypes.FLOAT,
+            defaultValue: 0,
         },
         images: {
             allowNull: true,
@@ -121,8 +124,8 @@ export const ServiceRequestModel: ModelDefinition = {
         ],
         validate: {
             oneOfAddressOrGeometry() {
-                if ((this.geometry === null) && (this.address === null) && (this.address_id === null)) {
-                    throw new Error('A Service Request requires one of geometry, address, or address_id.');
+                if ((this.lat || this.lon === null) && (this.address === null) && (this.address_id === null)) {
+                    throw new Error('A Service Request requires one of a lat/lon pair, address, or address_id.');
                 }
             }
         }

@@ -37,7 +37,9 @@ export const validServiceRequestData = [
         'description': 'There is garbage all over the sidewalk.',
         'address': 'Sunset Boulevarde, Hollywood',
         'email': 'email@example.com',
-        'phone': '+1 972 609 9933'
+        'phone': '+1 972 609 9933',
+        'lat': -238.008,
+        'long': 327.4830
     },
 ]
 
