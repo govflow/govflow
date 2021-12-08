@@ -1,7 +1,6 @@
 import { Model, ModelCtor } from "sequelize/types";
 import { IterableQueryResult, QueryParamsAll, QueryResult } from ".";
 import { IOpen311Service, IOpen311ServiceRequest } from '../core/open311/types';
-import { toOpen311Service } from '../core/open311/helpers';
 
 /* eslint-disable */
 export interface Pluggable {
