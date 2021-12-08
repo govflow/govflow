@@ -1,6 +1,6 @@
 {
   "name": "@govflow/govflow",
-  "version": "0.0.15-alpha",
+  "version": "0.0.16-alpha",
   "description": "An open, modular work order and workflow management system for local governments and resident satisfaction.",
   "homepage": "https://github.com/govflow/govflow",
   "main": "./index.js",
