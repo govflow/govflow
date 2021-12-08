@@ -49,7 +49,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         const { ServiceRequest } = this.models;
-        const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
+        const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId }, order: [['createdAt', 'DESC']] });
         const records = await ServiceRequest.findAll(params);
         return [records, records.length];
         /* eslint-enable @typescript-eslint/ban-ts-comment */
