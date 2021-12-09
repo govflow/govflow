@@ -12,12 +12,8 @@ export async function serviceRequestDataChangeHandler(
     for (const [key, value] of Object.entries(changedData)) {
         if (serviceRequest[key] != value) {
             if (key === 'status') {
-                console.log("STATUS CHANGED")
-                console.log(serviceRequest[key])
-                console.log(value)
                 await CommunicationRepository.dispatchForServiceRequestChangedStatus(serviceRequest);
             } else if (key === 'assignedTo') {
-                console.log("ASSIGNED TO CHANGED")
                 await CommunicationRepository.dispatchForServiceRequestChangedAssignee(serviceRequest);
             }
         }

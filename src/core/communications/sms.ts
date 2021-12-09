@@ -11,14 +11,9 @@ export async function sendSms(accountSid: string, authToken: string, toPhone: st
     try {
         const response = await client.messages.create(message);
         const { sid, status, dateCreated, dateSent } = response;
-
-        console.log(response);
-        console.log(sid, status, dateCreated, dateSent);
-
     } catch (error) {
         const errorMessage = `Error from email transport: ${error}.`;
         logger.error(errorMessage);
         throw new Error(errorMessage);
     }
-
 }

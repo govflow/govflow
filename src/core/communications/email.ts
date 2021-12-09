@@ -19,15 +19,9 @@ export async function sendEmail(apiKey: string, toEmail: string, fromEmail: stri
     try {
         const response = await client.send(message);
         const { statusCode, headers } = response[0];
-
-        console.log(response);
-        console.log(statusCode);
-        console.log(headers);
-
     } catch (error) {
         const errorMessage = `Error from email transport: ${error}.`;
         logger.error(errorMessage);
         throw new Error(errorMessage);
     }
-
 }
