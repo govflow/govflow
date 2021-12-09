@@ -4,6 +4,7 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import type { IServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
+import { GovFlowPubSub } from '../pubsub';
 import { REQUEST_STATUSES } from './models';
 
 @injectable()
@@ -15,6 +16,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const { ServiceRequest } = this.models;
         /* eslint-enable */
         const record = await ServiceRequest.create(data);
+        GovFlowPubSub.emit('serviceRequestCreate', record);
         return record;
     }
 
@@ -24,7 +26,8 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const { ServiceRequest } = this.models;
         const allowUpdateFields = ['assignedTo', 'status', 'address', 'geometry', 'address_id']
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
-        const record = await ServiceRequest.findByPk(id);
+        let record = await ServiceRequest.findByPk(id);
+        const oldValues = _.pick(record, allowUpdateFields);
         for (const [key, value] of Object.entries(safeData)) {
             // @ts-ignore
             record[key] = value;
@@ -32,7 +35,9 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         // @ts-ignore
 
         /* eslint-enable @typescript-eslint/ban-ts-comment */
-        return await record.save();
+        record = await record.save();
+        GovFlowPubSub.emit('serviceRequestDataChange', record, { oldValues });
+        return record;
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
@@ -127,10 +132,13 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         //@ts-ignore
         const { ServiceRequest } = this.models;
         // @ts-ignore
-        const record = await ServiceRequest.findByPk(id);
-        record.status = status;
-        return await record.save();
+        let record = await ServiceRequest.findByPk(id);
         /* eslint-enable @typescript-eslint/ban-ts-comment */
+        const oldStatus = record.status;
+        record.status = status;
+        record = await record.save();
+        GovFlowPubSub.emit('serviceRequestDataChange', record, { status: oldStatus });
+        return record;
     }
 
     async updateAssignedTo(jurisdictionId: string, id: string, assignedTo: string): Promise<QueryResult> {
@@ -138,9 +146,12 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         //@ts-ignore
         const { ServiceRequest } = this.models;
         // @ts-ignore
-        const record = await ServiceRequest.findByPk(id);
+        let record = await ServiceRequest.findByPk(id);
+        const oldAssignedTo = record.assignedTo;
         record.assignedTo = assignedTo;
-        return await record.save();
+        record = await record.save();
+        GovFlowPubSub.emit('serviceRequestDataChange', record, { assignedTo: oldAssignedTo });
+        return record;
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 

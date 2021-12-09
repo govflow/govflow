@@ -1,5 +1,5 @@
 import { Model, ModelCtor } from "sequelize/types";
-import { IterableQueryResult, QueryParamsAll, QueryResult } from ".";
+import { AppSettings, IterableQueryResult, QueryParamsAll, QueryResult } from ".";
 import { IOpen311Service, IOpen311ServiceRequest } from '../core/open311/types';
 
 /* eslint-disable */
@@ -11,6 +11,8 @@ export interface Pluggable {
 export interface RepositoryBase extends Pluggable {
     /* eslint-disable */
     models?: Record<string, ModelCtor<Model<any, any>>>
+    dependencies?: Record<string, unknown>
+    settings?: AppSettings
     /* eslint-enable */
 }
 
@@ -68,5 +70,7 @@ export interface IEventRepository extends RepositoryBase {
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
-    dispatch: () => Promise<void>;
+    dispatchForServiceRequestNew: (serviceRequest: Record<string, unknown>) => Promise<void>;
+    dispatchForServiceRequestChangedStatus: (serviceRequest: Record<string, unknown>) => Promise<void>;
+    dispatchForServiceRequestChangedAssignee: (serviceRequest: Record<string, unknown>) => Promise<void>;
 }

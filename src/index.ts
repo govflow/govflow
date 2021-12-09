@@ -49,7 +49,7 @@ export async function createApp(): Promise<Application> {
     // Currently, plugins can provide alternate implementations of
     // repositories and in future they will be able to provide
     // implementations of other aspects of the system.
-    const repositories = bindImplementationsFromPlugins(plugins, config.database as DatabaseEngine);
+    const repositories = bindImplementationsFromPlugins(plugins, config.database as DatabaseEngine, config.settings as AppSettings);
 
     // Start bootstrapping the app itself.
     const app = express();

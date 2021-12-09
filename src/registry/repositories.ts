@@ -6,7 +6,7 @@ import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../co
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { ICommunicationRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
+import type { AppSettings, ICommunicationRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
 import { DatabaseEngine } from '../types';
 
 export const repositoryIds = {
@@ -22,7 +22,8 @@ export const repositoryIds = {
 
 function bindImplementationsFromPlugins(
     pluginRegistry: Plugin[],
-    databaseEngine: DatabaseEngine
+    databaseEngine: DatabaseEngine,
+    settings: AppSettings,
 ): Record<string, unknown> {
 
     // default repository bindings
@@ -61,6 +62,17 @@ function bindImplementationsFromPlugins(
     const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
     const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
 
+    // Allow repositories access to all of our app settings
+    Jurisdiction.settings = settings
+    StaffUser.settings = settings
+    Service.settings = settings
+    ServiceRequest.settings = settings
+    Open311Service.settings = settings
+    Open311ServiceRequest.settings = settings
+    Event.settings = settings
+    Communication.settings = settings
+
+    // Allow repositories access to all of our database models
     Jurisdiction.models = databaseEngine.models
     StaffUser.models = databaseEngine.models
     Service.models = databaseEngine.models
@@ -69,6 +81,10 @@ function bindImplementationsFromPlugins(
     Open311ServiceRequest.models = databaseEngine.models
     Event.models = databaseEngine.models
     Communication.models = databaseEngine.models
+
+    // Declare repository dependencies to allow access where required
+    ServiceRequest.dependencies = { Communication }
+    Communication.dependencies = { StaffUser }
 
     return {
         Jurisdiction,
