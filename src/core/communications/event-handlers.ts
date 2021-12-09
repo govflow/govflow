@@ -1,21 +1,26 @@
-import type { ICommunicationRepository } from "../../types";
+import type { ICommunicationRepository, QueryResult } from "../../types";
 
 export async function serviceRequestCreateHandler(
     serviceRequest: Record<string, unknown>, CommunicationRepository: ICommunicationRepository
-) {
+): Promise<QueryResult> {
     return await CommunicationRepository.dispatchForServiceRequestNew(serviceRequest);
 }
 
 export async function serviceRequestDataChangeHandler(
-    serviceRequest: Record<string, unknown>, changedData: Record<string, unknown>, CommunicationRepository: ICommunicationRepository
-) {
+    serviceRequest: Record<string, unknown>,
+    changedData: Record<string, unknown>,
+    CommunicationRepository: ICommunicationRepository
+): Promise<QueryResult> {
+
     for (const [key, value] of Object.entries(changedData)) {
         if (serviceRequest[key] != value) {
             if (key === 'status') {
-                await CommunicationRepository.dispatchForServiceRequestChangedStatus(serviceRequest);
+                return await CommunicationRepository.dispatchForServiceRequestChangedStatus(serviceRequest);
             } else if (key === 'assignedTo') {
-                await CommunicationRepository.dispatchForServiceRequestChangedAssignee(serviceRequest);
+                return await CommunicationRepository.dispatchForServiceRequestChangedAssignee(serviceRequest);
             }
         }
     }
+    // TODO: fix
+    return null;
 }

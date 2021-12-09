@@ -1,8 +1,9 @@
+import type { ClientResponse } from '@sendgrid/mail';
 import client from '@sendgrid/mail';
 import validator from 'validator';
 import logger from '../../logging';
 
-export async function sendEmail(apiKey: string, toEmail: string, fromEmail: string, subject: string, text: string, html: string): Promise<void> {
+export async function sendEmail(apiKey: string, toEmail: string, fromEmail: string, subject: string, text: string, html: string): Promise<ClientResponse> {
     if (!validator.isEmail(toEmail)) {
         const errorMessage = `Cant send email to invalid address '${toEmail}'.`;
         logger.error(errorMessage);
@@ -18,7 +19,7 @@ export async function sendEmail(apiKey: string, toEmail: string, fromEmail: stri
     client.setApiKey(apiKey);
     try {
         const response = await client.send(message);
-        const { statusCode, headers } = response[0];
+        return response[0];
     } catch (error) {
         const errorMessage = `Error from email transport: ${error}.`;
         logger.error(errorMessage);
