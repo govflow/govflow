@@ -24,6 +24,9 @@ const defaultSettings: AppSettings = {
     'testToEmail': process.env.TEST_TO_EMAIL || '',
     'testToPhone': process.env.TEST_TO_PHONE || '',
     'appPort': process.env.APP_PORT || 3000,
+    'appName': process.env.APP_NAME || 'Gov Flow',
+    'appClientUrl': process.env.APP_CLIENT_URL || '',
+    'appPublicEmail': process.env.APP_PUBLIC_EMAIL || '',
 }
 
 async function resolveCustomConfig(): Promise<Config> {
