@@ -139,6 +139,15 @@ export const ServiceRequestModel: ModelDefinition = {
             defaultValue: null,
             allowNull: true,
         },
+        displayName: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return `${this.getDataValue('firstName')} ${this.getDataValue('lastName')}`;
+            },
+            set(value) {
+                throw new Error(`The 'displayName' attribute is not allowed to be directly set: ${value}`);
+            }
+        },
     },
     options: {
         freezeTableName: true,

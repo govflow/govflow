@@ -4,7 +4,7 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import type { IServiceRequestRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
-import { GovFlowPubSub } from '../pubsub';
+import { GovFlowEmitter } from '../event-listeners';
 import { REQUEST_STATUSES } from './models';
 
 @injectable()
@@ -18,7 +18,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const { Communication } = this.dependencies;
         /* eslint-enable */
         const record = await ServiceRequest.create(data);
-        GovFlowPubSub.emit('serviceRequestCreate', record, Communication);
+        GovFlowEmitter.emit('serviceRequestCreate', record, Communication);
         return record;
     }
 
@@ -38,7 +38,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
 
         /* eslint-enable @typescript-eslint/ban-ts-comment */
         record = await record.save();
-        GovFlowPubSub.emit('serviceRequestDataChange', record, { oldValues });
+        GovFlowEmitter.emit('serviceRequestChange', record, { oldValues });
         return record;
     }
 
@@ -139,7 +139,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const oldStatus = record.status;
         record.status = status;
         record = await record.save();
-        GovFlowPubSub.emit('serviceRequestDataChange', record, { status: oldStatus });
+        GovFlowEmitter.emit('serviceRequestChange', record, { status: oldStatus });
         return record;
     }
 
@@ -152,7 +152,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const oldAssignedTo = record.assignedTo;
         record.assignedTo = assignedTo;
         record = await record.save();
-        GovFlowPubSub.emit('serviceRequestDataChange', record, { assignedTo: oldAssignedTo });
+        GovFlowEmitter.emit('serviceRequestChange', record, { assignedTo: oldAssignedTo });
         return record;
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
