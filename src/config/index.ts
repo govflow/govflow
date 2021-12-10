@@ -27,6 +27,7 @@ const defaultSettings: AppSettings = {
     'appName': process.env.APP_NAME || 'Gov Flow',
     'appClientUrl': process.env.APP_CLIENT_URL || '',
     'appPublicEmail': process.env.APP_PUBLIC_EMAIL || '',
+    'communicationsToConsole': process.env.COMMUNICATIONS_TO_CONSOLE || true,
 }
 
 async function resolveCustomConfig(): Promise<Config> {

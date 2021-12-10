@@ -70,7 +70,7 @@ export interface IEventRepository extends RepositoryBase {
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
-    dispatchForServiceRequestNew: (serviceRequest: Record<string, unknown>) => Promise<QueryResult>;
+    dispatchForServiceRequestNew: (serviceRequest: Record<string, unknown>) => Promise<IterableQueryResult>;
     dispatchForServiceRequestChangedStatus: (serviceRequest: Record<string, unknown>) => Promise<QueryResult>;
     dispatchForServiceRequestChangedAssignee: (serviceRequest: Record<string, unknown>) => Promise<QueryResult>;
 }

@@ -14,9 +14,11 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
+        //@ts-ignore
+        const { Communication } = this.dependencies;
         /* eslint-enable */
         const record = await ServiceRequest.create(data);
-        GovFlowPubSub.emit('serviceRequestCreate', record);
+        GovFlowPubSub.emit('serviceRequestCreate', record, Communication);
         return record;
     }
 

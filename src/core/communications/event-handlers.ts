@@ -1,8 +1,8 @@
-import type { ICommunicationRepository, QueryResult } from "../../types";
+import type { ICommunicationRepository, IterableQueryResult, QueryResult } from "../../types";
 
 export async function serviceRequestCreateHandler(
     serviceRequest: Record<string, unknown>, CommunicationRepository: ICommunicationRepository
-): Promise<QueryResult> {
+): Promise<IterableQueryResult> {
     return await CommunicationRepository.dispatchForServiceRequestNew(serviceRequest);
 }
 
