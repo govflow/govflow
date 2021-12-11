@@ -36,6 +36,7 @@ jobs:
       - name: Test app
         run: make migrate && make test
         env:
+          COMMUNICATIONS_TO_CONSOLE: true
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
       - name: Report coverage
         uses: codecov/codecov-action@v2

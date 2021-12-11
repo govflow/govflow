@@ -173,3 +173,36 @@ Provides the default server configuration to run the system with no customizatio
 ## index
 
 The entry point for the system, providing the `createApp` factory function to initialize and configure an app.
+
+# Communications
+
+An important part of any workflow management ot 311 system is communication with public users who submit requests, and staff users who handle requests. Gov Flow currently supports email and SMS for such *transactional messaging*.
+
+SendGrid is used as the email backend, and Twilio is used as the SMS backend. You will need to setup accounts and credentials at both providers to send messages from GovFlow.
+
+## Configuration
+
+The following configuration variables need to be set on the environment:
+
+- `SENDGRID_API_KEY`
+- `SENDGRID_FROM_EMAIL`
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_FROM_PHONE`
+
+The following configuration variables are not required for messaging to work, but are required for message templates to be meaningful:
+
+- `APP_CLIENT_URL`
+- `APP_PUBLIC_EMAIL`
+
+An additional configuration variable allows bypassing the backends and sending messages to console for testing and development (see below):
+
+- `COMMUNICATIONS_TO_CONSOLE`
+
+## Manual messaging to verify the backends
+
+`make send-email` and `make send-sms` can be used to send test messages. You will need to set `TEST_TO_EMAIL` and `TEST_TO_PHONE` environment variables to receive these messages. All credentials will need to be properly set for these manual tests to work.
+
+## Messages to console
+
+**Important**: if the `COMMUNICATIONS_TO_CONSOLE` environment variable is set to any truthy value, then SMS and email messages will be logged to the console and will not be sent to the backend service providers. We highly recommend setting this environment variable for local development, and in particular for running tests. Even if all backend provider credentials are set, if `COMMUNICATIONS_TO_CONSOLE` is truthy, then they will not be used to send messages.
