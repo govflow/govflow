@@ -14,11 +14,15 @@ export async function sendSms(accountSid: string, authToken: string, toPhone: st
     }
 }
 
-async function sendSmsToTwilio(message: Record<string, string>, accountSid: string, authToken: string): Promise<Record<string, unknown>> {
+async function sendSmsToTwilio(
+    message: Record<string, string>, accountSid: string, authToken: string
+): Promise<Record<string, unknown>> {
     const client = getClient(accountSid, authToken);
     try {
+        /* eslint-disable */
         // @ts-ignore
         const response = await client.messages.create(message);
+        /* eslint-enable */
         return response as unknown as Record<string, unknown>;
     } catch (error) {
         const errorMessage = `Error from email transport: ${error}.`;

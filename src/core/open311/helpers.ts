@@ -1,32 +1,6 @@
-import { IOpen311Service, IOpen311ServiceRequest, IOpen311ServiceRequestCreatePayload } from './types';
+import { Open311ServiceAttributes, Open311ServiceRequestAttributes, Open311ServiceRequestCreatePayload, ServiceAttributes, ServiceRequestAttributes } from '../../types';
 
-interface IServiceAttributes {
-    id: string;
-    name: string;
-    group: string;
-    jurisdictionId: number;
-}
-
-interface IServiceRequestAttributes {
-    id: string;
-    serviceId?: string;
-    jurisdictionId: string;
-    description: string;
-    address: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    status: string;
-    assignedTo: string;
-    createdAt: Date;
-    updatedAt: Date;
-    images: string[];
-    lat: number;
-    lon: number
-}
-
-export const toOpen311Service = (service: IServiceAttributes): IOpen311Service => ({
+export const toOpen311Service = (service: ServiceAttributes): Open311ServiceAttributes => ({
     service_code: service.id,
     service_name: service.name,
     metadata: false,
@@ -34,7 +8,7 @@ export const toOpen311Service = (service: IServiceAttributes): IOpen311Service =
     group: service.group,
 });
 
-export const toOpen311ServiceRequest = (serviceRequest: IServiceRequestAttributes): IOpen311ServiceRequest => ({
+export const toOpen311ServiceRequest = (serviceRequest: ServiceRequestAttributes): Open311ServiceRequestAttributes => ({
     service_request_id: serviceRequest.id,
     description: serviceRequest.description,
     address: serviceRequest.address,
@@ -50,7 +24,7 @@ export const toOpen311ServiceRequest = (serviceRequest: IServiceRequestAttribute
     media_url: serviceRequest.images?.length > 0 ? serviceRequest.images[0] : '',
 });
 
-export const toGovflowServiceRequest = (payload: IOpen311ServiceRequestCreatePayload): Partial<IServiceRequestAttributes> => ({
+export const toGovflowServiceRequest = (payload: Open311ServiceRequestCreatePayload): Partial<ServiceRequestAttributes> => ({
     jurisdictionId: payload.jurisdiction_id,
     serviceId: payload.service_code,
     description: payload.description || '',

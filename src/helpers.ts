@@ -41,38 +41,27 @@ export function serviceRequestFiltersToSequelize(filterParams: ServiceRequestFil
     let createdAtParams = {};
 
     if (!_.isNil(cleaned.dateFrom)) {
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
-        const dateFrom = new Date(cleaned.dateFrom);
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
+        const dateFrom = new Date(cleaned.dateFrom as string);
         createdAtParams = merge(createdAtParams, { [Op.gt]: dateFrom })
     }
 
     if (!_.isNil(cleaned.dateTo)) {
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
-        const dateTo = new Date(cleaned.dateTo);
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
+        const dateTo = new Date(cleaned.dateTo as string);
         createdAtParams = merge(createdAtParams, { [Op.lt]: dateTo })
     }
 
     if (!_.isNil(cleaned.status)) {
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
         whereParams = merge(whereParams, { status: cleaned.status })
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
     if (!_.isNil(cleaned.assignedTo)) {
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
         whereParams = merge(whereParams, { assignedTo: cleaned.assignedTo })
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
     if (Object.getOwnPropertySymbols(createdAtParams).length > 0) {
         whereParams = merge(whereParams, { createdAt: createdAtParams });
     }
+
     const toSequelize = { whereParams };
     return toSequelize;
 }

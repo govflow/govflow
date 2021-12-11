@@ -7,7 +7,7 @@ import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
 import type { AppSettings, ICommunicationRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
-import { DatabaseEngine } from '../types';
+import { DatabaseEngine, Repositories } from '../types';
 
 export const repositoryIds = {
     IJurisdictionRepository: Symbol('IJurisdictionRepository'),
@@ -24,7 +24,7 @@ function bindImplementationsFromPlugins(
     pluginRegistry: Plugin[],
     databaseEngine: DatabaseEngine,
     settings: AppSettings,
-): Record<string, unknown> {
+): Repositories {
 
     // default repository bindings
     const repositoryContainer = new Container();
@@ -62,6 +62,17 @@ function bindImplementationsFromPlugins(
     const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
     const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
 
+    const repositories = {
+        Jurisdiction,
+        StaffUser,
+        Service,
+        ServiceRequest,
+        Open311Service,
+        Open311ServiceRequest,
+        Event,
+        Communication
+    }
+
     // Allow repositories access to all of our app settings
     Jurisdiction.settings = settings
     StaffUser.settings = settings
@@ -82,20 +93,17 @@ function bindImplementationsFromPlugins(
     Event.models = databaseEngine.models
     Communication.models = databaseEngine.models
 
-    // Declare repository dependencies to allow access where required
-    ServiceRequest.dependencies = { Communication }
-    Communication.dependencies = { StaffUser }
+    // Allow repositories access to all other repositories
+    Jurisdiction.repositories = repositories
+    StaffUser.repositories = repositories
+    Service.repositories = repositories
+    ServiceRequest.repositories = repositories
+    Open311Service.repositories = repositories
+    Open311ServiceRequest.repositories = repositories
+    Event.repositories = repositories
+    Communication.repositories = repositories
 
-    return {
-        Jurisdiction,
-        StaffUser,
-        Service,
-        ServiceRequest,
-        Open311Service,
-        Open311ServiceRequest,
-        Event,
-        Communication
-    }
+    return repositories;
 }
 
 export {

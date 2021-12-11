@@ -5,7 +5,7 @@ import path from 'path';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { QueryResult } from '../../types';
+import { CommunicationAttributes, ServiceRequestAttributes } from '../../types';
 
 async function loadTemplate(templateName: string, templateContext: Record<string, string>): Promise<string> {
     const filepath = path.resolve(`./src/core/communications/templates/${templateName}.txt`);
@@ -21,20 +21,19 @@ async function loadTemplate(templateName: string, templateContext: Record<string
 }
 
 export async function dispatchMessageForPublicUser(
-    serviceRequest: Record<string, unknown>,
+    serviceRequest: ServiceRequestAttributes,
     dispatchConfig: Record<string, string>,
     templateConfig: Record<string, unknown>,
     CommunicationModel: unknown):
-    Promise<QueryResult> {
+    Promise<CommunicationAttributes> {
     if (serviceRequest.communicationChannel === null) {
         logger.warning(`Cannot send message for ${serviceRequest.id} as no communication address was supplied.`);
-        return {};
+        return {} as CommunicationAttributes;
     } else if (serviceRequest.communicationValid === false) {
         logger.warning(`Cannot send message for ${serviceRequest.id} as no communication address is valid.`);
-        return {};
+        return {} as CommunicationAttributes;
     } else {
         const record = await dispatchMessage(dispatchConfig, templateConfig, CommunicationModel);
-        // @ts-ignore
         if (record.accepted === true) {
             serviceRequest.communicationValid = true
         } else {
@@ -49,7 +48,7 @@ export async function dispatchMessageForStaffUser(
     dispatchConfig: Record<string, string>,
     templateConfig: Record<string, unknown>,
     CommunicationModel: unknown):
-    Promise<QueryResult> {
+    Promise<CommunicationAttributes> {
     return await dispatchMessage(dispatchConfig, templateConfig, CommunicationModel);
 }
 
@@ -57,7 +56,7 @@ export async function dispatchMessage(
     dispatchConfig: Record<string, string>,
     templateConfig: Record<string, unknown>,
     CommunicationModel: unknown):
-    Promise<QueryResult> {
+    Promise<CommunicationAttributes> {
     let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown>;
     if (dispatchConfig.channel === 'email') {
         dispatchConfig.subject = await loadTemplate(
@@ -92,8 +91,10 @@ export async function dispatchMessage(
         logger.error(errorMsg);
         throw new Error(errorMsg)
     }
+    /* eslint-disable */
     // @ts-ignore
     const record = await CommunicationModel.create({
+        /* eslint-enable */
         channel: dispatchConfig.channel,
         dispatched: true,
         dispatchPayload: dispatchConfig,

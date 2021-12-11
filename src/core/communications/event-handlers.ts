@@ -1,19 +1,22 @@
-import type { ICommunicationRepository } from '../../types';
+import type { ICommunicationRepository, ServiceRequestAttributes } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export async function serviceRequestCreateHandler(
-    serviceRequest: Record<string, unknown>, CommunicationRepository: ICommunicationRepository
+    serviceRequest: ServiceRequestAttributes, CommunicationRepository: ICommunicationRepository
 ): Promise<void> {
     await CommunicationRepository.dispatchServiceRequestNew(serviceRequest);
 }
 
 export async function serviceRequestChangeHandler(
-    serviceRequest: Record<string, unknown>,
+    serviceRequest: ServiceRequestAttributes,
     changedData: Record<string, unknown>,
     CommunicationRepository: ICommunicationRepository
 ): Promise<void> {
     for (const [key, value] of Object.entries(changedData)) {
+        /* eslint-disable */
+        // @ts-ignore
         if (serviceRequest[key] != value) {
+            /* eslint-enable */
             if (key === 'status') {
                 if (SERVICE_REQUEST_CLOSED_STATES.includes(value as string)) {
                     await CommunicationRepository.dispatchServiceRequestClosed(serviceRequest);

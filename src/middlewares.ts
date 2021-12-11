@@ -10,9 +10,9 @@ export function notFound(req: Request, res: Response): void {
     res.status(status_code).send({ data });
 }
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable */
 export function internalServerError(err: ErrorRequestHandler, req: Request, res: Response, next: NextFunction): void {
-    /* eslint-enable @typescript-eslint/no-unused-vars */
+    /* eslint-enable */
     const status_code = 500
     const data = { message: 'Internal Server Error.', status_code: status_code }
     const dataToLog = Object.assign({}, data, { path: req.path, error: `${err}` })
@@ -25,9 +25,6 @@ export function resolveJurisdiction(paramKey = 'jurisdictionId', excludedRoutes:
         const { Jurisdiction } = res.app.repositories;
         const jurisdictionId = req.query[paramKey];
         const errorStatus = 403;
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        //@ts-ignore
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
         const isExcluded = excludedRoutes.includes(req.path)
         if (isExcluded) {
             next();
@@ -46,7 +43,7 @@ export function resolveJurisdiction(paramKey = 'jurisdictionId', excludedRoutes:
             res.status(errorStatus).send({ errorData });
         }
 
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId as string);
 
         if (_.isNil(jurisdiction)) {
             const errorMessage = 'A jurisdiction query parameter was present but is invalid.';
@@ -60,7 +57,7 @@ export function resolveJurisdiction(paramKey = 'jurisdictionId', excludedRoutes:
             logger.error(errorData);
             res.status(errorStatus).send({ errorData });
         } else {
-            req.jurisdiction = jurisdiction
+            req.jurisdiction = jurisdiction;
             next();
         }
     }

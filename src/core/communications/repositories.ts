@@ -1,22 +1,28 @@
 import { injectable } from 'inversify';
 import _ from 'lodash';
-import type { ICommunicationRepository, IterableQueryResult, QueryResult } from '../../types';
+import type { CommunicationAttributes, ICommunicationRepository, ServiceRequestAttributes } from '../../types';
 import { dispatchMessageForPublicUser, dispatchMessageForStaffUser } from './helpers';
 
 @injectable()
 export class CommunicationRepository implements ICommunicationRepository {
 
-    async dispatchServiceRequestNew(serviceRequest: Record<string, unknown>): Promise<IterableQueryResult> {
+    async dispatchServiceRequestNew(serviceRequest: ServiceRequestAttributes): Promise<CommunicationAttributes[]> {
         /* eslint-disable */
         //@ts-ignore
-        const { StaffUser } = this.dependencies;
+        const { StaffUser } = this.repositories;
         // @ts-ignore
         const { Communication } = this.models;
-        //@ts-ignore
-        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, twilioAccountSid, twilioAuthToken, twilioFromPhone } = this.settings;
+        const { sendGridApiKey,
+            sendGridFromEmail,
+            appName,
+            appClientUrl,
+            twilioAccountSid,
+            twilioAuthToken,
+            //@ts-ignore
+            twilioFromPhone } = this.settings;
         /* eslint-enable */
 
-        const records: IterableQueryResult = [];
+        const records: CommunicationAttributes[] = [];
 
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
@@ -36,10 +42,13 @@ export class CommunicationRepository implements ICommunicationRepository {
                 recipientName: serviceRequest.displayName as string
             }
         }
-        const record = await dispatchMessageForPublicUser(serviceRequest, dispatchConfig, templateConfig, Communication);
+        const record = await dispatchMessageForPublicUser(
+            serviceRequest, dispatchConfig, templateConfig, Communication
+        );
         records.push(record);
-
+        /* eslint-disable */
         const [staffUsers, staffUsersCount] = await StaffUser.findAll(serviceRequest.jurisdictionId);
+        /* eslint-enable */
         const admins = _.filter(staffUsers, { isAdmin: true });
         for (const admin of admins) {
             const dispatchConfig = {
@@ -62,10 +71,12 @@ export class CommunicationRepository implements ICommunicationRepository {
         return records;
     }
 
-    async dispatchServiceRequestChangedStatus(serviceRequest: Record<string, unknown>): Promise<QueryResult> {
+    async dispatchServiceRequestChangedStatus(
+        serviceRequest: ServiceRequestAttributes
+    ): Promise<CommunicationAttributes> {
         /* eslint-disable */
         //@ts-ignore
-        const { StaffUser } = this.dependencies;
+        const { StaffUser } = this.repositories;
         // @ts-ignore
         const { Communication } = this.models;
         /* eslint-enable */
@@ -92,10 +103,12 @@ export class CommunicationRepository implements ICommunicationRepository {
         return record;
     }
 
-    async dispatchServiceRequestChangedAssignee(serviceRequest: Record<string, unknown>): Promise<QueryResult> {
+    async dispatchServiceRequestChangedAssignee(
+        serviceRequest: ServiceRequestAttributes
+    ): Promise<CommunicationAttributes> {
         /* eslint-disable */
         //@ts-ignore
-        const { StaffUser } = this.dependencies;
+        const { StaffUser } = this.repositories;
         // @ts-ignore
         const { Communication } = this.models;
         /* eslint-enable */
@@ -121,16 +134,16 @@ export class CommunicationRepository implements ICommunicationRepository {
         return record;
     }
 
-    async dispatchServiceRequestClosed(serviceRequest: Record<string, unknown>): Promise<IterableQueryResult> {
+    async dispatchServiceRequestClosed(serviceRequest: ServiceRequestAttributes): Promise<CommunicationAttributes[]> {
         /* eslint-disable */
         //@ts-ignore
-        const { StaffUser } = this.dependencies;
+        const { StaffUser } = this.repositories;
         // @ts-ignore
         const { Communication } = this.models;
         // @ts-ignore
         const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl } = this.settings;
         /* eslint-enable */
-        const records: IterableQueryResult = [];
+        const records: CommunicationAttributes[] = [];
 
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
@@ -146,10 +159,15 @@ export class CommunicationRepository implements ICommunicationRepository {
                 recipientName: serviceRequest.displayName as string
             }
         }
-        const record = await dispatchMessageForPublicUser(serviceRequest, dispatchConfig, templateConfig, Communication);
+        const record = await dispatchMessageForPublicUser(
+            serviceRequest, dispatchConfig, templateConfig, Communication
+        );
         records.push(record);
-
-        const [staffUsers, staffUsersCount] = await StaffUser.findAll(serviceRequest.jurisdictionId);
+        /* eslint-disable */
+        const [staffUsers, staffUsersCount] = await StaffUser.findAll(
+            /* eslint-enable */
+            serviceRequest.jurisdictionId
+        );
         const admins = _.filter(staffUsers, { isAdmin: true });
         for (const admin of admins) {
             const dispatchConfig = {

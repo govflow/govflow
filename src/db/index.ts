@@ -19,8 +19,8 @@ async function verifyDatabaseConnection(databaseEngine: DatabaseEngine): Promise
 }
 
 function applyCoreModelRelations(models: Record<string, Model>) {
-    /* eslint-disable */
     const { Service, ServiceRequest, Jurisdiction, StaffUser, ServiceRequestComment, Event, Communication } = models;
+    /* eslint-disable */
     //@ts-ignore
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
     //@ts-ignore

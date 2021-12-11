@@ -1,29 +1,33 @@
 import { injectable } from 'inversify';
 import { repositoryIds } from '../../src/registry/repositories';
-import type { IServiceRepository, IterableQueryResult, Plugin, QueryResult } from '../../src/types';
+import type { IServiceRepository, IterableQueryResult, Plugin, ServiceAttributes } from '../../src/types';
 
 @injectable()
 class MyServiceRepository implements IServiceRepository {
 
     async findOne(jurisdictionId: string, id: string) {
-        return new Promise<QueryResult>((resolve, reject) => { return resolve({ jurisdictionId: jurisdictionId, id: id, name: 'Test Service 1' }) });
+        return new Promise<ServiceAttributes>((resolve, reject) => { return resolve({ jurisdictionId: jurisdictionId, id: id, name: 'Test Service 1', group: 'my-group' }) });
     }
 
     async findAll(jurisdictionId: string) {
-        return new Promise<[IterableQueryResult, number]>((resolve, reject) => {
+        return new Promise<[ServiceAttributes[], number]>((resolve, reject) => {
             return resolve([[
-                { jurisdictionId: jurisdictionId, id: '1', name: 'Test Service 1' },
-                { jurisdictionId: jurisdictionId, id: '2', name: 'Test Service 2' }
+                { jurisdictionId: jurisdictionId, id: '1', name: 'Test Service 1', group: 'my-group' },
+                { jurisdictionId: jurisdictionId, id: '2', name: 'Test Service 2', group: 'my-group' }
             ], 2])
         })
     }
 
-    async create(data: Record<string, unknown>) {
-        return new Promise<QueryResult>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId, id: '3', name: 'Test Service 3' }) });
+    async create(data: ServiceAttributes) {
+        return new Promise<ServiceAttributes>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId as string, id: '3', name: 'Test Service 3', group: 'my-group' }) });
+    }
+
+    async update(jurisdictionId: string, id: string, data: Partial<ServiceAttributes>) {
+        return new Promise<ServiceAttributes>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId as string, id: '3', name: 'Test Service 3', group: 'my-group' }) });
     }
 
     async createFrom311(jurisdictionId: string, data: Record<string, unknown>) {
-        return new Promise<QueryResult>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId, id: '3', name: 'Test Service 3' }) });
+        return new Promise<ServiceAttributes>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId as string, id: '3', name: 'Test Service 3', group: 'my-group' }) });
     }
 
 }

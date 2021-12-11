@@ -5,13 +5,14 @@ import faker from 'faker';
 import _ from 'lodash';
 import { createApp } from '../src';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
+import { TestDataPayload } from '../src/types';
 import { validServiceRequestData } from './fixtures/open311';
 
 chai.use(chaiHttp);
 
 describe('Hit all API endpoints', function () {
     let app: Application;
-    let testData: Record<string, Record<string, unknown>[]>;
+    let testData: TestDataPayload;
 
     before(async function () {
         app = await createApp();
@@ -93,7 +94,6 @@ describe('Hit all API endpoints', function () {
     it('should POST a jurisdiction', async function () {
         let jurisdictionData = _.cloneDeep(testData.jurisdictions[0]);
         jurisdictionData.id = faker.datatype.uuid();
-        jurisdictionData.jurisdictionId = faker.datatype.uuid();
         try {
             const res = await chai.request(app).post(`/jurisdictions`).send(jurisdictionData)
             chai.assert.equal(res.status, 200);

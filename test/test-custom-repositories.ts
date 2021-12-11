@@ -20,7 +20,7 @@ describe('Verify Repository Plugins.', () => {
         let { Service } = app.repositories;
         let jurisdictionId = 'JURISDICTION_ID';
         let id = '1';
-        let oneService = await Service.findOne({ jurisdictionId, id });
+        let oneService = await Service.findOne(jurisdictionId, id);
         let [allServices, allServicesCount] = await Service.findAll(jurisdictionId);
         chai.assert(oneService.name === 'Test Service 1');
         chai.assert(allServicesCount === 2);

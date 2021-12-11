@@ -56,7 +56,11 @@ export const StaffUserModel: ModelDefinition = {
                 return `${this.getDataValue('firstName')} ${this.getDataValue('lastName')}`;
             },
             set(value) {
-                throw new Error(`The 'displayName' attribute is not allowed to be directly set: ${value}`);
+                if (this.getDataValue('firstName') || this.getDataValue('lastnameName')) {
+                    return;
+                } else {
+                    throw new Error(`The 'displayName' attribute is not allowed to be directly set: ${value}`);
+                }
             }
         },
         // TODO: sort out admin and access levels.

@@ -1,6 +1,18 @@
 import { Model, ModelCtor } from "sequelize/types";
-import { AppSettings, IterableQueryResult, QueryParamsAll, QueryResult } from ".";
-import { IOpen311Service, IOpen311ServiceRequest } from '../core/open311/types';
+import type {
+    AppSettings,
+    CommunicationAttributes,
+    EventAttributes,
+    JurisdictionAttributes,
+    Open311ServiceAttributes,
+    Open311ServiceRequestAttributes,
+    QueryParamsAll,
+    ServiceAttributes,
+    ServiceRequestAttributes,
+    ServiceRequestCommentAttributes,
+    StaffUserAttributes,
+    StaffUserLookUpAttributes
+} from ".";
 
 /* eslint-disable */
 export interface Pluggable {
@@ -11,67 +23,86 @@ export interface Pluggable {
 export interface RepositoryBase extends Pluggable {
     /* eslint-disable */
     models?: Record<string, ModelCtor<Model<any, any>>>
-    dependencies?: Record<string, unknown>
+    repositories?: Repositories
     settings?: AppSettings
     /* eslint-enable */
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<QueryResult>;
-    findOne: (id: string) => Promise<QueryResult>;
+    create: (data: JurisdictionAttributes) => Promise<JurisdictionAttributes>;
+    findOne: (id: string) => Promise<JurisdictionAttributes>;
 }
 
 export interface IStaffUserRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<QueryResult>;
-    findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
-    lookupTable: (jurisdictionId: string) => Promise<[IterableQueryResult, number]>;
+    create: (data: StaffUserAttributes) => Promise<StaffUserAttributes>;
+    findOne: (jurisdictionId: string, id: string) => Promise<StaffUserAttributes>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[StaffUserAttributes[], number]>;
+    lookupTable: (jurisdictionId: string) => Promise<[StaffUserLookUpAttributes[], number]>;
 }
 
 export interface IServiceRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<QueryResult>;
-    findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
+    create: (data: ServiceAttributes) => Promise<ServiceAttributes>;
+    update: (jurisdictionId: string, id: string, data: Partial<ServiceAttributes>) => Promise<ServiceAttributes>;
+    findOne: (jurisdictionId: string, id: string) => Promise<ServiceAttributes>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[ServiceAttributes[], number]>;
 }
 
 export interface IServiceRequestRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<QueryResult>;
-    update: (jurisdictionId: string, id: string, data: Record<string, unknown>) => Promise<QueryResult>;
-    findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
+    create: (data: ServiceRequestAttributes) => Promise<ServiceRequestAttributes>;
+    update: (
+        jurisdictionId: string, id: string, data: Partial<ServiceRequestAttributes>
+    ) => Promise<ServiceRequestAttributes>;
+    findOne: (jurisdictionId: string, id: string) => Promise<ServiceRequestAttributes>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[ServiceRequestAttributes[], number]>;
     findStatusList: (id: string) => Promise<Record<string, string>>;
+    getStats: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<Record<string, Record<string, number>>>;
     createComment: (
         jurisdictionId: string,
         serviceRequestId: string,
-        data: Record<string, unknown>
-    ) => Promise<QueryResult>;
+        data: ServiceRequestCommentAttributes
+    ) => Promise<ServiceRequestCommentAttributes>;
     updateComment: (
         jurisdictionId: string,
         serviceRequestId: string,
         serviceRequestCommentId: string,
-        data: Record<string, unknown>) => Promise<QueryResult>;
+        data: Partial<ServiceRequestCommentAttributes>) => Promise<ServiceRequestCommentAttributes>;
+    updateStatus: (jurisdictionId: string, id: string, status: string) => Promise<ServiceRequestAttributes>;
+    updateAssignedTo: (jurisdictionId: string, id: string, status: string) => Promise<ServiceRequestAttributes>;
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {
-    findOne: (jurisdictionId: string, code: string) => Promise<IOpen311Service>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<IOpen311Service[]>;
+    findOne: (jurisdictionId: string, code: string) => Promise<Open311ServiceAttributes>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<Open311ServiceAttributes[]>;
 }
 
 export interface IOpen311ServiceRequestRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<IOpen311ServiceRequest>;
-    findOne: (jurisdictionId: string, id: string) => Promise<IOpen311ServiceRequest>;
+    create: (data: Open311ServiceRequestAttributes) => Promise<Open311ServiceRequestAttributes>;
+    findOne: (jurisdictionId: string, id: string) => Promise<Open311ServiceRequestAttributes>;
     // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }
 
 export interface IEventRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<QueryResult>;
-    findOne: (jurisdictionId: string, id: string) => Promise<QueryResult>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
+    create: (data: EventAttributes) => Promise<EventAttributes>;
+    findOne: (jurisdictionId: string, id: string) => Promise<EventAttributes>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[EventAttributes[], number]>;
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
-    dispatchServiceRequestNew: (serviceRequest: Record<string, unknown>) => Promise<IterableQueryResult>;
-    dispatchServiceRequestChangedStatus: (serviceRequest: Record<string, unknown>) => Promise<QueryResult>;
-    dispatchServiceRequestChangedAssignee: (serviceRequest: Record<string, unknown>) => Promise<QueryResult>;
-    dispatchServiceRequestClosed: (serviceRequest: Record<string, unknown>) => Promise<IterableQueryResult>;
+    dispatchServiceRequestNew: (serviceRequest: ServiceRequestAttributes) => Promise<CommunicationAttributes[]>;
+    dispatchServiceRequestChangedStatus: (serviceRequest: ServiceRequestAttributes) => Promise<CommunicationAttributes>;
+    dispatchServiceRequestChangedAssignee: (
+        serviceRequest: ServiceRequestAttributes
+    ) => Promise<CommunicationAttributes>;
+    dispatchServiceRequestClosed: (serviceRequest: ServiceRequestAttributes) => Promise<CommunicationAttributes[]>;
+}
+
+export interface Repositories {
+    Jurisdiction: IJurisdictionRepository,
+    StaffUser: IStaffUserRepository,
+    Service: IServiceRepository,
+    ServiceRequest: IServiceRequestRepository,
+    Open311Service: IOpen311ServiceRepository,
+    Open311ServiceRequest: IOpen311ServiceRequestRepository,
+    Event: IEventRepository,
+    Communication: ICommunicationRepository
 }
