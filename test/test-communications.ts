@@ -14,6 +14,9 @@ describe('Verify Core Communications Functionality.', function () {
     let testData: TestDataPayload;
 
     before(async function () {
+        process.env.COMMUNICATIONS_TO_CONSOLE = 'true';
+        process.env.TEST_TO_EMAIL = 'example@example.com';
+        process.env.TEST_TO_PHONE = '+1 111 111 111';
         app = await createApp();
         await app.migrator.up();
         testData = makeTestData();
@@ -25,15 +28,12 @@ describe('Verify Core Communications Functionality.', function () {
     })
 
     it('should send email', async function () {
-        process.env.COMMUNICATIONS_TO_CONSOLE = 'true';
-        process.env.TEST_TO_EMAIL = 'example@example.com';
-        process.env.TEST_TO_PHONE = '+1 111 111 111';
         const config = await initConfig();
         const { sendGridApiKey, sendGridFromEmail, testToEmail } = config.settings as AppSettings;
         const response = await sendEmail(
             sendGridApiKey as string,
-            testToEmail as string,
-            sendGridFromEmail as string,
+            'example@example.com',
+            'example@example.com',
             'Test subject line',
             'Test text body',
         );
@@ -41,9 +41,6 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('should send sms', async function () {
-        process.env.COMMUNICATIONS_TO_CONSOLE = 'true';
-        process.env.TEST_TO_EMAIL = 'example@example.com';
-        process.env.TEST_TO_PHONE = '+1 111 111 111';
         const config = await initConfig();
         const { twilioAccountSid, twilioAuthToken, twilioFromPhone, testToPhone } = config.settings as AppSettings;
         const response = await sendSms(
