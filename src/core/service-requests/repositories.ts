@@ -26,6 +26,8 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const { ServiceRequest } = this.models;
+        //@ts-ignore
+        const { Communication } = this.dependencies;
         const allowUpdateFields = ['assignedTo', 'status', 'address', 'geometry', 'address_id']
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         let record = await ServiceRequest.findByPk(id);
@@ -38,7 +40,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
 
         /* eslint-enable @typescript-eslint/ban-ts-comment */
         record = await record.save();
-        GovFlowEmitter.emit('serviceRequestChange', record, { oldValues });
+        GovFlowEmitter.emit('serviceRequestChange', record, { oldValues }, Communication);
         return record;
     }
 
@@ -133,13 +135,15 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         const { ServiceRequest } = this.models;
+        //@ts-ignore
+        const { Communication } = this.dependencies;
         // @ts-ignore
         let record = await ServiceRequest.findByPk(id);
         /* eslint-enable @typescript-eslint/ban-ts-comment */
         const oldStatus = record.status;
         record.status = status;
         record = await record.save();
-        GovFlowEmitter.emit('serviceRequestChange', record, { status: oldStatus });
+        GovFlowEmitter.emit('serviceRequestChange', record, { status: oldStatus }, Communication);
         return record;
     }
 
@@ -147,12 +151,14 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         const { ServiceRequest } = this.models;
+        //@ts-ignore
+        const { Communication } = this.dependencies;
         // @ts-ignore
         let record = await ServiceRequest.findByPk(id);
         const oldAssignedTo = record.assignedTo;
         record.assignedTo = assignedTo;
         record = await record.save();
-        GovFlowEmitter.emit('serviceRequestChange', record, { assignedTo: oldAssignedTo });
+        GovFlowEmitter.emit('serviceRequestChange', record, { assignedTo: oldAssignedTo }, Communication);
         return record;
         /* eslint-enable @typescript-eslint/ban-ts-comment */
     }

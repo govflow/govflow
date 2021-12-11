@@ -1,21 +1,7 @@
 import { injectable } from 'inversify';
 import _ from 'lodash';
-import { sendEmail } from '.';
 import type { ICommunicationRepository, IterableQueryResult, QueryResult } from '../../types';
-import {
-    serviceRequestPublicUserClosedEmailBody,
-    serviceRequestPublicUserClosedEmailSubject,
-    serviceRequestPublicUserNewEmailBody,
-    serviceRequestPublicUserNewEmailSubject,
-    serviceRequestStaffUserChangedAssigneeEmailBody,
-    serviceRequestStaffUserChangedAssigneeEmailSubject,
-    serviceRequestStaffUserChangedStatusEmailBody,
-    serviceRequestStaffUserChangedStatusEmailSubject,
-    serviceRequestStaffUserClosedEmailBody,
-    serviceRequestStaffUserClosedEmailSubject,
-    serviceRequestStaffUserNewEmailBody,
-    serviceRequestStaffUserNewEmailSubject
-} from './templates';
+import { dispatchMessageForPublicUser, dispatchMessageForStaffUser } from './helpers';
 
 @injectable()
 export class CommunicationRepository implements ICommunicationRepository {
@@ -26,75 +12,51 @@ export class CommunicationRepository implements ICommunicationRepository {
         const { StaffUser } = this.dependencies;
         // @ts-ignore
         const { Communication } = this.models;
+        //@ts-ignore
+        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, twilioAccountSid, twilioAuthToken, twilioFromPhone } = this.settings;
         /* eslint-enable */
+
         const records: IterableQueryResult = [];
 
-        // TO PUBLIC USER
-        //@ts-ignore
-        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl } = this.settings;
-        const toEmail = serviceRequest.email;
-        const recipientName = serviceRequest.displayName as string;
-        const templateContext = { appName, appClientUrl, recipientName };
-        /* eslint-enable */
-        const dispatchPayload = {
-            apiKey: sendGridApiKey,
-            toEmail: toEmail as string,
+        const dispatchConfig = {
+            channel: serviceRequest.communicationChannel as string,
+            sendGridApiKey: sendGridApiKey as string,
+            toEmail: serviceRequest.email as string,
             fromEmail: sendGridFromEmail as string,
-            subject: serviceRequestPublicUserNewEmailSubject(templateContext),
-            body: serviceRequestPublicUserNewEmailBody(templateContext),
+            twilioAccountSid: twilioAccountSid as string,
+            twilioAuthToken: twilioAuthToken as string,
+            fromPhone: twilioFromPhone as string,
+            toPhone: serviceRequest.phone as string
         }
-        const response = await sendEmail(
-            dispatchPayload.apiKey,
-            dispatchPayload.toEmail,
-            dispatchPayload.fromEmail,
-            dispatchPayload.subject,
-            dispatchPayload.body
-        );
-        const record = await Communication.create({
-            channel: 'email',
-            dispatched: true,
-            dispatchPayload: dispatchPayload,
-            dispatchResponse: response,
-            // TODO: conditionally check
-            accepted: true,
-            delivered: true,
-        })
+        const templateConfig = {
+            name: 'service-request-new-public-user',
+            context: {
+                appName,
+                appClientUrl,
+                recipientName: serviceRequest.displayName as string
+            }
+        }
+        const record = await dispatchMessageForPublicUser(serviceRequest, dispatchConfig, templateConfig, Communication);
         records.push(record);
 
-        // TO STAFF USERS
         const [staffUsers, staffUsersCount] = await StaffUser.findAll(serviceRequest.jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true });
         for (const admin of admins) {
-            /* eslint-disable */
-            //@ts-ignore
-            const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl } = this.settings;
-            const toEmail = admin.email;
-            const recipientName = admin.displayName;
-            const templateContext = { appName, appClientUrl, recipientName };
-            /* eslint-enable */
-            const dispatchPayload = {
-                apiKey: sendGridApiKey,
-                toEmail: toEmail,
-                fromEmail: sendGridFromEmail as string,
-                subject: serviceRequestStaffUserNewEmailSubject(templateContext),
-                body: serviceRequestStaffUserNewEmailBody(templateContext),
-            }
-            const response = await sendEmail(
-                dispatchPayload.apiKey,
-                dispatchPayload.toEmail,
-                dispatchPayload.fromEmail,
-                dispatchPayload.subject,
-                dispatchPayload.body
-            );
-            const record = await Communication.create({
+            const dispatchConfig = {
                 channel: 'email',
-                dispatched: true,
-                dispatchPayload: dispatchPayload,
-                dispatchResponse: response,
-                // TODO: conditionally check
-                accepted: true,
-                delivered: true,
-            })
+                apiKey: sendGridApiKey,
+                toEmail: admin.email as string,
+                fromEmail: sendGridFromEmail as string,
+            }
+            const templateConfig = {
+                name: 'service-request-new-staff-user',
+                context: {
+                    appName,
+                    appClientUrl,
+                    recipientName: admin.displayName as string
+                }
+            }
+            const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication);
             records.push(record);
         }
         return records;
@@ -110,36 +72,26 @@ export class CommunicationRepository implements ICommunicationRepository {
         /* eslint-disable */
         //@ts-ignore
         const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl } = this.settings;
-        const staffUser = await StaffUser.findOne(serviceRequest.assignedTo);
-        const toEmail = staffUser.email;
-        const recipientName = staffUser.displayName;
-        const templateContext = { appName, appClientUrl, recipientName };
         /* eslint-enable */
-        const dispatchPayload = {
-            apiKey: sendGridApiKey,
-            toEmail: toEmail,
-            fromEmail: sendGridFromEmail as string,
-            subject: serviceRequestStaffUserChangedStatusEmailSubject(templateContext),
-            body: serviceRequestStaffUserChangedStatusEmailBody(templateContext),
-        }
-        const response = await sendEmail(
-            dispatchPayload.apiKey,
-            dispatchPayload.toEmail,
-            dispatchPayload.fromEmail,
-            dispatchPayload.subject,
-            dispatchPayload.body
-        );
-        const record = await Communication.create({
+        const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
+        const dispatchConfig = {
             channel: 'email',
-            dispatched: true,
-            dispatchPayload: dispatchPayload,
-            dispatchResponse: response,
-            // TODO: conditionally check
-            accepted: true,
-            delivered: true,
-        })
+            apiKey: sendGridApiKey,
+            toEmail: staffUser.email as string,
+            fromEmail: sendGridFromEmail as string,
+        }
+        const templateConfig = {
+            name: 'service-request-changed-status-staff-user',
+            context: {
+                appName,
+                appClientUrl,
+                recipientName: staffUser.displayName as string
+            }
+        }
+        const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication);
         return record;
     }
+
     async dispatchServiceRequestChangedAssignee(serviceRequest: Record<string, unknown>): Promise<QueryResult> {
         /* eslint-disable */
         //@ts-ignore
@@ -150,35 +102,23 @@ export class CommunicationRepository implements ICommunicationRepository {
         /* eslint-disable */
         //@ts-ignore
         const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl } = this.settings;
-        const staffUser = await StaffUser.findOne(serviceRequest.assignedTo);
-        const toEmail = staffUser.email;
-        const recipientName = staffUser.displayName;
-        const templateContext = { appName, appClientUrl, recipientName };
-        /* eslint-enable */
-        const dispatchPayload = {
-            apiKey: sendGridApiKey,
-            toEmail: toEmail,
-            fromEmail: sendGridFromEmail as string,
-            subject: serviceRequestStaffUserChangedAssigneeEmailSubject(templateContext),
-            body: serviceRequestStaffUserChangedAssigneeEmailBody(templateContext),
-        }
-        const response = await sendEmail(
-            dispatchPayload.apiKey,
-            dispatchPayload.toEmail,
-            dispatchPayload.fromEmail,
-            dispatchPayload.subject,
-            dispatchPayload.body
-        );
-        const record = await Communication.create({
+        const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
+        const dispatchConfig = {
             channel: 'email',
-            dispatched: true,
-            dispatchPayload: dispatchPayload,
-            dispatchResponse: response,
-            // TODO: conditionally check
-            accepted: true,
-            delivered: true,
-        })
-        return await Communication.findOne(toEmail);
+            apiKey: sendGridApiKey,
+            toEmail: staffUser.email as string,
+            fromEmail: sendGridFromEmail as string,
+        }
+        const templateConfig = {
+            name: 'service-request-changed-assignee-staff-user',
+            context: {
+                appName,
+                appClientUrl,
+                recipientName: staffUser.displayName as string
+            }
+        }
+        const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication);
+        return record;
     }
 
     async dispatchServiceRequestClosed(serviceRequest: Record<string, unknown>): Promise<IterableQueryResult> {
@@ -192,69 +132,41 @@ export class CommunicationRepository implements ICommunicationRepository {
         /* eslint-enable */
         const records: IterableQueryResult = [];
 
-        // TO PUBLIC USER
-        const toEmail = serviceRequest.email;
-        const recipientName = serviceRequest.displayName as string;
-        const templateContext = { appName, appClientUrl, recipientName };
-        /* eslint-enable */
-        const dispatchPayload = {
+        const dispatchConfig = {
+            channel: serviceRequest.communicationChannel as string,
             apiKey: sendGridApiKey,
-            toEmail: toEmail as string,
+            toEmail: serviceRequest.email as string,
             fromEmail: sendGridFromEmail as string,
-            subject: serviceRequestPublicUserClosedEmailSubject(templateContext),
-            body: serviceRequestPublicUserClosedEmailBody(templateContext),
         }
-        const response = await sendEmail(
-            dispatchPayload.apiKey,
-            dispatchPayload.toEmail,
-            dispatchPayload.fromEmail,
-            dispatchPayload.subject,
-            dispatchPayload.body
-        );
-        const record = await Communication.create({
-            channel: 'email',
-            dispatched: true,
-            dispatchPayload: dispatchPayload,
-            dispatchResponse: response,
-            // TODO: conditionally check
-            accepted: true,
-            delivered: true,
-        })
+        const templateConfig = {
+            name: 'service-request-closed-public-user',
+            context: {
+                appName,
+                appClientUrl,
+                recipientName: serviceRequest.displayName as string
+            }
+        }
+        const record = await dispatchMessageForPublicUser(serviceRequest, dispatchConfig, templateConfig, Communication);
         records.push(record);
 
-        // TO STAFF USERS
         const [staffUsers, staffUsersCount] = await StaffUser.findAll(serviceRequest.jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true });
         for (const admin of admins) {
-            /* eslint-disable */
-            //@ts-ignore
-            const toEmail = admin.email;
-            const recipientName = admin.displayName;
-            const templateContext = { appName, appClientUrl, recipientName };
-            /* eslint-enable */
-            const dispatchPayload = {
-                apiKey: sendGridApiKey,
-                toEmail: toEmail,
-                fromEmail: sendGridFromEmail as string,
-                subject: serviceRequestStaffUserClosedEmailSubject(templateContext),
-                body: serviceRequestStaffUserClosedEmailBody(templateContext),
-            }
-            const response = await sendEmail(
-                dispatchPayload.apiKey,
-                dispatchPayload.toEmail,
-                dispatchPayload.fromEmail,
-                dispatchPayload.subject,
-                dispatchPayload.body
-            );
-            const record = await Communication.create({
+            const dispatchConfig = {
                 channel: 'email',
-                dispatched: true,
-                dispatchPayload: dispatchPayload,
-                dispatchResponse: response,
-                // TODO: conditionally check
-                accepted: true,
-                delivered: true,
-            })
+                apiKey: sendGridApiKey,
+                toEmail: admin.email as string,
+                fromEmail: sendGridFromEmail as string,
+            }
+            const templateConfig = {
+                name: 'service-request-closed-staff-user',
+                context: {
+                    appName,
+                    appClientUrl,
+                    recipientName: admin.displayName as string
+                }
+            }
+            const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication);
             records.push(record);
         }
         return records;

@@ -1,0 +1,7 @@
+Hello ${context.recipientName},
+
+A service request you submitted for ${context.jurisdictionName} has been closed with the status of ${context.serviceRequestStatus}.
+
+Thank you for notifying us of the issue.
+
+Should you have any further comments, reach out to us at ${context.appPublicEmail}.

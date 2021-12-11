@@ -2,7 +2,7 @@ import type { ClientResponse, MailDataRequired } from '@sendgrid/mail';
 import sendGridClient from '@sendgrid/mail';
 import nodemailer from 'nodemailer';
 import validator from 'validator';
-import logger from '../../logging';
+import logger from '../logging';
 
 export async function sendEmail(apiKey: string, toEmail: string, fromEmail: string, subject: string, body: string): Promise<ClientResponse | Record<string, string>> {
     if (!validator.isEmail(toEmail)) {

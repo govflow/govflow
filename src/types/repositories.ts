@@ -73,4 +73,5 @@ export interface ICommunicationRepository extends RepositoryBase {
     dispatchServiceRequestNew: (serviceRequest: Record<string, unknown>) => Promise<IterableQueryResult>;
     dispatchServiceRequestChangedStatus: (serviceRequest: Record<string, unknown>) => Promise<QueryResult>;
     dispatchServiceRequestChangedAssignee: (serviceRequest: Record<string, unknown>) => Promise<QueryResult>;
+    dispatchServiceRequestClosed: (serviceRequest: Record<string, unknown>) => Promise<IterableQueryResult>;
 }

@@ -1,4 +1,5 @@
-import type { ICommunicationRepository } from "../../types";
+import type { ICommunicationRepository } from '../../types';
+import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export async function serviceRequestCreateHandler(
     serviceRequest: Record<string, unknown>, CommunicationRepository: ICommunicationRepository
@@ -14,7 +15,11 @@ export async function serviceRequestChangeHandler(
     for (const [key, value] of Object.entries(changedData)) {
         if (serviceRequest[key] != value) {
             if (key === 'status') {
-                await CommunicationRepository.dispatchServiceRequestChangedStatus(serviceRequest);
+                if (SERVICE_REQUEST_CLOSED_STATES.includes(value as string)) {
+                    await CommunicationRepository.dispatchServiceRequestClosed(serviceRequest);
+                } else {
+                    await CommunicationRepository.dispatchServiceRequestChangedStatus(serviceRequest);
+                }
             } else if (key === 'assignedTo') {
                 await CommunicationRepository.dispatchServiceRequestChangedAssignee(serviceRequest);
             }

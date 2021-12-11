@@ -62,11 +62,6 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
 
     await queryInterface.addColumn(
         'ServiceRequest',
-        'communicationChannel',
-        { allowNull: true, defaultValue: null, type: DataTypes.ENUM('sms', 'email'), }
-    );
-    await queryInterface.addColumn(
-        'ServiceRequest',
         'communicationChannelValid',
         { type: DataTypes.BOOLEAN, defaultValue: null, allowNull: true, }
     );
@@ -75,6 +70,5 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
 
 export async function down({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
     await queryInterface.dropTable('Communication');
-    await queryInterface.removeColumn('ServiceRequest', 'communicationChannel')
-    await queryInterface.removeColumn('ServiceRequest', 'communicationChannelValid')
+    await queryInterface.removeColumn('ServiceRequest', 'communicationChannelValid');
 }

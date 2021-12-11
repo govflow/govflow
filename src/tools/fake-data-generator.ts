@@ -1,5 +1,6 @@
 import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
+import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 
 /* eslint-disable @typescript-eslint/ban-types */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -64,11 +65,11 @@ function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
         lat: faker.datatype.number({ precision: 0.0001 }),
         lon: faker.datatype.number({ precision: 0.0001 }),
         images: [faker.image.imageUrl(), faker.image.imageUrl()],
-        status: faker.helpers.randomize(['inbox', 'todo', 'doing', 'blocked', 'done']),
+        status: faker.helpers.randomize(REQUEST_STATUS_KEYS),
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
-        email: faker.internet.email(),
-        phone: faker.phone.phoneNumber(),
+        email: faker.helpers.randomize([null, faker.internet.email()]),
+        phone: faker.helpers.randomize([null, faker.phone.phoneNumber()]),
         createdAt: faker.helpers.randomize(dates),
         updatedAt: faker.helpers.randomize(dates),
         /* eslint-disable */

@@ -149,7 +149,7 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
         },
         status: {
             allowNull: false,
-            type: DataTypes.ENUM('inbox', 'todo', 'doing', 'blocked', 'done'),
+            type: DataTypes.ENUM('inbox', 'todo', 'doing', 'blocked', 'done', 'invalid', 'moved'),
             defaultValue: 'inbox',
         },
         firstName: {

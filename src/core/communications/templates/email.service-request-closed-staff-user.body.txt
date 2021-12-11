@@ -1,0 +1,5 @@
+Hello ${context.recipientName},
+
+A service request has been has been closed with the status of ${context.serviceRequestStatus}.
+
+Go to ${context.appName} at ${context.appClientUrl} for further details.
