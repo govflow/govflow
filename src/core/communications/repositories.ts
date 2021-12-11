@@ -6,6 +6,16 @@ import { dispatchMessageForPublicUser, dispatchMessageForStaffUser } from './hel
 @injectable()
 export class CommunicationRepository implements ICommunicationRepository {
 
+    async findByServiceRequestId(serviceRequestId: string): Promise<[CommunicationAttributes[], number]> {
+        /* eslint-disable */
+        //@ts-ignore
+        const { Communication } = this.models;
+        /* eslint-enable */
+        const params = { where: { serviceRequestId } }
+        const records = await Communication.findAll(params);
+        return [records, records.length];
+    }
+
     async dispatchServiceRequestNew(serviceRequest: ServiceRequestAttributes): Promise<CommunicationAttributes[]> {
         /* eslint-disable */
         //@ts-ignore

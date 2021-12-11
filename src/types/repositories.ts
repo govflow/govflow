@@ -88,6 +88,7 @@ export interface IEventRepository extends RepositoryBase {
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
+    findByServiceRequestId: (serviceRequestId: string) => Promise<[CommunicationAttributes[], number]>;
     dispatchServiceRequestNew: (serviceRequest: ServiceRequestAttributes) => Promise<CommunicationAttributes[]>;
     dispatchServiceRequestChangedStatus: (serviceRequest: ServiceRequestAttributes) => Promise<CommunicationAttributes>;
     dispatchServiceRequestChangedAssignee: (

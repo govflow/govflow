@@ -229,7 +229,7 @@ describe('Hit all API endpoints', function () {
 
     it('should GET all service requests filtered by dateTo for a jurisdiction', async function () {
         let jurisdictionId = testData.jurisdictions[0].id;
-        const dateTo = '2021-12-01T00:00:00.000Z';
+        const dateTo = '2021-10-01T00:00:00.000Z';
         try {
             const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&dateTo=${dateTo}`)
             chai.assert.equal(res.status, 200);

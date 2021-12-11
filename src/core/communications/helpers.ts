@@ -7,8 +7,8 @@ import logger from '../../logging';
 import { sendSms } from '../../sms';
 import { CommunicationAttributes, ServiceRequestAttributes } from '../../types';
 
-async function loadTemplate(templateName: string, templateContext: Record<string, string>): Promise<string> {
-    const filepath = path.resolve(`./src/core/communications/templates/${templateName}.txt`);
+export async function loadTemplate(templateName: string, templateContext: Record<string, string>): Promise<string> {
+    const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
     try {
         await fs.access(filepath, fsConstants.R_OK | fsConstants.W_OK);
     } catch (error) {

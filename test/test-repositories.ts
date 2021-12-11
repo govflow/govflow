@@ -178,7 +178,7 @@ describe('Verify Core Repositories.', function () {
     });
 
     it('should write service requests via repository', async function () {
-        const { ServiceRequest } = app.repositories;
+        const { ServiceRequest, Communication } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
             let record = await ServiceRequest.create(serviceRequestData);
             chai.assert(record);
