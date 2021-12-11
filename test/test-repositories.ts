@@ -143,18 +143,7 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
-    // it('should write Open311 services via repository', async function () {
-    //     const { Service } = app.repositories;
-    //     const jurisdictionId = testData.jurisdictions[0].id
-    //     for (const serviceData of validServiceData) {
-    //         let record = await Service.create(Object.assign({}, serviceData, { jurisdictionId }));
-    //         chai.assert(record);
-    //         chai.assert.equal(record.service_code, serviceData.service_code);
-    //         chai.assert.equal(record.service_name, serviceData.service_name);
-    //     }
-    // });
-
-    // it('should write Open311 service requests via repository', async function () {
+    // it.skip('should write Open311 service requests via repository', async function () {
     //     const { Open311ServiceRequest } = app.repositories;
     //     const jurisdictionId = testData.jurisdictions[0].id
     //     for (const serviceRequestData of validServiceRequestData) {
