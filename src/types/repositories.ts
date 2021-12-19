@@ -3,16 +3,14 @@ import type {
     AppSettings,
     CommunicationAttributes,
     EventAttributes,
-    JurisdictionAttributes,
-    Open311ServiceAttributes,
-    Open311ServiceRequestAttributes,
-    QueryParamsAll,
+    JurisdictionAttributes, QueryParamsAll,
     ServiceAttributes,
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from ".";
+import { IOpen311Service, IOpen311ServiceRequest } from "../core/open311/types";
 
 /* eslint-disable */
 export interface Pluggable {
@@ -71,13 +69,13 @@ export interface IServiceRequestRepository extends RepositoryBase {
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {
-    findOne: (jurisdictionId: string, code: string) => Promise<Open311ServiceAttributes>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<Open311ServiceAttributes[]>;
+    findOne: (jurisdictionId: string, code: string) => Promise<IOpen311Service>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<IOpen311Service[]>;
 }
 
 export interface IOpen311ServiceRequestRepository extends RepositoryBase {
-    create: (data: Open311ServiceRequestAttributes) => Promise<Open311ServiceRequestAttributes>;
-    findOne: (jurisdictionId: string, id: string) => Promise<Open311ServiceRequestAttributes>;
+    create: (data: Record<string, unknown>) => Promise<IOpen311ServiceRequest>;
+    findOne: (jurisdictionId: string, id: string) => Promise<IOpen311ServiceRequest>;
     // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }
 

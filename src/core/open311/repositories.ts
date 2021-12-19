@@ -1,10 +1,11 @@
 import { injectable } from 'inversify';
-import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, Open311ServiceAttributes, Open311ServiceRequestAttributes, Open311ServiceRequestCreatePayload, QueryParamsAll } from '../../types';
+import { IOpen311ServiceRepository, IOpen311ServiceRequestRepository, QueryParamsAll } from '../../types';
 import { toGovflowServiceRequest, toOpen311Service, toOpen311ServiceRequest } from './helpers';
+import { IOpen311Service, IOpen311ServiceRequest, IOpen311ServiceRequestCreatePayload } from './types';
 
 @injectable()
 export class Open311ServiceRepository implements IOpen311ServiceRepository {
-    async findOne(jurisdictionId: string, code: string): Promise<Open311ServiceAttributes> {
+    async findOne(jurisdictionId: string, code: string): Promise<IOpen311Service> {
         /* eslint-disable */
         //@ts-ignore
         const { Service } = this.models;
@@ -14,7 +15,7 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         return toOpen311Service(record);
     }
 
-    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<Open311ServiceAttributes[]> {
+    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<IOpen311Service[]> {
         /* eslint-disable */
         //@ts-ignore
         const { Service } = this.models;
@@ -28,17 +29,17 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
 @injectable()
 export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRepository {
 
-    async create(data: Open311ServiceRequestAttributes): Promise<Open311ServiceRequestAttributes> {
+    async create(data: Record<string, unknown>): Promise<IOpen311ServiceRequest> {
         /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
         /* eslint-enable @typescript-eslint/ban-ts-comment */
-        const govflowServiceRequest = toGovflowServiceRequest(data as unknown as Open311ServiceRequestCreatePayload);
+        const govflowServiceRequest = toGovflowServiceRequest(data as unknown as IOpen311ServiceRequestCreatePayload);
         const record = await ServiceRequest.create(govflowServiceRequest);
         return toOpen311ServiceRequest(record);
     }
 
-    async findOne(jurisdictionId: string, id: string): Promise<Open311ServiceRequestAttributes> {
+    async findOne(jurisdictionId: string, id: string): Promise<IOpen311ServiceRequest> {
         /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
