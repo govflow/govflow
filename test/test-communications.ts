@@ -69,6 +69,7 @@ describe('Verify Core Communications Functionality.', function () {
             sendGridFromEmail,
             appName,
             appClientUrl,
+            appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone
@@ -90,7 +91,7 @@ describe('Verify Core Communications Functionality.', function () {
             name: 'service-request-new-public-user',
             context: {
                 appName,
-                appClientUrl,
+                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -108,6 +109,7 @@ describe('Verify Core Communications Functionality.', function () {
             sendGridFromEmail,
             appName,
             appClientUrl,
+            appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone
@@ -130,7 +132,7 @@ describe('Verify Core Communications Functionality.', function () {
             name: 'service-request-new-staff-user',
             context: {
                 appName,
-                appClientUrl,
+                requestUrl: `${appClientUrl}${appClientRequestsPath}`,
                 recipientName: admin.displayName as string
             }
         }

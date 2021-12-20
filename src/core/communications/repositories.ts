@@ -26,6 +26,7 @@ export class CommunicationRepository implements ICommunicationRepository {
             sendGridFromEmail,
             appName,
             appClientUrl,
+            appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
             //@ts-ignore
@@ -48,7 +49,7 @@ export class CommunicationRepository implements ICommunicationRepository {
             name: 'service-request-new-public-user',
             context: {
                 appName,
-                appClientUrl,
+                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -71,7 +72,7 @@ export class CommunicationRepository implements ICommunicationRepository {
                 name: 'service-request-new-staff-user',
                 context: {
                     appName,
-                    appClientUrl,
+                    requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
                     recipientName: admin.displayName as string
                 }
             }
@@ -92,7 +93,7 @@ export class CommunicationRepository implements ICommunicationRepository {
         /* eslint-enable */
         /* eslint-disable */
         //@ts-ignore
-        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl } = this.settings;
+        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, appClientRequestsPath } = this.settings;
         /* eslint-enable */
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
         const dispatchConfig = {
@@ -105,7 +106,7 @@ export class CommunicationRepository implements ICommunicationRepository {
             name: 'service-request-changed-status-staff-user',
             context: {
                 appName,
-                appClientUrl,
+                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
                 recipientName: staffUser.displayName as string
             }
         }
@@ -124,7 +125,7 @@ export class CommunicationRepository implements ICommunicationRepository {
         /* eslint-enable */
         /* eslint-disable */
         //@ts-ignore
-        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl } = this.settings;
+        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, appClientRequestsPath } = this.settings;
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
         const dispatchConfig = {
             channel: 'email',
@@ -136,7 +137,7 @@ export class CommunicationRepository implements ICommunicationRepository {
             name: 'service-request-changed-assignee-staff-user',
             context: {
                 appName,
-                appClientUrl,
+                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
                 recipientName: staffUser.displayName as string
             }
         }
@@ -151,7 +152,7 @@ export class CommunicationRepository implements ICommunicationRepository {
         // @ts-ignore
         const { Communication } = this.models;
         // @ts-ignore
-        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl } = this.settings;
+        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, appClientRequestsPath } = this.settings;
         /* eslint-enable */
         const records: CommunicationAttributes[] = [];
 
@@ -165,7 +166,7 @@ export class CommunicationRepository implements ICommunicationRepository {
             name: 'service-request-closed-public-user',
             context: {
                 appName,
-                appClientUrl,
+                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -190,7 +191,7 @@ export class CommunicationRepository implements ICommunicationRepository {
                 name: 'service-request-closed-staff-user',
                 context: {
                     appName,
-                    appClientUrl,
+                    requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
                     recipientName: admin.displayName as string
                 }
             }

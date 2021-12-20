@@ -26,6 +26,7 @@ const defaultSettings: AppSettings = {
     'appPort': process.env.APP_PORT || 3000,
     'appName': process.env.APP_NAME || 'Gov Flow',
     'appClientUrl': process.env.APP_CLIENT_URL || '',
+    'appClientRequestsPath': process.env.APP_CLIENT_REQUESTS_PATH || '',
     'appPublicEmail': process.env.APP_PUBLIC_EMAIL || '',
     'communicationsToConsole': process.env.COMMUNICATIONS_TO_CONSOLE || true,
 }

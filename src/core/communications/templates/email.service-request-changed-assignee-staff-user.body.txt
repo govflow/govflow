@@ -2,4 +2,4 @@ Hello ${context.recipientName},
 
 An open service request has been assigned to you.
 
-Go to ${context.appName} at ${context.appClientUrl} for further details.
+Go to ${context.appName} at ${context.appRequestUrl} for further details.

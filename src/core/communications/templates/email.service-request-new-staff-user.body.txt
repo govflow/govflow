@@ -2,4 +2,4 @@ Hello ${context.recipientName},
 
 A new service request has been submitted.
 
-Go to ${context.appName} at ${context.appClientUrl} for further details.
+Go to ${context.appName} at ${context.appRequestUrl} for further details.
