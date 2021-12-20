@@ -29,14 +29,14 @@ describe('Hit all API endpoints', function () {
         try {
             const res = await chai.request(app).get('/')
             chai.assert.equal(res.status, 200);
-            chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.16-alpha' } }));
+            chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.17-alpha' } }));
         } catch (error) {
             throw error;
         }
     });
 
     it('should GET staff users for jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/accounts/staff?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -50,7 +50,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET a staff user lookup table for jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/accounts/staff/lookup?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -67,9 +67,9 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET a staff user for jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
-        let staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
-        let staffUserId = staffUsers[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
+        const staffUserId = staffUsers[0].id;
         try {
             const res = await chai.request(app).get(`/accounts/staff/${staffUserId}?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -81,7 +81,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/jurisdictions/${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -92,7 +92,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should POST a jurisdiction', async function () {
-        let jurisdictionData = _.cloneDeep(testData.jurisdictions[0]);
+        const jurisdictionData = _.cloneDeep(testData.jurisdictions[0]);
         jurisdictionData.id = faker.datatype.uuid();
         try {
             const res = await chai.request(app).post(`/jurisdictions`).send(jurisdictionData)
@@ -104,7 +104,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should fail to POST a jurisdiction', async function () {
-        let jurisdictionData = _.cloneDeep(testData.jurisdictions[0]);
+        const jurisdictionData = _.cloneDeep(testData.jurisdictions[0]);
         try {
             const res = await chai.request(app).post(`/jurisdictions`).send(jurisdictionData)
             chai.assert.equal(res.status, 500);
@@ -116,7 +116,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all services for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/services?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -130,9 +130,9 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET a service for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
-        let services = _.filter(testData.services, { jurisdictionId });
-        let serviceId = services[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const services = _.filter(testData.services, { jurisdictionId });
+        const serviceId = services[0].id;
         try {
             const res = await chai.request(app).get(`/services/${serviceId}?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -144,7 +144,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should POST a service for a jurisdiction', async function () {
-        let serviceData = _.cloneDeep(testData.services[0]);
+        const serviceData = _.cloneDeep(testData.services[0]);
         serviceData.id = faker.datatype.uuid();
         const { jurisdictionId } = serviceData;
         try {
@@ -157,7 +157,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should PUT a service for a jurisdiction', async function () {
-        let serviceData = _.cloneDeep(testData.services[0]);
+        const serviceData = _.cloneDeep(testData.services[0]);
         const { jurisdictionId, id } = serviceData;
         const name = 'Updated name'
         try {
@@ -170,7 +170,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all service requests for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -184,7 +184,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all service requests filtered by status todo for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&status=todo`)
             chai.assert.equal(res.status, 200);
@@ -198,7 +198,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all service requests filtered by status inbox for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&status=inbox`)
             chai.assert.equal(res.status, 200);
@@ -212,7 +212,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all service requests filtered by dateFrom for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         const dateFrom = '2021-06-01T00:00:00.000Z';
         try {
             const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&dateFrom=${dateFrom}`)
@@ -228,7 +228,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all service requests filtered by dateTo for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         const dateTo = '2021-10-01T00:00:00.000Z';
         try {
             const res = await chai.request(app).get(`/service-requests/?jurisdictionId=${jurisdictionId}&dateTo=${dateTo}`)
@@ -244,7 +244,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all service requests filtered by dateFrom/dateTo range for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         const dateFrom = '2021-03-01T00:00:00.000Z';
         const dateTo = '2021-09-01T00:00:00.000Z';
         try {
@@ -262,7 +262,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all service requests filtered by dateFrom/dateTo range and with a certain status for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         const dateFrom = '2021-03-01T00:00:00.000Z';
         const dateTo = '2021-09-01T00:00:00.000Z';
         try {
@@ -281,7 +281,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET stats for service requests for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/service-requests/stats?jurisdictionId=${jurisdictionId}`)
             chai.assert(res.body.data.countByStats)
@@ -291,9 +291,9 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET a service request for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
-        let serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
-        let serviceRequestId = serviceRequests[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
+        const serviceRequestId = serviceRequests[0].id;
         try {
             const res = await chai.request(app).get(`/service-requests/${serviceRequestId}?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -307,8 +307,8 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should POST a service request for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
-        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
         serviceRequestData.id = faker.datatype.uuid();
         serviceRequestData.jurisdictionId = jurisdictionId;
         try {
@@ -322,10 +322,10 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should POST a service request comment for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
-        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
-        let commentData = { id: faker.datatype.uuid(), comment: 'This is my comment.' }
-        let serviceRequestId = serviceRequestData.id;
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const commentData = { id: faker.datatype.uuid(), comment: 'This is my comment.' }
+        const serviceRequestId = serviceRequestData.id;
         try {
             const res = await chai.request(app).post(`/service-requests/comments/${serviceRequestId}?jurisdictionId=${jurisdictionId}`).send(commentData)
             chai.assert.equal(res.status, 200);
@@ -336,13 +336,13 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should POST an update to a service request comment for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
-        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
         // @ts-ignore
-        let commentData = serviceRequestData.comments[0];
-        let commentDataId = commentData.id;
-        let comment = 'hey there';
-        let serviceRequestId = serviceRequestData.id;
+        const commentData = serviceRequestData.comments[0];
+        const commentDataId = commentData.id;
+        const comment = 'hey there';
+        const serviceRequestId = serviceRequestData.id;
         try {
             const res = await chai.request(app).post(`/service-requests/comments/${serviceRequestId}/${commentDataId}?jurisdictionId=${jurisdictionId}`).send({ comment })
             chai.assert.equal(res.status, 200);
@@ -354,10 +354,10 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should POST an update to status for a service request for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
-        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
-        let serviceRequestId = serviceRequestData.id;
-        let status = 'done';
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
+        const status = 'done';
         try {
             const res = await chai.request(app).post(`/service-requests/status/?jurisdictionId=${jurisdictionId}`).send({ status, serviceRequestId })
             chai.assert.equal(res.status, 200);
@@ -369,9 +369,9 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should POST an update to assignedTo for a service request for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
-        let serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
-        let serviceRequestId = serviceRequestData.id;
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
         const assignedTo = faker.datatype.uuid();
         try {
             const res = await chai.request(app).post(`/service-requests/assign/?jurisdictionId=${jurisdictionId}`).send({ assignedTo, serviceRequestId })
@@ -384,7 +384,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all service request statuses for a jurisdiction', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/service-requests/status-list?jurisdictionId=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -405,7 +405,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all services as Open311 for a jurisdiction in JSON format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/services.json?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -417,7 +417,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should GET all services as Open311 for a jurisdiction in XML format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/services.xml?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -430,10 +430,10 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should POST a service request as Open311 for a jurisdiction', async function () {
-        let jurisdiction_id = testData.jurisdictions[0].id;
-        let jurisdiction_services = _.filter(testData.services, { jurisdictionId: jurisdiction_id });
-        let service_code = jurisdiction_services[0].id;
-        let serviceRequestData = _.cloneDeep(validServiceRequestData[0]);
+        const jurisdiction_id = testData.jurisdictions[0].id;
+        const jurisdiction_services = _.filter(testData.services, { jurisdictionId: jurisdiction_id });
+        const service_code = jurisdiction_services[0].id;
+        const serviceRequestData = _.cloneDeep(validServiceRequestData[0]);
         // @ts-ignore
         serviceRequestData.jurisdiction_id = jurisdiction_id;
         // @ts-ignore
@@ -448,7 +448,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should return 501 not implemented error for GET one service as Open311 for a jurisdiction in JSON format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/services/some-fake-service-code.json?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 501);
@@ -458,7 +458,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should return 501 not implemented error for GET one service as Open311 for a jurisdiction in XML format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/services/some-fake-service-code.xml?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 501);
@@ -468,7 +468,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it.skip('should GET all service requests as Open311 for a jurisdiction in JSON format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/requests.json?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -480,7 +480,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it.skip('should GET all service requests as Open311 for a jurisdiction in XML format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/requests.xml?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 200);
@@ -493,7 +493,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should return 501 not implemented error for GET one service request as Open311 for a jurisdiction in JSON format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/requests/some-fake-service-request-id.json?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 501);
@@ -503,7 +503,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should return 501 not implemented error for GET one service request as Open311 for a jurisdiction in XML format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/requests/some-fake-service-request-id.xml?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 501);
@@ -513,7 +513,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should return 501 not implemented error for GET one Open311 token for a jurisdiction in JSON format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/tokens/some-fake-token-id.json?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 501);
@@ -523,7 +523,7 @@ describe('Hit all API endpoints', function () {
     });
 
     it('should return 501 not implemented error for GET one Open311 token for a jurisdiction in XML format', async function () {
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         try {
             const res = await chai.request(app).get(`/open311/v2/tokens/some-fake-token-id.xml?jurisdiction_id=${jurisdictionId}`)
             chai.assert.equal(res.status, 501);
