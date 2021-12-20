@@ -1,13 +1,13 @@
-import { IOpen311Service, IOpen311ServiceRequest, IOpen311ServiceRequestCreatePayload } from './types';
+import { Open311Service, Open311ServiceRequest, Open311ServiceRequestCreatePayload } from './types';
 
-interface IServiceAttributes {
+interface ServiceAttributes {
     id: string;
     name: string;
     group: string;
     jurisdictionId: number;
 }
 
-interface IServiceRequestAttributes {
+interface ServiceRequestAttributes {
     id: string;
     serviceId?: string;
     jurisdictionId: string;
@@ -26,7 +26,7 @@ interface IServiceRequestAttributes {
     lon: number
 }
 
-export const toOpen311Service = (service: IServiceAttributes): IOpen311Service => ({
+export const toOpen311Service = (service: ServiceAttributes): Open311Service => ({
     service_code: service.id,
     service_name: service.name,
     metadata: false,
@@ -34,7 +34,7 @@ export const toOpen311Service = (service: IServiceAttributes): IOpen311Service =
     group: service.group,
 });
 
-export const toOpen311ServiceRequest = (serviceRequest: IServiceRequestAttributes): IOpen311ServiceRequest => ({
+export const toOpen311ServiceRequest = (serviceRequest: ServiceRequestAttributes): Open311ServiceRequest => ({
     service_request_id: serviceRequest.id,
     description: serviceRequest.description,
     address: serviceRequest.address,
@@ -50,7 +50,7 @@ export const toOpen311ServiceRequest = (serviceRequest: IServiceRequestAttribute
     media_url: serviceRequest.images?.length > 0 ? serviceRequest.images[0] : '',
 });
 
-export const toGovflowServiceRequest = (payload: IOpen311ServiceRequestCreatePayload): Partial<IServiceRequestAttributes> => ({
+export const toGovflowServiceRequest = (payload: Open311ServiceRequestCreatePayload): Partial<ServiceRequestAttributes> => ({
     jurisdictionId: payload.jurisdiction_id,
     serviceId: payload.service_code,
     description: payload.description || '',

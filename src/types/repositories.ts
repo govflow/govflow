@@ -10,7 +10,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from ".";
-import { IOpen311Service, IOpen311ServiceRequest } from "../core/open311/types";
+import { Open311Service, Open311ServiceRequest } from "../core/open311/types";
 
 /* eslint-disable */
 export interface Pluggable {
@@ -69,13 +69,13 @@ export interface IServiceRequestRepository extends RepositoryBase {
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {
-    findOne: (jurisdictionId: string, code: string) => Promise<IOpen311Service>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<IOpen311Service[]>;
+    findOne: (jurisdictionId: string, code: string) => Promise<Open311Service>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<Open311Service[]>;
 }
 
 export interface IOpen311ServiceRequestRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<IOpen311ServiceRequest>;
-    findOne: (jurisdictionId: string, id: string) => Promise<IOpen311ServiceRequest>;
+    create: (data: Record<string, unknown>) => Promise<Open311ServiceRequest>;
+    findOne: (jurisdictionId: string, id: string) => Promise<Open311ServiceRequest>;
     // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
 }
 

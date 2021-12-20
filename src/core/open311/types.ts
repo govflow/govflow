@@ -1,4 +1,4 @@
-export interface IOpen311Service {
+export interface Open311Service {
     service_code: string;
     service_name: string;
     description?: string;
@@ -8,7 +8,7 @@ export interface IOpen311Service {
     group: string;
 }
 
-export interface IOpen311ServiceRequest {
+export interface Open311ServiceRequest {
     service_request_id: string;
     status: 'open' | 'closed';
     status_notes?: string;
@@ -28,7 +28,7 @@ export interface IOpen311ServiceRequest {
     media_url: string;
 }
 
-export interface IOpen311ServiceRequestCreatePayload {
+export interface Open311ServiceRequestCreatePayload {
     jurisdiction_id: string;
     service_code: string;
     lat?: number;
@@ -45,7 +45,7 @@ export interface IOpen311ServiceRequestCreatePayload {
     media_url?: string;
 }
 
-export interface IOpen311ServiceRequestCreateResponseItem {
+export interface Open311ServiceRequestCreateResponseItem {
     service_request_id: string;
     service_notice?: string;
     account_id?: string;
