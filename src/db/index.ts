@@ -19,8 +19,8 @@ async function verifyDatabaseConnection(databaseEngine: DatabaseEngine): Promise
 }
 
 function applyCoreModelRelations(models: Record<string, Model>) {
+    const { Service, ServiceRequest, Jurisdiction, StaffUser, ServiceRequestComment, Event, Communication } = models;
     /* eslint-disable */
-    const { Service, ServiceRequest, Jurisdiction, StaffUser, ServiceRequestComment, Event } = models;
     //@ts-ignore
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
     //@ts-ignore
@@ -45,6 +45,10 @@ function applyCoreModelRelations(models: Record<string, Model>) {
     ServiceRequest.hasMany(ServiceRequestComment, { as: 'comments', foreignKey: 'serviceRequestId' });
     //@ts-ignore
     ServiceRequestComment.belongsTo(ServiceRequest, { as: 'serviceRequest' });
+    //@ts-ignore
+    ServiceRequest.hasMany(Communication, { as: 'communications', foreignKey: 'serviceRequestId' });
+    //@ts-ignore
+    Communication.belongsTo(ServiceRequest, { as: 'serviceRequest' });
     /* eslint-enable */
 
 }

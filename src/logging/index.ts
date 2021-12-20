@@ -1,20 +1,17 @@
 import winston from 'winston';
 
 const logger = winston.createLogger({
-    level: 'info',
+    levels: winston.config.npm.levels,
     format: winston.format.json(),
     defaultMeta: { service: 'app-logger' },
     transports: [
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'combined.log' }),
-    ],
+        new winston.transports.Console({ level: 'error' }),
+    ]
 });
 
 if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
-        format: winston.format.simple(),
-        level: 'warning',
-    }));
+    const logFiles = new winston.transports.File({ filename: 'combined.log', level: 'debug' });
+    logger.add(logFiles);
 }
 
 export default logger;

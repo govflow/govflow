@@ -1,10 +1,10 @@
 import { injectable } from 'inversify';
-import { IJurisdictionRepository, QueryResult } from '../../types';
+import { IJurisdictionRepository, JurisdictionAttributes } from '../../types';
 
 @injectable()
 export class JurisdictionRepository implements IJurisdictionRepository {
 
-    async create(data: Record<string, unknown>): Promise<QueryResult> {
+    async create(data: JurisdictionAttributes): Promise<JurisdictionAttributes> {
         /* eslint-disable */
         //@ts-ignore
         const { Jurisdiction } = this.models;
@@ -13,7 +13,7 @@ export class JurisdictionRepository implements IJurisdictionRepository {
         return await Jurisdiction.create(params);
     }
 
-    async findOne(id: string): Promise<QueryResult> {
+    async findOne(id: string): Promise<JurisdictionAttributes> {
         /* eslint-disable */
         //@ts-ignore
         const { Jurisdiction } = this.models;

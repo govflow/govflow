@@ -6,7 +6,7 @@ import { initConfig } from './config';
 import { coreMiddlewares, coreModels, coreRoutes } from './core';
 import { initDb } from './db';
 import { bindImplementationsFromPlugins, registerPlugins } from './registry';
-import type { AppSettings, DatabaseEngine, MigrationEngine, Plugin, QueryResult } from './types';
+import type { AppSettings, DatabaseEngine, JurisdictionAttributes, MigrationEngine, Plugin, Repositories } from './types';
 
 /* eslint-disable */
 // TODO: can we do this without using namespace?
@@ -15,12 +15,12 @@ declare global {
         interface Application {
             plugins: Plugin[];
             config: AppSettings;
-            repositories: Record<string, any>;
+            repositories: Repositories;
             database: DatabaseEngine;
             migrator: MigrationEngine;
         }
         interface Request {
-            jurisdiction: QueryResult;
+            jurisdiction: JurisdictionAttributes;
         }
     }
 }
@@ -49,7 +49,9 @@ export async function createApp(): Promise<Application> {
     // Currently, plugins can provide alternate implementations of
     // repositories and in future they will be able to provide
     // implementations of other aspects of the system.
-    const repositories = bindImplementationsFromPlugins(plugins, config.database as DatabaseEngine);
+    const repositories = bindImplementationsFromPlugins(
+        plugins, config.database as DatabaseEngine, config.settings as AppSettings
+    );
 
     // Start bootstrapping the app itself.
     const app = express();

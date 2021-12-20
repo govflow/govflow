@@ -43,6 +43,14 @@ migrate:
 fake-data:
 	npm run fake-data
 
+.PHONY: send-email ## Send an email with the email backend (for testing).
+send-email:
+	npm run send-email
+
+.PHONY: send-sms ## Send an sms with the sms backend (for testing).
+send-sms:
+	npm run send-sms
+
 ####
 
 .PHONY: tag-release ## Create a git tag for release and push to origin.

@@ -7,10 +7,14 @@ export const REQUEST_STATUSES = {
     'todo': 'Todo',
     'doing': 'Doing',
     'blocked': 'Blocked',
-    'done': 'Done'
+    'done': 'Done',
+    'invalid': 'Invalid',
+    'moved': 'Moved',
 };
 
-const REQUEST_STATUS_KEYS = Object.keys(REQUEST_STATUSES);
+export const SERVICE_REQUEST_CLOSED_STATES = ['done', 'invalid', 'moved']
+
+export const REQUEST_STATUS_KEYS = Object.keys(REQUEST_STATUSES);
 
 export const INPUT_CHANNELS = {
     'webform': 'Web Form',
@@ -19,7 +23,13 @@ export const INPUT_CHANNELS = {
     'email': 'Email',
 }
 
-const INPUT_CHANNEL_KEYS = Object.keys(INPUT_CHANNELS);
+export const INPUT_CHANNEL_KEYS = Object.keys(INPUT_CHANNELS);
+
+export const COMMUNICATION_CHANNELS = {
+    'sms': 'SMS',
+    'email': 'Email',
+}
+export const COMMUNICATION_CHANNEL_KEYS = Object.keys(COMMUNICATION_CHANNELS);
 
 export const ServiceRequestModel: ModelDefinition = {
     name: 'ServiceRequest',
@@ -108,6 +118,36 @@ export const ServiceRequestModel: ModelDefinition = {
         address_id: {
             allowNull: true,
             type: DataTypes.STRING,
+        },
+        // Fields for communication capabilities with the public submitter of this request.
+        communicationChannel: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                if (this.getDataValue('email')) {
+                    return 'email';
+                } else if (this.getDataValue('phone')) {
+                    return 'sms';
+                } else {
+                    return null;
+                }
+            }
+        },
+        // if, when communicating, we find out that the email/phone is not valid
+        // then we set to false, if is valid set to true, and, if value is null
+        // then we dont know yet.
+        communicationChannelValid: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: null,
+            allowNull: true,
+        },
+        displayName: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return `${this.getDataValue('firstName')} ${this.getDataValue('lastName')}`;
+            },
+            set(value) {
+                throw new Error(`The 'displayName' attribute is not allowed to be directly set: ${value}`);
+            }
         },
     },
     options: {

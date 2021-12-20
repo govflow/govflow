@@ -1,7 +1,10 @@
 import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
+import { REQUEST_STATUS_KEYS } from '../core/service-requests';
+import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
+import { EventAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
 
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
     const iterations = [...Array(times).keys()];
     const data: Record<string, unknown>[] = [];
@@ -10,26 +13,33 @@ function factory(generator: Function, times: number, generatorOpts: {}) {
     })
     return data;
 }
-/* eslint-enable @typescript-eslint/ban-types */
+/* eslint-enable */
 
 function makeJurisdiction() {
     return {
         id: faker.datatype.uuid(),
-    }
+    } as JurisdictionAttributes;
 }
 
-function makeStaffUser(options: Record<string, Record<string, unknown>>) {
+function makeStaffUser(options: Partial<TestDataMakerOptions>) {
+    const firstName = faker.name.firstName()
+    const lastName = faker.name.lastName()
     return {
         id: faker.datatype.uuid(),
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName(),
+        firstName: firstName,
+        lastName: lastName,
+        displayName: `${firstName} ${lastName}`,
         email: faker.internet.email(),
         phone: faker.phone.phoneNumber(),
+        /* eslint-disable */
+        // @ts-ignore
         jurisdictionId: options.jurisdiction.id,
-    }
+        /* eslint-enable */
+        permissions: STAFF_USER_PERMISSIONS,
+    } as StaffUserAttributes;
 }
 
-function makeService(options: Record<string, Record<string, unknown>>) {
+function makeService(options: Partial<TestDataMakerOptions>) {
     return {
         id: faker.datatype.uuid(),
         group: faker.datatype.string(),
@@ -37,11 +47,14 @@ function makeService(options: Record<string, Record<string, unknown>>) {
         description: faker.lorem.sentences(5),
         tags: [faker.datatype.string(), faker.datatype.string()],
         type: faker.helpers.randomize(['realtime', 'batch', 'blackbox']),
+        /* eslint-disable */
+        // @ts-ignore
         jurisdictionId: options.jurisdiction.id,
-    }
+        /* eslint-enable */
+    } as ServiceAttributes;
 }
 
-function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
+function makeServiceRequest(options: Partial<TestDataMakerOptions>) {
     const dates = [
         new Date('2021-12-01T00:00:00.000Z'),
         new Date('2021-11-01T00:00:00.000Z'),
@@ -64,13 +77,14 @@ function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
         lat: faker.datatype.number({ precision: 0.0001 }),
         lon: faker.datatype.number({ precision: 0.0001 }),
         images: [faker.image.imageUrl(), faker.image.imageUrl()],
-        status: faker.helpers.randomize(['inbox', 'todo', 'doing', 'blocked', 'done']),
+        status: faker.helpers.randomize(REQUEST_STATUS_KEYS),
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
-        email: faker.internet.email(),
-        phone: faker.phone.phoneNumber(),
+        email: faker.helpers.randomize([null, faker.internet.email()]),
+        phone: faker.helpers.randomize([null, faker.phone.phoneNumber()]),
         createdAt: faker.helpers.randomize(dates),
         updatedAt: faker.helpers.randomize(dates),
+        inputChannel: 'webform',
         /* eslint-disable */
         // @ts-ignore
         assignedTo: faker.helpers.randomize(options.staffUsers.map((u) => { return u.id })),
@@ -80,31 +94,35 @@ function makeServiceRequest(options: Record<string, Record<string, unknown>>) {
         jurisdictionId: options.jurisdiction.id,
         /* eslint-enable */
         comments: [makeServiceRequestComment(), makeServiceRequestComment()]
-    }
+    } as Partial<ServiceRequestAttributes>;
 }
 
 function makeServiceRequestComment() {
     return {
         id: faker.datatype.uuid(),
         comment: faker.lorem.sentences(5),
-    }
+    } as ServiceRequestCommentAttributes
 }
 
-function makeEvent(options: Record<string, Record<string, unknown>>) {
+function makeEvent(options: Partial<TestDataMakerOptions>) {
     return {
         id: faker.datatype.uuid(),
-        sender: faker.datatype.string(),
+        sender: {
+            id: faker.datatype.uuid(),
+            name: faker.datatype.string(),
+            type: faker.datatype.string()
+        },
         message: faker.lorem.sentences(3),
         actor: {
             id: faker.datatype.uuid(),
             name: faker.datatype.string(),
             type: faker.datatype.string()
         },
-        jurisdictionId: options.jurisdiction.id,
-    }
+        jurisdictionId: options.jurisdiction?.id,
+    } as EventAttributes
 }
 
-export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: Record<string, Record<string, unknown>[]>): Promise<void> {
+export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: TestDataPayload): Promise<void> {
     const { Jurisdiction, StaffUser, Service, ServiceRequest, ServiceRequestComment, Event } = databaseEngine.models;
 
     for (const jurisdictionData of testData.jurisdictions) {
@@ -135,20 +153,25 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     }
 }
 
-export default function makeTestData(): Record<string, Record<string, unknown>[]> {
-    const jurisdictions = factory(makeJurisdiction, 3, {});
-    let staffUsers: Record<string, unknown>[] = [];
-    let services: Record<string, unknown>[] = [];
-    let serviceRequests: Record<string, unknown>[] = [];
-    let events: Record<string, unknown>[] = [];
+export default function makeTestData(): TestDataPayload {
+    const jurisdictions = factory(makeJurisdiction, 3, {}) as unknown as JurisdictionAttributes[];
+    let staffUsers: StaffUserAttributes[] = [];
+    let services: ServiceAttributes[] = [];
+    let serviceRequests: ServiceRequestAttributes[] = [];
+    let events: EventAttributes[] = [];
 
     for (const jurisdiction of jurisdictions) {
-        staffUsers = staffUsers.concat(factory(makeStaffUser, 3, { jurisdiction }))
-        services = services.concat(factory(makeService, 5, { jurisdiction }))
+        staffUsers = staffUsers.concat(
+            factory(
+                makeStaffUser, 3, { jurisdiction }
+            ) as unknown as StaffUserAttributes[])
+        services = services.concat(factory(makeService, 5, { jurisdiction }) as unknown as ServiceAttributes[])
         serviceRequests = serviceRequests.concat(
-            factory(makeServiceRequest, 20, { staffUsers, services, jurisdiction })
+            factory(
+                makeServiceRequest, 20, { staffUsers, services, jurisdiction }
+            ) as unknown as ServiceRequestAttributes[]
         )
-        events = events.concat(factory(makeEvent, 20, { jurisdiction }))
+        events = events.concat(factory(makeEvent, 20, { jurisdiction }) as unknown as EventAttributes[])
     }
 
     return {

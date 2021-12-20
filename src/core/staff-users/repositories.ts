@@ -1,12 +1,12 @@
 import merge from 'deepmerge';
 import { injectable } from 'inversify';
 import { queryParamsToSequelize } from '../../helpers';
-import { IStaffUserRepository, IterableQueryResult, QueryParamsAll, QueryResult } from '../../types';
+import { IStaffUserRepository, QueryParamsAll, StaffUserAttributes, StaffUserLookUpAttributes } from '../../types';
 
 @injectable()
 export class StaffUserRepository implements IStaffUserRepository {
 
-    async create(data: Record<string, unknown>): Promise<QueryResult> {
+    async create(data: StaffUserAttributes): Promise<StaffUserAttributes> {
         /* eslint-disable */
         //@ts-ignore
         const { StaffUser } = this.models;
@@ -15,7 +15,7 @@ export class StaffUserRepository implements IStaffUserRepository {
         return await StaffUser.create(params);
     }
 
-    async findOne(jurisdictionId: string, id: string): Promise<QueryResult> {
+    async findOne(jurisdictionId: string, id: string): Promise<StaffUserAttributes> {
         /* eslint-disable */
         //@ts-ignore
         const { StaffUser } = this.models;
@@ -24,20 +24,17 @@ export class StaffUserRepository implements IStaffUserRepository {
         return await StaffUser.findOne(params);
     }
 
-    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
+    async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[StaffUserAttributes[], number]> {
         /* eslint-disable */
         //@ts-ignore
         const { StaffUser } = this.models;
         /* eslint-enable */
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await StaffUser.findAll(params);
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        // @ts-ignore
         return [records, records.length];
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
-    async lookupTable(jurisdictionId: string): Promise<[IterableQueryResult, number]> {
+    async lookupTable(jurisdictionId: string): Promise<[StaffUserLookUpAttributes[], number]> {
         const queryParams = {
             // TODO: check why not working.
             // selectFields: ['email', 'displayName']
