@@ -1,10 +1,22 @@
 import { injectable } from 'inversify';
 import _ from 'lodash';
-import type { CommunicationAttributes, ICommunicationRepository, ServiceRequestAttributes } from '../../types';
+import type {
+    CommunicationAttributes,
+    ICommunicationRepository,
+    JurisdictionAttributes, ServiceRequestAttributes
+} from '../../types';
 import { dispatchMessageForPublicUser, dispatchMessageForStaffUser } from './helpers';
 
 @injectable()
 export class CommunicationRepository implements ICommunicationRepository {
+
+    async create(data: CommunicationAttributes): Promise<CommunicationAttributes> {
+        /* eslint-disable */
+        //@ts-ignore
+        const { Communication } = this.models;
+        /* eslint-enable */
+        return await Communication.create(data);
+    }
 
     async findByServiceRequestId(serviceRequestId: string): Promise<[CommunicationAttributes[], number]> {
         /* eslint-disable */
@@ -16,7 +28,10 @@ export class CommunicationRepository implements ICommunicationRepository {
         return [records, records.length];
     }
 
-    async dispatchServiceRequestNew(serviceRequest: ServiceRequestAttributes): Promise<CommunicationAttributes[]> {
+    async dispatchServiceRequestCreate(
+        jurisdiction: JurisdictionAttributes,
+        serviceRequest: ServiceRequestAttributes
+    ): Promise<CommunicationAttributes[]> {
         /* eslint-disable */
         //@ts-ignore
         const { StaffUser } = this.repositories;
@@ -49,7 +64,9 @@ export class CommunicationRepository implements ICommunicationRepository {
             name: 'service-request-new-public-user',
             context: {
                 appName,
-                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                serviceRequestStatus: serviceRequest.status,
+                jurisdictionName: jurisdiction.id,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -72,7 +89,9 @@ export class CommunicationRepository implements ICommunicationRepository {
                 name: 'service-request-new-staff-user',
                 context: {
                     appName,
-                    requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                    appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                    serviceRequestStatus: serviceRequest.status,
+                    jurisdictionName: jurisdiction.id,
                     recipientName: admin.displayName as string
                 }
             }
@@ -82,7 +101,8 @@ export class CommunicationRepository implements ICommunicationRepository {
         return records;
     }
 
-    async dispatchServiceRequestChangedStatus(
+    async dispatchServiceRequestChangeStatus(
+        jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
     ): Promise<CommunicationAttributes> {
         /* eslint-disable */
@@ -106,7 +126,9 @@ export class CommunicationRepository implements ICommunicationRepository {
             name: 'service-request-changed-status-staff-user',
             context: {
                 appName,
-                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                serviceRequestStatus: serviceRequest.status,
+                jurisdictionName: jurisdiction.id,
                 recipientName: staffUser.displayName as string
             }
         }
@@ -114,7 +136,8 @@ export class CommunicationRepository implements ICommunicationRepository {
         return record;
     }
 
-    async dispatchServiceRequestChangedAssignee(
+    async dispatchServiceRequestChangeAssignee(
+        jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
     ): Promise<CommunicationAttributes> {
         /* eslint-disable */
@@ -137,7 +160,9 @@ export class CommunicationRepository implements ICommunicationRepository {
             name: 'service-request-changed-assignee-staff-user',
             context: {
                 appName,
-                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                serviceRequestStatus: serviceRequest.status,
+                jurisdictionName: jurisdiction.id,
                 recipientName: staffUser.displayName as string
             }
         }
@@ -145,7 +170,7 @@ export class CommunicationRepository implements ICommunicationRepository {
         return record;
     }
 
-    async dispatchServiceRequestClosed(serviceRequest: ServiceRequestAttributes): Promise<CommunicationAttributes[]> {
+    async dispatchServiceRequestClosed(jurisdiction: JurisdictionAttributes, serviceRequest: ServiceRequestAttributes): Promise<CommunicationAttributes[]> {
         /* eslint-disable */
         //@ts-ignore
         const { StaffUser } = this.repositories;
@@ -166,7 +191,9 @@ export class CommunicationRepository implements ICommunicationRepository {
             name: 'service-request-closed-public-user',
             context: {
                 appName,
-                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                serviceRequestStatus: serviceRequest.status,
+                jurisdictionName: jurisdiction.id,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -191,7 +218,9 @@ export class CommunicationRepository implements ICommunicationRepository {
                 name: 'service-request-closed-staff-user',
                 context: {
                     appName,
-                    requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                    appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                    serviceRequestStatus: serviceRequest.status,
+                    jurisdictionName: jurisdiction.id,
                     recipientName: admin.displayName as string
                 }
             }

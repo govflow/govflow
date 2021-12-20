@@ -62,8 +62,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatch a message for a public user', async function () {
-        const { Communication } = app.database.models;
-        const { ServiceRequest } = app.repositories;
+        const { ServiceRequest, Communication } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -74,7 +73,7 @@ describe('Verify Core Communications Functionality.', function () {
             twilioAuthToken,
             twilioFromPhone
         } = app.settings;
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         const [serviceRequests, count] = await ServiceRequest.findAll(jurisdictionId);
         const serviceRequest = serviceRequests[0];
         const dispatchConfig = {
@@ -91,7 +90,9 @@ describe('Verify Core Communications Functionality.', function () {
             name: 'service-request-new-public-user',
             context: {
                 appName,
-                requestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                serviceRequestStatus: serviceRequest.status,
+                jurisdictionName: 'dummy-name',
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -102,8 +103,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatch a message for a staff user', async function () {
-        const { Communication } = app.database.models;
-        const { StaffUser } = app.repositories;
+        const { StaffUser, Communication } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -114,7 +114,7 @@ describe('Verify Core Communications Functionality.', function () {
             twilioAuthToken,
             twilioFromPhone
         } = app.settings;
-        let jurisdictionId = testData.jurisdictions[0].id;
+        const jurisdictionId = testData.jurisdictions[0].id;
         const [staffUsers, staffUsersCount] = await StaffUser.findAll(jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true });
         const admin = admins[0] as StaffUserAttributes;
@@ -132,7 +132,9 @@ describe('Verify Core Communications Functionality.', function () {
             name: 'service-request-new-staff-user',
             context: {
                 appName,
-                requestUrl: `${appClientUrl}${appClientRequestsPath}`,
+                appRequestUrl: `${appClientUrl}${appClientRequestsPath}`,
+                serviceRequestStatus: 'dummy',
+                jurisdictionName: 'dummy-name',
                 recipientName: admin.displayName as string
             }
         }

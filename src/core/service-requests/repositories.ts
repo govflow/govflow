@@ -4,7 +4,6 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import type { IServiceRequestRepository, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes } from '../../types';
-import { GovFlowEmitter } from '../event-listeners';
 import { REQUEST_STATUSES } from './models';
 
 @injectable()
@@ -14,11 +13,8 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable */
         //@ts-ignore
         const { ServiceRequest } = this.models;
-        //@ts-ignore
-        const { Communication } = this.repositories;
         /* eslint-enable */
         const record = await ServiceRequest.create(data);
-        GovFlowEmitter.emit('serviceRequestCreate', record, Communication);
         return record;
     }
 
@@ -27,21 +23,15 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         // @ts-ignore
         const { ServiceRequest } = this.models;
-        //@ts-ignore
-        const { Communication } = this.repositories;
         const allowUpdateFields = ['assignedTo', 'status', 'address', 'geometry', 'address_id']
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         let record = await ServiceRequest.findByPk(id);
-        const oldValues = _.pick(record, allowUpdateFields);
         for (const [key, value] of Object.entries(safeData)) {
             // @ts-ignore
             record[key] = value;
         }
-        // @ts-ignore
-
         /* eslint-enable @typescript-eslint/ban-ts-comment */
         record = await record.save();
-        GovFlowEmitter.emit('serviceRequestChange', record, { oldValues }, Communication);
         return record;
     }
 
@@ -49,22 +39,22 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         const { ServiceRequest, ServiceRequestComment } = this.models;
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
         const params = { where: { jurisdictionId, id }, include: [{ model: ServiceRequestComment, as: 'comments' }], };
         const record = await ServiceRequest.findOne(params);
         return record;
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[ServiceRequestAttributes[], number]> {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         const { ServiceRequest } = this.models;
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
         const params = merge(
             queryParamsToSequelize(queryParams), { where: { jurisdictionId }, order: [['createdAt', 'DESC']] }
         );
         const records = await ServiceRequest.findAll(params);
         return [records, records.length];
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
     async getStats(
@@ -136,15 +126,10 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         const { ServiceRequest } = this.models;
-        //@ts-ignore
-        const { Communication } = this.repositories;
-        // @ts-ignore
         let record = await ServiceRequest.findByPk(id);
         /* eslint-enable @typescript-eslint/ban-ts-comment */
-        const oldStatus = record.status;
         record.status = status;
         record = await record.save();
-        GovFlowEmitter.emit('serviceRequestChange', record, { status: oldStatus }, Communication);
         return record;
     }
 
@@ -152,16 +137,11 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         /* eslint-disable @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         const { ServiceRequest } = this.models;
-        //@ts-ignore
-        const { Communication } = this.repositories;
-        // @ts-ignore
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
         let record = await ServiceRequest.findByPk(id);
-        const oldAssignedTo = record.assignedTo;
         record.assignedTo = assignedTo;
         record = await record.save();
-        GovFlowEmitter.emit('serviceRequestChange', record, { assignedTo: oldAssignedTo }, Communication);
         return record;
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
 }

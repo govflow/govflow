@@ -86,13 +86,24 @@ export interface IEventRepository extends RepositoryBase {
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
+    create: (data: CommunicationAttributes) => Promise<CommunicationAttributes>;
     findByServiceRequestId: (serviceRequestId: string) => Promise<[CommunicationAttributes[], number]>;
-    dispatchServiceRequestNew: (serviceRequest: ServiceRequestAttributes) => Promise<CommunicationAttributes[]>;
-    dispatchServiceRequestChangedStatus: (serviceRequest: ServiceRequestAttributes) => Promise<CommunicationAttributes>;
-    dispatchServiceRequestChangedAssignee: (
+    dispatchServiceRequestCreate: (
+        jurisdiction: JurisdictionAttributes,
+        serviceRequest: ServiceRequestAttributes
+    ) => Promise<CommunicationAttributes[]>;
+    dispatchServiceRequestChangeStatus: (
+        jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
     ) => Promise<CommunicationAttributes>;
-    dispatchServiceRequestClosed: (serviceRequest: ServiceRequestAttributes) => Promise<CommunicationAttributes[]>;
+    dispatchServiceRequestChangeAssignee: (
+        jurisdiction: JurisdictionAttributes,
+        serviceRequest: ServiceRequestAttributes
+    ) => Promise<CommunicationAttributes>;
+    dispatchServiceRequestClosed: (
+        jurisdiction: JurisdictionAttributes,
+        serviceRequest: ServiceRequestAttributes
+    ) => Promise<CommunicationAttributes[]>;
 }
 
 export interface Repositories {

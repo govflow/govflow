@@ -2,6 +2,8 @@ import { Request, Response, Router } from 'express';
 import { serviceRequestFiltersToSequelize, wrapHandler } from '../../helpers';
 import { resolveJurisdiction } from '../../middlewares';
 import { ServiceRequestAttributes } from '../../types';
+import { GovFlowEmitter } from '../event-listeners';
+import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export const serviceRequestRouter = Router();
 
@@ -23,18 +25,23 @@ serviceRequestRouter.get('/stats', async (req: Request, res: Response) => {
     res.status(200).send({ data: { countByStats: record } });
 });
 
-
 serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest } = res.app.repositories;
+    const { ServiceRequest, Communication } = res.app.repositories;
     const { status, serviceRequestId } = req.body;
+    let eventName = 'serviceRequestChangeStatus';
     const record = await ServiceRequest.updateStatus(req.jurisdiction.id, serviceRequestId, status);
+    if (SERVICE_REQUEST_CLOSED_STATES.includes(status as string)) {
+        eventName = 'serviceRequestClosed'
+    }
+    GovFlowEmitter.emit(eventName, req.jurisdiction, record, Communication);
     res.status(200).send({ data: record });
 }))
 
 serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest } = res.app.repositories;
+    const { ServiceRequest, Communication } = res.app.repositories;
     const { assignedTo, serviceRequestId } = req.body;
     const record = await ServiceRequest.updateAssignedTo(req.jurisdiction.id, serviceRequestId, assignedTo);
+    GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, Communication);
     res.status(200).send({ data: record });
 }))
 
@@ -71,7 +78,8 @@ serviceRequestRouter.get('/:id', wrapHandler(async (req: Request, res: Response)
 }))
 
 serviceRequestRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest } = res.app.repositories;
+    const { ServiceRequest, Communication } = res.app.repositories;
     const record = await ServiceRequest.create(req.body as ServiceRequestAttributes);
+    GovFlowEmitter.emit('serviceRequestCreate', req.jurisdiction, record, Communication);
     res.status(200).send({ data: record });
 }))

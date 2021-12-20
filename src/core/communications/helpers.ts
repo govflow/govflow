@@ -5,7 +5,7 @@ import path from 'path';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, ServiceRequestAttributes } from '../../types';
+import { CommunicationAttributes, ICommunicationRepository, ServiceRequestAttributes } from '../../types';
 
 export async function loadTemplate(templateName: string, templateContext: Record<string, string>): Promise<string> {
     const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
@@ -24,7 +24,7 @@ export async function dispatchMessageForPublicUser(
     serviceRequest: ServiceRequestAttributes,
     dispatchConfig: Record<string, string>,
     templateConfig: Record<string, unknown>,
-    CommunicationModel: unknown):
+    CommunicationRepository: ICommunicationRepository):
     Promise<CommunicationAttributes> {
     if (serviceRequest.communicationChannel === null) {
         logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address was supplied.`);
@@ -33,7 +33,7 @@ export async function dispatchMessageForPublicUser(
         logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address is valid.`);
         return {} as CommunicationAttributes;
     } else {
-        const record = await dispatchMessage(dispatchConfig, templateConfig, CommunicationModel);
+        const record = await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository);
         if (record.accepted === true) {
             serviceRequest.communicationValid = true
         } else {
@@ -47,15 +47,15 @@ export async function dispatchMessageForPublicUser(
 export async function dispatchMessageForStaffUser(
     dispatchConfig: Record<string, string>,
     templateConfig: Record<string, unknown>,
-    CommunicationModel: unknown):
+    CommunicationRepository: ICommunicationRepository):
     Promise<CommunicationAttributes> {
-    return await dispatchMessage(dispatchConfig, templateConfig, CommunicationModel);
+    return await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository);
 }
 
 export async function dispatchMessage(
     dispatchConfig: Record<string, string>,
     templateConfig: Record<string, unknown>,
-    CommunicationModel: unknown):
+    CommunicationRepository: ICommunicationRepository):
     Promise<CommunicationAttributes> {
     let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown>;
     if (dispatchConfig.channel === 'email') {
@@ -84,7 +84,7 @@ export async function dispatchMessage(
             dispatchConfig.twilioAuthToken as string,
             dispatchConfig.toPhone as string,
             dispatchConfig.fromPhone as string,
-            dispatchConfig.body,
+            dispatchConfig.body as string,
         );
     } else {
         const errorMsg = `Unknown communication dispatch channel`;
@@ -93,12 +93,12 @@ export async function dispatchMessage(
     }
     /* eslint-disable */
     // @ts-ignore
-    const record = await CommunicationModel.create({
+    const record = await CommunicationRepository.create({
         /* eslint-enable */
         channel: dispatchConfig.channel,
         dispatched: true,
         dispatchPayload: dispatchConfig,
-        dispatchResponse: dispatchResponse,
+        dispatchResponse: dispatchResponse as Record<string, string>,
         // TODO: conditionally check
         accepted: true,
         delivered: true,
