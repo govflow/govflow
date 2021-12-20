@@ -58,7 +58,7 @@ describe('Verify Core Communications Functionality.', function () {
         const templateName = 'email.service-request-new-staff-user.subject'
         const templateContext = { appName: 'Gov Flow' }
         const response = await loadTemplate(templateName, templateContext);
-        chai.assert.equal(new String(expectedOutput).valueOf(), new String(response).valueOf());
+        chai.assert(new String(response).valueOf().startsWith(new String(expectedOutput).valueOf()));
     });
 
     it('dispatch a message for a public user', async function () {

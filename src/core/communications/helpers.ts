@@ -9,6 +9,10 @@ import { CommunicationAttributes, ICommunicationRepository, ServiceRequestAttrib
 
 export async function loadTemplate(templateName: string, templateContext: Record<string, string>): Promise<string> {
     const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    const [templateType, ...rest] = templateName.split('.');
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+    const appendUnsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
     try {
         await fs.access(filepath, fsConstants.R_OK | fsConstants.W_OK);
     } catch (error) {
@@ -16,7 +20,8 @@ export async function loadTemplate(templateName: string, templateContext: Record
         throw error;
     }
     const templateBuffer = await fs.readFile(filepath);
-    const templateCompile = _.template(templateBuffer.toString());
+    const unsubscribeBuffer = await fs.readFile(appendUnsubscribe);
+    const templateCompile = _.template(`${templateBuffer.toString()}${unsubscribeBuffer.toString()}`);
     return templateCompile({ context: templateContext });
 }
 
