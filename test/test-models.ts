@@ -2,12 +2,12 @@ import chai from 'chai';
 import type { Application } from 'express';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
+import { TestDataPayload } from '../src/types';
 
 describe('Verify Core Models.', function () {
 
     let app: Application;
-    //@ts-ignore
-    let testData;
+    let testData: TestDataPayload;
 
     before(async function () {
         app = await createApp();
@@ -31,45 +31,40 @@ describe('Verify Core Models.', function () {
 
     it('should write jurisdictions to database', async function () {
         const { Jurisdiction } = app.database.models;
-        // @ts-ignore
         for (const jurisdictionData of testData.jurisdictions) {
-            let record = await Jurisdiction.create(jurisdictionData);
+            const record = await Jurisdiction.create(jurisdictionData);
             chai.assert(record);
         }
     });
 
     it('should write staff users to database', async function () {
         const { StaffUser } = app.database.models;
-        // @ts-ignore
         for (const staffUserData of testData.staffUsers) {
-            let record = await StaffUser.create(staffUserData);
+            const record = await StaffUser.create(staffUserData);
             chai.assert(record);
         }
     });
 
     it('should write services to database', async function () {
         const { Service } = app.database.models;
-        // @ts-ignore
         for (const serviceData of testData.services) {
-            let record = await Service.create(serviceData);
+            const record = await Service.create(serviceData);
             chai.assert(record);
         }
     });
 
     it('should write service requests to database', async function () {
         const { ServiceRequest } = app.database.models;
-        // @ts-ignore
         for (const serviceRequestData of testData.serviceRequests) {
-            let record = await ServiceRequest.create(serviceRequestData);
+            const record = await ServiceRequest.create(serviceRequestData);
             chai.assert(record);
         }
     });
 
     it('should write events to database', async function () {
         const { Event } = app.database.models;
-        // @ts-ignore
         for (const eventData of testData.events) {
-            let record = await Event.create(eventData);
+            const record = await Event.create(eventData);
             chai.assert(record);
         }
     });

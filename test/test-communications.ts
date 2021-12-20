@@ -29,7 +29,7 @@ describe('Verify Core Communications Functionality.', function () {
 
     it('should send email', async function () {
         const config = await initConfig();
-        const { sendGridApiKey, sendGridFromEmail, testToEmail } = config.settings as AppSettings;
+        const { sendGridApiKey } = config.settings as AppSettings;
         const response = await sendEmail(
             sendGridApiKey as string,
             'example@example.com',
@@ -74,6 +74,7 @@ describe('Verify Core Communications Functionality.', function () {
             twilioFromPhone
         } = app.settings;
         const jurisdictionId = testData.jurisdictions[0].id;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [serviceRequests, count] = await ServiceRequest.findAll(jurisdictionId);
         const serviceRequest = serviceRequests[0];
         const dispatchConfig = {
@@ -115,6 +116,7 @@ describe('Verify Core Communications Functionality.', function () {
             twilioFromPhone
         } = app.settings;
         const jurisdictionId = testData.jurisdictions[0].id;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [staffUsers, staffUsersCount] = await StaffUser.findAll(jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true });
         const admin = admins[0] as StaffUserAttributes;

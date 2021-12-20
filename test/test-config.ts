@@ -5,7 +5,7 @@ describe('Try different configuration settings.', () => {
 
     it('should create an app with overriden existing configuration', async () => {
         process.env.CONFIG_MODULE_PATH = './test/fixtures/custom-config.ts';
-        let app = await createApp();
+        const app = await createApp();
         chai.assert(app);
         chai.assert.equal(app.config.myKey, 'myValue');
         chai.assert.equal(app.config.appPort, 9000);
@@ -14,7 +14,7 @@ describe('Try different configuration settings.', () => {
     });
 
     it('should only use default configuration', async () => {
-        let app = await createApp();
+        const app = await createApp();
         chai.assert(app);
         chai.assert.equal(app.config.appPort, 3000);
     });

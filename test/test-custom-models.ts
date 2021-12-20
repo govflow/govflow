@@ -18,7 +18,7 @@ describe('Verify Custom Models.', () => {
     });
 
     it('should override a core model, adding an additional column', async function () {
-        let modelFields = Object.keys(app.database.models.Service.rawAttributes);
+        const modelFields = Object.keys(app.database.models.Service.rawAttributes);
         chai.assert(modelFields.includes('internal_comments'));
     });
 

@@ -33,7 +33,7 @@ describe('Verify Core Repositories.', function () {
     it('should write jurisdictions via repository', async function () {
         const { Jurisdiction } = app.repositories;
         for (const jurisdictionData of testData.jurisdictions) {
-            let record = await Jurisdiction.create(jurisdictionData);
+            const record = await Jurisdiction.create(jurisdictionData);
             chai.assert(record);
             chai.assert.equal(record.id, jurisdictionData.id);
         }
@@ -42,7 +42,7 @@ describe('Verify Core Repositories.', function () {
     it('should find jurisdictions by id via repository', async function () {
         const { Jurisdiction } = app.repositories;
         for (const jurisdictionData of testData.jurisdictions) {
-            let record = await Jurisdiction.findOne(jurisdictionData.id as string);
+            const record = await Jurisdiction.findOne(jurisdictionData.id as string);
             chai.assert(record);
             chai.assert.equal(record.id, jurisdictionData.id);
         }
@@ -51,7 +51,7 @@ describe('Verify Core Repositories.', function () {
     it('should find jurisdictions by jurisdictionId via repository', async function () {
         const { Jurisdiction } = app.repositories;
         for (const jurisdictionData of testData.jurisdictions) {
-            let record = await Jurisdiction.findOne(jurisdictionData.id as string);
+            const record = await Jurisdiction.findOne(jurisdictionData.id as string);
             chai.assert(record);
             chai.assert.equal(record.id, jurisdictionData.id);
         }
@@ -60,7 +60,7 @@ describe('Verify Core Repositories.', function () {
     it('should write staff users via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            let record = await StaffUser.create(staffUserData);
+            const record = await StaffUser.create(staffUserData);
             chai.assert(record);
             chai.assert.equal(record.jurisdictionId, staffUserData.jurisdictionId);
             chai.assert.equal(record.email, staffUserData.email);
@@ -70,7 +70,7 @@ describe('Verify Core Repositories.', function () {
     it('should find one staff user by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            let record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
             chai.assert(record);
             chai.assert.equal(record.jurisdictionId, staffUserData.jurisdictionId);
         }
@@ -79,7 +79,7 @@ describe('Verify Core Repositories.', function () {
     it('should find a displayName for a staff user', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            let record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
             chai.assert(record);
             chai.assert.equal(record.displayName, `${record.firstName} ${record.lastName}`);
         }
@@ -88,7 +88,7 @@ describe('Verify Core Repositories.', function () {
     it('should find staff user permissions for a staff user', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            let record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
             chai.assert(record);
             chai.assert.equal(record.permissions.length, 1)
             for (const permission of record.permissions) {
@@ -100,7 +100,8 @@ describe('Verify Core Repositories.', function () {
     it('should find all staff users by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            let [records, recordCount] = await StaffUser.findAll(staffUserData.jurisdictionId);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [records, recordCount] = await StaffUser.findAll(staffUserData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, staffUserData.jurisdictionId);
@@ -111,6 +112,7 @@ describe('Verify Core Repositories.', function () {
     it('should return a staff user lookup table by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const staffuserData of testData.staffUsers) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const [records, count] = await StaffUser.lookupTable(staffuserData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
@@ -125,7 +127,7 @@ describe('Verify Core Repositories.', function () {
     it('should write services via repository', async function () {
         const { Service } = app.repositories;
         for (const serviceData of testData.services) {
-            let record = await Service.create(serviceData);
+            const record = await Service.create(serviceData);
             chai.assert(record);
             chai.assert.equal(record.jurisdictionId, serviceData.jurisdictionId);
             chai.assert.equal(record.name, serviceData.name);
@@ -135,8 +137,8 @@ describe('Verify Core Repositories.', function () {
     it('should update a service via repository', async function () {
         const { Service } = app.repositories;
         for (const serviceData of testData.services) {
-            let name = faker.name.findName();
-            let record = await Service.update(serviceData.jurisdictionId, serviceData.id, { name });
+            const name = faker.name.findName();
+            const record = await Service.update(serviceData.jurisdictionId, serviceData.id, { name });
             chai.assert(record);
             chai.assert.equal(record.jurisdictionId, serviceData.jurisdictionId);
             chai.assert.equal(record.name, name);
@@ -159,7 +161,7 @@ describe('Verify Core Repositories.', function () {
     it('should find one service by jurisdiction via repository', async function () {
         const { Service } = app.repositories;
         for (const serviceData of testData.services) {
-            let record = await Service.findOne(serviceData.jurisdictionId, serviceData.id);
+            const record = await Service.findOne(serviceData.jurisdictionId, serviceData.id);
             chai.assert(record);
             chai.assert.equal(record.id, serviceData.id);
             chai.assert.equal(record.jurisdictionId, serviceData.jurisdictionId);
@@ -169,7 +171,8 @@ describe('Verify Core Repositories.', function () {
     it('should find all services by jurisdiction via repository', async function () {
         const { Service } = app.repositories;
         for (const serviceData of testData.services) {
-            let [records, recordCount] = await Service.findAll(serviceData.jurisdictionId);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [records, recordCount] = await Service.findAll(serviceData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, serviceData.jurisdictionId);
@@ -178,9 +181,9 @@ describe('Verify Core Repositories.', function () {
     });
 
     it('should write service requests via repository', async function () {
-        const { ServiceRequest, Communication } = app.repositories;
+        const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
-            let record = await ServiceRequest.create(serviceRequestData);
+            const record = await ServiceRequest.create(serviceRequestData);
             chai.assert(record);
         }
     });
@@ -188,9 +191,12 @@ describe('Verify Core Repositories.', function () {
     it('should write service request comments via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
             for (const comment of serviceRequestData.comments) {
-                let record = await ServiceRequest.createComment(serviceRequestData.jurisdictionId, serviceRequestData.id, comment);
+                const record = await ServiceRequest.createComment(
+                    serviceRequestData.jurisdictionId, serviceRequestData.id, comment
+                );
                 chai.assert(record);
             }
         }
@@ -199,9 +205,12 @@ describe('Verify Core Repositories.', function () {
     it('should update service request comments via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
             for (const comment of serviceRequestData.comments) {
-                let record = await ServiceRequest.updateComment(serviceRequestData.jurisdictionId, serviceRequestData.id, comment.id, { comment: 'hey there' });
+                const record = await ServiceRequest.updateComment(
+                    serviceRequestData.jurisdictionId, serviceRequestData.id, comment.id, { comment: 'hey there' }
+                );
                 chai.assert(record);
                 chai.assert(record.comment = 'hey there');
             }
@@ -212,8 +221,11 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const status = 'doing';
         for (const serviceRequestData of testData.serviceRequests) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
-            let record = await ServiceRequest.updateStatus(serviceRequestData.jurisdictionId, serviceRequestData.id, status);
+            const record = await ServiceRequest.updateStatus(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, status
+            );
             chai.assert(record);
             chai.assert(record.status = status);
         }
@@ -223,8 +235,11 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const assignedTo = faker.datatype.uuid();
         for (const serviceRequestData of testData.serviceRequests) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
-            let record = await ServiceRequest.updateAssignedTo(serviceRequestData.jurisdictionId, serviceRequestData.id, assignedTo);
+            const record = await ServiceRequest.updateAssignedTo(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, assignedTo
+            );
             chai.assert(record);
             chai.assert(record.assignedTo = assignedTo);
         }
@@ -233,8 +248,10 @@ describe('Verify Core Repositories.', function () {
     it('should show default inputChannel as webform for service request via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
-            let [records, count] = await ServiceRequest.findAll(serviceRequestData.jurisdictionId);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [records, count] = await ServiceRequest.findAll(serviceRequestData.jurisdictionId);
             for (const record of records) {
                 chai.assert(record);
                 chai.assert(record.inputChannel = 'webform');
@@ -246,14 +263,14 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const serviceRequest = testData.serviceRequests[0];
         const updateFields = { status: 'blocked' };
-        let record = await ServiceRequest.update(serviceRequest.jurisdictionId, serviceRequest.id, updateFields);
+        const record = await ServiceRequest.update(serviceRequest.jurisdictionId, serviceRequest.id, updateFields);
         chai.assert(record.status === 'blocked');
     });
 
     it('should find a list of possible statuses for a service request via repository', async function () {
         const { ServiceRequest } = app.repositories;
         const jurisdictionId = testData.serviceRequests[0].jurisdictionId;
-        let record = await ServiceRequest.findStatusList(jurisdictionId);
+        const record = await ServiceRequest.findStatusList(jurisdictionId);
         chai.assert(record.inbox === 'Inbox');
         chai.assert(record.done === 'Done');
     });
@@ -261,7 +278,7 @@ describe('Verify Core Repositories.', function () {
     it('should find one service request by jurisdiction via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
-            let record = await ServiceRequest.findOne(serviceRequestData.jurisdictionId, serviceRequestData.id);
+            const record = await ServiceRequest.findOne(serviceRequestData.jurisdictionId, serviceRequestData.id);
             chai.assert(record);
             chai.assert.equal(record.id, serviceRequestData.id);
             chai.assert.equal(record.jurisdictionId, serviceRequestData.jurisdictionId);
@@ -271,7 +288,8 @@ describe('Verify Core Repositories.', function () {
     it('should find all service requests by jurisdiction via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.services) {
-            let [records, recordCount] = await ServiceRequest.findAll(serviceRequestData.jurisdictionId);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [records, recordCount] = await ServiceRequest.findAll(serviceRequestData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, serviceRequestData.jurisdictionId);
@@ -282,8 +300,9 @@ describe('Verify Core Repositories.', function () {
     it('should get unfiltered service request stats by jurisdiction via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.services) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            let { countByStatus } = await ServiceRequest.getStats(serviceRequestData.jurisdictionId as string);
+            const { countByStatus } = await ServiceRequest.getStats(serviceRequestData.jurisdictionId as string);
             chai.assert(countByStatus);
         }
     });
@@ -291,7 +310,7 @@ describe('Verify Core Repositories.', function () {
     it('should write events via repository', async function () {
         const { Event } = app.repositories;
         for (const eventData of testData.events) {
-            let record = await Event.create(eventData);
+            const record = await Event.create(eventData);
             chai.assert(record);
         }
     });
@@ -299,7 +318,7 @@ describe('Verify Core Repositories.', function () {
     it('should find one event by jurisdiction via repository', async function () {
         const { Event } = app.repositories;
         for (const eventData of testData.events) {
-            let record = await Event.findOne(eventData.jurisdictionId, eventData.id);
+            const record = await Event.findOne(eventData.jurisdictionId, eventData.id);
             chai.assert(record);
             chai.assert.equal(record.id, eventData.id);
             chai.assert.equal(record.jurisdictionId, eventData.jurisdictionId);
@@ -309,7 +328,8 @@ describe('Verify Core Repositories.', function () {
     it('should find all events by jurisdiction via repository', async function () {
         const { Event } = app.repositories;
         for (const eventData of testData.events) {
-            let [records, recordCount] = await Event.findAll(eventData.jurisdictionId);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [records, recordCount] = await Event.findAll(eventData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, eventData.jurisdictionId);

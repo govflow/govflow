@@ -1,15 +1,19 @@
 import { injectable } from 'inversify';
 import { repositoryIds } from '../../src/registry/repositories';
-import type { IServiceRepository, IterableQueryResult, Plugin, ServiceAttributes } from '../../src/types';
+import type { IServiceRepository, Plugin, ServiceAttributes } from '../../src/types';
 
 @injectable()
 class MyServiceRepository implements IServiceRepository {
 
-    async findOne(jurisdictionId: string, id: string) {
-        return new Promise<ServiceAttributes>((resolve, reject) => { return resolve({ jurisdictionId: jurisdictionId, id: id, name: 'Test Service 1', group: 'my-group' }) });
+    async findOne(jurisdictionId: string, id: string): Promise<ServiceAttributes> {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        return new Promise<ServiceAttributes>((resolve, reject) => {
+            return resolve({ jurisdictionId: jurisdictionId, id: id, name: 'Test Service 1', group: 'my-group' });
+        });
     }
 
-    async findAll(jurisdictionId: string) {
+    async findAll(jurisdictionId: string): Promise<[ServiceAttributes[], number]> {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return new Promise<[ServiceAttributes[], number]>((resolve, reject) => {
             return resolve([[
                 { jurisdictionId: jurisdictionId, id: '1', name: 'Test Service 1', group: 'my-group' },
@@ -18,34 +22,65 @@ class MyServiceRepository implements IServiceRepository {
         })
     }
 
-    async create(data: ServiceAttributes) {
-        return new Promise<ServiceAttributes>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId as string, id: '3', name: 'Test Service 3', group: 'my-group' }) });
+    async create(data: ServiceAttributes): Promise<ServiceAttributes> {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        return new Promise<ServiceAttributes>((resolve, reject) => {
+            return resolve({
+                jurisdictionId: data.jurisdictionId as string,
+                id: '3',
+                name: 'Test Service 3',
+                group: 'my-group'
+            })
+        });
     }
 
-    async update(jurisdictionId: string, id: string, data: Partial<ServiceAttributes>) {
-        return new Promise<ServiceAttributes>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId as string, id: '3', name: 'Test Service 3', group: 'my-group' }) });
+    async update(jurisdictionId: string, id: string, data: Partial<ServiceAttributes>): Promise<ServiceAttributes> {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        return new Promise<ServiceAttributes>((resolve, reject) => {
+            return resolve({
+                jurisdictionId: data.jurisdictionId as string,
+                id: '3',
+                name: 'Test Service 3',
+                group: 'my-group'
+            })
+        });
     }
 
-    async createFrom311(jurisdictionId: string, data: Record<string, unknown>) {
-        return new Promise<ServiceAttributes>((resolve, reject) => { return resolve({ jurisdictionId: data.jurisdictionId as string, id: '3', name: 'Test Service 3', group: 'my-group' }) });
+    async createFrom311(jurisdictionId: string, data: Record<string, unknown>): Promise<ServiceAttributes> {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        return new Promise<ServiceAttributes>((resolve, reject) => {
+            return resolve({
+                jurisdictionId: data.jurisdictionId as string,
+                id: '3',
+                name: 'Test Service 3',
+                group: 'my-group'
+            })
+        });
     }
 
 }
 
 @injectable()
 class MyBrokenJurisdictionRepository implements IServiceRepository {
-    // @ts-ignore
-    async findOne(jurisdictionId: string, id: string) {
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async findOne(jurisdictionId: string, id: string): Promise<ServiceAttributes> {
         throw new Error()
     }
-    // @ts-ignore
-    async findAll(jurisdictionId: string) {
-        return new Promise<[IterableQueryResult, number]>((resolve, reject) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async findAll(jurisdictionId: string): Promise<[ServiceAttributes[], number]> {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        return new Promise<[ServiceAttributes[], number]>((resolve, reject) => {
             throw new Error()
         })
     }
-    // @ts-ignore
-    async create(data: Record<string, unknown>) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async create(data: ServiceAttributes): Promise<ServiceAttributes> {
+        throw new Error()
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async update(jurisdictionId: string, id: string, data: Partial<ServiceAttributes>): Promise<ServiceAttributes> {
         throw new Error()
     }
 

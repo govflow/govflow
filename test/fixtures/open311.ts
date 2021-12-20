@@ -3,7 +3,7 @@ export const validServiceData = [
     {
         'service_code': '001',
         'service_name': 'Cans left out 24x7',
-        'description': 'Garbage or recycling cans that have been left out for more than 24 hours after collection. Violators will be cited.',
+        'description': 'Garbage or recycling cans that have been left out for more than 24 hours after collection.',
         'metadata': true,
         'type': 'realtime',
         'keywords': 'lorem, ipsum, dolor',
@@ -25,7 +25,7 @@ export const validServiceData = [
         'keywords': 'lorem, ipsum, dolor',
         'group': 'street',
         'service_name': 'Curb or curb ramp defect',
-        'description': 'Sidewalk curb or ramp has problems such as cracking, missing pieces, holes, and/or chipped curb.'
+        'description': 'Sidewalk curb or ramp has problems such as cracking, missing pieces, holes, etc.'
     }
 ]
 

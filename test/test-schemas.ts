@@ -5,14 +5,14 @@ import { invalidServiceDefinitionData, validServiceDefinitionData } from './fixt
 describe('Schemas should validate data.', function () {
 
     it('should pass validation against serviceExtraAttrsSchema', async function () {
-        let validator = isValidToSchema(serviceExtraAttrsSchema);
-        let response = validator(validServiceDefinitionData);
+        const validator = isValidToSchema(serviceExtraAttrsSchema);
+        const response = validator(validServiceDefinitionData);
         chai.assert(response.valid === true);
     });
 
     it('should fail validation against serviceExtraAttrsSchema', async function () {
-        let validator = isValidToSchema(serviceExtraAttrsSchema);
-        let response = validator(invalidServiceDefinitionData);
+        const validator = isValidToSchema(serviceExtraAttrsSchema);
+        const response = validator(invalidServiceDefinitionData);
         chai.assert(response.valid === false);
     });
 

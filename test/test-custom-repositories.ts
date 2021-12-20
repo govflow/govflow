@@ -17,11 +17,11 @@ describe('Verify Repository Plugins.', () => {
     })
 
     it('should provide new query behavior for service repository', async function () {
-        let { Service } = app.repositories;
-        let jurisdictionId = 'JURISDICTION_ID';
-        let id = '1';
-        let oneService = await Service.findOne(jurisdictionId, id);
-        let [allServices, allServicesCount] = await Service.findAll(jurisdictionId);
+        const { Service } = app.repositories;
+        const jurisdictionId = 'JURISDICTION_ID';
+        const id = '1';
+        const oneService = await Service.findOne(jurisdictionId, id);
+        const [allServices, allServicesCount] = await Service.findAll(jurisdictionId);
         chai.assert(oneService.name === 'Test Service 1');
         chai.assert(allServicesCount === 2);
         chai.assert(allServices[1].id === '2');
