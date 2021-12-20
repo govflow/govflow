@@ -27,17 +27,17 @@ export async function dispatchMessageForPublicUser(
     CommunicationModel: unknown):
     Promise<CommunicationAttributes> {
     if (serviceRequest.communicationChannel === null) {
-        logger.warning(`Cannot send message for ${serviceRequest.id} as no communication address was supplied.`);
+        logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address was supplied.`);
         return {} as CommunicationAttributes;
     } else if (serviceRequest.communicationValid === false) {
-        logger.warning(`Cannot send message for ${serviceRequest.id} as no communication address is valid.`);
+        logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address is valid.`);
         return {} as CommunicationAttributes;
     } else {
         const record = await dispatchMessage(dispatchConfig, templateConfig, CommunicationModel);
         if (record.accepted === true) {
             serviceRequest.communicationValid = true
         } else {
-            logger.warning(`Cannot send message for ${serviceRequest.id} as backend rejected the payload.`);
+            logger.warn(`Cannot send message for ${serviceRequest.id} as backend rejected the payload.`);
             serviceRequest.communicationValid = false
         }
         return record;
