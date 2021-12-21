@@ -74,6 +74,11 @@ export interface CommunicationAttributes {
     delivered: boolean;
 }
 
+export interface DepartmentAttributes {
+    id: string;
+    name: string;
+}
+
 // export interface Open311ServiceAttributes {
 //     service_code: string;
 //     service_name: string;

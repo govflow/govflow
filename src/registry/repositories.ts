@@ -1,13 +1,14 @@
 import { Container } from 'inversify';
 import { CommunicationRepository } from '../core/communications';
+import { DepartmentRepository } from '../core/departments';
 import { EventRepository } from '../core/events';
 import { JurisdictionRepository } from '../core/jurisdictions';
 import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../core/open311';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
-import { DatabaseEngine, Repositories } from '../types';
+import type { AppSettings, ICommunicationRepository, IDepartmentRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
+import { DatabaseEngine, Models, Repositories } from '../types';
 
 export const repositoryIds = {
     IJurisdictionRepository: Symbol('IJurisdictionRepository'),
@@ -18,6 +19,7 @@ export const repositoryIds = {
     IOpen311ServiceRequestRepository: Symbol('IOpen311ServiceRequestRepository'),
     IEventRepository: Symbol('IEventRepository'),
     ICommunicationRepository: Symbol('ICommunicationRepository'),
+    IDepartmentRepository: Symbol('IDepartmentRepository'),
 };
 
 function bindImplementationsFromPlugins(
@@ -44,6 +46,9 @@ function bindImplementationsFromPlugins(
     repositoryContainer.bind<ICommunicationRepository>(repositoryIds.ICommunicationRepository).to(
         CommunicationRepository
     );
+    repositoryContainer.bind<IDepartmentRepository>(repositoryIds.IDepartmentRepository).to(
+        DepartmentRepository
+    );
 
     // bind from plugins
     pluginRegistry.forEach((plugin) => {
@@ -61,6 +66,7 @@ function bindImplementationsFromPlugins(
     );
     const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
     const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
+    const Department = repositoryContainer.get<IDepartmentRepository>(repositoryIds.IDepartmentRepository);
 
     const repositories = {
         Jurisdiction,
@@ -70,7 +76,8 @@ function bindImplementationsFromPlugins(
         Open311Service,
         Open311ServiceRequest,
         Event,
-        Communication
+        Communication,
+        Department
     }
 
     // Allow repositories access to all of our app settings
@@ -82,16 +89,18 @@ function bindImplementationsFromPlugins(
     Open311ServiceRequest.settings = settings
     Event.settings = settings
     Communication.settings = settings
+    Department.settings = settings
 
     // Allow repositories access to all of our database models
-    Jurisdiction.models = databaseEngine.models
-    StaffUser.models = databaseEngine.models
-    Service.models = databaseEngine.models
-    ServiceRequest.models = databaseEngine.models
-    Open311Service.models = databaseEngine.models
-    Open311ServiceRequest.models = databaseEngine.models
-    Event.models = databaseEngine.models
-    Communication.models = databaseEngine.models
+    Jurisdiction.models = databaseEngine.models as unknown as Models
+    StaffUser.models = databaseEngine.models as unknown as Models
+    Service.models = databaseEngine.models as unknown as Models
+    ServiceRequest.models = databaseEngine.models as unknown as Models
+    Open311Service.models = databaseEngine.models as unknown as Models
+    Open311ServiceRequest.models = databaseEngine.models as unknown as Models
+    Event.models = databaseEngine.models as unknown as Models
+    Communication.models = databaseEngine.models as unknown as Models
+    Department.models = databaseEngine.models as unknown as Models
 
     // Allow repositories access to all other repositories
     Jurisdiction.repositories = repositories
@@ -102,6 +111,7 @@ function bindImplementationsFromPlugins(
     Open311ServiceRequest.repositories = repositories
     Event.repositories = repositories
     Communication.repositories = repositories
+    Department.repositories = repositories
 
     return repositories;
 }

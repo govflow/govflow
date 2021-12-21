@@ -3,8 +3,9 @@ import type { Request, RequestHandler, Response } from 'express';
 import { json, Router } from 'express';
 import { wrapHandler } from '../helpers';
 import { internalServerError, notFound } from '../middlewares';
-import type { ModelDefinition, Pluggable } from '../types';
+import type { ModelDefinition, RepositoryBase } from '../types';
 import { CommunicationModel, CommunicationRepository } from './communications';
+import { DepartmentModel, DepartmentRepository } from './departments';
 import { EventModel, EventRepository } from './events';
 import { JurisdictionModel, JurisdictionRepository, jurisdictionRouter } from './jurisdictions';
 import { open311Router } from './open311';
@@ -32,15 +33,17 @@ const coreModels: ModelDefinition[] = [
     StaffUserModel,
     EventModel,
     CommunicationModel,
+    DepartmentModel,
 ]
 
-const coreRepositories: Pluggable[] = [
+const coreRepositories: RepositoryBase[] = [
     JurisdictionRepository,
     ServiceRequestRepository,
     ServiceRepository,
     StaffUserRepository,
     EventRepository,
-    CommunicationRepository
+    CommunicationRepository,
+    DepartmentRepository
 ]
 
 const coreMiddlewares: RequestHandler[] = [
