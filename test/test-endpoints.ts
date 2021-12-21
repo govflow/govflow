@@ -310,6 +310,34 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.todo, 'Todo');
     });
 
+    it('should GET all departments for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const res = await chai.request(app).get(`/departments/?jurisdictionId=${jurisdictionId}`);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data[0].jurisdictionId, jurisdictionId);
+        chai.assert.equal(res.body.count, 20);
+    });
+
+    it('should GET a department', async function () {
+        const department = _.cloneDeep(testData.departments[0]);
+        const res = await chai.request(app).get(
+            `/departments/${department.id}?jurisdictionId=${department.jurisdictionId}`
+        );
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, department.id);
+        chai.assert.equal(res.body.data.jurisdictionId, department.jurisdictionId);
+    });
+
+    it('should POST a department', async function () {
+        const departmentData = _.cloneDeep(testData.departments[0]);
+        departmentData.id = faker.datatype.uuid();
+        const res = await chai.request(app).post(
+            `/departments?jurisdictionId=${departmentData.jurisdictionId}`
+        ).send(departmentData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, departmentData.id);
+    });
+
     it('should return 501 not implemented error for Open311 service discovery', async function () {
         const res = await chai.request(app).get('/open311/v2/discovery');
         chai.assert.equal(res.status, 501);

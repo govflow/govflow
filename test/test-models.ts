@@ -69,4 +69,20 @@ describe('Verify Core Models.', function () {
         }
     });
 
+    it('should write communications to database', async function () {
+        const { Communication } = app.database.models;
+        for (const communicationData of testData.communications) {
+            const record = await Communication.create(communicationData);
+            chai.assert(record);
+        }
+    });
+
+    it('should write departments to database', async function () {
+        const { Department } = app.database.models;
+        for (const departmentData of testData.departments) {
+            const record = await Department.create(departmentData);
+            chai.assert(record);
+        }
+    });
+
 });

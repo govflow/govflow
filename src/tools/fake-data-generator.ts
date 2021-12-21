@@ -2,7 +2,7 @@ import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { EventAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
+import { CommunicationAttributes, DepartmentAttributes, EventAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -122,8 +122,38 @@ function makeEvent(options: Partial<TestDataMakerOptions>) {
     } as EventAttributes
 }
 
+function makeCommunication(options: Partial<TestDataMakerOptions>) {
+    return {
+        id: faker.datatype.uuid(),
+        channel: faker.helpers.randomize(['email', 'sms']),
+        dispatched: true,
+        dispatchPayload: {},
+        dispatchResponse: {},
+        accepted: true,
+        delivered: true,
+        serviceRequestId: options.serviceRequest?.id,
+    } as CommunicationAttributes
+}
+
+function makeDepartment(options: Partial<TestDataMakerOptions>) {
+    return {
+        id: faker.datatype.uuid(),
+        name: faker.datatype.string(),
+        jurisdictionId: options.jurisdiction?.id,
+    } as DepartmentAttributes
+}
+
 export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: TestDataPayload): Promise<void> {
-    const { Jurisdiction, StaffUser, Service, ServiceRequest, ServiceRequestComment, Event } = databaseEngine.models;
+    const {
+        Jurisdiction,
+        StaffUser,
+        Service,
+        ServiceRequest,
+        ServiceRequestComment,
+        Event,
+        Communication,
+        Department
+    } = databaseEngine.models;
 
     for (const jurisdictionData of testData.jurisdictions) {
         await Jurisdiction.create(jurisdictionData);
@@ -151,6 +181,15 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     for (const eventData of testData.events) {
         await Event.create(eventData);
     }
+
+    for (const communicationData of testData.communications) {
+        await Communication.create(communicationData);
+    }
+
+    for (const departmentData of testData.departments) {
+        await Department.create(departmentData);
+    }
+
 }
 
 export default function makeTestData(): TestDataPayload {
@@ -159,6 +198,8 @@ export default function makeTestData(): TestDataPayload {
     let services: ServiceAttributes[] = [];
     let serviceRequests: ServiceRequestAttributes[] = [];
     let events: EventAttributes[] = [];
+    let communications: CommunicationAttributes[] = [];
+    let departments: DepartmentAttributes[] = [];
 
     for (const jurisdiction of jurisdictions) {
         staffUsers = staffUsers.concat(
@@ -172,6 +213,16 @@ export default function makeTestData(): TestDataPayload {
             ) as unknown as ServiceRequestAttributes[]
         )
         events = events.concat(factory(makeEvent, 20, { jurisdiction }) as unknown as EventAttributes[])
+        departments = departments.concat(
+            factory(makeDepartment, 20, { jurisdiction }) as unknown as DepartmentAttributes[]
+        )
+
+    }
+
+    for (const serviceRequest of serviceRequests) {
+        communications = communications.concat(
+            factory(makeCommunication, 10, { serviceRequest }) as unknown as CommunicationAttributes[]
+        )
     }
 
     return {
@@ -179,6 +230,8 @@ export default function makeTestData(): TestDataPayload {
         staffUsers,
         services,
         serviceRequests,
-        events
+        events,
+        communications,
+        departments
     }
 }

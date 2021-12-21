@@ -72,11 +72,13 @@ export interface CommunicationAttributes {
     dispatchResponse: Record<string, string>;
     accepted: boolean;
     delivered: boolean;
+    serviceRequestId: string;
 }
 
 export interface DepartmentAttributes {
     id: string;
     name: string;
+    jurisdictionId: string;
 }
 
 // export interface Open311ServiceAttributes {
@@ -138,10 +140,13 @@ export interface TestDataPayload {
     services: ServiceAttributes[],
     serviceRequests: ServiceRequestAttributes[],
     events: EventAttributes[],
+    communications: CommunicationAttributes[],
+    departments: DepartmentAttributes[],
 }
 
 export interface TestDataMakerOptions {
     jurisdiction: JurisdictionAttributes,
+    serviceRequest: ServiceRequestAttributes,
     jurisdictions: JurisdictionAttributes[],
     staffUsers: StaffUserAttributes[],
     services: ServiceAttributes[],

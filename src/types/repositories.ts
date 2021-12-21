@@ -14,8 +14,9 @@ import type {
 } from ".";
 import { Open311Service, Open311ServiceRequest } from "../core/open311/types";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface PluginBase {
-    plugin?: boolean
+    //plugin?: boolean
 }
 
 export interface RepositoryBase extends PluginBase {
