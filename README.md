@@ -4,6 +4,11 @@
 
 An open, modular work order and workflow management system for local governments and resident satisfaction.
 
+# Get involved
+
+- **[Discussions](https://github.com/govflow/govflow/discussions)**: We discuss new features, architecture and so on in our Discussions forum. Feel free to take part in existing discussions or start a new one.
+- **[Issues](https://github.com/govflow/govflow/issues)**: If you find a bug, or have some input on the codebase, feel free to open an issue.
+
 # Getting started
 
 ## Using Gov Flow
