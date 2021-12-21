@@ -214,6 +214,31 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should GET all service requests filtered by existing department for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const departmentId = departments[0].id;
+        const res = await chai.request(app).get(
+            `/service-requests/?jurisdictionId=${jurisdictionId}&department=${departmentId}`
+        );
+        chai.assert.equal(res.status, 200);
+        for (const serviceRequest of res.body.data) {
+            chai.assert.equal(serviceRequest.departmentId, departmentId);
+        }
+    });
+
+    it('should GET all service requests filtered by no department for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const departmentId = '-';
+        const res = await chai.request(app).get(
+            `/service-requests/?jurisdictionId=${jurisdictionId}&department=${departmentId}`
+        );
+        chai.assert.equal(res.status, 200);
+        for (const serviceRequest of res.body.data) {
+            chai.assert.equal(serviceRequest.departmentId, null);
+        }
+    });
+
     it('should GET stats for service requests for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/service-requests/stats?jurisdictionId=${jurisdictionId}`);
