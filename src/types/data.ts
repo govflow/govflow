@@ -47,6 +47,7 @@ export interface ServiceRequestAttributes {
     communicationChannel: string;
     communicationValid: boolean;
     displayName: string;
+    departmentId: string;
 }
 
 export interface ServiceRequestCommentAttributes {

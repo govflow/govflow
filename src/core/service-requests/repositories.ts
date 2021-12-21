@@ -144,4 +144,14 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         return record;
     }
 
+    async updateDepartment(jurisdictionId: string, id: string, department: string): Promise<ServiceRequestAttributes> {
+        /* eslint-disable @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        const { ServiceRequest } = this.models;
+        /* eslint-enable @typescript-eslint/ban-ts-comment */
+        let record = await ServiceRequest.findByPk(id);
+        record.departmentId = department;
+        record = await record.save();
+        return record;
+    }
 }

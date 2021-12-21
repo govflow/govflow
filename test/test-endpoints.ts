@@ -302,6 +302,20 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.assignedTo, assignedTo);
     });
 
+    it('should POST an update to department for a service request for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const departmentId = departments[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/department/?jurisdictionId=${jurisdictionId}`
+        ).send({ departmentId, serviceRequestId });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, serviceRequestId);
+        chai.assert.equal(res.body.data.departmentId, departmentId);
+    });
+
     it('should GET all service request statuses for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/service-requests/status-list?jurisdictionId=${jurisdictionId}`);

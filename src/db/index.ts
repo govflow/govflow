@@ -62,8 +62,11 @@ function applyCoreModelRelations(models: Models) {
     Jurisdiction.hasMany(Department, { as: 'departments', foreignKey: 'jurisdictionId' });
     //@ts-ignore
     Department.belongsTo(Jurisdiction, { as: 'jurisdiction' })
+    //@ts-ignore
+    Department.hasMany(ServiceRequest, {as: 'serviceRequests', foreignKey: 'departmentId', onDelete: 'SET NULL', onUpdate: 'SET NULL'});
+    //@ts-ignore
+    ServiceRequest.belongsTo(Department, { as: 'department' })
     /* eslint-enable */
-
 }
 
 function registerModels(

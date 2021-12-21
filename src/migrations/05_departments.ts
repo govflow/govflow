@@ -36,8 +36,24 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
     await queryInterface.addIndex('Department', ['createdAt']);
     await queryInterface.addIndex('Department', ['updatedAt']);
 
+    await queryInterface.addColumn(
+        'ServiceRequest',
+        'departmentId',
+        {
+            type: DataTypes.UUID,
+            allowNull: true,
+            onDelete: 'SET NULL',
+            references: {
+                model: 'Department',
+                key: 'id',
+            }
+        }
+    );
+    await queryInterface.addIndex('ServiceRequest', ['departmentId']);
+
 }
 
 export async function down({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
     await queryInterface.dropTable('Department');
+    await queryInterface.removeColumn('ServiceRequest', 'departmentId');
 }

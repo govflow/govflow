@@ -1,6 +1,7 @@
 import chai from 'chai';
 import type { Application } from 'express';
 import faker from 'faker';
+import _ from 'lodash';
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
@@ -386,6 +387,23 @@ describe('Verify Core Repositories.', function () {
                 chai.assert.equal(record.jurisdictionId, jurisdictionData.id);
             }
             chai.assert.equal(count, 20)
+        }
+    });
+
+    it('should update service request department via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const jurisdictionId = testData.serviceRequests[0].jurisdictionId;
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
+        const departmentId = departments[10].id;
+        for (const serviceRequestData of serviceRequests) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            const record = await ServiceRequest.updateDepartment(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, departmentId
+            );
+            chai.assert(record);
+            chai.assert(record.departmentId = departmentId);
         }
     });
 
