@@ -1,4 +1,4 @@
-
+import 'reflect-metadata';
 import { initConfig } from '../config';
 import makeTestData, { writeTestDataToDatabase } from '../tools/fake-data-generator';
 import { DatabaseEngine } from '../types';

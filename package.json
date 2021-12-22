@@ -8,11 +8,15 @@
   "scripts": {
     "test": "nyc mocha --timeout 5000 --exit -r ts-node/register test/** && nyc report --reporter=json > coverage.json",
     "start": "ts-node ./src/default.ts",
-    "migrate": "ts-node ./src/cli/migrate up",
+    "migrate": "ts-node ./src/cli/migrate",
     "fake-data": "ts-node ./src/cli/fake-data",
     "send-email": "ts-node ./src/cli/send-email",
     "send-sms": "ts-node ./src/cli/send-sms",
     "build": "tsc"
+  },
+  "bin": {
+    "govflow-migrate": "./cli/migrate",
+    "govflow-start": "./default"
   },
   "license": "MIT",
   "dependencies": {

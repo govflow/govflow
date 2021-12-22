@@ -19,12 +19,35 @@ An open, modular work order and workflow management system for local governments
 npm install @govflow/govflow
 ```
 
-If you are not modifying Gov Flow with plugins, or embedding Gov Flow into an existing application, you can run the default server.
+If you are not modifying Gov Flow with plugins, or embedding Gov Flow into an existing application, you can run the default server. First, you'll need to have a database to connect to and run migrations against:
+
+**Ensure database**:
+
+```bash
+createdb govflow
+```
+
+Ensure your new database is declated in an environment variable:
+
+```bash
+# similar to the following
+DATABASE_URL=postgres://<YOUR_USER>@localhost:5432/govflow
+```
+
+**Run migrations**:
+
+```bash
+npx govflow-migrate up
+
+# migrate backwards with npx govflow-migrate down
+# govflow-migrate is a wrapper around Umzug so see:
+# https://github.com/sequelize/umzug
+```
 
 **Run the default server:**
 
 ```bash
-npx govflow start
+npx govflow-start
 ```
 
 You can then visit `localhost:3000/` in your browser to see the base API endpoint.
