@@ -37,7 +37,7 @@ serve:
 
 .PHONY: migrate ## Run database migrations.
 migrate:
-	npm run migrate
+	npm run migrate up
 
 .PHONY: fake-data ## Populate an empty govflow database with fake data.
 fake-data:

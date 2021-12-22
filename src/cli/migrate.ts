@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 import { initConfig } from '../config';
 import { initMigrator } from '../db/engine';
 import type { DatabaseEngine } from '../types';
