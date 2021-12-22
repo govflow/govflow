@@ -14,6 +14,14 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        primaryContactName: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        primaryContactEmail: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
         createdAt: {
             allowNull: false,
             type: DataTypes.DATE

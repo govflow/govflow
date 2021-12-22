@@ -79,6 +79,8 @@ export interface CommunicationAttributes {
 export interface DepartmentAttributes {
     id: string;
     name: string;
+    primaryContactName: string,
+    primaryContactEmail: string,
     jurisdictionId: string;
 }
 

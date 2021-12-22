@@ -14,6 +14,15 @@ export const DepartmentModel: ModelDefinition = {
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        primaryContactName: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        primaryContactEmail: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            validate: { isEmail: true }
+        },
     },
     options: {
         freezeTableName: true,
