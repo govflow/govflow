@@ -83,6 +83,14 @@ export const ServiceRequestModel: ModelDefinition = {
             allowNull: false,
             type: DataTypes.ENUM(...REQUEST_STATUS_KEYS),
             defaultValue: REQUEST_STATUS_KEYS[0],
+            set(value) {
+                if (SERVICE_REQUEST_CLOSED_STATES.includes(value as string)) {
+                    this.setDataValue('closeDate', new Date());
+                } else {
+                    this.setDataValue('closeDate', null);
+                }
+                this.setDataValue('status', value);
+            }
         },
         // PublicUser attributes. Even when we do support a PublicUser entity and login/etc.
         // We will still probably copy this info over here from that entity.
@@ -140,6 +148,13 @@ export const ServiceRequestModel: ModelDefinition = {
             defaultValue: null,
             allowNull: true,
         },
+        closeDate: {
+            allowNull: true,
+            type: DataTypes.DATE,
+            set(value) {
+                throw new Error(`The 'closeDate' attribute is not allowed to be directly set: ${value}`);
+            }
+        },
         displayName: {
             type: DataTypes.VIRTUAL,
             get() {
@@ -168,6 +183,10 @@ export const ServiceRequestModel: ModelDefinition = {
             {
                 unique: false,
                 fields: ['updatedAt']
+            },
+            {
+                unique: false,
+                fields: ['closeDate']
             }
         ],
         validate: {
