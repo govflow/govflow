@@ -60,7 +60,7 @@ export function serviceRequestFiltersToSequelize(filterParams: ServiceRequestFil
 
     if (!_.isNil(cleaned.department)) {
 
-        if (cleaned.department === '-') {
+        if (cleaned.department === 'none') {
             cleaned.department = null;
         }
         whereParams = merge(whereParams, { departmentId: cleaned.department });

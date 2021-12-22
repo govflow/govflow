@@ -229,7 +229,7 @@ describe('Hit all API endpoints', function () {
 
     it('should GET all service requests filtered by no department for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
-        const departmentId = '-';
+        const departmentId = 'none';
         const res = await chai.request(app).get(
             `/service-requests/?jurisdictionId=${jurisdictionId}&department=${departmentId}`
         );
