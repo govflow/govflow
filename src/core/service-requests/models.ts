@@ -160,6 +160,14 @@ export const ServiceRequestModel: ModelDefinition = {
             {
                 unique: false,
                 fields: ['status']
+            },
+            {
+                unique: false,
+                fields: ['createdAt']
+            },
+            {
+                unique: false,
+                fields: ['updatedAt']
             }
         ],
         validate: {
