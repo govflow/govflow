@@ -2,6 +2,7 @@ import chai from 'chai';
 import type { Application } from 'express';
 import faker from 'faker';
 import _ from 'lodash';
+import { SERVICE_REQUEST_CLOSED_STATES } from '../src/core/service-requests/models';
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
@@ -186,6 +187,12 @@ describe('Verify Core Repositories.', function () {
         for (const serviceRequestData of testData.serviceRequests) {
             const record = await ServiceRequest.create(serviceRequestData);
             chai.assert(record);
+            if (SERVICE_REQUEST_CLOSED_STATES.includes(record.status)) {
+                chai.assert.notEqual(record.closeDate, null);
+                chai.assert.typeOf(record.closeDate, 'date')
+            } else {
+                chai.assert.equal(record.closeDate, null);
+            }
         }
     });
 

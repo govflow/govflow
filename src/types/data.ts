@@ -46,6 +46,7 @@ export interface ServiceRequestAttributes {
     inputChannel: string;
     communicationChannel: string;
     communicationValid: boolean;
+    closeDate: Date;
     displayName: string;
     departmentId: string;
 }

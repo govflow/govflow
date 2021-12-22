@@ -207,6 +207,8 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
     });
     await queryInterface.addIndex('ServiceRequest', ['id', 'jurisdictionId']);
     await queryInterface.addIndex('ServiceRequest', ['status']);
+    await queryInterface.addIndex('ServiceRequest', ['createdAt']);
+    await queryInterface.addIndex('ServiceRequest', ['updatedAt']);
 
     await queryInterface.createTable('ServiceRequestComment', {
         id: {

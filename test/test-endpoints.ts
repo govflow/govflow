@@ -312,6 +312,7 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.id, serviceRequestId);
         chai.assert.equal(res.body.data.status, status);
+        chai.assert.notEqual(res.body.data.closeDate, null);
     });
 
     it('should POST an update to assignedTo for a service request for a jurisdiction', async function () {
