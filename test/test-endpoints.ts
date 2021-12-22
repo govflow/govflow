@@ -214,6 +214,31 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should GET all service requests filtered by existing department for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const departmentId = departments[0].id;
+        const res = await chai.request(app).get(
+            `/service-requests/?jurisdictionId=${jurisdictionId}&department=${departmentId}`
+        );
+        chai.assert.equal(res.status, 200);
+        for (const serviceRequest of res.body.data) {
+            chai.assert.equal(serviceRequest.departmentId, departmentId);
+        }
+    });
+
+    it('should GET all service requests filtered by no department for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const departmentId = 'none';
+        const res = await chai.request(app).get(
+            `/service-requests/?jurisdictionId=${jurisdictionId}&department=${departmentId}`
+        );
+        chai.assert.equal(res.status, 200);
+        for (const serviceRequest of res.body.data) {
+            chai.assert.equal(serviceRequest.departmentId, null);
+        }
+    });
+
     it('should GET stats for service requests for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/service-requests/stats?jurisdictionId=${jurisdictionId}`);
@@ -303,12 +328,54 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.assignedTo, assignedTo);
     });
 
+    it('should POST an update to department for a service request for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const departmentId = departments[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/department/?jurisdictionId=${jurisdictionId}`
+        ).send({ departmentId, serviceRequestId });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, serviceRequestId);
+        chai.assert.equal(res.body.data.departmentId, departmentId);
+    });
+
     it('should GET all service request statuses for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/service-requests/status-list?jurisdictionId=${jurisdictionId}`);
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.inbox, 'Inbox');
         chai.assert.equal(res.body.data.todo, 'Todo');
+    });
+
+    it('should GET all departments for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const res = await chai.request(app).get(`/departments/?jurisdictionId=${jurisdictionId}`);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data[0].jurisdictionId, jurisdictionId);
+        chai.assert.equal(res.body.count, 20);
+    });
+
+    it('should GET a department', async function () {
+        const department = _.cloneDeep(testData.departments[0]);
+        const res = await chai.request(app).get(
+            `/departments/${department.id}?jurisdictionId=${department.jurisdictionId}`
+        );
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, department.id);
+        chai.assert.equal(res.body.data.jurisdictionId, department.jurisdictionId);
+    });
+
+    it('should POST a department', async function () {
+        const departmentData = _.cloneDeep(testData.departments[0]);
+        departmentData.id = faker.datatype.uuid();
+        const res = await chai.request(app).post(
+            `/departments?jurisdictionId=${departmentData.jurisdictionId}`
+        ).send(departmentData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, departmentData.id);
     });
 
     it('should return 501 not implemented error for Open311 service discovery', async function () {

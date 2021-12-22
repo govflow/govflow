@@ -35,3 +35,14 @@ export interface ServiceRequestFilterParams {
     status?: string;
     assignedTo?: string;
 }
+
+export interface Models {
+    Jurisdiction: Model,
+    StaffUser: Model,
+    Service: Model,
+    ServiceRequest: Model,
+    ServiceRequestComment: Model,
+    Event: Model,
+    Communication: Model,
+    Department: Model,
+}

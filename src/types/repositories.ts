@@ -1,9 +1,11 @@
-import { Model, ModelCtor } from "sequelize/types";
 import type {
     AppSettings,
     CommunicationAttributes,
+    DepartmentAttributes,
     EventAttributes,
-    JurisdictionAttributes, QueryParamsAll,
+    JurisdictionAttributes,
+    Models,
+    QueryParamsAll,
     ServiceAttributes,
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
@@ -12,18 +14,15 @@ import type {
 } from ".";
 import { Open311Service, Open311ServiceRequest } from "../core/open311/types";
 
-/* eslint-disable */
-export interface Pluggable {
-
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface PluginBase {
+    //plugin?: boolean
 }
-/* eslint-enable */
 
-export interface RepositoryBase extends Pluggable {
-    /* eslint-disable */
-    models?: Record<string, ModelCtor<Model<any, any>>>
+export interface RepositoryBase extends PluginBase {
+    models?: Models
     repositories?: Repositories
     settings?: AppSettings
-    /* eslint-enable */
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {
@@ -66,6 +65,7 @@ export interface IServiceRequestRepository extends RepositoryBase {
         data: Partial<ServiceRequestCommentAttributes>) => Promise<ServiceRequestCommentAttributes>;
     updateStatus: (jurisdictionId: string, id: string, status: string) => Promise<ServiceRequestAttributes>;
     updateAssignedTo: (jurisdictionId: string, id: string, status: string) => Promise<ServiceRequestAttributes>;
+    updateDepartment: (jurisdictionId: string, id: string, department: string) => Promise<ServiceRequestAttributes>;
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {
@@ -106,6 +106,13 @@ export interface ICommunicationRepository extends RepositoryBase {
     ) => Promise<CommunicationAttributes[]>;
 }
 
+export interface IDepartmentRepository extends RepositoryBase {
+    create: (data: DepartmentAttributes) => Promise<DepartmentAttributes>;
+    update: (jurisdictionId: string, id: string, data: Partial<DepartmentAttributes>) => Promise<DepartmentAttributes>;
+    findOne: (jurisdictionId: string, id: string) => Promise<DepartmentAttributes>;
+    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[DepartmentAttributes[], number]>;
+}
+
 export interface Repositories {
     Jurisdiction: IJurisdictionRepository,
     StaffUser: IStaffUserRepository,
@@ -114,5 +121,6 @@ export interface Repositories {
     Open311Service: IOpen311ServiceRepository,
     Open311ServiceRequest: IOpen311ServiceRequestRepository,
     Event: IEventRepository,
-    Communication: ICommunicationRepository
+    Communication: ICommunicationRepository,
+    Department: IDepartmentRepository,
 }

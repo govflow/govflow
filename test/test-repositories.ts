@@ -1,6 +1,7 @@
 import chai from 'chai';
 import type { Application } from 'express';
 import faker from 'faker';
+import _ from 'lodash';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../src/core/service-requests/models';
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
@@ -341,6 +342,75 @@ describe('Verify Core Repositories.', function () {
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, eventData.jurisdictionId);
             }
+        }
+    });
+
+    it('should write communications via repository', async function () {
+        const { Communication } = app.repositories;
+        for (const communicationData of testData.communications) {
+            const record = await Communication.create(communicationData);
+            chai.assert(record);
+        }
+    });
+
+    it('should find communications for a service request via repository', async function () {
+        const { Communication } = app.repositories;
+
+        for (const serviceRequestData of testData.serviceRequests) {
+            const [records, count] = await Communication.findByServiceRequestId(serviceRequestData.id);
+            chai.assert(records);
+            for (const record of records) {
+                chai.assert.equal(record.serviceRequestId, serviceRequestData.id);
+            }
+            chai.assert.equal(count, 10)
+        }
+    });
+
+    it('should write departments via repository', async function () {
+        const { Department } = app.repositories;
+        for (const departmentData of testData.departments) {
+            const record = await Department.create(departmentData);
+            chai.assert(record);
+        }
+    });
+
+    it('should find one department by jurisdiction via repository', async function () {
+        const { Department } = app.repositories;
+        for (const departmentData of testData.departments) {
+            const record = await Department.findOne(departmentData.jurisdictionId, departmentData.id);
+            chai.assert(record);
+            chai.assert.equal(record.id, departmentData.id);
+            chai.assert.equal(record.jurisdictionId, departmentData.jurisdictionId);
+        }
+    });
+
+    it('should find all departments for a jurisdiction via repository', async function () {
+        const { Department } = app.repositories;
+
+        for (const jurisdictionData of testData.jurisdictions) {
+            const [records, count] = await Department.findAll(jurisdictionData.id);
+            chai.assert(records);
+            for (const record of records) {
+                chai.assert.equal(record.jurisdictionId, jurisdictionData.id);
+            }
+            chai.assert.equal(count, 20)
+        }
+    });
+
+    it('should update service request department via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const jurisdictionId = testData.serviceRequests[0].jurisdictionId;
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
+        const departmentId = departments[10].id;
+        for (const serviceRequestData of serviceRequests) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            const record = await ServiceRequest.updateDepartment(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, departmentId
+            );
+            chai.assert(record);
+            chai.assert(record.departmentId = departmentId);
         }
     });
 

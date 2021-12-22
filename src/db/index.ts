@@ -1,6 +1,6 @@
 import { Model } from 'sequelize';
 import logger from '../logging';
-import type { DatabaseEngine, ModelDefinition } from '../types';
+import type { DatabaseEngine, ModelDefinition, Models } from '../types';
 
 export async function initDb(databaseEngine: DatabaseEngine, coreModels: ModelDefinition[], customModels: ModelDefinition[]): Promise<DatabaseEngine> {
     await verifyDatabaseConnection(databaseEngine);
@@ -18,8 +18,17 @@ async function verifyDatabaseConnection(databaseEngine: DatabaseEngine): Promise
     }
 }
 
-function applyCoreModelRelations(models: Record<string, Model>) {
-    const { Service, ServiceRequest, Jurisdiction, StaffUser, ServiceRequestComment, Event, Communication } = models;
+function applyCoreModelRelations(models: Models) {
+    const {
+        Service,
+        ServiceRequest,
+        Jurisdiction,
+        StaffUser,
+        ServiceRequestComment,
+        Event,
+        Communication,
+        Department
+    } = models;
     /* eslint-disable */
     //@ts-ignore
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
@@ -49,8 +58,15 @@ function applyCoreModelRelations(models: Record<string, Model>) {
     ServiceRequest.hasMany(Communication, { as: 'communications', foreignKey: 'serviceRequestId' });
     //@ts-ignore
     Communication.belongsTo(ServiceRequest, { as: 'serviceRequest' });
+    //@ts-ignore
+    Jurisdiction.hasMany(Department, { as: 'departments', foreignKey: 'jurisdictionId' });
+    //@ts-ignore
+    Department.belongsTo(Jurisdiction, { as: 'jurisdiction' })
+    //@ts-ignore
+    Department.hasMany(ServiceRequest, {as: 'serviceRequests', foreignKey: 'departmentId', onDelete: 'SET NULL', onUpdate: 'SET NULL'});
+    //@ts-ignore
+    ServiceRequest.belongsTo(Department, { as: 'department' })
     /* eslint-enable */
-
 }
 
 function registerModels(
@@ -65,7 +81,7 @@ function registerModels(
 
     customModels.forEach((model) => {
         const { name, attributes, options } = model;
-        databaseEngine.define(name, attributes, options);
+        databaseEngine.define<Model>(name, attributes, options);
     });
     /* eslint-disable */
     //@ts-ignore
