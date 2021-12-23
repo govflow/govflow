@@ -23,6 +23,10 @@ declare global {
         interface Request {
             jurisdiction: JurisdictionAttributes;
         }
+        interface User {
+            permissions: string[];
+            jurisdiction: string;
+        }
     }
 }
 /* eslint-enable */

@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { serviceRequestFiltersToSequelize, wrapHandler } from '../../helpers';
-import { resolveJurisdiction } from '../../middlewares';
+import { resolveJurisdiction, enforceJurisdictionAccess } from '../../middlewares';
 import { ServiceRequestAttributes } from '../../types';
 import { GovFlowEmitter } from '../event-listeners';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
@@ -8,6 +8,7 @@ import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 export const serviceRequestRouter = Router();
 
 serviceRequestRouter.use(wrapHandler(resolveJurisdiction()));
+serviceRequestRouter.use(enforceJurisdictionAccess);
 
 serviceRequestRouter.get('/status-list', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
