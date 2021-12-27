@@ -1,22 +1,25 @@
 {
   "name": "@govflow/govflow",
-  "version": "0.0.18-alpha",
+  "version": "0.0.19-alpha",
   "description": "An open, modular work order and workflow management system for local governments and resident satisfaction.",
   "homepage": "https://github.com/govflow/govflow",
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
+    "build": "tsc",
     "test": "nyc mocha --timeout 5000 --exit -r ts-node/register test/** && nyc report --reporter=json > coverage.json",
-    "start": "ts-node ./src/default.ts",
-    "migrate": "ts-node ./src/cli/migrate",
-    "fake-data": "ts-node ./src/cli/fake-data",
-    "send-email": "ts-node ./src/cli/send-email",
-    "send-sms": "ts-node ./src/cli/send-sms",
-    "build": "tsc"
+    "start": "ts-node ./src/cli/default-server",
+    "migrate": "ts-node ./src/cli/migrate-database",
+    "generate-fake-data": "ts-node ./src/cli/generate-fake-data",
+    "send-test-email": "ts-node ./src/cli/send-test-email",
+    "send-test-sms": "ts-node ./src/cli/send-test-sms"
   },
   "bin": {
-    "govflow-migrate": "./cli/migrate",
-    "govflow-start": "./default"
+    "govflow-start": "./cli/default-server.js",
+    "govflow-migrate": "./cli/migrate-database.js",
+    "govflow-generate-fake-data": "./cli/generate-fake-data.js",
+    "govflow-send-test-email": "./cli/send-test-email.js",
+    "govflow-send-test-sms": "./cli/send-test-sms.js"
   },
   "license": "MIT",
   "dependencies": {

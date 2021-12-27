@@ -52,6 +52,18 @@ npx govflow-start
 
 You can then visit `localhost:3000/` in your browser to see the base API endpoint.
 
+**Other CLI commands**:
+
+There are some other CLI commands available when Gov Flow is installed. The API for the CLI will change, but for now the following are available:
+
+```
+npx govflow-start
+npx govflow-migrate
+npx govflow-generate-fake-data
+npx govflow-send-test-email
+npx govflow-send-test-sms
+```
+
 **Create a custom entrypoint:**
 
 If you plan to modify Gov Flow with plugins or any custom configuration or integrations, create your own entrypoint based on the following:

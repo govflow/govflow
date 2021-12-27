@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 USER := govflow
 NAME := govflow
-VERSION := 0.0.18-alpha
+VERSION := 0.0.19-alpha
 COMPOSE := docker-compose -f docker-compose/docker-compose.yml --compatibility
 REPOSITORY := $(USER)/$(NAME)
 DOCKER_HOST := ghcr.io
@@ -41,15 +41,15 @@ migrate:
 
 .PHONY: fake-data ## Populate an empty govflow database with fake data.
 fake-data:
-	npm run fake-data
+	npm run generate-fake-data
 
 .PHONY: send-email ## Send an email with the email backend (for testing).
 send-email:
-	npm run send-email
+	npm run send-test-email
 
 .PHONY: send-sms ## Send an sms with the sms backend (for testing).
 send-sms:
-	npm run send-sms
+	npm run send-test-sms
 
 ####
 
@@ -66,6 +66,7 @@ prepublish:
 	cp LICENSE lib
 	cp README.md lib
 	cp -r src/core/communications/templates lib/core/communications/templates
+	chmod -R +x lib/cli/*.js
 
 .PHONY: publish ## Publish the package to npm.
 publish:

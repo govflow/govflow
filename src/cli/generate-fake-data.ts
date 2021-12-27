@@ -1,10 +1,11 @@
+#! /usr/bin/env node
 import 'reflect-metadata';
-import { initConfig } from '../config';
+import { createApp } from '../index';
 import makeTestData, { writeTestDataToDatabase } from '../tools/fake-data-generator';
 import { DatabaseEngine } from '../types';
 
 (async () => {
-    const config = await initConfig();
-    const { database } = config;
+    const app = await createApp();
+    const { database } = app;
     return writeTestDataToDatabase(database as DatabaseEngine, makeTestData());
 })();

@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 import 'reflect-metadata';
 import { initConfig } from '../config';
 import { sendEmail } from '../email';
