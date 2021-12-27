@@ -65,6 +65,7 @@ prepublish:
 	cp package*.json lib
 	cp LICENSE lib
 	cp README.md lib
+	cp -r src/core/communications/templates lib/core/communications/templates
 
 .PHONY: publish ## Publish the package to npm.
 publish:
