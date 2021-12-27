@@ -66,6 +66,7 @@ export interface IServiceRequestRepository extends RepositoryBase {
     updateStatus: (jurisdictionId: string, id: string, status: string) => Promise<ServiceRequestAttributes>;
     updateAssignedTo: (jurisdictionId: string, id: string, status: string) => Promise<ServiceRequestAttributes>;
     updateDepartment: (jurisdictionId: string, id: string, department: string) => Promise<ServiceRequestAttributes>;
+    updateService: (jurisdictionId: string, id: string, service: string) => Promise<ServiceRequestAttributes>;
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {

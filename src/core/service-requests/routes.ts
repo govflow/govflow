@@ -52,6 +52,13 @@ serviceRequestRouter.post('/department', wrapHandler(async (req: Request, res: R
     res.status(200).send({ data: record });
 }))
 
+serviceRequestRouter.post('/service', wrapHandler(async (req: Request, res: Response) => {
+    const { ServiceRequest } = res.app.repositories;
+    const { serviceId, serviceRequestId } = req.body;
+    const record = await ServiceRequest.updateService(req.jurisdiction.id, serviceRequestId, serviceId);
+    res.status(200).send({ data: record });
+}))
+
 serviceRequestRouter.post('/comments/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
     const { serviceRequestId } = req.params;

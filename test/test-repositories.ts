@@ -414,4 +414,21 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should update service request service via repository', async function () {
+        const { ServiceRequest } = app.repositories;
+        const jurisdictionId = testData.serviceRequests[0].jurisdictionId;
+        const services = _.filter(testData.services, { jurisdictionId });
+        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
+        const serviceId = services[2].id;
+        for (const serviceRequestData of serviceRequests) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            const record = await ServiceRequest.updateService(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, serviceId
+            );
+            chai.assert(record);
+            chai.assert(record.departmentId = serviceId);
+        }
+    });
+
 });
