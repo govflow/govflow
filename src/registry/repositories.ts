@@ -9,18 +9,7 @@ import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
 import type { AppSettings, ICommunicationRepository, IDepartmentRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
-
-export const repositoryIds = {
-    IJurisdictionRepository: Symbol('IJurisdictionRepository'),
-    IStaffUserRepository: Symbol('IStaffUserRepository'),
-    IServiceRequestRepository: Symbol('IServiceRequestRepository'),
-    IServiceRepository: Symbol('IServiceRepository'),
-    IOpen311ServiceRepository: Symbol('IOpen311ServiceRepository'),
-    IOpen311ServiceRequestRepository: Symbol('IOpen311ServiceRequestRepository'),
-    IEventRepository: Symbol('IEventRepository'),
-    ICommunicationRepository: Symbol('ICommunicationRepository'),
-    IDepartmentRepository: Symbol('IDepartmentRepository'),
-};
+import { appIds, repositoryIds } from './service-identifiers';
 
 function bindImplementationsFromPlugins(
     pluginRegistry: Plugin[],
@@ -30,7 +19,14 @@ function bindImplementationsFromPlugins(
 
     // default repository bindings
     const repositoryContainer = new Container();
-    repositoryContainer.bind<IJurisdictionRepository>(repositoryIds.IJurisdictionRepository).to(JurisdictionRepository);
+
+    repositoryContainer.bind<AppSettings>(appIds.AppSettings).toConstantValue(settings);
+    repositoryContainer.bind<Models>(appIds.Models).toConstantValue(databaseEngine.models as unknown as Models);
+    // repositoryContainer.bind<Repositories>(appTypes.Repositories).toConstantValue(settings);
+
+    repositoryContainer.bind<IJurisdictionRepository>(
+        repositoryIds.IJurisdictionRepository).to(JurisdictionRepository
+    );
     repositoryContainer.bind<IStaffUserRepository>(repositoryIds.IStaffUserRepository).to(StaffUserRepository);
     repositoryContainer.bind<IServiceRepository>(repositoryIds.IServiceRepository).to(ServiceRepository);
     repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(
@@ -59,8 +55,12 @@ function bindImplementationsFromPlugins(
     const Jurisdiction = repositoryContainer.get<IJurisdictionRepository>(repositoryIds.IJurisdictionRepository);
     const StaffUser = repositoryContainer.get<IStaffUserRepository>(repositoryIds.IStaffUserRepository);
     const Service = repositoryContainer.get<IServiceRepository>(repositoryIds.IServiceRepository);
-    const ServiceRequest = repositoryContainer.get<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository);
-    const Open311Service = repositoryContainer.get<IOpen311ServiceRepository>(repositoryIds.IOpen311ServiceRepository);
+    const ServiceRequest = repositoryContainer.get<IServiceRequestRepository>(
+        repositoryIds.IServiceRequestRepository
+    );
+    const Open311Service = repositoryContainer.get<IOpen311ServiceRepository>(
+        repositoryIds.IOpen311ServiceRepository
+    );
     const Open311ServiceRequest = repositoryContainer.get<IOpen311ServiceRequestRepository>(
         repositoryIds.IOpen311ServiceRequestRepository
     );
@@ -79,28 +79,6 @@ function bindImplementationsFromPlugins(
         Communication,
         Department
     }
-
-    // Allow repositories access to all of our app settings
-    Jurisdiction.settings = settings
-    StaffUser.settings = settings
-    Service.settings = settings
-    ServiceRequest.settings = settings
-    Open311Service.settings = settings
-    Open311ServiceRequest.settings = settings
-    Event.settings = settings
-    Communication.settings = settings
-    Department.settings = settings
-
-    // Allow repositories access to all of our database models
-    Jurisdiction.models = databaseEngine.models as unknown as Models
-    StaffUser.models = databaseEngine.models as unknown as Models
-    Service.models = databaseEngine.models as unknown as Models
-    ServiceRequest.models = databaseEngine.models as unknown as Models
-    Open311Service.models = databaseEngine.models as unknown as Models
-    Open311ServiceRequest.models = databaseEngine.models as unknown as Models
-    Event.models = databaseEngine.models as unknown as Models
-    Communication.models = databaseEngine.models as unknown as Models
-    Department.models = databaseEngine.models as unknown as Models
 
     // Allow repositories access to all other repositories
     Jurisdiction.repositories = repositories

@@ -287,8 +287,6 @@ describe('Hit all API endpoints', function () {
     it('should POST an update to a service request comment for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         const commentData = serviceRequestData.comments[0];
         const commentDataId = commentData.id;
         const comment = 'hey there';
@@ -422,8 +420,6 @@ describe('Hit all API endpoints', function () {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         serviceRequestData.jurisdiction_id = jurisdiction_id;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         serviceRequestData.service_code = service_code;
         const res = await chai.request(app).post(`/open311/v2/requests.json`).send(serviceRequestData);
         chai.assert.equal(res.status, 200);

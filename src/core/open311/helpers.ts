@@ -4,7 +4,7 @@ interface ServiceAttributes {
     id: string;
     name: string;
     group: string;
-    jurisdictionId: number;
+    jurisdictionId: string;
 }
 
 interface ServiceRequestAttributes {

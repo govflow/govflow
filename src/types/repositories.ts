@@ -1,6 +1,7 @@
 import type {
     AppSettings,
     CommunicationAttributes,
+    CommunicationCreateAttributes,
     DepartmentAttributes,
     EventAttributes,
     JurisdictionAttributes,
@@ -20,9 +21,9 @@ export interface PluginBase {
 }
 
 export interface RepositoryBase extends PluginBase {
-    models?: Models
+    models: Models
+    settings: AppSettings
     repositories?: Repositories
-    settings?: AppSettings
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {
@@ -87,7 +88,7 @@ export interface IEventRepository extends RepositoryBase {
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
-    create: (data: CommunicationAttributes) => Promise<CommunicationAttributes>;
+    create: (data: CommunicationCreateAttributes) => Promise<CommunicationAttributes>;
     findByServiceRequestId: (serviceRequestId: string) => Promise<[CommunicationAttributes[], number]>;
     dispatchServiceRequestCreate: (
         jurisdiction: JurisdictionAttributes,

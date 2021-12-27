@@ -1,37 +1,40 @@
 import merge from 'deepmerge';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { queryParamsToSequelize } from '../../helpers';
-import type { EventAttributes, IEventRepository, QueryParamsAll } from '../../types';
+import { appIds } from '../../registry/service-identifiers';
+import type { AppSettings, EventAttributes, EventInstance, IEventRepository, Models, QueryParamsAll } from '../../types';
 
 @injectable()
 export class EventRepository implements IEventRepository {
 
+    models: Models;
+    settings: AppSettings;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppSettings) settings: AppSettings,
+    ) {
+        this.models = models;
+        this.settings = settings
+    }
+
     async findOne(jurisdictionId: string, id: string): Promise<EventAttributes> {
-        /* eslint-disable */
-        //@ts-ignore
         const { Event } = this.models;
-        /* eslint-enable */
         const params = { where: { id, jurisdictionId } };
-        return await Event.findOne(params);
+        return await Event.findOne(params) as EventInstance;
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[EventAttributes[], number]> {
-        /* eslint-disable */
-        //@ts-ignore
         const { Event } = this.models;
-        /* eslint-enable */
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
-        const records = await Event.findAll(params);
+        const records = await Event.findAll(params) as EventInstance[];
         return [records, records.length];
     }
 
     async create(data: EventAttributes): Promise<EventAttributes> {
-        /* eslint-disable */
-        //@ts-ignore
         const { Event } = this.models;
-        /* eslint-enable */
         const params = data;
-        return await Event.create(params);
+        return await Event.create(params) as EventInstance;
     }
 
 }

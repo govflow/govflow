@@ -10,9 +10,8 @@ export function notFound(req: Request, res: Response): void {
     res.status(status_code).send({ data });
 }
 
-/* eslint-disable */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function internalServerError(err: ErrorRequestHandler, req: Request, res: Response, next: NextFunction): void {
-    /* eslint-enable */
     const status_code = 500
     const data = { message: 'Internal Server Error.', status_code: status_code }
     const dataToLog = Object.assign({}, data, { path: req.path, error: `${err}` })

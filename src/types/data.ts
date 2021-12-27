@@ -1,6 +1,14 @@
+import type { Model } from 'sequelize';
+
 export interface JurisdictionAttributes {
     id: string;
 }
+
+export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>
+
+export interface JurisdictionInstance
+    extends Model<JurisdictionAttributes, JurisdictionCreateAttributes>, JurisdictionAttributes {}
+
 
 export interface StaffUserAttributes {
     id: string;
@@ -11,6 +19,11 @@ export interface StaffUserAttributes {
     email: string;
     permissions: string[],
 }
+
+export type StaffUserCreateAttributes = Partial<StaffUserAttributes>
+
+export interface StaffUserInstance
+    extends Model<StaffUserAttributes, StaffUserCreateAttributes>, StaffUserAttributes {}
 
 export interface StaffUserLookUpAttributes {
     id: string;
@@ -25,6 +38,11 @@ export interface ServiceAttributes {
     group: string;
     jurisdictionId: string;
 }
+
+export type ServiceCreateAttributes = Partial<ServiceAttributes>
+
+export interface ServiceInstance
+    extends Model<ServiceAttributes, ServiceCreateAttributes>, ServiceAttributes {}
 
 export interface ServiceRequestAttributes {
     id: string;
@@ -49,7 +67,13 @@ export interface ServiceRequestAttributes {
     closeDate: Date;
     displayName: string;
     departmentId: string;
+    comments: ServiceRequestCommentAttributes[],
 }
+
+export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
+
+export interface ServiceRequestInstance
+    extends Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>, ServiceRequestAttributes {}
 
 export interface ServiceRequestCommentAttributes {
     id: string;
@@ -57,6 +81,12 @@ export interface ServiceRequestCommentAttributes {
     actor: Record<string, string>;
     serviceRequestId: string,
 }
+
+export type ServiceRequestCommentCreateAttributes = Partial<ServiceRequestCommentAttributes>
+
+export interface ServiceRequestCommentInstance
+    extends Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>,
+    ServiceRequestCommentAttributes {}
 
 export interface EventAttributes {
     id: string;
@@ -66,8 +96,13 @@ export interface EventAttributes {
     jurisdictionId: string;
 }
 
+export type EventCreateAttributes = Partial<EventAttributes>
+
+export interface EventInstance
+    extends Model<EventAttributes, EventCreateAttributes>, EventAttributes {}
+
 export interface CommunicationAttributes {
-    id: string;
+    id?: string;
     channel: string;
     dispatched: boolean;
     dispatchPayload: Record<string, string>;
@@ -77,12 +112,35 @@ export interface CommunicationAttributes {
     serviceRequestId: string;
 }
 
+export type CommunicationCreateAttributes = Partial<CommunicationAttributes>
+
+export interface CommunicationInstance
+    extends Model<CommunicationAttributes, CommunicationCreateAttributes>, CommunicationAttributes {}
+
 export interface DepartmentAttributes {
     id: string;
     name: string;
     primaryContactName: string,
     primaryContactEmail: string,
     jurisdictionId: string;
+}
+
+export type DepartmentCreateAttributes = Partial<DepartmentAttributes>
+
+export interface DepartmentInstance
+    extends Model<DepartmentAttributes, DepartmentCreateAttributes>, DepartmentAttributes {}
+
+export interface SmsAttributes {
+    to: string,
+    from: string,
+    body: string,
+}
+
+export interface EmailAttributes {
+    to: string,
+    form: string,
+    subject: string,
+    body: string,
 }
 
 // export interface Open311ServiceAttributes {

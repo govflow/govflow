@@ -1,5 +1,6 @@
 import getClient from 'twilio';
 import logger from '../logging';
+import { SmsAttributes } from '../types';
 
 export async function sendSms(
     accountSid: string,
@@ -12,23 +13,21 @@ export async function sendSms(
         to: toPhone,
         from: fromPhone,
         body: body,
-    }
+    } as SmsAttributes
     if (process.env.COMMUNICATIONS_TO_CONSOLE) {
-        return sendSmsToConsole(message)
+        return sendSmsToConsole(message);
     } else {
         return sendSmsToTwilio(message, accountSid, authToken);
     }
 }
 
 async function sendSmsToTwilio(
-    message: Record<string, string>, accountSid: string, authToken: string
+    message: SmsAttributes, accountSid: string, authToken: string
 ): Promise<Record<string, string>> {
     const client = getClient(accountSid, authToken);
     try {
-        /* eslint-disable */
-        // @ts-ignore
+
         const response = await client.messages.create(message);
-        /* eslint-enable */
         return response as unknown as Record<string, string>;
     } catch (error) {
         const errorMessage = `Error from email transport: ${error}.`;
@@ -37,7 +36,7 @@ async function sendSmsToTwilio(
     }
 }
 
-async function sendSmsToConsole(message: Record<string, string>): Promise<Record<string, string>> {
+async function sendSmsToConsole(message: SmsAttributes): Promise<Record<string, string>> {
     console.log(message);
     return message as unknown as Record<string, string>;
 }

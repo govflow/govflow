@@ -1,37 +1,40 @@
 import merge from 'deepmerge';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { queryParamsToSequelize } from '../../helpers';
-import { IStaffUserRepository, QueryParamsAll, StaffUserAttributes, StaffUserLookUpAttributes } from '../../types';
+import { appIds } from '../../registry/service-identifiers';
+import { AppSettings, IStaffUserRepository, Models, QueryParamsAll, StaffUserAttributes, StaffUserInstance, StaffUserLookUpAttributes } from '../../types';
 
 @injectable()
 export class StaffUserRepository implements IStaffUserRepository {
 
+    models: Models;
+    settings: AppSettings;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppSettings) settings: AppSettings,
+    ) {
+        this.models = models;
+        this.settings = settings
+    }
+
     async create(data: StaffUserAttributes): Promise<StaffUserAttributes> {
-        /* eslint-disable */
-        //@ts-ignore
         const { StaffUser } = this.models;
-        /* eslint-enable */
         const params = data;
-        return await StaffUser.create(params);
+        return await StaffUser.create(params) as StaffUserInstance;
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<StaffUserAttributes> {
-        /* eslint-disable */
-        //@ts-ignore
         const { StaffUser } = this.models;
-        /* eslint-enable */
         const params = { where: { jurisdictionId, id } };
-        return await StaffUser.findOne(params);
+        return await StaffUser.findOne(params) as StaffUserInstance;
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[StaffUserAttributes[], number]> {
-        /* eslint-disable */
-        //@ts-ignore
         const { StaffUser } = this.models;
-        /* eslint-enable */
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
         const records = await StaffUser.findAll(params);
-        return [records, records.length];
+        return [records as StaffUserInstance[], records.length];
     }
 
     async lookupTable(jurisdictionId: string): Promise<[StaffUserLookUpAttributes[], number]> {
@@ -41,10 +44,11 @@ export class StaffUserRepository implements IStaffUserRepository {
         };
         const [records, count] = await this.findAll(jurisdictionId, queryParams);
         return [
-            /* eslint-disable @typescript-eslint/ban-ts-comment */
-            // @ts-ignore
-            records.map((record) => { return { email: record.email, displayName: record.displayName } }),
-            /* eslint-enable @typescript-eslint/ban-ts-comment */
+            records.map(
+                (record) => {
+                    return { email: record.email, displayName: record.displayName }
+                }
+            ) as StaffUserLookUpAttributes[],
             count
         ];
     }

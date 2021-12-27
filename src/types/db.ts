@@ -1,5 +1,6 @@
-import { Model, ModelAttributes, ModelOptions, QueryInterface, Sequelize } from "sequelize/types";
+import { Model, ModelAttributes, ModelCtor, ModelOptions, QueryInterface, Sequelize } from "sequelize/types";
 import { Umzug } from "umzug";
+import { CommunicationAttributes, CommunicationCreateAttributes, DepartmentAttributes, DepartmentCreateAttributes, EventAttributes, EventCreateAttributes, JurisdictionAttributes, JurisdictionCreateAttributes, ServiceAttributes, ServiceCreateAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCreateAttributes, StaffUserAttributes, StaffUserCreateAttributes } from ".";
 
 export type DatabaseEngine = Sequelize;
 export type MigrationEngine = Umzug<QueryInterface>;
@@ -37,12 +38,12 @@ export interface ServiceRequestFilterParams {
 }
 
 export interface Models {
-    Jurisdiction: Model,
-    StaffUser: Model,
-    Service: Model,
-    ServiceRequest: Model,
-    ServiceRequestComment: Model,
-    Event: Model,
-    Communication: Model,
-    Department: Model,
+    Jurisdiction: ModelCtor<Model<JurisdictionAttributes, JurisdictionCreateAttributes>>,
+    StaffUser: ModelCtor<Model<StaffUserAttributes, StaffUserCreateAttributes>>,
+    Service: ModelCtor<Model<ServiceAttributes, ServiceCreateAttributes>>,
+    ServiceRequest: ModelCtor<Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>>,
+    ServiceRequestComment: ModelCtor<Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>>,
+    Event: ModelCtor<Model<EventAttributes, EventCreateAttributes>>,
+    Communication: ModelCtor<Model<CommunicationAttributes, CommunicationCreateAttributes>>,
+    Department: ModelCtor<Model<DepartmentAttributes, DepartmentCreateAttributes>>,
 }

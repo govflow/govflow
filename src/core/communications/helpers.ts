@@ -9,9 +9,7 @@ import { CommunicationAttributes, ICommunicationRepository, ServiceRequestAttrib
 
 export async function loadTemplate(templateName: string, templateContext: Record<string, string>): Promise<string> {
     const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    const [templateType, ...rest] = templateName.split('.');
-    /* eslint-enable @typescript-eslint/no-unused-vars */
+    const [templateType, ..._rest] = templateName.split('.');
     const appendUnsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
     try {
         await fs.access(filepath, fsConstants.R_OK | fsConstants.W_OK);
@@ -96,10 +94,8 @@ export async function dispatchMessage(
         logger.error(errorMsg);
         throw new Error(errorMsg)
     }
-    /* eslint-disable */
-    // @ts-ignore
+
     const record = await CommunicationRepository.create({
-        /* eslint-enable */
         channel: dispatchConfig.channel,
         dispatched: true,
         dispatchPayload: dispatchConfig,

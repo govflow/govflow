@@ -1,6 +1,8 @@
+
 export interface Plugin {
     serviceIdentifier: symbol,
-    implementation: { new(): unknown }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    implementation: {new (...args: any[]): unknown},
 }
 
 export type PluginRegistry = Plugin[];

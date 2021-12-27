@@ -1,31 +1,37 @@
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import _ from 'lodash';
+import { appIds } from '../../registry/service-identifiers';
 import type {
-    CommunicationAttributes,
+    AppSettings, CommunicationAttributes, CommunicationCreateAttributes, CommunicationInstance,
     ICommunicationRepository,
-    JurisdictionAttributes, ServiceRequestAttributes
+    JurisdictionAttributes, Models, ServiceRequestAttributes
 } from '../../types';
 import { dispatchMessageForPublicUser, dispatchMessageForStaffUser } from './helpers';
 
 @injectable()
 export class CommunicationRepository implements ICommunicationRepository {
 
-    async create(data: CommunicationAttributes): Promise<CommunicationAttributes> {
-        /* eslint-disable */
-        //@ts-ignore
+    models: Models;
+    settings: AppSettings;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppSettings) settings: AppSettings,
+    ) {
+        this.models = models;
+        this.settings = settings
+    }
+
+    async create(data: CommunicationCreateAttributes): Promise<CommunicationAttributes> {
         const { Communication } = this.models;
-        /* eslint-enable */
-        return await Communication.create(data);
+        return await Communication.create(data) as CommunicationInstance;
     }
 
     async findByServiceRequestId(serviceRequestId: string): Promise<[CommunicationAttributes[], number]> {
-        /* eslint-disable */
-        //@ts-ignore
         const { Communication } = this.models;
-        /* eslint-enable */
         const params = { where: { serviceRequestId } }
         const records = await Communication.findAll(params);
-        return [records, records.length];
+        return [records as CommunicationInstance[], records.length];
     }
 
     async dispatchServiceRequestCreate(
@@ -34,9 +40,8 @@ export class CommunicationRepository implements ICommunicationRepository {
     ): Promise<CommunicationAttributes[]> {
         /* eslint-disable */
         //@ts-ignore
-        const { StaffUser } = this.repositories;
+        const { StaffUser, Communication } = this.repositories;
         // @ts-ignore
-        const { Communication } = this.models;
         const { sendGridApiKey,
             sendGridFromEmail,
             appName,
@@ -81,7 +86,7 @@ export class CommunicationRepository implements ICommunicationRepository {
         for (const admin of admins) {
             const dispatchConfig = {
                 channel: 'email',
-                apiKey: sendGridApiKey,
+                apiKey: sendGridApiKey as string,
                 toEmail: admin.email as string,
                 fromEmail: sendGridFromEmail as string,
             }
@@ -107,9 +112,8 @@ export class CommunicationRepository implements ICommunicationRepository {
     ): Promise<CommunicationAttributes> {
         /* eslint-disable */
         //@ts-ignore
-        const { StaffUser } = this.repositories;
+        const { StaffUser, Communication } = this.repositories;
         // @ts-ignore
-        const { Communication } = this.models;
         /* eslint-enable */
         /* eslint-disable */
         //@ts-ignore
@@ -118,7 +122,7 @@ export class CommunicationRepository implements ICommunicationRepository {
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
         const dispatchConfig = {
             channel: 'email',
-            apiKey: sendGridApiKey,
+            apiKey: sendGridApiKey as string,
             toEmail: staffUser.email as string,
             fromEmail: sendGridFromEmail as string,
         }
@@ -142,9 +146,8 @@ export class CommunicationRepository implements ICommunicationRepository {
     ): Promise<CommunicationAttributes> {
         /* eslint-disable */
         //@ts-ignore
-        const { StaffUser } = this.repositories;
+        const { StaffUser, Communication } = this.repositories;
         // @ts-ignore
-        const { Communication } = this.models;
         /* eslint-enable */
         /* eslint-disable */
         //@ts-ignore
@@ -152,7 +155,7 @@ export class CommunicationRepository implements ICommunicationRepository {
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
         const dispatchConfig = {
             channel: 'email',
-            apiKey: sendGridApiKey,
+            apiKey: sendGridApiKey as string,
             toEmail: staffUser.email as string,
             fromEmail: sendGridFromEmail as string,
         }
@@ -173,9 +176,8 @@ export class CommunicationRepository implements ICommunicationRepository {
     async dispatchServiceRequestClosed(jurisdiction: JurisdictionAttributes, serviceRequest: ServiceRequestAttributes): Promise<CommunicationAttributes[]> {
         /* eslint-disable */
         //@ts-ignore
-        const { StaffUser } = this.repositories;
+        const { StaffUser, Communication } = this.repositories;
         // @ts-ignore
-        const { Communication } = this.models;
         // @ts-ignore
         const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, appClientRequestsPath } = this.settings;
         /* eslint-enable */
@@ -183,7 +185,7 @@ export class CommunicationRepository implements ICommunicationRepository {
 
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
-            apiKey: sendGridApiKey,
+            apiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
             fromEmail: sendGridFromEmail as string,
         }
@@ -210,7 +212,7 @@ export class CommunicationRepository implements ICommunicationRepository {
         for (const admin of admins) {
             const dispatchConfig = {
                 channel: 'email',
-                apiKey: sendGridApiKey,
+                apiKey: sendGridApiKey as string,
                 toEmail: admin.email as string,
                 fromEmail: sendGridFromEmail as string,
             }

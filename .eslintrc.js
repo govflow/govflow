@@ -24,8 +24,13 @@ module.exports = {
             4,
             {
                 'ignoreComments': true,
-                'ignorePattern': '^import .* |^export .*'
+                'ignorePattern': '^import .* |^export .*',
             }
+        ],
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': [
+          'warn',
+          { varsIgnorePattern: '^_',},
         ],
     }
 };

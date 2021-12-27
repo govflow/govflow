@@ -1,52 +1,54 @@
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import _ from 'lodash';
-import { IServiceRepository, QueryParamsAll, ServiceAttributes } from '../../types';
+import { appIds } from '../../registry/service-identifiers';
+import { AppSettings, IServiceRepository, Models, QueryParamsAll, ServiceAttributes, ServiceInstance } from '../../types';
 
 @injectable()
 export class ServiceRepository implements IServiceRepository {
 
+    models: Models;
+    settings: AppSettings;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppSettings) settings: AppSettings,
+    ) {
+        this.models = models;
+        this.settings = settings
+    }
+
     async create(data: ServiceAttributes): Promise<ServiceAttributes> {
-        /* eslint-disable */
-        //@ts-ignore
         const { Service } = this.models;
-        /* eslint-enable */
-        return await Service.create(data);
+        return await Service.create(data) as ServiceInstance;
     }
 
     async update(jurisdictionId: string, id: string, data: Partial<ServiceAttributes>): Promise<ServiceAttributes> {
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        // @ts-ignore
         const { Service } = this.models;
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
         const allowUpdateFields = ['name', 'description', 'type'];
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
-        const record = await Service.findByPk(id);
+        const record = await Service.findByPk(id) as ServiceInstance;
         for (const [key, value] of Object.entries(safeData)) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             record[key] = value;
         }
         return await record.save();
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<ServiceAttributes> {
-        /* eslint-disable */
-        //@ts-ignore
         const { Service } = this.models;
-        /* eslint-enable */
         const params = {
             where: { jurisdictionId, id },
         };
-        const record = await Service.findOne(params);
+        const record = await Service.findOne(params) as ServiceInstance;
         return record;
     }
 
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[ServiceAttributes[], number]> {
-        /* eslint-disable */
-        //@ts-ignore
         const { Service } = this.models;
-        /* eslint-enable */
         const records = await Service.findAll({
             where: Object.assign({}, queryParams?.whereParams, { jurisdictionId }),
-        });
+        }) as ServiceInstance[];
         return [records, records.length];
     }
 

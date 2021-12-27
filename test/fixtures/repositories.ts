@@ -1,9 +1,20 @@
-import { injectable } from 'inversify';
-import { repositoryIds } from '../../src/registry/repositories';
-import type { IServiceRepository, Plugin, ServiceAttributes } from '../../src/types';
+import { inject, injectable } from 'inversify';
+import { appIds, repositoryIds } from '../../src/registry/service-identifiers';
+import type { AppSettings, IServiceRepository, Models, Plugin, ServiceAttributes } from '../../src/types';
 
 @injectable()
 class MyServiceRepository implements IServiceRepository {
+
+    models: Models;
+    settings: AppSettings;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppSettings) settings: AppSettings,
+    ) {
+        this.models = models;
+        this.settings = settings
+    }
 
     async findOne(jurisdictionId: string, id: string): Promise<ServiceAttributes> {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -62,6 +73,17 @@ class MyServiceRepository implements IServiceRepository {
 
 @injectable()
 class MyBrokenJurisdictionRepository implements IServiceRepository {
+
+    models: Models;
+    settings: AppSettings;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppSettings) settings: AppSettings,
+    ) {
+        this.models = models;
+        this.settings = settings
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async findOne(jurisdictionId: string, id: string): Promise<ServiceAttributes> {

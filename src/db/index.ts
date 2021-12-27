@@ -29,44 +29,35 @@ function applyCoreModelRelations(models: Models) {
         Communication,
         Department
     } = models;
-    /* eslint-disable */
-    //@ts-ignore
+
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
-    //@ts-ignore
-    StaffUser.belongsTo(Jurisdiction, { as: 'jurisdiction' })
-    //@ts-ignore
+    StaffUser.belongsTo(Jurisdiction, { as: 'jurisdiction' });
+
     Jurisdiction.hasMany(Service, { as: 'services', foreignKey: 'jurisdictionId' });
-    //@ts-ignore
     Service.belongsTo(Jurisdiction, { as: 'jurisdiction' });
-    //@ts-ignore
+
     Jurisdiction.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'jurisdictionId' });
-    //@ts-ignore
     ServiceRequest.belongsTo(Jurisdiction, { as: 'jurisdiction' });
-    //@ts-ignore
+
     Jurisdiction.hasMany(Event, { as: 'events', foreignKey: 'jurisdictionId' });
-    //@ts-ignore
     Event.belongsTo(Jurisdiction, { as: 'jurisdiction' });
-    //@ts-ignore
+
     Service.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'serviceId' });
-    //@ts-ignore
     ServiceRequest.belongsTo(Service, { as: 'service' });
-    //@ts-ignore
+
     ServiceRequest.hasMany(ServiceRequestComment, { as: 'comments', foreignKey: 'serviceRequestId' });
-    //@ts-ignore
     ServiceRequestComment.belongsTo(ServiceRequest, { as: 'serviceRequest' });
-    //@ts-ignore
+
     ServiceRequest.hasMany(Communication, { as: 'communications', foreignKey: 'serviceRequestId' });
-    //@ts-ignore
     Communication.belongsTo(ServiceRequest, { as: 'serviceRequest' });
-    //@ts-ignore
+
     Jurisdiction.hasMany(Department, { as: 'departments', foreignKey: 'jurisdictionId' });
-    //@ts-ignore
     Department.belongsTo(Jurisdiction, { as: 'jurisdiction' })
-    //@ts-ignore
-    Department.hasMany(ServiceRequest, {as: 'serviceRequests', foreignKey: 'departmentId', onDelete: 'SET NULL', onUpdate: 'SET NULL'});
-    //@ts-ignore
+
+    Department.hasMany(
+        ServiceRequest, {as: 'serviceRequests', foreignKey: 'departmentId', onDelete: 'SET NULL', onUpdate: 'SET NULL'}
+    );
     ServiceRequest.belongsTo(Department, { as: 'department' })
-    /* eslint-enable */
 }
 
 function registerModels(
@@ -83,10 +74,8 @@ function registerModels(
         const { name, attributes, options } = model;
         databaseEngine.define<Model>(name, attributes, options);
     });
-    /* eslint-disable */
-    //@ts-ignore
-    applyCoreModelRelations(databaseEngine.models);
-    /* eslint-enable */
+
+    applyCoreModelRelations(databaseEngine.models as unknown as Models);
 
     // TODO: Apply relations for custom models?
 

@@ -102,8 +102,7 @@ describe('Verify Core Repositories.', function () {
     it('should find all staff users by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [records, recordCount] = await StaffUser.findAll(staffUserData.jurisdictionId);
+            const [records, _count] = await StaffUser.findAll(staffUserData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, staffUserData.jurisdictionId);
@@ -114,8 +113,7 @@ describe('Verify Core Repositories.', function () {
     it('should return a staff user lookup table by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const staffuserData of testData.staffUsers) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [records, count] = await StaffUser.lookupTable(staffuserData.jurisdictionId);
+            const [records, _count] = await StaffUser.lookupTable(staffuserData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 const keys = Object.keys(record);
@@ -173,8 +171,7 @@ describe('Verify Core Repositories.', function () {
     it('should find all services by jurisdiction via repository', async function () {
         const { Service } = app.repositories;
         for (const serviceData of testData.services) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [records, recordCount] = await Service.findAll(serviceData.jurisdictionId);
+            const [records, _count] = await Service.findAll(serviceData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, serviceData.jurisdictionId);
@@ -199,8 +196,6 @@ describe('Verify Core Repositories.', function () {
     it('should write service request comments via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
             for (const comment of serviceRequestData.comments) {
                 const record = await ServiceRequest.createComment(
                     serviceRequestData.jurisdictionId, serviceRequestData.id, comment
@@ -213,8 +208,6 @@ describe('Verify Core Repositories.', function () {
     it('should update service request comments via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
             for (const comment of serviceRequestData.comments) {
                 const record = await ServiceRequest.updateComment(
                     serviceRequestData.jurisdictionId, serviceRequestData.id, comment.id, { comment: 'hey there' }
@@ -229,8 +222,6 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const status = 'doing';
         for (const serviceRequestData of testData.serviceRequests) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
             const record = await ServiceRequest.updateStatus(
                 serviceRequestData.jurisdictionId, serviceRequestData.id, status
             );
@@ -243,8 +234,6 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const assignedTo = faker.datatype.uuid();
         for (const serviceRequestData of testData.serviceRequests) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
             const record = await ServiceRequest.updateAssignedTo(
                 serviceRequestData.jurisdictionId, serviceRequestData.id, assignedTo
             );
@@ -256,10 +245,7 @@ describe('Verify Core Repositories.', function () {
     it('should show default inputChannel as webform for service request via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [records, count] = await ServiceRequest.findAll(serviceRequestData.jurisdictionId);
+            const [records, _count] = await ServiceRequest.findAll(serviceRequestData.jurisdictionId);
             for (const record of records) {
                 chai.assert(record);
                 chai.assert(record.inputChannel = 'webform');
@@ -308,8 +294,6 @@ describe('Verify Core Repositories.', function () {
     it('should get unfiltered service request stats by jurisdiction via repository', async function () {
         const { ServiceRequest } = app.repositories;
         for (const serviceRequestData of testData.services) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             const { countByStatus } = await ServiceRequest.getStats(serviceRequestData.jurisdictionId as string);
             chai.assert(countByStatus);
         }
@@ -336,8 +320,7 @@ describe('Verify Core Repositories.', function () {
     it('should find all events by jurisdiction via repository', async function () {
         const { Event } = app.repositories;
         for (const eventData of testData.events) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [records, recordCount] = await Event.findAll(eventData.jurisdictionId);
+            const [records, _count] = await Event.findAll(eventData.jurisdictionId);
             chai.assert(records);
             for (const record of records) {
                 chai.assert.equal(record.jurisdictionId, eventData.jurisdictionId);
@@ -404,8 +387,6 @@ describe('Verify Core Repositories.', function () {
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
         const departmentId = departments[10].id;
         for (const serviceRequestData of serviceRequests) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
             const record = await ServiceRequest.updateDepartment(
                 serviceRequestData.jurisdictionId, serviceRequestData.id, departmentId
             );
@@ -421,8 +402,6 @@ describe('Verify Core Repositories.', function () {
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
         const serviceId = services[2].id;
         for (const serviceRequestData of serviceRequests) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
             const record = await ServiceRequest.updateService(
                 serviceRequestData.jurisdictionId, serviceRequestData.id, serviceId
             );

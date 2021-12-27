@@ -31,10 +31,7 @@ function makeStaffUser(options: Partial<TestDataMakerOptions>) {
         displayName: `${firstName} ${lastName}`,
         email: faker.internet.email(),
         phone: faker.phone.phoneNumber(),
-        /* eslint-disable */
-        // @ts-ignore
-        jurisdictionId: options.jurisdiction.id,
-        /* eslint-enable */
+        jurisdictionId: options.jurisdiction?.id,
         permissions: STAFF_USER_PERMISSIONS,
     } as StaffUserAttributes;
 }
@@ -47,10 +44,7 @@ function makeService(options: Partial<TestDataMakerOptions>) {
         description: faker.lorem.sentences(5),
         tags: [faker.datatype.string(), faker.datatype.string()],
         type: faker.helpers.randomize(['realtime', 'batch', 'blackbox']),
-        /* eslint-disable */
-        // @ts-ignore
-        jurisdictionId: options.jurisdiction.id,
-        /* eslint-enable */
+        jurisdictionId: options.jurisdiction?.id,
     } as ServiceAttributes;
 }
 
@@ -85,14 +79,9 @@ function makeServiceRequest(options: Partial<TestDataMakerOptions>) {
         createdAt: faker.helpers.randomize(dates),
         updatedAt: faker.helpers.randomize(dates),
         inputChannel: 'webform',
-        /* eslint-disable */
-        // @ts-ignore
-        assignedTo: faker.helpers.randomize(options.staffUsers.map((u) => { return u.id })),
-        // @ts-ignore
-        serviceId: faker.helpers.randomize(options.services.map((s) => { return s.id })),
-        // @ts-ignore
-        jurisdictionId: options.jurisdiction.id,
-        /* eslint-enable */
+        assignedTo: faker.helpers.randomize(options.staffUsers?.map((u) => { return u.id }) || []),
+        serviceId: faker.helpers.randomize(options.services?.map((s) => { return s.id }) || []),
+        jurisdictionId: options.jurisdiction?.id,
         comments: [makeServiceRequestComment(), makeServiceRequestComment()]
     } as Partial<ServiceRequestAttributes>;
 }
@@ -169,12 +158,10 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
 
     for (const serviceRequestData of testData.serviceRequests) {
         const record = await ServiceRequest.create(serviceRequestData);
-        /* eslint-disable */
-        //@ts-ignore
         for (const comment of serviceRequestData.comments) {
-            //@ts-ignore
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }))
-            /* eslint-enable */
         }
     }
 
