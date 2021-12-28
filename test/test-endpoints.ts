@@ -4,6 +4,7 @@ import type { Application } from 'express';
 import faker from 'faker';
 import _ from 'lodash';
 import { createApp } from '../src';
+import { Open311ServiceRequestCreatePayload } from '../src/core/open311/types';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { TestDataPayload } from '../src/types';
 import { validServiceRequestData } from './fixtures/open311';
@@ -416,9 +417,9 @@ describe('Hit all API endpoints', function () {
         const jurisdiction_id = testData.jurisdictions[0].id;
         const jurisdiction_services = _.filter(testData.services, { jurisdictionId: jurisdiction_id });
         const service_code = jurisdiction_services[0].id;
-        const serviceRequestData = _.cloneDeep(validServiceRequestData[0]);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        const serviceRequestData = _.cloneDeep(
+            validServiceRequestData[0]
+        ) as unknown as Open311ServiceRequestCreatePayload;
         serviceRequestData.jurisdiction_id = jurisdiction_id;
         serviceRequestData.service_code = service_code;
         const res = await chai.request(app).post(`/open311/v2/requests.json`).send(serviceRequestData);

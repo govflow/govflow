@@ -29,9 +29,7 @@ export class Open311ServiceRepository implements IOpen311ServiceRepository {
         const { Service } = this.models;
         const mergedWhere = Object.assign({}, queryParams?.whereParams, { jurisdictionId });
         const records = await Service.findAll({ where: mergedWhere }) as ServiceInstance[];
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return [records.map(toOpen311Service), records.length];
+        return records.map(toOpen311Service);
     }
 }
 
@@ -51,7 +49,6 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
 
     async create(data: Record<string, unknown>): Promise<Open311ServiceRequest> {
         const { ServiceRequest } = this.models;
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
         const govflowServiceRequest = toGovflowServiceRequest(data as unknown as Open311ServiceRequestCreatePayload);
         const record = await ServiceRequest.create(govflowServiceRequest) as ServiceRequestInstance;
         return toOpen311ServiceRequest(record);
@@ -65,10 +62,7 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
     }
 
     // async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[Open311ServiceRequest[], number]> {
-    //     /* eslint-disable */
-    //     // @ts-ignore
     //     const { ServiceRequest } = this.models;
-    //     /* eslint-enable */
     //     const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
     //     const records = await ServiceRequest.findAll(params);
     //     return [records.map(toOpen311ServiceRequest), records.length];

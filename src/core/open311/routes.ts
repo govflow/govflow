@@ -24,7 +24,7 @@ open311Router.get('/discovery', wrapHandler(async (req: Request, res: Response) 
 open311Router.get(['/services.json', '/services.xml'], wrapHandler(async (req: Request, res: Response) => {
     const { Open311Service } = res.app.repositories;
     const { jurisdiction_id: jurisdictionId } = req.query;
-    const [records] = await Open311Service.findAll(jurisdictionId as string);
+    const records = await Open311Service.findAll(jurisdictionId as string);
     const asXML = isXML(req.path);
     if (asXML) {
         const builder = new xml2js.Builder({ rootName: 'services' });
@@ -45,9 +45,7 @@ open311Router.get(
 // open311Router.get(['/requests.json', '/requests.xml'], wrapHandler(async (req: Request, res: Response) => {
 //     const { Open311ServiceRequest } = res.app.repositories;
 //     const { jurisdiction_id: jurisdictionId } = req.query;
-//     /* eslint-disable @typescript-eslint/no-unused-vars */
-//     const [records, count] = await Open311ServiceRequest.findAll(jurisdictionId);
-//     /* eslint-enable @typescript-eslint/no-unused-vars */
+//     const records = await Open311ServiceRequest.findAll(jurisdictionId);
 //     const asXML = isXML(req.path);
 //     if (asXML) {
 //         const builder = new xml2js.Builder({ rootName: 'service_requests' });

@@ -2,7 +2,7 @@ import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { CommunicationAttributes, DepartmentAttributes, EventAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
+import { CommunicationAttributes, DepartmentAttributes, EventAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -157,10 +157,8 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     }
 
     for (const serviceRequestData of testData.serviceRequests) {
-        const record = await ServiceRequest.create(serviceRequestData);
+        const record = await ServiceRequest.create(serviceRequestData) as ServiceRequestInstance;
         for (const comment of serviceRequestData.comments) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }))
         }
     }

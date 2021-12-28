@@ -67,11 +67,11 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         params.attributes = ['status', [sequelize.fn('COUNT', 'id'), 'count']];
         params.group = ['status'];
         const records = await ServiceRequest.findAll(params);
-        /* eslint-disable @typescript-eslint/ban-ts-comment */
-        // @ts-ignore
         const recordsAsData = records.map((record) => { return record.get() })
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const countByStatus: Record<string, number> = recordsAsData.reduce(
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             (agg: Record<string, number>, item: { status: string, count: string }) => (
                 { ...agg, [item.status]: parseInt(item.count, 10) }
@@ -79,7 +79,6 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
             {},
         );
         return { countByStatus };
-        /* eslint-enable @typescript-eslint/ban-ts-comment */
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
