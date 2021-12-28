@@ -5,8 +5,7 @@ import type {
     DepartmentAttributes,
     EventAttributes,
     JurisdictionAttributes,
-    Models,
-    QueryParamsAll,
+    Models, PluginBase, QueryParamsAll,
     ServiceAttributes,
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
@@ -15,15 +14,9 @@ import type {
 } from ".";
 import { Open311Service, Open311ServiceRequest } from "../core/open311/types";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface PluginBase {
-    //plugin?: boolean
-}
-
 export interface RepositoryBase extends PluginBase {
     models: Models
     settings: AppSettings
-    repositories?: Repositories
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {
@@ -90,22 +83,6 @@ export interface IEventRepository extends RepositoryBase {
 export interface ICommunicationRepository extends RepositoryBase {
     create: (data: CommunicationCreateAttributes) => Promise<CommunicationAttributes>;
     findByServiceRequestId: (serviceRequestId: string) => Promise<[CommunicationAttributes[], number]>;
-    dispatchServiceRequestCreate: (
-        jurisdiction: JurisdictionAttributes,
-        serviceRequest: ServiceRequestAttributes
-    ) => Promise<CommunicationAttributes[]>;
-    dispatchServiceRequestChangeStatus: (
-        jurisdiction: JurisdictionAttributes,
-        serviceRequest: ServiceRequestAttributes
-    ) => Promise<CommunicationAttributes>;
-    dispatchServiceRequestChangeAssignee: (
-        jurisdiction: JurisdictionAttributes,
-        serviceRequest: ServiceRequestAttributes
-    ) => Promise<CommunicationAttributes>;
-    dispatchServiceRequestClosed: (
-        jurisdiction: JurisdictionAttributes,
-        serviceRequest: ServiceRequestAttributes
-    ) => Promise<CommunicationAttributes[]>;
 }
 
 export interface IDepartmentRepository extends RepositoryBase {

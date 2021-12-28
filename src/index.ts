@@ -5,8 +5,8 @@ import 'reflect-metadata';
 import { initConfig } from './config';
 import { coreMiddlewares, coreModels, coreRoutes } from './core';
 import { initDb } from './db';
-import { bindImplementationsFromPlugins, registerPlugins } from './registry';
-import type { AppSettings, DatabaseEngine, JurisdictionAttributes, MigrationEngine, Plugin, Repositories } from './types';
+import { bindImplementationsWithPlugins, registerPlugins } from './registry';
+import type { AppSettings, DatabaseEngine, JurisdictionAttributes, MigrationEngine, Plugin, Repositories, Services } from './types';
 
 /* eslint-disable */
 // TODO: can we do this without using namespace?
@@ -16,6 +16,7 @@ declare global {
             plugins: Plugin[];
             config: AppSettings;
             repositories: Repositories;
+            services: Services;
             database: DatabaseEngine;
             migrator: MigrationEngine;
         }
@@ -49,7 +50,7 @@ export async function createApp(): Promise<Application> {
     // Currently, plugins can provide alternate implementations of
     // repositories and in future they will be able to provide
     // implementations of other aspects of the system.
-    const repositories = bindImplementationsFromPlugins(
+    const { repositories, services } = bindImplementationsWithPlugins(
         plugins, config.database as DatabaseEngine, config.settings as AppSettings
     );
 
@@ -62,6 +63,7 @@ export async function createApp(): Promise<Application> {
     app.migrator = config.migrator as MigrationEngine;
     app.plugins = plugins;
     app.repositories = repositories;
+    app.services = services;
 
     // Use core middleware and mount routes.
     app.use(coreMiddlewares);

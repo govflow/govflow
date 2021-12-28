@@ -1,5 +1,6 @@
 import { Container } from 'inversify';
 import { CommunicationRepository } from '../core/communications';
+import { CommunicationService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { EventRepository } from '../core/events';
 import { JurisdictionRepository } from '../core/jurisdictions';
@@ -7,22 +8,20 @@ import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../co
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, IDepartmentRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin } from '../types';
+import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
-import { appIds, repositoryIds } from './service-identifiers';
+import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
-function bindImplementationsFromPlugins(
+function bindRepositoriesWithPlugins(
     pluginRegistry: Plugin[],
     databaseEngine: DatabaseEngine,
     settings: AppSettings,
 ): Repositories {
-
     // default repository bindings
     const repositoryContainer = new Container();
 
     repositoryContainer.bind<AppSettings>(appIds.AppSettings).toConstantValue(settings);
     repositoryContainer.bind<Models>(appIds.Models).toConstantValue(databaseEngine.models as unknown as Models);
-    // repositoryContainer.bind<Repositories>(appTypes.Repositories).toConstantValue(settings);
 
     repositoryContainer.bind<IJurisdictionRepository>(
         repositoryIds.IJurisdictionRepository).to(JurisdictionRepository
@@ -79,21 +78,39 @@ function bindImplementationsFromPlugins(
         Communication,
         Department
     }
-
-    // Allow repositories access to all other repositories
-    Jurisdiction.repositories = repositories
-    StaffUser.repositories = repositories
-    Service.repositories = repositories
-    ServiceRequest.repositories = repositories
-    Open311Service.repositories = repositories
-    Open311ServiceRequest.repositories = repositories
-    Event.repositories = repositories
-    Communication.repositories = repositories
-    Department.repositories = repositories
-
     return repositories;
 }
 
-export {
-    bindImplementationsFromPlugins
-};
+function bindServicesWithPlugins(
+    pluginRegistry: Plugin[],
+    repositories: Repositories,
+    settings: AppSettings,
+): Services {
+    // default service bindings
+    const serviceContainer = new Container();
+
+    serviceContainer.bind<AppSettings>(appIds.AppSettings).toConstantValue(settings);
+    serviceContainer.bind<Repositories>(appIds.Repositories).toConstantValue(repositories);
+
+    serviceContainer.bind<ICommunicationService>(serviceIds.ICommunicationService).to(CommunicationService);
+
+    // TODO: Bind custom services from plugins here
+
+    // get our implementations and return them
+    const Communication = serviceContainer.get<ICommunicationService>(serviceIds.ICommunicationService);
+
+    const services = {
+        Communication
+    }
+    return services;
+}
+
+export function bindImplementationsWithPlugins(
+    pluginRegistry: Plugin[],
+    databaseEngine: DatabaseEngine,
+    settings: AppSettings,
+): { repositories: Repositories, services: Services } {
+    const repositories = bindRepositoriesWithPlugins(pluginRegistry, databaseEngine, settings);
+    const services = bindServicesWithPlugins(pluginRegistry, repositories, settings);
+    return { repositories, services };
+}

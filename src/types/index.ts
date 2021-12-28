@@ -5,3 +5,4 @@ export * from './db';
 export * from './registry';
 export * from './repositories';
 export * from './schemas';
+export * from './services';

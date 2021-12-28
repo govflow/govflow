@@ -1,33 +1,33 @@
-import type { ICommunicationRepository, JurisdictionAttributes, ServiceRequestAttributes } from '../../types';
+import type { ICommunicationService, JurisdictionAttributes, ServiceRequestAttributes } from '../../types';
 
 export async function serviceRequestCreateHandler(
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes,
-    CommunicationRepository: ICommunicationRepository
+    dispatchHandler: ICommunicationService
 ): Promise<void> {
-    await CommunicationRepository.dispatchServiceRequestCreate(jurisdiction, serviceRequest);
+    await dispatchHandler.dispatchServiceRequestCreate(jurisdiction, serviceRequest);
 }
 
 export async function serviceRequestChangeStatusHandler(
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes,
-    CommunicationRepository: ICommunicationRepository
+    dispatchHandler: ICommunicationService
 ): Promise<void> {
-    await CommunicationRepository.dispatchServiceRequestChangeStatus(jurisdiction, serviceRequest);
+    await dispatchHandler.dispatchServiceRequestChangeStatus(jurisdiction, serviceRequest);
 }
 
 export async function serviceRequestChangeAssignedToHandler(
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes,
-    CommunicationRepository: ICommunicationRepository
+    dispatchHandler: ICommunicationService
 ): Promise<void> {
-    await CommunicationRepository.dispatchServiceRequestChangeAssignee(jurisdiction, serviceRequest);
+    await dispatchHandler.dispatchServiceRequestChangeAssignee(jurisdiction, serviceRequest);
 }
 
 export async function serviceRequestClosedHandler(
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes,
-    CommunicationRepository: ICommunicationRepository
+    dispatchHandler: ICommunicationService
 ): Promise<void> {
-    await CommunicationRepository.dispatchServiceRequestClosed(jurisdiction, serviceRequest);
+    await dispatchHandler.dispatchServiceRequestClosed(jurisdiction, serviceRequest);
 }

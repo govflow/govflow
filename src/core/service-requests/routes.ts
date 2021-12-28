@@ -26,22 +26,24 @@ serviceRequestRouter.get('/stats', async (req: Request, res: Response) => {
 });
 
 serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest, Communication } = res.app.repositories;
+    const { ServiceRequest } = res.app.repositories;
+    const { Communication: dispatchHandler } = res.app.services;
     const { status, serviceRequestId } = req.body;
     let eventName = 'serviceRequestChangeStatus';
     const record = await ServiceRequest.updateStatus(req.jurisdiction.id, serviceRequestId, status);
     if (SERVICE_REQUEST_CLOSED_STATES.includes(status as string)) {
         eventName = 'serviceRequestClosed'
     }
-    GovFlowEmitter.emit(eventName, req.jurisdiction, record, Communication);
+    GovFlowEmitter.emit(eventName, req.jurisdiction, record, dispatchHandler);
     res.status(200).send({ data: record });
 }))
 
 serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest, Communication } = res.app.repositories;
+    const { ServiceRequest } = res.app.repositories;
+    const { Communication: dispatchHandler } = res.app.services;
     const { assignedTo, serviceRequestId } = req.body;
     const record = await ServiceRequest.updateAssignedTo(req.jurisdiction.id, serviceRequestId, assignedTo);
-    GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, Communication);
+    GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, dispatchHandler);
     res.status(200).send({ data: record });
 }))
 
@@ -92,8 +94,9 @@ serviceRequestRouter.get('/:id', wrapHandler(async (req: Request, res: Response)
 }))
 
 serviceRequestRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest, Communication } = res.app.repositories;
+    const { ServiceRequest } = res.app.repositories;
+    const { Communication: dispatchHandler } = res.app.services;
     const record = await ServiceRequest.create(req.body as ServiceRequestAttributes);
-    GovFlowEmitter.emit('serviceRequestCreate', req.jurisdiction, record, Communication);
+    GovFlowEmitter.emit('serviceRequestCreate', req.jurisdiction, record, dispatchHandler);
     res.status(200).send({ data: record });
 }))

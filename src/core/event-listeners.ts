@@ -9,22 +9,22 @@ import {
 
 export const GovFlowEmitter = new EventEmitter();
 
-GovFlowEmitter.on('serviceRequestCreate', async (jurisdiction, serviceRequest, CommunicationRepository) => {
+GovFlowEmitter.on('serviceRequestCreate', async (jurisdiction, serviceRequest, dispatchHandler) => {
     logger.info('Responding to serviceRequestCreate event.');
-    await serviceRequestCreateHandler(jurisdiction, serviceRequest, CommunicationRepository);
+    await serviceRequestCreateHandler(jurisdiction, serviceRequest, dispatchHandler);
 });
 
-GovFlowEmitter.on('serviceRequestChangeStatus', async (jurisdiction, serviceRequest, CommunicationRepository) => {
+GovFlowEmitter.on('serviceRequestChangeStatus', async (jurisdiction, serviceRequest, dispatchHandler) => {
     logger.info('Responding to serviceRequestChangeStatus event.');
-    await serviceRequestChangeStatusHandler(jurisdiction, serviceRequest, CommunicationRepository);
+    await serviceRequestChangeStatusHandler(jurisdiction, serviceRequest, dispatchHandler);
 });
 
-GovFlowEmitter.on('serviceRequestChangeAssignedTo', async (jurisdiction, serviceRequest, CommunicationRepository) => {
+GovFlowEmitter.on('serviceRequestChangeAssignedTo', async (jurisdiction, serviceRequest, dispatchHandler) => {
     logger.info('Responding to serviceRequestChangeAssignedTo event.');
-    await serviceRequestChangeAssignedToHandler(jurisdiction, serviceRequest, CommunicationRepository);
+    await serviceRequestChangeAssignedToHandler(jurisdiction, serviceRequest, dispatchHandler);
 });
 
-GovFlowEmitter.on('serviceRequestClosed', async (jurisdiction, serviceRequest, CommunicationRepository) => {
+GovFlowEmitter.on('serviceRequestClosed', async (jurisdiction, serviceRequest, dispatchHandler) => {
     logger.info('Responding to serviceRequestClosed event.');
-    await serviceRequestClosedHandler(jurisdiction, serviceRequest, CommunicationRepository);
+    await serviceRequestClosedHandler(jurisdiction, serviceRequest, dispatchHandler);
 });

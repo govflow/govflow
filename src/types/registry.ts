@@ -6,3 +6,8 @@ export interface Plugin {
 }
 
 export type PluginRegistry = Plugin[];
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface PluginBase {
+    //plugin?: boolean
+}

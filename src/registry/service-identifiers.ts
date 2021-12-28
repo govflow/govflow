@@ -10,6 +10,10 @@ export const repositoryIds = {
     IDepartmentRepository: Symbol('IDepartmentRepository'),
 };
 
+export const serviceIds = {
+    ICommunicationService: Symbol('ICommunicationService'),
+};
+
 export const appIds = {
     AppSettings: Symbol('AppSettings'),
     Models: Symbol('Models'),
