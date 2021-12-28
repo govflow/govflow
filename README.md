@@ -62,6 +62,7 @@ npx govflow-migrate
 npx govflow-generate-fake-data
 npx govflow-send-test-email
 npx govflow-send-test-sms
+npx govflow-send-test-dispatch
 ```
 
 **Create a custom entrypoint:**
@@ -241,7 +242,7 @@ An additional configuration variable allows bypassing the backends and sending m
 
 ## Manual messaging to verify the backends
 
-`make send-email` and `make send-sms` can be used to send test messages. You will need to set `TEST_TO_EMAIL` and `TEST_TO_PHONE` environment variables to receive these messages. All credentials will need to be properly set for these manual tests to work.
+`make send-email`, `make send-sms`, and `make send-dispatch` can be used to send test messages. You will need to set `TEST_TO_EMAIL` and `TEST_TO_PHONE` environment variables to receive these messages. All credentials will need to be properly set for these manual tests to work. `make send-dispatch` sets `COMMUNICATIONS_TO_CONSOLE` to undefined to force usage of the backend provider, and, it uses the higher-level `dispatchMessage` function that us used by the dispatch handler in the app, rather than the low-level `sendSms` and `sendEmail` functions.
 
 ## Messages to console
 

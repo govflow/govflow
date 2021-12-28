@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 USER := govflow
 NAME := govflow
-VERSION := 0.0.20-alpha
+VERSION := 0.0.21-alpha
 COMPOSE := docker-compose -f docker-compose/docker-compose.yml --compatibility
 REPOSITORY := $(USER)/$(NAME)
 DOCKER_HOST := ghcr.io
@@ -50,6 +50,10 @@ send-email:
 .PHONY: send-sms ## Send an sms with the sms backend (for testing).
 send-sms:
 	npm run send-test-sms
+
+.PHONY: send-dispatch ## Send an email or sms with the higher-level dispatch function (for testing).
+send-dispatch:
+	npm run send-test-dispatch
 
 ####
 

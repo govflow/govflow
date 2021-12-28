@@ -26,11 +26,10 @@ async function sendSmsToTwilio(
 ): Promise<Record<string, string>> {
     const client = getClient(accountSid, authToken);
     try {
-
         const response = await client.messages.create(message);
         return response as unknown as Record<string, string>;
     } catch (error) {
-        const errorMessage = `Error from email transport: ${error}.`;
+        const errorMessage = `Error from sms transport: ${error}.`;
         logger.error(errorMessage);
         throw new Error(errorMessage);
     }

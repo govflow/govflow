@@ -71,7 +71,7 @@ export async function dispatchMessage(
             templateConfig.context as Record<string, string>
         );
         dispatchResponse = await sendEmail(
-            dispatchConfig.sendGridApiKey,
+            dispatchConfig.apiKey,
             dispatchConfig.toEmail,
             dispatchConfig.fromEmail,
             dispatchConfig.subject,

@@ -1,6 +1,6 @@
 {
   "name": "@govflow/govflow",
-  "version": "0.0.20-alpha",
+  "version": "0.0.21-alpha",
   "description": "An open, modular work order and workflow management system for local governments and resident satisfaction.",
   "homepage": "https://github.com/govflow/govflow",
   "main": "./index.js",
@@ -12,14 +12,16 @@
     "migrate": "ts-node ./src/cli/migrate-database",
     "generate-fake-data": "ts-node ./src/cli/generate-fake-data",
     "send-test-email": "ts-node ./src/cli/send-test-email",
-    "send-test-sms": "ts-node ./src/cli/send-test-sms"
+    "send-test-sms": "ts-node ./src/cli/send-test-sms",
+    "send-test-dispatch": "ts-node ./src/cli/send-test-dispatch"
   },
   "bin": {
     "govflow-start": "./cli/default-server.js",
     "govflow-migrate": "./cli/migrate-database.js",
     "govflow-generate-fake-data": "./cli/generate-fake-data.js",
     "govflow-send-test-email": "./cli/send-test-email.js",
-    "govflow-send-test-sms": "./cli/send-test-sms.js"
+    "govflow-send-test-sms": "./cli/send-test-sms.js",
+    "govflow-send-test-dispatch": "./cli/send-test-dispatch.js"
   },
   "license": "MIT",
   "dependencies": {
