@@ -64,7 +64,7 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
         return toOpen311ServiceRequest(record);
     }
 
-    // async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[IterableQueryResult, number]> {
+    // async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[Open311ServiceRequest[], number]> {
     //     /* eslint-disable */
     //     // @ts-ignore
     //     const { ServiceRequest } = this.models;

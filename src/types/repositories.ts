@@ -71,7 +71,7 @@ export interface IOpen311ServiceRepository extends RepositoryBase {
 export interface IOpen311ServiceRequestRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<Open311ServiceRequest>;
     findOne: (jurisdictionId: string, id: string) => Promise<Open311ServiceRequest>;
-    // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[IterableQueryResult, number]>;
+    // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[Open311ServiceRequest[], number]>;
 }
 
 export interface IEventRepository extends RepositoryBase {

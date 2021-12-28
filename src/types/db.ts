@@ -11,12 +11,6 @@ export interface ModelDefinition {
     options?: ModelOptions
 }
 
-export type QueryResult = Model | Record<string, unknown> | null;
-
-export type IterableQueryResult = QueryResult[];
-
-export type UnknownQueryResult = QueryResult | IterableQueryResult;
-
 export interface QueryParamsOne {
     whereParams?: Record<string, unknown>,
     selectFields?: string[],
