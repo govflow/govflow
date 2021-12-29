@@ -35,6 +35,7 @@ function makeStaffUser(options: Partial<TestDataMakerOptions>) {
         phone: faker.phone.phoneNumber(),
         jurisdictionId: options.jurisdiction?.id,
         permissions: STAFF_USER_PERMISSIONS,
+        isAdmin: true,
     } as StaffUserAttributes;
 }
 

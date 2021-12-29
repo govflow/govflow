@@ -50,6 +50,12 @@ export const StaffUserModel: ModelDefinition = {
                 // isPhone: true TODO: write something like this with libphonenumber
             }
         },
+        isAdmin: {
+            type: DataTypes.BOOLEAN,
+            // TODO: probably need to set this as false, but when we have other permissions logic.
+            defaultValue: true,
+            allowNull: false,
+        },
         displayName: {
             type: DataTypes.VIRTUAL,
             get() {
@@ -61,23 +67,6 @@ export const StaffUserModel: ModelDefinition = {
                 } else {
                     throw new Error(`The 'displayName' attribute is not allowed to be directly set: ${value}`);
                 }
-            }
-        },
-        // TODO: sort out admin and access levels.
-        // we have a system level admin, which is captured by the access-all-jurisdictions permission
-        // and is a bit hacky to have as a "staffuser" as it has a different meaning.
-        // but what we are more interested in for our application logic, especially
-        // for allowing users to manage their jurisdiction, is a staffuser admin.
-        // for now, I'm returning true here to represent a staff user admin, which
-        // means that for this release of the code all staff users for a jurisdiction are also admins
-        // for that jurisdiction.
-        isAdmin: {
-            type: DataTypes.VIRTUAL,
-            get() {
-                return true;
-            },
-            set(value) {
-                throw new Error(`The 'isAdmin' attribute is not allowed to be directly set: ${value}`);
             }
         },
     },

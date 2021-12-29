@@ -19,6 +19,7 @@ export interface StaffUserAttributes {
     displayName: string;
     jurisdictionId: string;
     email: string;
+    isAdmin: boolean;
     permissions: string[],
 }
 
