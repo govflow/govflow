@@ -19,7 +19,7 @@ export async function loadTemplate(templateName: string, templateContext: Record
     }
     const templateBuffer = await fs.readFile(filepath);
     const unsubscribeBuffer = await fs.readFile(appendUnsubscribe);
-    const templateCompile = _.template(`${templateBuffer.toString()}${unsubscribeBuffer.toString()}`);
+    const templateCompile = _.template(`${templateBuffer.toString()}\n${unsubscribeBuffer.toString()}`);
     return templateCompile({ context: templateContext });
 }
 
