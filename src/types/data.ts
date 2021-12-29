@@ -2,6 +2,8 @@ import type { Model } from 'sequelize';
 
 export interface JurisdictionAttributes {
     id: string;
+    name: string,
+    email: string,
 }
 
 export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>

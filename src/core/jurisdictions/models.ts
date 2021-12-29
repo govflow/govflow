@@ -10,7 +10,16 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.STRING,
             allowNull: false,
             primaryKey: true,
-        }
+        },
+        name: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        email: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            validate: { isEmail: true }
+        },
     },
     options: {
         freezeTableName: true

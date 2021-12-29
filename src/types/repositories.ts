@@ -20,7 +20,7 @@ export interface RepositoryBase extends PluginBase {
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {
-    create: (data: JurisdictionAttributes) => Promise<JurisdictionAttributes>;
+    create: (data: Partial<JurisdictionAttributes>) => Promise<JurisdictionAttributes>;
     findOne: (id: string) => Promise<JurisdictionAttributes>;
 }
 

@@ -16,7 +16,7 @@ export class JurisdictionRepository implements IJurisdictionRepository {
         this.settings = settings
     }
 
-    async create(data: JurisdictionAttributes): Promise<JurisdictionAttributes> {
+    async create(data: Partial<JurisdictionAttributes>): Promise<JurisdictionAttributes> {
         const { Jurisdiction } = this.models;
         const params = data;
         return await Jurisdiction.create(params) as JurisdictionInstance;

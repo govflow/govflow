@@ -18,6 +18,8 @@ function factory(generator: Function, times: number, generatorOpts: {}) {
 function makeJurisdiction() {
     return {
         id: faker.datatype.uuid(),
+        name: faker.company.companyName(),
+        email: faker.internet.email(),
     } as JurisdictionAttributes;
 }
 
