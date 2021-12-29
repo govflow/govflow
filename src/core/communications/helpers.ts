@@ -5,12 +5,14 @@ import path from 'path';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, ICommunicationRepository, ServiceRequestAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 
-export async function loadTemplate(templateName: string, templateContext: Record<string, string>): Promise<string> {
+export function makeRequestURL(appClientUrl: string, appClientRequestsPath: string, serviceRequestId: string): string {
+    return `${appClientUrl}${appClientRequestsPath}/${serviceRequestId}`
+}
+
+export async function loadTemplate(templateName: string, templateContext: TemplateConfigContextAttributes, withUnsubscribe = false): Promise<string> {
     const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
-    const [templateType, ..._rest] = templateName.split('.');
-    const appendUnsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
     try {
         await fs.access(filepath, fsConstants.R_OK | fsConstants.W_OK);
     } catch (error) {
@@ -18,15 +20,26 @@ export async function loadTemplate(templateName: string, templateContext: Record
         throw error;
     }
     const templateBuffer = await fs.readFile(filepath);
-    const unsubscribeBuffer = await fs.readFile(appendUnsubscribe);
-    const templateCompile = _.template(`${templateBuffer.toString()}\n${unsubscribeBuffer.toString()}`);
+    const templateString = templateBuffer.toString();
+    let appendString: string;
+
+    if (withUnsubscribe) {
+        const [templateType, ..._rest] = templateName.split('.');
+        const appendUnsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
+        const unsubscribeBuffer = await fs.readFile(appendUnsubscribe);
+        appendString = `\n\n${unsubscribeBuffer.toString()}`;
+    } else {
+        appendString = '';
+    }
+
+    const templateCompile = _.template(`${templateString}${appendString}`);
     return templateCompile({ context: templateContext });
 }
 
 export async function dispatchMessageForPublicUser(
     serviceRequest: ServiceRequestAttributes,
-    dispatchConfig: Record<string, string>,
-    templateConfig: Record<string, unknown>,
+    dispatchConfig: DispatchConfigAttributes,
+    templateConfig: TemplateConfigAttributes,
     CommunicationRepository: ICommunicationRepository):
     Promise<CommunicationAttributes> {
     if (serviceRequest.communicationChannel === null) {
@@ -48,46 +61,52 @@ export async function dispatchMessageForPublicUser(
 }
 
 export async function dispatchMessageForStaffUser(
-    dispatchConfig: Record<string, string>,
-    templateConfig: Record<string, unknown>,
+    dispatchConfig: DispatchConfigAttributes,
+    templateConfig: TemplateConfigAttributes,
     CommunicationRepository: ICommunicationRepository):
     Promise<CommunicationAttributes> {
     return await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository);
 }
 
 export async function dispatchMessage(
-    dispatchConfig: Record<string, string>,
-    templateConfig: Record<string, unknown>,
+    dispatchConfig: DispatchConfigAttributes,
+    templateConfig: TemplateConfigAttributes,
     CommunicationRepository: ICommunicationRepository):
     Promise<CommunicationAttributes> {
     let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown>;
+    let dispatchPayload: DispatchPayloadAttributes;
+    let subject: string;
+    let body: string;
     if (dispatchConfig.channel === 'email') {
-        dispatchConfig.subject = await loadTemplate(
+        subject = await loadTemplate(
             `email.${templateConfig.name}.subject`,
-            templateConfig.context as Record<string, string>
+            templateConfig.context
         );
-        dispatchConfig.body = await loadTemplate(
+        body = await loadTemplate(
             `email.${templateConfig.name}.body`,
-            templateConfig.context as Record<string, string>
+            templateConfig.context
         );
+        dispatchPayload = Object.assign({}, dispatchConfig, { subject, body })
         dispatchResponse = await sendEmail(
-            dispatchConfig.apiKey,
-            dispatchConfig.toEmail,
-            dispatchConfig.fromEmail,
-            dispatchConfig.subject,
-            dispatchConfig.body
+            dispatchPayload.sendGridApiKey,
+            dispatchPayload.toEmail,
+            dispatchPayload.fromEmail,
+            dispatchPayload.subject as string,
+            dispatchPayload.body
         );
     } else if (dispatchConfig.channel === 'sms') {
-        dispatchConfig.body = await loadTemplate(
+        body = await loadTemplate(
             `sms.${templateConfig.name}.body`,
-            templateConfig.context as Record<string, string>
+            templateConfig.context,
+            true
         );
+        dispatchPayload = Object.assign({}, dispatchConfig, { body })
         dispatchResponse = await sendSms(
-            dispatchConfig.twilioAccountSid as string,
-            dispatchConfig.twilioAuthToken as string,
-            dispatchConfig.toPhone as string,
-            dispatchConfig.fromPhone as string,
-            dispatchConfig.body as string,
+            dispatchPayload.twilioAccountSid as string,
+            dispatchPayload.twilioAuthToken as string,
+            dispatchPayload.toPhone as string,
+            dispatchPayload.fromPhone as string,
+            dispatchPayload.body as string,
         );
     } else {
         const errorMsg = `Unknown communication dispatch channel`;

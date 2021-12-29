@@ -3,7 +3,7 @@ import type { Application } from 'express';
 import _ from 'lodash';
 import { createApp } from '../src';
 import { initConfig } from '../src/config';
-import { dispatchMessageForPublicUser, dispatchMessageForStaffUser, loadTemplate } from '../src/core/communications/helpers';
+import { dispatchMessageForPublicUser, dispatchMessageForStaffUser, loadTemplate, makeRequestURL } from '../src/core/communications/helpers';
 import { sendEmail } from '../src/email';
 import { sendSms } from '../src/sms';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
@@ -56,7 +56,14 @@ describe('Verify Core Communications Functionality.', function () {
     it('loads a template', async function () {
         const expectedOutput = '[Gov Flow]: A New Service Request Has Been Submitted\n'
         const templateName = 'email.service-request-new-staff-user.subject'
-        const templateContext = { appName: 'Gov Flow' }
+        const templateContext = {
+            appName: 'Gov Flow',
+            appRequestUrl: 'https://dummy.url',
+            serviceRequestStatus: 'dummy-status',
+            jurisdictionName: 'dummy-name',
+            jurisdictionEmail: 'dummy@example.com',
+            recipientName: 'Dummy Name'
+        }
         const response = await loadTemplate(templateName, templateContext);
         chai.assert(new String(response).valueOf().startsWith(new String(expectedOutput).valueOf()));
     });
@@ -91,9 +98,10 @@ describe('Verify Core Communications Functionality.', function () {
             name: 'service-request-new-public-user',
             context: {
                 appName,
-                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
                 jurisdictionName: 'dummy-name',
+                jurisdictionEmail: 'dummy@example.com',
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -134,9 +142,10 @@ describe('Verify Core Communications Functionality.', function () {
             name: 'service-request-new-staff-user',
             context: {
                 appName,
-                appRequestUrl: `${appClientUrl}${appClientRequestsPath}`,
+                appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, ''),
                 serviceRequestStatus: 'dummy',
                 jurisdictionName: 'dummy-name',
+                jurisdictionEmail: 'dummy@example.com',
                 recipientName: admin.displayName as string
             }
         }

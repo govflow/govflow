@@ -18,17 +18,16 @@ const defaultSettings: AppSettings = {
     'databaseExtraMigrationPaths': '',
     'sendGridApiKey': process.env.SENDGRID_API_KEY || '',
     'sendGridFromEmail': process.env.SENDGRID_FROM_EMAIL || '',
-    'twilioAccountSid': process.env.TWILIO_ACCOUNT_SID,
-    'twilioAuthToken': process.env.TWILIO_AUTH_TOKEN,
+    'twilioAccountSid': process.env.TWILIO_ACCOUNT_SID || '',
+    'twilioAuthToken': process.env.TWILIO_AUTH_TOKEN || '',
     'twilioFromPhone': process.env.TWILIO_FROM_PHONE || '',
     'testToEmail': process.env.TEST_TO_EMAIL || '',
     'testToPhone': process.env.TEST_TO_PHONE || '',
-    'appPort': process.env.APP_PORT || 3000,
+    'appPort': parseInt(process.env.APP_PORT || '3000', 10),
     'appName': process.env.APP_NAME || 'Gov Flow',
     'appClientUrl': process.env.APP_CLIENT_URL || '',
-    'appClientRequestsPath': process.env.APP_CLIENT_REQUESTS_PATH || '',
-    'appPublicEmail': process.env.APP_PUBLIC_EMAIL || '',
-    'communicationsToConsole': process.env.COMMUNICATIONS_TO_CONSOLE || true,
+    'appClientRequestsPath': process.env.APP_CLIENT_REQUESTS_PATH || '/requests',
+    'communicationsToConsole': process.env.COMMUNICATIONS_TO_CONSOLE || '',
 }
 
 async function resolveCustomConfig(): Promise<Config> {

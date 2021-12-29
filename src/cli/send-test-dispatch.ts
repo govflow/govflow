@@ -18,7 +18,7 @@ import { createApp } from '../index';
     const { Communication } = app.repositories;
     const dispatchConfig = {
         channel: 'email', // can manually change to sms to test that
-        apiKey: sendGridApiKey as string,
+        sendGridApiKey: sendGridApiKey as string,
         toEmail: testToEmail as string,
         fromEmail: sendGridFromEmail as string,
         twilioAccountSid: twilioAccountSid as string,
@@ -32,7 +32,8 @@ import { createApp } from '../index';
             appName: 'Test Gov Flow Message Dispatch',
             appRequestUrl: `https://example.com/`,
             serviceRequestStatus: 'inbox',
-            jurisdictionName: 'dummy_jurisdiction_id',
+            jurisdictionName: 'Dummy Name',
+            jurisdictionEmail: 'dummy@example.com',
             recipientName: 'Test Recipient Name'
         }
     }

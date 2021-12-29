@@ -10,7 +10,7 @@ import type {
     ServiceRequestAttributes,
     StaffUserAttributes
 } from '../../types';
-import { dispatchMessageForPublicUser, dispatchMessageForStaffUser } from './helpers';
+import { dispatchMessageForPublicUser, dispatchMessageForStaffUser, makeRequestURL } from './helpers';
 
 @injectable()
 export class CommunicationService implements ICommunicationService {
@@ -57,10 +57,11 @@ export class CommunicationService implements ICommunicationService {
         const templateConfig = {
             name: 'service-request-new-public-user',
             context: {
-                appName,
-                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appName: appName as string,
+                appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
-                jurisdictionName: jurisdiction.id,
+                jurisdictionName: jurisdiction.name,
+                jurisdictionEmail: jurisdiction.email,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -73,17 +74,22 @@ export class CommunicationService implements ICommunicationService {
         for (const admin of admins) {
             const dispatchConfig = {
                 channel: 'email',
-                apiKey: sendGridApiKey as string,
+                sendGridApiKey: sendGridApiKey as string,
                 toEmail: admin.email as string,
                 fromEmail: sendGridFromEmail as string,
+                twilioAccountSid: twilioAccountSid as string,
+                twilioAuthToken: twilioAuthToken as string,
+                fromPhone: twilioFromPhone as string,
+                toPhone: serviceRequest.phone as string
             }
             const templateConfig = {
                 name: 'service-request-new-staff-user',
                 context: {
                     appName,
-                    appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                    appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                     serviceRequestStatus: serviceRequest.status,
-                    jurisdictionName: jurisdiction.id,
+                    jurisdictionName: jurisdiction.name,
+                    jurisdictionEmail: jurisdiction.email,
                     recipientName: admin.displayName as string
                 }
             }
@@ -99,24 +105,38 @@ export class CommunicationService implements ICommunicationService {
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
     ): Promise<CommunicationAttributes> {
-        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, appClientRequestsPath } = this.settings;
+        const {
+            sendGridApiKey,
+            sendGridFromEmail,
+            appName,
+            appClientUrl,
+            appClientRequestsPath,
+            twilioAccountSid,
+            twilioAuthToken,
+            twilioFromPhone
+        } = this.settings;
         const { StaffUser, Communication } = this.repositories;
         const staffUser = await StaffUser.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
         );
         const dispatchConfig = {
             channel: 'email',
-            apiKey: sendGridApiKey as string,
+            sendGridApiKey: sendGridApiKey as string,
             toEmail: staffUser.email as string,
             fromEmail: sendGridFromEmail as string,
+            twilioAccountSid: twilioAccountSid as string,
+            twilioAuthToken: twilioAuthToken as string,
+            fromPhone: twilioFromPhone as string,
+            toPhone: serviceRequest.phone as string
         }
         const templateConfig = {
             name: 'service-request-changed-status-staff-user',
             context: {
                 appName,
-                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
-                jurisdictionName: jurisdiction.id,
+                jurisdictionName: jurisdiction.name,
+                jurisdictionEmail: jurisdiction.email,
                 recipientName: staffUser.displayName as string
             }
         }
@@ -128,22 +148,36 @@ export class CommunicationService implements ICommunicationService {
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
     ): Promise<CommunicationAttributes> {
-        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, appClientRequestsPath } = this.settings;
+        const {
+            sendGridApiKey,
+            sendGridFromEmail,
+            appName,
+            appClientUrl,
+            appClientRequestsPath,
+            twilioAccountSid,
+            twilioAuthToken,
+            twilioFromPhone
+        } = this.settings;
         const { StaffUser, Communication } = this.repositories;
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
         const dispatchConfig = {
             channel: 'email',
-            apiKey: sendGridApiKey as string,
+            sendGridApiKey: sendGridApiKey as string,
             toEmail: staffUser.email as string,
             fromEmail: sendGridFromEmail as string,
+            twilioAccountSid: twilioAccountSid as string,
+            twilioAuthToken: twilioAuthToken as string,
+            fromPhone: twilioFromPhone as string,
+            toPhone: serviceRequest.phone as string
         }
         const templateConfig = {
             name: 'service-request-changed-assignee-staff-user',
             context: {
                 appName,
-                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
-                jurisdictionName: jurisdiction.id,
+                jurisdictionName: jurisdiction.name,
+                jurisdictionEmail: jurisdiction.email,
                 recipientName: staffUser.displayName as string
             }
         }
@@ -156,22 +190,36 @@ export class CommunicationService implements ICommunicationService {
         serviceRequest: ServiceRequestAttributes
     ): Promise<CommunicationAttributes[]> {
 
-        const { sendGridApiKey, sendGridFromEmail, appName, appClientUrl, appClientRequestsPath } = this.settings;
+        const {
+            sendGridApiKey,
+            sendGridFromEmail,
+            appName,
+            appClientUrl,
+            appClientRequestsPath,
+            twilioAccountSid,
+            twilioAuthToken,
+            twilioFromPhone
+        } = this.settings;
         const { Communication, StaffUser } = this.repositories;
         const records: CommunicationAttributes[] = [];
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
-            apiKey: sendGridApiKey as string,
+            sendGridApiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
             fromEmail: sendGridFromEmail as string,
+            twilioAccountSid: twilioAccountSid as string,
+            twilioAuthToken: twilioAuthToken as string,
+            fromPhone: twilioFromPhone as string,
+            toPhone: serviceRequest.phone as string
         }
         const templateConfig = {
             name: 'service-request-closed-public-user',
             context: {
                 appName,
-                appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
-                jurisdictionName: jurisdiction.id,
+                jurisdictionName: jurisdiction.name,
+                jurisdictionEmail: jurisdiction.email,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -184,17 +232,22 @@ export class CommunicationService implements ICommunicationService {
         for (const admin of admins) {
             const dispatchConfig = {
                 channel: 'email',
-                apiKey: sendGridApiKey as string,
+                sendGridApiKey: sendGridApiKey as string,
                 toEmail: admin.email as string,
                 fromEmail: sendGridFromEmail as string,
+                twilioAccountSid: twilioAccountSid as string,
+                twilioAuthToken: twilioAuthToken as string,
+                fromPhone: twilioFromPhone as string,
+                toPhone: serviceRequest.phone as string
             }
             const templateConfig = {
                 name: 'service-request-closed-staff-user',
                 context: {
                     appName,
-                    appRequestUrl: `${appClientUrl}${appClientRequestsPath}/${serviceRequest.id}`,
+                    appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                     serviceRequestStatus: serviceRequest.status,
-                    jurisdictionName: jurisdiction.id,
+                    jurisdictionName: jurisdiction.name,
+                    jurisdictionEmail: jurisdiction.email,
                     recipientName: admin.displayName as string
                 }
             }

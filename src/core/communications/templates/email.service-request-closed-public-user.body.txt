@@ -4,4 +4,4 @@ A service request you submitted for ${context.jurisdictionName} has been closed 
 
 Thank you for notifying us of the issue.
 
-Should you have any further comments, reach out to us at ${context.appPublicEmail}.
+Should you have any further comments, reach out to us at ${context.jurisdictionEmail}.

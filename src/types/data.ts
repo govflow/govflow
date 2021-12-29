@@ -107,7 +107,7 @@ export interface CommunicationAttributes {
     id?: string;
     channel: string;
     dispatched: boolean;
-    dispatchPayload: Record<string, string>;
+    dispatchPayload: DispatchConfigAttributes;
     dispatchResponse: Record<string, string>;
     accepted: boolean;
     delivered: boolean;
@@ -143,6 +143,36 @@ export interface EmailAttributes {
     form: string,
     subject: string,
     body: string,
+}
+
+export interface DispatchConfigAttributes {
+    channel: string,
+    sendGridApiKey: string,
+    toEmail: string,
+    fromEmail: string,
+    twilioAccountSid: string,
+    twilioAuthToken: string,
+    fromPhone: string,
+    toPhone: string,
+}
+
+export interface DispatchPayloadAttributes extends DispatchConfigAttributes {
+    subject?: string,
+    body: string,
+}
+
+export interface TemplateConfigContextAttributes {
+    appName: string,
+    appRequestUrl: string,
+    serviceRequestStatus: string,
+    jurisdictionName: string,
+    jurisdictionEmail: string,
+    recipientName: string,
+}
+
+export interface TemplateConfigAttributes {
+    name: string,
+    context: TemplateConfigContextAttributes,
 }
 
 export interface TestDataPayload {
