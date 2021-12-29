@@ -1,12 +1,13 @@
 import merge from 'deepmerge';
 import { Request, Response, Router } from 'express';
 import { wrapHandler } from '../../helpers';
-import { resolveJurisdiction } from '../../middlewares';
+import { resolveJurisdiction, enforceJurisdictionAccess } from '../../middlewares';
 import { ServiceAttributes } from '../../types';
 
 export const serviceRouter = Router();
 
 serviceRouter.use(wrapHandler(resolveJurisdiction()));
+serviceRouter.use(enforceJurisdictionAccess);
 
 serviceRouter.get('/', wrapHandler(async (req: Request, res: Response) => {
     const { Service } = res.app.repositories;

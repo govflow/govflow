@@ -61,3 +61,31 @@ export function resolveJurisdiction(paramKey = 'jurisdictionId', excludedRoutes:
         }
     }
 }
+
+export function enforceJurisdictionAccess(req: Request, res: Response, next: NextFunction): void {
+    const STATUS_CODE_UNAUTHORIZED = 401;
+    const STATUS_CODE_FORBIDDEN = 403;
+
+    if (!process.env.ENFORCE_AUTHORIZATION) {
+        // TODO remove once we support auth on Govflow and adapt tests to make requests as authenticated users
+        next();
+        return;
+    }
+
+    if (!req.user) {
+        res.status(STATUS_CODE_UNAUTHORIZED).send();
+        return;
+    }
+
+    if (req.user.permissions?.includes('access-all-jurisdictions')) {
+        next();
+        return;
+    }
+
+    if (req.user.jurisdiction === req.jurisdiction.id) {
+        next();
+        return;
+    }
+
+    res.status(STATUS_CODE_FORBIDDEN).send();
+}

@@ -1,10 +1,11 @@
 import { Request, Response, Router } from 'express';
 import { wrapHandler } from '../../helpers';
-import { resolveJurisdiction } from '../../middlewares';
+import { resolveJurisdiction, enforceJurisdictionAccess } from '../../middlewares';
 
 export const accountRouter = Router();
 
 accountRouter.use(wrapHandler(resolveJurisdiction()));
+accountRouter.use(enforceJurisdictionAccess);
 
 accountRouter.get('/staff', wrapHandler(async (req: Request, res: Response) => {
     const { StaffUser } = res.app.repositories;
