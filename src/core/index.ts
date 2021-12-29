@@ -16,7 +16,7 @@ import { accountRouter, StaffUserModel, StaffUserRepository } from './staff-user
 const coreRoutes = Router();
 
 coreRoutes.get('/', wrapHandler(async (req: Request, res: Response) => {
-    res.status(200).send({ data: { name: 'govflow', version: '0.0.21-alpha' } });
+    res.status(200).send({ data: { name: 'govflow', version: '0.0.22-alpha' } });
 }))
 coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
