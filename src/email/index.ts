@@ -4,7 +4,13 @@ import nodemailer from 'nodemailer';
 import validator from 'validator';
 import logger from '../logging';
 
-export async function sendEmail(sendGridApiKey: string, toEmail: string, fromEmail: string, subject: string, body: string): Promise<ClientResponse | Record<string, string>> {
+export async function sendEmail(
+    sendGridApiKey: string,
+    toEmail: string, fromEmail: string,
+    subject: string,
+    htmlBody: string,
+    textBody: string
+): Promise<ClientResponse | Record<string, string>> {
     if (!validator.isEmail(toEmail)) {
         const errorMessage = `Cant send email to invalid address '${toEmail}'.`;
         logger.error(errorMessage);
@@ -14,8 +20,8 @@ export async function sendEmail(sendGridApiKey: string, toEmail: string, fromEma
         to: toEmail,
         from: fromEmail,
         subject: subject,
-        text: body,
-        html: body,
+        text: textBody,
+        html: htmlBody,
     }
     if (process.env.COMMUNICATIONS_TO_CONSOLE) {
         return sendEmailToConsole(message)

@@ -35,7 +35,8 @@ describe('Verify Core Communications Functionality.', function () {
             'example@example.com',
             'example@example.com',
             'Test subject line',
-            'Test text body',
+            'Test <strong>html</strong> body',
+            'Test text body'
         );
         chai.assert(response);
     });

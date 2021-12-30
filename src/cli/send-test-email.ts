@@ -12,6 +12,7 @@ import { AppSettings } from '../types';
         testToEmail as string,
         sendGridFromEmail as string,
         'Test subject line',
+        'Test <strong>html</strong> body',
         'Test text body',
     );
     console.log(response);

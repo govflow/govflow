@@ -1,5 +1,9 @@
 Hello ${context.recipientName},
-
+<br />
+<br />
 An open service request has been assigned to you.
-
+<br />
+<br />
 Go to ${context.appName} at ${context.appRequestUrl} for further details.
+<br />
+<br />

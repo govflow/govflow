@@ -1,5 +1,9 @@
 Hello ${context.recipientName},
-
+<br />
+<br />
 A service request has been changed to the ${context.serviceRequestStatus} status.
-
+<br />
+<br />
 Go to ${context.appName} at ${context.appRequestUrl} for further details.
+<br />
+<br />

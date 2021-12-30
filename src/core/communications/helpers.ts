@@ -2,6 +2,7 @@ import type { ClientResponse } from '@sendgrid/mail';
 import { constants as fsConstants, promises as fs } from 'fs';
 import _ from 'lodash';
 import path from 'path';
+import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
@@ -27,14 +28,21 @@ export async function loadTemplate(templateName: string, templateContext: Templa
         const [templateType, ..._rest] = templateName.split('.');
         const appendUnsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
         const unsubscribeBuffer = await fs.readFile(appendUnsubscribe);
-        appendString = `\n\n${unsubscribeBuffer.toString()}`;
+        appendString = `<br />${unsubscribeBuffer.toString()}`;
     } else {
         appendString = '';
     }
 
-    const templateCompile = _.template(`${templateString}${appendString}`);
+    const fullTemplateString = `${templateString}${appendString}`;
+    const templateCompile = _.template(fullTemplateString);
     return templateCompile({ context: templateContext });
 }
+
+function makePlainTextFromHtml(html: string) {
+    const _tmp = striptags(html, ['br', 'p']);
+    return striptags(_tmp, [], '\n');
+}
+
 
 export async function dispatchMessageForPublicUser(
     serviceRequest: ServiceRequestAttributes,
@@ -76,37 +84,40 @@ export async function dispatchMessage(
     let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown>;
     let dispatchPayload: DispatchPayloadAttributes;
     let subject: string;
-    let body: string;
+    let textBody: string;
+    let htmlBody: string;
     if (dispatchConfig.channel === 'email') {
         subject = await loadTemplate(
             `email.${templateConfig.name}.subject`,
             templateConfig.context
         );
-        body = await loadTemplate(
+        htmlBody = await loadTemplate(
             `email.${templateConfig.name}.body`,
             templateConfig.context
         );
-        dispatchPayload = Object.assign({}, dispatchConfig, { subject, body })
+        textBody = makePlainTextFromHtml(htmlBody);
+        dispatchPayload = Object.assign({}, dispatchConfig, { subject, textBody, htmlBody })
         dispatchResponse = await sendEmail(
             dispatchPayload.sendGridApiKey,
             dispatchPayload.toEmail,
             dispatchPayload.fromEmail,
             dispatchPayload.subject as string,
-            dispatchPayload.body
+            dispatchPayload.htmlBody as string,
+            dispatchPayload.textBody as string,
         );
     } else if (dispatchConfig.channel === 'sms') {
-        body = await loadTemplate(
+        textBody = await loadTemplate(
             `sms.${templateConfig.name}.body`,
             templateConfig.context,
             true
         );
-        dispatchPayload = Object.assign({}, dispatchConfig, { body })
+        dispatchPayload = Object.assign({}, dispatchConfig, { textBody })
         dispatchResponse = await sendSms(
             dispatchPayload.twilioAccountSid as string,
             dispatchPayload.twilioAuthToken as string,
             dispatchPayload.toPhone as string,
             dispatchPayload.fromPhone as string,
-            dispatchPayload.body as string,
+            dispatchPayload.textBody as string,
         );
     } else {
         const errorMsg = `Unknown communication dispatch channel`;

@@ -159,7 +159,8 @@ export interface DispatchConfigAttributes {
 
 export interface DispatchPayloadAttributes extends DispatchConfigAttributes {
     subject?: string,
-    body: string,
+    textBody: string,
+    htmlBody?: string
 }
 
 export interface TemplateConfigContextAttributes {
