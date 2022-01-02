@@ -17,7 +17,7 @@ export interface ICommunicationService extends ServiceBase {
     dispatchServiceRequestChangeAssignee: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
-    ) => Promise<CommunicationAttributes>;
+    ) => Promise<CommunicationAttributes | null>;
     dispatchServiceRequestClosed: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes

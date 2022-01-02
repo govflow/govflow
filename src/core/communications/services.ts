@@ -147,7 +147,11 @@ export class CommunicationService implements ICommunicationService {
     async dispatchServiceRequestChangeAssignee(
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
-    ): Promise<CommunicationAttributes> {
+    ): Promise<CommunicationAttributes | null> {
+
+        // early return if the service request has been unassigned
+        if (_.isNil(serviceRequest.assignedTo)) { return null; }
+
         const {
             sendGridApiKey,
             sendGridFromEmail,

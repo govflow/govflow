@@ -327,6 +327,19 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.assignedTo, assignedTo);
     });
 
+    it('should POST an update to assignedTo as null for a service request for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
+        const assignedTo = null;
+        const res = await chai.request(app).post(
+            `/service-requests/assign/?jurisdictionId=${jurisdictionId}`
+        ).send({ assignedTo, serviceRequestId });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, serviceRequestId);
+        chai.assert.equal(res.body.data.assignedTo, assignedTo);
+    });
+
     it('should POST an update to department for a service request for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const departments = _.filter(testData.departments, { jurisdictionId });
