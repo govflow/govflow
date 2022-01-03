@@ -28,6 +28,8 @@ const defaultSettings: AppSettings = {
     'appClientUrl': process.env.APP_CLIENT_URL || '',
     'appClientRequestsPath': process.env.APP_CLIENT_REQUESTS_PATH || '/requests',
     'communicationsToConsole': process.env.COMMUNICATIONS_TO_CONSOLE || '',
+    'captchaEnabled': Boolean(parseInt(process.env.CAPTCHA_ENABLED || '1', 10)), // 0 or 1
+    'reCaptchaSecretKey': process.env.RECAPTCHA_SECRET_KEY || '',
 }
 
 async function resolveCustomConfig(): Promise<Config> {

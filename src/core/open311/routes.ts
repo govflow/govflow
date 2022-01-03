@@ -3,7 +3,7 @@ import xmlparser from 'express-xml-bodyparser';
 import xml2js from 'xml2js';
 import { wrapHandler } from '../../helpers';
 // import { resolveJurisdiction } from '../../middlewares';
-
+import { maybeCaptcha } from '../../middlewares';
 export const open311Router = Router();
 
 // TODO use once we support resolving based on POST body
@@ -66,6 +66,7 @@ open311Router.get(
 open311Router.post(
     ['/requests.json', '/requests.xml'],
     xmlparser({ trim: false, explicitArray: false }),
+    wrapHandler(maybeCaptcha),
     wrapHandler(async (req: Request, res: Response) => {
         const { Open311ServiceRequest } = res.app.repositories;
         const record = await Open311ServiceRequest.create(req.body);

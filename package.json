@@ -27,6 +27,7 @@
   "dependencies": {
     "@sendgrid/mail": "^7.6.0",
     "@types/nodemailer": "^6.4.4",
+    "axios": "^0.24.0",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "deepmerge": "^4.2.2",
