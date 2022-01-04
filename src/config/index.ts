@@ -30,6 +30,9 @@ const defaultSettings: AppSettings = {
     'communicationsToConsole': process.env.COMMUNICATIONS_TO_CONSOLE || '',
     'captchaEnabled': Boolean(parseInt(process.env.CAPTCHA_ENABLED || '1', 10)), // 0 or 1
     'reCaptchaSecretKey': process.env.RECAPTCHA_SECRET_KEY || '',
+    'storageEndpoint': process.env.STORAGE_ENDPOINT || '',
+    'storageAccessKey': process.env.STORAGE_ACCESS_KEY || '',
+    'storageSecretKey': process.env.STORAGE_SECRET_KEY || '',
 }
 
 async function resolveCustomConfig(): Promise<Config> {
