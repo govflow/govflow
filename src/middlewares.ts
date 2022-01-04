@@ -92,8 +92,8 @@ export function enforceJurisdictionAccess(req: Request, res: Response, next: Nex
 
 export async function maybeCaptcha(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { captchaEnabled, reCaptchaSecretKey } = req.app.config;
-    const captchaResponseToken = req.body['g-recaptcha-response'];
-    delete req.body['g-recaptcha-response'];
+    const captchaResponseToken = req.body['captcha_response_token'];
+    delete req.body['captcha_response_token'];
 
     if (captchaEnabled == true) {
         const captchaResponse = await verifyRecaptchaResponse(reCaptchaSecretKey, captchaResponseToken);
@@ -101,7 +101,11 @@ export async function maybeCaptcha(req: Request, res: Response, next: NextFuncti
             next()
         } else {
             const status_code = 400
-            const data = { message: 'Bad request: The reCaptcha token is invalid', status_code: status_code }
+            const data = {
+                message: 'Bad request: The reCaptcha token is invalid',
+                status_code: status_code,
+                error_codes: captchaResponse['error-codes']
+            }
             res.status(status_code).send(data)
         }
     } else {

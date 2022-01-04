@@ -10,15 +10,20 @@ export interface RecaptchaV2VerificationResponse {
 
 export async function verifyRecaptchaResponse(secretKey: string, responseToken: string): Promise<RecaptchaV2VerificationResponse> {
     const verifyUrl = 'https://www.google.com/recaptcha/api/siteverify';
-    let response: RecaptchaV2VerificationResponse;
+    let responseData: RecaptchaV2VerificationResponse;
     try {
-        response = await axios.post(verifyUrl, {
-            secret: secretKey,
-            response: responseToken
-          })
+        const response = await axios({
+            method: 'post',
+            url: verifyUrl,
+            params: {
+                secret: secretKey,
+                response: responseToken
+            }
+        })
+        responseData = response.data;
     } catch(error) {
         logger.error({message: 'Failed request to reCaptcha', error: `${error}`})
-        response = {success: false} as unknown as RecaptchaV2VerificationResponse;
+        responseData = { success: false } as unknown as RecaptchaV2VerificationResponse;
     }
-    return response;
+    return responseData;
 }
