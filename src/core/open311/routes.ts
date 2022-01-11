@@ -2,6 +2,9 @@ import { Request, Response, Router } from 'express';
 import xmlparser from 'express-xml-bodyparser';
 import xml2js from 'xml2js';
 import { wrapHandler } from '../../helpers';
+import { ServiceRequestAttributes } from '../../types';
+import { GovFlowEmitter } from '../event-listeners';
+import { toOpen311ServiceRequest } from './helpers';
 // import { resolveJurisdiction } from '../../middlewares';
 
 export const open311Router = Router();
@@ -67,9 +70,12 @@ open311Router.post(
     ['/requests.json', '/requests.xml'],
     xmlparser({ trim: false, explicitArray: false }),
     wrapHandler(async (req: Request, res: Response) => {
-        const { Open311ServiceRequest } = res.app.repositories;
+        const { Open311ServiceRequest, Jurisdiction } = res.app.repositories;
+        const { Communication: dispatchHandler } = res.app.services;
         const record = await Open311ServiceRequest.create(req.body);
-        res.status(200).send({ data: record, success: true });
+        const jurisdiction = await Jurisdiction.findOne(record.jurisdictionId);
+        GovFlowEmitter.emit('serviceRequestCreate', jurisdiction, record, dispatchHandler);
+        res.status(200).send({ data: toOpen311ServiceRequest(record), success: true });
     }))
 
 open311Router.get(

@@ -1,6 +1,15 @@
 import { inject, injectable } from 'inversify';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, Models, QueryParamsAll, ServiceInstance, ServiceRequestInstance } from '../../types';
+import {
+    AppSettings,
+    IOpen311ServiceRepository,
+    IOpen311ServiceRequestRepository,
+    Models,
+    QueryParamsAll,
+    ServiceInstance,
+    ServiceRequestAttributes,
+    ServiceRequestInstance
+} from '../../types';
 import { toGovflowServiceRequest, toOpen311Service, toOpen311ServiceRequest } from './helpers';
 import { Open311Service, Open311ServiceRequest, Open311ServiceRequestCreatePayload } from './types';
 
@@ -47,11 +56,11 @@ export class Open311ServiceRequestRepository implements IOpen311ServiceRequestRe
         this.settings = settings
     }
 
-    async create(data: Record<string, unknown>): Promise<Open311ServiceRequest> {
+    async create(data: Record<string, unknown>): Promise<ServiceRequestInstance> {
         const { ServiceRequest } = this.models;
         const govflowServiceRequest = toGovflowServiceRequest(data as unknown as Open311ServiceRequestCreatePayload);
         const record = await ServiceRequest.create(govflowServiceRequest) as ServiceRequestInstance;
-        return toOpen311ServiceRequest(record);
+        return record;
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<Open311ServiceRequest> {

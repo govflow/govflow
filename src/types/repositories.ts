@@ -9,9 +9,10 @@ import type {
     ServiceAttributes,
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
+    ServiceRequestInstance,
     StaffUserAttributes,
     StaffUserLookUpAttributes
-} from ".";
+} from '.';
 import { Open311Service, Open311ServiceRequest } from "../core/open311/types";
 
 export interface RepositoryBase extends PluginBase {
@@ -69,7 +70,7 @@ export interface IOpen311ServiceRepository extends RepositoryBase {
 }
 
 export interface IOpen311ServiceRequestRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<Open311ServiceRequest>;
+    create: (data: Record<string, unknown>) => Promise<ServiceRequestInstance>;
     findOne: (jurisdictionId: string, id: string) => Promise<Open311ServiceRequest>;
     // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[Open311ServiceRequest[], number]>;
 }
