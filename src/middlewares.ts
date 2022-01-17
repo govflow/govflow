@@ -82,7 +82,7 @@ export function enforceJurisdictionAccess(req: Request, res: Response, next: Nex
         return;
     }
 
-    if (req.user.jurisdiction === req.jurisdiction.id) {
+    if (req.user.jurisdictionId === req.jurisdiction.id) {
         next();
         return;
     }

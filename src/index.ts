@@ -25,7 +25,7 @@ declare global {
         }
         interface User {
             permissions: string[];
-            jurisdiction: string;
+            jurisdictionId: string;
         }
     }
 }
