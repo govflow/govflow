@@ -2,7 +2,7 @@ import type { RequestHandler } from 'express';
 import type { DatabaseEngine, MigrationEngine, ModelDefinition, Plugin } from '.';
 
 export interface AppSettings {
-    [key: string]: string | number | Record<string, string | number>,
+    [key: string]: boolean | string | number | Record<string, string | number>,
     env: string,
     databaseUrl: string,
     databaseExtraMigrationPaths: string,
@@ -18,6 +18,8 @@ export interface AppSettings {
     appClientUrl: string,
     appClientRequestsPath: string,
     communicationsToConsole: string,
+    captchaEnabled: boolean;
+    reCaptchaSecretKey: string;
 }
 
 export interface Config {

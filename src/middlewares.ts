@@ -1,7 +1,7 @@
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import _ from 'lodash';
+import { verifyRecaptchaResponse } from './captcha';
 import logger from './logging';
-
 export function notFound(req: Request, res: Response): void {
     const status_code = 404
     const data = { message: 'Route Not Found.', status_code: status_code }
@@ -88,4 +88,28 @@ export function enforceJurisdictionAccess(req: Request, res: Response, next: Nex
     }
 
     res.status(STATUS_CODE_FORBIDDEN).send();
+}
+
+export async function maybeCaptcha(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const { captchaEnabled, reCaptchaSecretKey } = req.app.config;
+    const captchaResponseToken = req.body['captcha_response_token'];
+    delete req.body['captcha_response_token'];
+
+    if (captchaEnabled == true) {
+        const captchaResponse = await verifyRecaptchaResponse(reCaptchaSecretKey, captchaResponseToken);
+        if (captchaResponse.success == true) {
+            next()
+        } else {
+            const status_code = 400
+            const data = {
+                message: 'Bad request: The reCaptcha token is invalid',
+                status_code: status_code,
+                error_codes: captchaResponse['error-codes']
+            }
+            res.status(status_code).send(data)
+        }
+    } else {
+        next();
+    }
+
 }

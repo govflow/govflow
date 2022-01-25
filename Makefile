@@ -27,7 +27,7 @@ lint:
 
 .PHONY: test ## Test code with coverage.
 test:
-	npm run test
+	CAPTCHA_ENABLED='0' npm run test
 
 ####
 

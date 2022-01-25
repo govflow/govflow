@@ -6,7 +6,7 @@ import { ServiceRequestAttributes } from '../../types';
 import { GovFlowEmitter } from '../event-listeners';
 import { toOpen311ServiceRequest } from './helpers';
 // import { resolveJurisdiction } from '../../middlewares';
-
+import { maybeCaptcha } from '../../middlewares';
 export const open311Router = Router();
 
 // TODO use once we support resolving based on POST body
@@ -69,6 +69,7 @@ open311Router.get(
 open311Router.post(
     ['/requests.json', '/requests.xml'],
     xmlparser({ trim: false, explicitArray: false }),
+    wrapHandler(maybeCaptcha),
     wrapHandler(async (req: Request, res: Response) => {
         const { Open311ServiceRequest, Jurisdiction } = res.app.repositories;
         const { Communication: dispatchHandler } = res.app.services;
