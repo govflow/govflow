@@ -247,3 +247,32 @@ An additional configuration variable allows bypassing the backends and sending m
 ## Messages to console
 
 **Important**: if the `COMMUNICATIONS_TO_CONSOLE` environment variable is set to any truthy value, then SMS and email messages will be logged to the console and will not be sent to the backend service providers. We highly recommend setting this environment variable for local development, and in particular for running tests. Even if all backend provider credentials are set, if `COMMUNICATIONS_TO_CONSOLE` is truthy, then they will not be used to send messages.
+
+# File support
+
+Gov Flow supports files (usually images) being added to service requests. File support is a client/server architecture where the actual file storage is on an S3-compatible object storage (for object storage solutions that are not S3 compatible, namely, Azure Blog Storage, Minio can be used as a gateway to provide the required API).
+
+## The flow
+
+- A client (such as a service request submission form, or an administration dashboard for 311 work management) provides functionality to allow users to (i) upload, or (ii) view, a file.
+- The client submits the file name to the appropriate Gov Flow storage endpoint to either (i) get a presigned PUT url, or (ii) get a presigned GET url.
+- The server responds with a URL, time limited in usage, to perform the appropriate PUT or GET request from the client.
+- The client performs the appropriate action with the new url.
+- In the case of allowing users to upload URLs, for example for a new service request, the client submits the service request payload with an array of image URLs, not actual images.
+
+## Configuration
+
+The following environment variables are required:
+
+`STORAGE_BUCKET` // default 'govflow_uploads'
+`STORAGE_REGION` // default 'us-east-1'
+`STORAGE_SSL` // default 1 which is cast to true
+`STORAGE_PORT`
+`STORAGE_ENDPOINT`
+`STORAGE_ACCESS_KEY`
+`STORAGE_SECRET_KEY`
+`STORAGE_SIGNED_GET_EXPIRY` // minutes for get urls to expiry
+
+# Testing and development
+
+The simplest solution is to run an instance of minio locally. See the GitHub workflow, which runs a minio instance for the test suite, and see the Minio documentation at https://min.io
