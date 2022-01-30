@@ -7,7 +7,6 @@ import {
     Models,
     QueryParamsAll,
     ServiceInstance,
-    ServiceRequestAttributes,
     ServiceRequestInstance
 } from '../../types';
 import { toGovflowServiceRequest, toOpen311Service, toOpen311ServiceRequest } from './helpers';

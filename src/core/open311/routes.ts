@@ -2,11 +2,10 @@ import { Request, Response, Router } from 'express';
 import xmlparser from 'express-xml-bodyparser';
 import xml2js from 'xml2js';
 import { wrapHandler } from '../../helpers';
-import { ServiceRequestAttributes } from '../../types';
-import { GovFlowEmitter } from '../event-listeners';
-import { toOpen311ServiceRequest } from './helpers';
 // import { resolveJurisdiction } from '../../middlewares';
 import { maybeCaptcha } from '../../middlewares';
+import { GovFlowEmitter } from '../event-listeners';
+import { toOpen311ServiceRequest } from './helpers';
 export const open311Router = Router();
 
 // TODO use once we support resolving based on POST body
