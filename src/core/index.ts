@@ -12,6 +12,7 @@ import { open311Router } from './open311';
 import { ServiceRequestCommentModel, ServiceRequestModel, ServiceRequestRepository, serviceRequestRouter } from './service-requests';
 import { ServiceModel, ServiceRepository, serviceRouter } from './services';
 import { accountRouter, StaffUserModel, StaffUserRepository } from './staff-users';
+import { storageRouter } from './storage';
 
 const coreRoutes = Router();
 
@@ -23,6 +24,7 @@ coreRoutes.use('/service-requests', serviceRequestRouter);
 coreRoutes.use('/accounts', accountRouter);
 coreRoutes.use('/jurisdictions', jurisdictionRouter);
 coreRoutes.use('/departments', departmentRouter);
+coreRoutes.use('/storage', storageRouter);
 coreRoutes.use('/open311/v2', open311Router);
 coreRoutes.use(notFound, internalServerError);
 
