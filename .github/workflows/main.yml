@@ -29,6 +29,11 @@ jobs:
         env:
           MINIO_ACCESS_KEY: ${{ secrets.STORAGE_ACCESS_KEY }}
           MINIO_SECRET_KEY: ${{ secrets.STORAGE_SECRET_KEY }}
+    env:
+      STORAGE_ACCESS_KEY: ${{ secrets.STORAGE_ACCESS_KEY }}
+      STORAGE_SECRET_KEY: ${{ secrets.STORAGE_SECRET_KEY }}
+      STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
+      STORAGE_SSL: ${{ secrets.STORAGE_SSL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
