@@ -73,7 +73,7 @@ function makeServiceRequest(options: Partial<TestDataMakerOptions>) {
         address: faker.address.streetAddress(),
         lat: faker.datatype.number({ precision: 0.0001 }),
         lon: faker.datatype.number({ precision: 0.0001 }),
-        images: [faker.image.imageUrl(), faker.image.imageUrl()],
+        images: [`${faker.datatype.uuid()}.jpg`, `${faker.datatype.uuid()}.jpg`],
         status: faker.helpers.randomize(REQUEST_STATUS_KEYS),
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
