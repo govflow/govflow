@@ -34,6 +34,10 @@ Ensure your new database is declated in an environment variable:
 DATABASE_URL=postgres://<YOUR_USER>@localhost:5432/govflow
 ```
 
+**Ensure object storage**:
+
+GovFlow stores file on an S3-compatible object storage backend. Install minio and set the `STORAGE_` environment variables appropriately.
+
 **Run migrations**:
 
 ```bash
