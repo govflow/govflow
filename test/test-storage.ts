@@ -63,8 +63,6 @@ describe('Interact with storage and files', function () {
             `/storage/presign-get?jurisdictionId=${jurisdictionId}`
         ).send({ filename });
         chai.assert.equal(res.status, 200);
-        console.log("HEY MAMA")
-        console.log(res.body.data)
         chai.assert.include(res.body.data.retrieveUrl, storageEndpoint);
         chai.assert.include(res.body.data.retrieveUrl, storageBucket);
         chai.assert.include(res.body.data.retrieveUrl, filename);

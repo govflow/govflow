@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { Client } from 'minio';
 import logger from '../../logging';
 import type { MinioClientConfig } from './types';
@@ -14,8 +13,8 @@ export function getClient(config: MinioClientConfig): Client {
 }
 
 export async function ensureBucket(client: Client, bucketName: string, bucketRegion: string): Promise<string> {
-    const exists = client.bucketExists(bucketName);
-    if (_.isNil(exists)) {
+    const exists = await client.bucketExists(bucketName);
+    if (!exists) {
         await client.makeBucket(bucketName, bucketRegion)
     }
     return bucketName;
