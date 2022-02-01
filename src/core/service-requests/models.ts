@@ -1,5 +1,4 @@
 import { DataTypes } from 'sequelize';
-import validator from 'validator';
 import { ModelDefinition } from '../../types';
 
 export const REQUEST_STATUSES = {
@@ -69,9 +68,11 @@ export const ServiceRequestModel: ModelDefinition = {
                     if (!value) return value;
                     value.forEach((member: string) => {
                         try {
-                            validator.isURL(member);
+                            if (member) { member.split('.').length > 1 }
+
+                            // validator.isURL(member);
                         } catch (error) {
-                            throw new Error(`Valid URLs are required for images: ${error}`);
+                            throw new Error(`Valid filenames are required for images: ${error}`);
                         }
                     })
                     return value;
