@@ -2,13 +2,12 @@ import { Container } from 'inversify';
 import { CommunicationRepository } from '../core/communications';
 import { CommunicationService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
-import { EventRepository } from '../core/events';
 import { JurisdictionRepository } from '../core/jurisdictions';
 import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../core/open311';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IEventRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
+import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -37,7 +36,6 @@ function bindRepositoriesWithPlugins(
     repositoryContainer.bind<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository).to(
         Open311ServiceRequestRepository
     );
-    repositoryContainer.bind<IEventRepository>(repositoryIds.IEventRepository).to(EventRepository);
     repositoryContainer.bind<ICommunicationRepository>(repositoryIds.ICommunicationRepository).to(
         CommunicationRepository
     );
@@ -63,7 +61,6 @@ function bindRepositoriesWithPlugins(
     const Open311ServiceRequest = repositoryContainer.get<IOpen311ServiceRequestRepository>(
         repositoryIds.IOpen311ServiceRequestRepository
     );
-    const Event = repositoryContainer.get<IEventRepository>(repositoryIds.IEventRepository);
     const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
     const Department = repositoryContainer.get<IDepartmentRepository>(repositoryIds.IDepartmentRepository);
 
@@ -74,7 +71,6 @@ function bindRepositoriesWithPlugins(
         ServiceRequest,
         Open311Service,
         Open311ServiceRequest,
-        Event,
         Communication,
         Department
     }

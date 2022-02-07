@@ -6,7 +6,6 @@ import { internalServerError, notFound } from '../middlewares';
 import type { ModelDefinition, PluginBase } from '../types';
 import { CommunicationModel, CommunicationRepository } from './communications';
 import { DepartmentModel, DepartmentRepository, departmentRouter } from './departments';
-import { EventModel, EventRepository } from './events';
 import { JurisdictionModel, JurisdictionRepository, jurisdictionRouter } from './jurisdictions';
 import { open311Router } from './open311';
 import { ServiceRequestCommentModel, ServiceRequestModel, ServiceRequestRepository, serviceRequestRouter } from './service-requests';
@@ -34,7 +33,6 @@ const coreModels: ModelDefinition[] = [
     ServiceRequestCommentModel,
     ServiceModel,
     StaffUserModel,
-    EventModel,
     CommunicationModel,
     DepartmentModel,
 ]
@@ -44,7 +42,6 @@ const coreRepositories: PluginBase[] = [
     ServiceRequestRepository,
     ServiceRepository,
     StaffUserRepository,
-    EventRepository,
     CommunicationRepository,
     DepartmentRepository
 ]

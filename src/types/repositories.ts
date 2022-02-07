@@ -3,7 +3,6 @@ import type {
     CommunicationAttributes,
     CommunicationCreateAttributes,
     DepartmentAttributes,
-    EventAttributes,
     JurisdictionAttributes,
     Models, PluginBase, QueryParamsAll,
     ServiceAttributes,
@@ -76,12 +75,6 @@ export interface IOpen311ServiceRequestRepository extends RepositoryBase {
     // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[Open311ServiceRequest[], number]>;
 }
 
-export interface IEventRepository extends RepositoryBase {
-    create: (data: EventAttributes) => Promise<EventAttributes>;
-    findOne: (jurisdictionId: string, id: string) => Promise<EventAttributes>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[EventAttributes[], number]>;
-}
-
 export interface ICommunicationRepository extends RepositoryBase {
     create: (data: CommunicationCreateAttributes) => Promise<CommunicationAttributes>;
     findByServiceRequestId: (serviceRequestId: string) => Promise<[CommunicationAttributes[], number]>;
@@ -101,7 +94,6 @@ export interface Repositories {
     ServiceRequest: IServiceRequestRepository,
     Open311Service: IOpen311ServiceRepository,
     Open311ServiceRequest: IOpen311ServiceRequestRepository,
-    Event: IEventRepository,
     Communication: ICommunicationRepository,
     Department: IDepartmentRepository,
 }
