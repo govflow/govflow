@@ -118,7 +118,7 @@ describe('Verify Core Repositories.', function () {
             for (const record of records) {
                 const keys = Object.keys(record);
                 chai.assert.equal(keys.length, 2);
-                chai.assert(keys.includes('email'));
+                chai.assert(keys.includes('id'));
                 chai.assert(keys.includes('displayName'));
             }
         }
