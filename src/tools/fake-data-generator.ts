@@ -85,14 +85,17 @@ function makeServiceRequest(options: Partial<TestDataMakerOptions>) {
         assignedTo: faker.helpers.randomize(options.staffUsers?.map((u) => { return u.id }) || []),
         serviceId: faker.helpers.randomize(options.services?.map((s) => { return s.id }) || []),
         jurisdictionId: options.jurisdiction?.id,
-        comments: [makeServiceRequestComment(), makeServiceRequestComment()]
+        comments: [makeServiceRequestComment(options), makeServiceRequestComment(options)]
     } as Partial<ServiceRequestAttributes>;
 }
 
-function makeServiceRequestComment() {
+function makeServiceRequestComment(options: Partial<TestDataMakerOptions>) {
     return {
         id: faker.datatype.uuid(),
         comment: faker.lorem.sentences(5),
+        addedBy: faker.helpers.randomize(options.staffUsers?.map((u) => { return u.id }) || []),
+        images: [`${faker.datatype.uuid()}.jpg`, `${faker.datatype.uuid()}.jpg`],
+
     } as ServiceRequestCommentAttributes
 }
 

@@ -81,7 +81,8 @@ export interface ServiceRequestInstance
 export interface ServiceRequestCommentAttributes {
     id: string;
     comment: string;
-    actor: Record<string, string>;
+    addedBy: string;
+    images: string[];
     serviceRequestId: string,
 }
 

@@ -69,7 +69,6 @@ export const ServiceRequestModel: ModelDefinition = {
                     value.forEach((member: string) => {
                         try {
                             if (member) { member.split('.').length > 1 }
-
                             // validator.isURL(member);
                         } catch (error) {
                             throw new Error(`Valid filenames are required for images: ${error}`);
@@ -211,7 +210,29 @@ export const ServiceRequestCommentModel: ModelDefinition = {
         },
         comment: {
             type: DataTypes.TEXT,
-            allowNull: false,
+            allowNull: true,
+        },
+        addedBy: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        images: {
+            allowNull: true,
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            validate: {
+                memberURLs(value: string[]) {
+                    if (!value) return value;
+                    value.forEach((member: string) => {
+                        try {
+                            if (member) { member.split('.').length > 1 }
+                            // validator.isURL(member);
+                        } catch (error) {
+                            throw new Error(`Valid filenames are required for images: ${error}`);
+                        }
+                    })
+                    return value;
+                }
+            }
         },
     },
     options: {
@@ -224,6 +245,10 @@ export const ServiceRequestCommentModel: ModelDefinition = {
             {
                 unique: false,
                 fields: ['serviceRequestId']
+            },
+            {
+                unique: false,
+                fields: ['addedBy']
             },
             {
                 unique: false,

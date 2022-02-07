@@ -257,6 +257,8 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.id, serviceRequestId);
         chai.assert.equal(res.body.data.jurisdictionId, jurisdictionId);
         chai.assert.equal(res.body.data.comments.length, 2);
+        chai.assert(res.body.data.comments[0].addedBy);
+        chai.assert(res.body.data.comments[0].images);
         chai.assert.equal(res.body.data.comments[0].serviceRequestId, res.body.data.id);
     });
 
