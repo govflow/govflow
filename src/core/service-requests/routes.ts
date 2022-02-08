@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { serviceRequestFiltersToSequelize, wrapHandler } from '../../helpers';
-import { resolveJurisdiction, enforceJurisdictionAccess } from '../../middlewares';
-import { ServiceRequestAttributes } from '../../types';
+import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
+import { ServiceRequestAttributes, StaffUserAttributes } from '../../types';
 import { GovFlowEmitter } from '../event-listeners';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
@@ -65,7 +65,9 @@ serviceRequestRouter.post('/service', wrapHandler(async (req: Request, res: Resp
 serviceRequestRouter.post('/comments/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
     const { serviceRequestId } = req.params;
-    const record = await ServiceRequest.createComment(req.jurisdiction.id, serviceRequestId, req.body);
+    const record = await ServiceRequest.createComment(
+        req.jurisdiction.id, serviceRequestId, req.body, req.user as StaffUserAttributes | undefined
+    );
     res.status(200).send({ data: record });
 }))
 

@@ -127,7 +127,6 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         Service,
         ServiceRequest,
         ServiceRequestComment,
-        Event,
         Communication,
         Department
     } = databaseEngine.models;

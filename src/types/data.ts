@@ -80,10 +80,10 @@ export interface ServiceRequestInstance
 
 export interface ServiceRequestCommentAttributes {
     id: string;
-    comment: string;
-    addedBy: string;
-    images: string[];
     serviceRequestId: string,
+    comment?: string;
+    addedBy?: string,
+    images?: string[]
 }
 
 export type ServiceRequestCommentCreateAttributes = Partial<ServiceRequestCommentAttributes>
