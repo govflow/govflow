@@ -10,6 +10,7 @@ import type {
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
     ServiceRequestInstance,
+    ServiceRequestStatusAttributes,
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
@@ -46,7 +47,7 @@ export interface IServiceRequestRepository extends RepositoryBase {
     ) => Promise<ServiceRequestAttributes>;
     findOne: (jurisdictionId: string, id: string) => Promise<ServiceRequestAttributes>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[ServiceRequestAttributes[], number]>;
-    findStatusList: (id: string) => Promise<Record<string, string>>;
+    findStatusList: (jurisdictionId: string) => Promise<ServiceRequestStatusAttributes[]>;
     getStats: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<Record<string, Record<string, number>>>;
     createComment: (
         jurisdictionId: string,

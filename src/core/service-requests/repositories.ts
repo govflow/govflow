@@ -4,7 +4,7 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
-import type { AppSettings, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentInstance, ServiceRequestInstance } from '../../types';
+import type { AppSettings, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentInstance, ServiceRequestInstance, ServiceRequestStatusAttributes } from '../../types';
 import { REQUEST_STATUSES } from './models';
 
 @injectable()
@@ -82,9 +82,12 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async findStatusList(jurisdictionId: string): Promise<Record<string, string>> {
-        return Promise.resolve(REQUEST_STATUSES);
-
+    async findStatusList(jurisdictionId: string): Promise<ServiceRequestStatusAttributes[]> {
+        const serviceRequestStatusList: ServiceRequestStatusAttributes[] = [];
+        for (const [key, value] of Object.entries(REQUEST_STATUSES)) {
+            serviceRequestStatusList.push({id: key, label: value})
+        }
+        return Promise.resolve(serviceRequestStatusList);
     }
 
     async createComment(

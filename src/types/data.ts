@@ -91,6 +91,12 @@ export interface ServiceRequestCommentInstance
     extends Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>,
     ServiceRequestCommentAttributes {}
 
+
+export interface ServiceRequestStatusAttributes {
+    id: string;
+    label: string
+}
+
 export interface EventAttributes {
     id: string;
     sender: Record<string, string>;

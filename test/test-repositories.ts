@@ -264,9 +264,9 @@ describe('Verify Core Repositories.', function () {
     it('should find a list of possible statuses for a service request via repository', async function () {
         const { ServiceRequest } = app.repositories;
         const jurisdictionId = testData.serviceRequests[0].jurisdictionId;
-        const record = await ServiceRequest.findStatusList(jurisdictionId);
-        chai.assert(record.inbox === 'Inbox');
-        chai.assert(record.done === 'Done');
+        const records = await ServiceRequest.findStatusList(jurisdictionId);
+        chai.assert(records[0].id === 'inbox');
+        chai.assert(records[0].label === 'Inbox');
     });
 
     it('should find one service request by jurisdiction via repository', async function () {

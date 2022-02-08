@@ -29,7 +29,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.27-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.28-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -372,8 +372,8 @@ describe('Hit all API endpoints', function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/service-requests/status-list?jurisdictionId=${jurisdictionId}`);
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.body.data.inbox, 'Inbox');
-        chai.assert.equal(res.body.data.todo, 'Todo');
+        chai.assert.equal(res.body.data[0].id, 'inbox');
+        chai.assert.equal(res.body.data[0].label, 'Inbox');
     });
 
     it('should GET all departments for a jurisdiction', async function () {
