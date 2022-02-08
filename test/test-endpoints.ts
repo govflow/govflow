@@ -50,7 +50,7 @@ describe('Hit all API endpoints', function () {
         for (const staffUser of res.body.data) {
             const keys = Object.keys(staffUser);
             chai.assert.equal(keys.length, 2);
-            chai.assert(keys.includes('email'));
+            chai.assert(keys.includes('id'));
             chai.assert(keys.includes('displayName'));
         }
     });
