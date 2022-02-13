@@ -60,5 +60,6 @@ export const toGovflowServiceRequest = (payload: Open311ServiceRequestCreatePayl
     phone: payload.phone,
     email: payload.email,
     lat: payload.lat as number,
-    lon: payload.long as number
+    lon: payload.long as number,
+    images: [payload.media_url as string]
 });

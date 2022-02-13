@@ -30,6 +30,14 @@ const defaultSettings: AppSettings = {
     'communicationsToConsole': process.env.COMMUNICATIONS_TO_CONSOLE || '',
     'captchaEnabled': Boolean(parseInt(process.env.CAPTCHA_ENABLED || '1', 10)), // 0 or 1
     'reCaptchaSecretKey': process.env.RECAPTCHA_SECRET_KEY || '',
+    'storageBucket': process.env.STORAGE_BUCKET || 'govflow_uploads',
+    'storageRegion': process.env.STORAGE_REGION || 'us-east-1',
+    'storageSSL': Boolean(parseInt(process.env.STORAGE_SSL || '1', 10)), // 0 or 1
+    'storagePort': parseInt(process.env.STORAGE_PORT || '9000', 10),
+    'storageEndpoint': process.env.STORAGE_ENDPOINT || '127.0.0.1',
+    'storageAccessKey': process.env.STORAGE_ACCESS_KEY || '',
+    'storageSecretKey': process.env.STORAGE_SECRET_KEY || '',
+    'storageSignedGetExpiry': parseInt(process.env.STORAGE_SIGNED_GET_EXPIRY || '1', 10) * 60 // minutes
 }
 
 async function resolveCustomConfig(): Promise<Config> {

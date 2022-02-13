@@ -40,13 +40,13 @@ export class StaffUserRepository implements IStaffUserRepository {
     async lookupTable(jurisdictionId: string): Promise<[StaffUserLookUpAttributes[], number]> {
         const queryParams = {
             // TODO: check why not working.
-            // selectFields: ['email', 'displayName']
+            // selectFields: ['id', 'displayName']
         };
         const [records, count] = await this.findAll(jurisdictionId, queryParams);
         return [
             records.map(
                 (record) => {
-                    return { email: record.email, displayName: record.displayName }
+                    return { id: record.id, displayName: record.displayName }
                 }
             ) as StaffUserLookUpAttributes[],
             count

@@ -1,5 +1,4 @@
 import { DataTypes } from 'sequelize';
-import validator from 'validator';
 import { ModelDefinition } from '../../types';
 
 export const REQUEST_STATUSES = {
@@ -69,9 +68,10 @@ export const ServiceRequestModel: ModelDefinition = {
                     if (!value) return value;
                     value.forEach((member: string) => {
                         try {
-                            validator.isURL(member);
+                            if (member) { member.split('.').length > 1 }
+                            // validator.isURL(member);
                         } catch (error) {
-                            throw new Error(`Valid URLs are required for images: ${error}`);
+                            throw new Error(`Valid filenames are required for images: ${error}`);
                         }
                     })
                     return value;
@@ -210,7 +210,29 @@ export const ServiceRequestCommentModel: ModelDefinition = {
         },
         comment: {
             type: DataTypes.TEXT,
-            allowNull: false,
+            allowNull: true,
+        },
+        addedBy: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        images: {
+            allowNull: true,
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            validate: {
+                memberURLs(value: string[]) {
+                    if (!value) return value;
+                    value.forEach((member: string) => {
+                        try {
+                            if (member) { member.split('.').length > 1 }
+                            // validator.isURL(member);
+                        } catch (error) {
+                            throw new Error(`Valid filenames are required for images: ${error}`);
+                        }
+                    })
+                    return value;
+                }
+            }
         },
     },
     options: {
@@ -223,6 +245,10 @@ export const ServiceRequestCommentModel: ModelDefinition = {
             {
                 unique: false,
                 fields: ['serviceRequestId']
+            },
+            {
+                unique: false,
+                fields: ['addedBy']
             },
             {
                 unique: false,

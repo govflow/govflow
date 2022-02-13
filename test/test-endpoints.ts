@@ -50,7 +50,7 @@ describe('Hit all API endpoints', function () {
         for (const staffUser of res.body.data) {
             const keys = Object.keys(staffUser);
             chai.assert.equal(keys.length, 2);
-            chai.assert(keys.includes('email'));
+            chai.assert(keys.includes('id'));
             chai.assert(keys.includes('displayName'));
         }
     });
@@ -257,6 +257,8 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.id, serviceRequestId);
         chai.assert.equal(res.body.data.jurisdictionId, jurisdictionId);
         chai.assert.equal(res.body.data.comments.length, 2);
+        chai.assert(res.body.data.comments[0].addedBy);
+        chai.assert(res.body.data.comments[0].images);
         chai.assert.equal(res.body.data.comments[0].serviceRequestId, res.body.data.id);
     });
 
