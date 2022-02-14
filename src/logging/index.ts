@@ -3,7 +3,6 @@ import winston from 'winston';
 const logger = winston.createLogger({
     levels: winston.config.npm.levels,
     format: winston.format.json(),
-    defaultMeta: { service: 'app-logger' },
     transports: [
         new winston.transports.Console({ level: 'error' }),
     ]
