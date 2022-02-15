@@ -20,10 +20,9 @@ describe('Verify Core Models.', function () {
     })
 
     it('should find all models', async function () {
-        const { Jurisdiction, StaffUser, Event, ServiceRequest, ServiceRequestComment, Service } = app.database.models;
+        const { Jurisdiction, StaffUser, ServiceRequest, ServiceRequestComment, Service } = app.database.models;
         chai.assert(Jurisdiction);
         chai.assert(StaffUser);
-        chai.assert(Event);
         chai.assert(ServiceRequest);
         chai.assert(ServiceRequestComment);
         chai.assert(Service);
@@ -57,14 +56,6 @@ describe('Verify Core Models.', function () {
         const { ServiceRequest } = app.database.models;
         for (const serviceRequestData of testData.serviceRequests) {
             const record = await ServiceRequest.create(serviceRequestData);
-            chai.assert(record);
-        }
-    });
-
-    it('should write events to database', async function () {
-        const { Event } = app.database.models;
-        for (const eventData of testData.events) {
-            const record = await Event.create(eventData);
             chai.assert(record);
         }
     });

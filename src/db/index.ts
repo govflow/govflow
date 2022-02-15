@@ -25,7 +25,6 @@ function applyCoreModelRelations(models: Models) {
         Jurisdiction,
         StaffUser,
         ServiceRequestComment,
-        Event,
         Communication,
         Department
     } = models;
@@ -38,9 +37,6 @@ function applyCoreModelRelations(models: Models) {
 
     Jurisdiction.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'jurisdictionId' });
     ServiceRequest.belongsTo(Jurisdiction, { as: 'jurisdiction' });
-
-    Jurisdiction.hasMany(Event, { as: 'events', foreignKey: 'jurisdictionId' });
-    Event.belongsTo(Jurisdiction, { as: 'jurisdiction' });
 
     Service.hasMany(ServiceRequest, { as: 'requests', foreignKey: 'serviceId' });
     ServiceRequest.belongsTo(Service, { as: 'service' });

@@ -2,7 +2,7 @@ import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { CommunicationAttributes, DepartmentAttributes, EventAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
+import { CommunicationAttributes, DepartmentAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -99,24 +99,6 @@ function makeServiceRequestComment(options: Partial<TestDataMakerOptions>) {
     } as ServiceRequestCommentAttributes
 }
 
-function makeEvent(options: Partial<TestDataMakerOptions>) {
-    return {
-        id: faker.datatype.uuid(),
-        sender: {
-            id: faker.datatype.uuid(),
-            name: faker.datatype.string(),
-            type: faker.datatype.string()
-        },
-        message: faker.lorem.sentences(3),
-        actor: {
-            id: faker.datatype.uuid(),
-            name: faker.datatype.string(),
-            type: faker.datatype.string()
-        },
-        jurisdictionId: options.jurisdiction?.id,
-    } as EventAttributes
-}
-
 function makeCommunication(options: Partial<TestDataMakerOptions>) {
     return {
         id: faker.datatype.uuid(),
@@ -145,7 +127,6 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         Service,
         ServiceRequest,
         ServiceRequestComment,
-        Event,
         Communication,
         Department
     } = databaseEngine.models;
@@ -169,10 +150,6 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         }
     }
 
-    for (const eventData of testData.events) {
-        await Event.create(eventData);
-    }
-
     for (const communicationData of testData.communications) {
         await Communication.create(communicationData);
     }
@@ -188,7 +165,6 @@ export default function makeTestData(): TestDataPayload {
     let staffUsers: StaffUserAttributes[] = [];
     let services: ServiceAttributes[] = [];
     let serviceRequests: ServiceRequestAttributes[] = [];
-    let events: EventAttributes[] = [];
     let communications: CommunicationAttributes[] = [];
     let departments: DepartmentAttributes[] = [];
 
@@ -203,7 +179,6 @@ export default function makeTestData(): TestDataPayload {
                 makeServiceRequest, 20, { staffUsers, services, jurisdiction }
             ) as unknown as ServiceRequestAttributes[]
         )
-        events = events.concat(factory(makeEvent, 20, { jurisdiction }) as unknown as EventAttributes[])
         departments = departments.concat(
             factory(makeDepartment, 20, { jurisdiction }) as unknown as DepartmentAttributes[]
         )
@@ -221,7 +196,6 @@ export default function makeTestData(): TestDataPayload {
         staffUsers,
         services,
         serviceRequests,
-        events,
         communications,
         departments
     }

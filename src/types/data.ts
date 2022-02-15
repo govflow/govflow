@@ -80,10 +80,10 @@ export interface ServiceRequestInstance
 
 export interface ServiceRequestCommentAttributes {
     id: string;
-    comment: string;
-    addedBy: string;
-    images: string[];
     serviceRequestId: string,
+    comment?: string;
+    addedBy?: string,
+    images?: string[]
 }
 
 export type ServiceRequestCommentCreateAttributes = Partial<ServiceRequestCommentAttributes>
@@ -92,24 +92,10 @@ export interface ServiceRequestCommentInstance
     extends Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>,
     ServiceRequestCommentAttributes {}
 
-
 export interface ServiceRequestStatusAttributes {
     id: string;
     label: string
 }
-
-export interface EventAttributes {
-    id: string;
-    sender: Record<string, string>;
-    actor: Record<string, string>;
-    message: string;
-    jurisdictionId: string;
-}
-
-export type EventCreateAttributes = Partial<EventAttributes>
-
-export interface EventInstance
-    extends Model<EventAttributes, EventCreateAttributes>, EventAttributes {}
 
 export interface CommunicationAttributes {
     id?: string;
@@ -189,7 +175,6 @@ export interface TestDataPayload {
     staffUsers: StaffUserAttributes[],
     services: ServiceAttributes[],
     serviceRequests: ServiceRequestAttributes[],
-    events: EventAttributes[],
     communications: CommunicationAttributes[],
     departments: DepartmentAttributes[],
 }
@@ -201,5 +186,4 @@ export interface TestDataMakerOptions {
     staffUsers: StaffUserAttributes[],
     services: ServiceAttributes[],
     serviceRequests: ServiceRequestAttributes[],
-    events: EventAttributes[],
 }

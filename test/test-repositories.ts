@@ -24,10 +24,9 @@ describe('Verify Core Repositories.', function () {
     })
 
     it('should find all repositories', async function () {
-        const { Service, Jurisdiction, StaffUser, ServiceRequest, Event } = app.repositories;
+        const { Service, Jurisdiction, StaffUser, ServiceRequest } = app.repositories;
         chai.assert(Jurisdiction);
         chai.assert(StaffUser);
-        chai.assert(Event);
         chai.assert(ServiceRequest);
         chai.assert(Service);
     });
@@ -296,35 +295,6 @@ describe('Verify Core Repositories.', function () {
         for (const serviceRequestData of testData.services) {
             const { countByStatus } = await ServiceRequest.getStats(serviceRequestData.jurisdictionId as string);
             chai.assert(countByStatus);
-        }
-    });
-
-    it('should write events via repository', async function () {
-        const { Event } = app.repositories;
-        for (const eventData of testData.events) {
-            const record = await Event.create(eventData);
-            chai.assert(record);
-        }
-    });
-
-    it('should find one event by jurisdiction via repository', async function () {
-        const { Event } = app.repositories;
-        for (const eventData of testData.events) {
-            const record = await Event.findOne(eventData.jurisdictionId, eventData.id);
-            chai.assert(record);
-            chai.assert.equal(record.id, eventData.id);
-            chai.assert.equal(record.jurisdictionId, eventData.jurisdictionId);
-        }
-    });
-
-    it('should find all events by jurisdiction via repository', async function () {
-        const { Event } = app.repositories;
-        for (const eventData of testData.events) {
-            const [records, _count] = await Event.findAll(eventData.jurisdictionId);
-            chai.assert(records);
-            for (const record of records) {
-                chai.assert.equal(record.jurisdictionId, eventData.jurisdictionId);
-            }
         }
     });
 

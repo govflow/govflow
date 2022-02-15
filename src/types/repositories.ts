@@ -3,7 +3,6 @@ import type {
     CommunicationAttributes,
     CommunicationCreateAttributes,
     DepartmentAttributes,
-    EventAttributes,
     JurisdictionAttributes,
     Models, PluginBase, QueryParamsAll,
     ServiceAttributes,
@@ -52,17 +51,26 @@ export interface IServiceRequestRepository extends RepositoryBase {
     createComment: (
         jurisdictionId: string,
         serviceRequestId: string,
-        data: ServiceRequestCommentAttributes
+        data: ServiceRequestCommentAttributes,
+        user?: StaffUserAttributes
     ) => Promise<ServiceRequestCommentAttributes>;
     updateComment: (
         jurisdictionId: string,
         serviceRequestId: string,
         serviceRequestCommentId: string,
         data: Partial<ServiceRequestCommentAttributes>) => Promise<ServiceRequestCommentAttributes>;
-    updateStatus: (jurisdictionId: string, id: string, status: string) => Promise<ServiceRequestAttributes>;
-    updateAssignedTo: (jurisdictionId: string, id: string, status: string) => Promise<ServiceRequestAttributes>;
-    updateDepartment: (jurisdictionId: string, id: string, department: string) => Promise<ServiceRequestAttributes>;
-    updateService: (jurisdictionId: string, id: string, service: string) => Promise<ServiceRequestAttributes>;
+    updateStatus: (
+        jurisdictionId: string, id: string, status: string, user?: StaffUserAttributes
+    ) => Promise<ServiceRequestAttributes>;
+    updateAssignedTo: (
+        jurisdictionId: string, id: string, status: string, user?: StaffUserAttributes
+    ) => Promise<ServiceRequestAttributes>;
+    updateDepartment: (
+        jurisdictionId: string, id: string, department: string, user?: StaffUserAttributes
+    ) => Promise<ServiceRequestAttributes>;
+    updateService: (
+        jurisdictionId: string, id: string, service: string, user?: StaffUserAttributes
+    ) => Promise<ServiceRequestAttributes>;
 }
 
 export interface IOpen311ServiceRepository extends RepositoryBase {
@@ -74,12 +82,6 @@ export interface IOpen311ServiceRequestRepository extends RepositoryBase {
     create: (data: Record<string, unknown>) => Promise<ServiceRequestInstance>;
     findOne: (jurisdictionId: string, id: string) => Promise<Open311ServiceRequest>;
     // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[Open311ServiceRequest[], number]>;
-}
-
-export interface IEventRepository extends RepositoryBase {
-    create: (data: EventAttributes) => Promise<EventAttributes>;
-    findOne: (jurisdictionId: string, id: string) => Promise<EventAttributes>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[EventAttributes[], number]>;
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
@@ -101,7 +103,6 @@ export interface Repositories {
     ServiceRequest: IServiceRequestRepository,
     Open311Service: IOpen311ServiceRepository,
     Open311ServiceRequest: IOpen311ServiceRequestRepository,
-    Event: IEventRepository,
     Communication: ICommunicationRepository,
     Department: IDepartmentRepository,
 }
