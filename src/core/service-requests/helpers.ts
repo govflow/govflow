@@ -7,3 +7,8 @@ export function makeAuditMessage(user: StaffUserAttributes | undefined, fieldNam
     }
     return `${displayName} changed this request ${fieldName} from ${oldValue} to ${newValue}`;
 }
+
+export function makePublicIdForRequest(): string {
+
+    return ""
+}

@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { ModelDefinition } from '../../types';
+import { makePublicIdForRequest } from './helpers';
 
 export const REQUEST_STATUSES = {
     'inbox': 'Inbox',
@@ -38,6 +39,11 @@ export const ServiceRequestModel: ModelDefinition = {
             defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             primaryKey: true,
+        },
+        publicId: {
+            type: DataTypes.STRING,
+            defaultValue: makePublicIdForRequest,
+            allowNull: false,
         },
         inputChannel: {
             allowNull: false,
@@ -171,6 +177,10 @@ export const ServiceRequestModel: ModelDefinition = {
             {
                 unique: true,
                 fields: ['id', 'jurisdictionId']
+            },
+            {
+                unique: true,
+                fields: ['publicId', 'jurisdictionId']
             },
             {
                 unique: false,
