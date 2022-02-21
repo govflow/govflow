@@ -6,7 +6,7 @@ import { initConfig } from './config';
 import { coreMiddlewares, coreModels, coreRoutes } from './core';
 import { initDb } from './db';
 import { bindImplementationsWithPlugins, registerPlugins } from './registry';
-import type { AppSettings, DatabaseEngine, JurisdictionAttributes, MigrationEngine, Plugin, Repositories, Services } from './types';
+import type { AppSettings, DatabaseEngine, JurisdictionAttributes, MigrationEngine, Plugin, Repositories, Services, StaffUserAttributes } from './types';
 
 /* eslint-disable */
 // TODO: can we do this without using namespace?
@@ -23,9 +23,7 @@ declare global {
         interface Request {
             jurisdiction: JurisdictionAttributes;
         }
-        interface User {
-            permissions: string[];
-            jurisdictionId: string;
+        interface User extends StaffUserAttributes {
         }
     }
 }

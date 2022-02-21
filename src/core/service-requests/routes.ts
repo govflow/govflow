@@ -31,7 +31,9 @@ serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Respo
     const { Communication: dispatchHandler } = res.app.services;
     const { status, serviceRequestId } = req.body;
     let eventName = 'serviceRequestChangeStatus';
-    const record = await ServiceRequest.updateStatus(req.jurisdiction.id, serviceRequestId, status);
+    const record = await ServiceRequest.updateStatus(
+        req.jurisdiction.id, serviceRequestId, status, req.user as StaffUserAttributes | undefined
+    );
     if (SERVICE_REQUEST_CLOSED_STATES.includes(status as string)) {
         eventName = 'serviceRequestClosed'
     }
@@ -43,7 +45,9 @@ serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Respo
     const { ServiceRequest } = res.app.repositories;
     const { Communication: dispatchHandler } = res.app.services;
     const { assignedTo, serviceRequestId } = req.body;
-    const record = await ServiceRequest.updateAssignedTo(req.jurisdiction.id, serviceRequestId, assignedTo);
+    const record = await ServiceRequest.updateAssignedTo(
+        req.jurisdiction.id, serviceRequestId, assignedTo, req.user as StaffUserAttributes | undefined
+    );
     GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, dispatchHandler);
     res.status(200).send({ data: record });
 }))
@@ -51,23 +55,25 @@ serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Respo
 serviceRequestRouter.post('/department', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
     const { departmentId, serviceRequestId } = req.body;
-    const record = await ServiceRequest.updateDepartment(req.jurisdiction.id, serviceRequestId, departmentId);
+    const record = await ServiceRequest.updateDepartment(
+        req.jurisdiction.id, serviceRequestId, departmentId, req.user as StaffUserAttributes | undefined);
     res.status(200).send({ data: record });
 }))
 
 serviceRequestRouter.post('/service', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
     const { serviceId, serviceRequestId } = req.body;
-    const record = await ServiceRequest.updateService(req.jurisdiction.id, serviceRequestId, serviceId);
+    const record = await ServiceRequest.updateService(
+        req.jurisdiction.id, serviceRequestId, serviceId, req.user as StaffUserAttributes | undefined
+    );
     res.status(200).send({ data: record });
 }))
 
 serviceRequestRouter.post('/comments/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
     const { serviceRequestId } = req.params;
-    const record = await ServiceRequest.createComment(
-        req.jurisdiction.id, serviceRequestId, req.body, req.user as StaffUserAttributes | undefined
-    );
+    const data = Object.assign({}, req.body, {addedBy: req.user?.id});
+    const record = await ServiceRequest.createComment(req.jurisdiction.id, serviceRequestId, data);
     res.status(200).send({ data: record });
 }))
 
