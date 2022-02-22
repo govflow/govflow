@@ -42,11 +42,11 @@ export const ServiceRequestModel: ModelDefinition = {
         },
         publicId: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         idCounter: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
         },
         inputChannel: {
             allowNull: false,

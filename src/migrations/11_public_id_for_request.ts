@@ -5,12 +5,12 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
     await queryInterface.addColumn(
         'ServiceRequest',
         'publicId',
-        { type: DataTypes.STRING, allowNull: false }
+        { type: DataTypes.STRING, allowNull: true }
     );
     await queryInterface.addColumn(
         'ServiceRequest',
         'idCounter',
-        { type: DataTypes.INTEGER, allowNull: false }
+        { type: DataTypes.INTEGER, allowNull: true }
     );
     await queryInterface.addIndex('ServiceRequest', ['jurisdictionId', 'publicId']);
 }
