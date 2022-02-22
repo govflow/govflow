@@ -138,8 +138,6 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     ): Promise<ServiceRequestAttributes> {
         const { ServiceRequest } = this.models;
         let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;
-        console.error("ASSIGNED TO")
-        console.error(user);
         const auditMessage = makeAuditMessage(user, '"assigned to"', record.assignedTo, assignedTo);
         record.assignedTo = assignedTo;
         record = await record.save();
@@ -152,8 +150,6 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     ): Promise<ServiceRequestAttributes> {
         const { ServiceRequest } = this.models;
         let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;
-        console.error("DEPARTMENT")
-        console.error(user);
         const auditMessage = makeAuditMessage(user, '"department"', record.departmentId, department);
         record.departmentId = department;
         record = await record.save();

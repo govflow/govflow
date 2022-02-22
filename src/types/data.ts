@@ -49,6 +49,8 @@ export interface ServiceInstance
 
 export interface ServiceRequestAttributes {
     id: string;
+    publicId: string,
+    idCounter: number,
     serviceId?: string;
     jurisdictionId: string;
     description: string;

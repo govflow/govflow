@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
-import { ModelDefinition } from '../../types';
+import { ModelDefinition, ServiceRequestInstance } from '../../types';
+import { makePublicIdForRequest } from './helpers';
 
 export const REQUEST_STATUSES = {
     'inbox': 'Inbox',
@@ -38,6 +39,14 @@ export const ServiceRequestModel: ModelDefinition = {
             defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             primaryKey: true,
+        },
+        publicId: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        idCounter: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         inputChannel: {
             allowNull: false,
@@ -173,6 +182,10 @@ export const ServiceRequestModel: ModelDefinition = {
                 fields: ['id', 'jurisdictionId']
             },
             {
+                unique: true,
+                fields: ['publicId', 'jurisdictionId']
+            },
+            {
                 unique: false,
                 fields: ['status']
             },
@@ -194,6 +207,11 @@ export const ServiceRequestModel: ModelDefinition = {
                 if ((this.lat || this.lon === null) && (this.address === null) && (this.address_id === null)) {
                     throw new Error('A Service Request requires one of a lat/lon pair, address, or address_id.');
                 }
+            }
+        },
+        hooks: {
+            beforeValidate(instance: ServiceRequestInstance) {
+                return makePublicIdForRequest(instance);
             }
         }
     }

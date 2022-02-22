@@ -31,11 +31,13 @@ export interface ServiceRequestFilterParams {
     assignedTo?: string;
 }
 
+export type  ServiceRequestModel = ModelCtor<Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>>;
+
 export interface Models {
     Jurisdiction: ModelCtor<Model<JurisdictionAttributes, JurisdictionCreateAttributes>>,
     StaffUser: ModelCtor<Model<StaffUserAttributes, StaffUserCreateAttributes>>,
     Service: ModelCtor<Model<ServiceAttributes, ServiceCreateAttributes>>,
-    ServiceRequest: ModelCtor<Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>>,
+    ServiceRequest: ServiceRequestModel,
     ServiceRequestComment: ModelCtor<Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>>,
     Communication: ModelCtor<Model<CommunicationAttributes, CommunicationCreateAttributes>>,
     Department: ModelCtor<Model<DepartmentAttributes, DepartmentCreateAttributes>>,
