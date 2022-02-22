@@ -29,7 +29,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.32-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.33-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
