@@ -2,7 +2,7 @@ import chai from 'chai';
 import type { Application } from 'express';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
-import { TestDataPayload } from '../src/types';
+import { ServiceRequestInstance, TestDataPayload } from '../src/types';
 
 describe('Verify Core Models.', function () {
 
@@ -57,6 +57,16 @@ describe('Verify Core Models.', function () {
         for (const serviceRequestData of testData.serviceRequests) {
             const record = await ServiceRequest.create(serviceRequestData);
             chai.assert(record);
+        }
+    });
+
+    it('should have generated public ids for service requests', async function () {
+        const { ServiceRequest } = app.database.models;
+        const records = await ServiceRequest.findAll() as ServiceRequestInstance[];
+
+        for (const record of records) {
+            chai.assert(record.publicId);
+            chai.assert(record.idCounter);
         }
     });
 
