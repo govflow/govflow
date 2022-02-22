@@ -210,7 +210,7 @@ export const ServiceRequestModel: ModelDefinition = {
             }
         },
         hooks: {
-            beforeValidate(instance: ServiceRequestInstance) {
+            beforeSave(instance: ServiceRequestInstance) {
                 return makePublicIdForRequest(instance);
             }
         }
