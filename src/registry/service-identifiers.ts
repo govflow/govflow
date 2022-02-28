@@ -17,5 +17,5 @@ export const serviceIds = {
 export const appIds = {
     AppSettings: Symbol('AppSettings'),
     Models: Symbol('Models'),
-    Repositories: Symbol('Repositorieas'),
+    Repositories: Symbol('Repositories'),
 };

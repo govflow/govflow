@@ -3,10 +3,17 @@ import { ServiceRequestInstance, ServiceRequestModel, StaffUserAttributes } from
 
 export function makeAuditMessage(user: StaffUserAttributes | undefined, fieldName: string, oldValue:string, newValue:string): string {
     let displayName = 'System';
+    let message: string;
     if (user) {
         displayName = user.displayName;
     }
-    return `${displayName} changed this request ${fieldName} from ${oldValue} to ${newValue}`;
+    if (fieldName == 'status') {
+        message = `${displayName} changed this request's ${fieldName} from ${oldValue} to ${newValue}.`
+    } else {
+        // TODO: we need to introduce queries to have display data that makes sense.
+        message = `${displayName} changed this request's ${fieldName}.`
+    }
+    return message;
 }
 
 export function makePublicIdString(year: number, month: number, counter: number): string {
