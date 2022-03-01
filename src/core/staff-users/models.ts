@@ -14,6 +14,27 @@ export const PERMISSIONS = [
     ...ADMIN_USER_PERMISSIONS,
 ]
 
+export const StaffUserDepartmentModel: ModelDefinition = {
+    name: 'StaffUserDepartment',
+    attributes: {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+            allowNull: false
+        },
+        isLead: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        },
+    },
+    options: {
+        freezeTableName: true,
+        indexes: []
+    }
+}
+
 export const StaffUserModel: ModelDefinition = {
     name: 'StaffUser',
     attributes: {
@@ -28,7 +49,7 @@ export const StaffUserModel: ModelDefinition = {
             type: DataTypes.ARRAY(DataTypes.STRING),
             defaultValue: STAFF_USER_PERMISSIONS,
             allowNull: false,
-            primaryKey: true,
+            primaryKey: false,
         },
         firstName: {
             allowNull: false,

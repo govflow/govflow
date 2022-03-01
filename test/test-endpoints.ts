@@ -36,7 +36,7 @@ describe('Hit all API endpoints', function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/accounts/staff?jurisdictionId=${jurisdictionId}`);
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.body.count, 3);
+        chai.assert.equal(res.body.count, 20);
         for (const staffUser of res.body.data) {
             chai.assert.equal(staffUser.jurisdictionId, jurisdictionId)
         }
@@ -46,7 +46,7 @@ describe('Hit all API endpoints', function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/accounts/staff/lookup?jurisdictionId=${jurisdictionId}`);
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.body.count, 3);
+        chai.assert.equal(res.body.count, 20);
         for (const staffUser of res.body.data) {
             const keys = Object.keys(staffUser);
             chai.assert.equal(keys.length, 2);

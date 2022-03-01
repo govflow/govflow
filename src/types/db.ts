@@ -1,6 +1,6 @@
 import { Model, ModelAttributes, ModelCtor, ModelOptions, QueryInterface, Sequelize } from "sequelize/types";
 import { Umzug } from "umzug";
-import { CommunicationAttributes, CommunicationCreateAttributes, DepartmentAttributes, DepartmentCreateAttributes, JurisdictionAttributes, JurisdictionCreateAttributes, ServiceAttributes, ServiceCreateAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCreateAttributes, StaffUserAttributes, StaffUserCreateAttributes } from ".";
+import { CommunicationAttributes, CommunicationCreateAttributes, DepartmentAttributes, DepartmentCreateAttributes, JurisdictionAttributes, JurisdictionCreateAttributes, ServiceAttributes, ServiceCreateAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCreateAttributes, StaffUserAttributes, StaffUserCreateAttributes, StaffUserDepartmentAttributes, StaffUserDepartmentCreateAttributes } from ".";
 import { InboundMapAttributes, InboundMapCreateAttributes } from "./data";
 
 export type DatabaseEngine = Sequelize;
@@ -36,13 +36,28 @@ export type ServiceRequestModel = ModelCtor<Model<ServiceRequestAttributes, Serv
 
 export type InboundMapModel = ModelCtor<Model<InboundMapAttributes, InboundMapCreateAttributes>>;
 
+export type JurisdictionModel = ModelCtor<Model<JurisdictionAttributes, JurisdictionCreateAttributes>>;
+
+export type StaffUserModel = ModelCtor<Model<StaffUserAttributes, StaffUserCreateAttributes>>;
+
+export type StaffUserDepartmentModel = ModelCtor<Model<StaffUserDepartmentAttributes, StaffUserDepartmentCreateAttributes>>;
+
+export type ServiceModel = ModelCtor<Model<ServiceAttributes, ServiceCreateAttributes>>;
+
+export type ServiceRequestCommentModel = ModelCtor<Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>>;
+
+export type CommunicationModel = ModelCtor<Model<CommunicationAttributes, CommunicationCreateAttributes>>;
+
+export type DepartmentModel = ModelCtor<Model<DepartmentAttributes, DepartmentCreateAttributes>>;
+
 export interface Models {
-    Jurisdiction: ModelCtor<Model<JurisdictionAttributes, JurisdictionCreateAttributes>>,
-    StaffUser: ModelCtor<Model<StaffUserAttributes, StaffUserCreateAttributes>>,
-    Service: ModelCtor<Model<ServiceAttributes, ServiceCreateAttributes>>,
+    Jurisdiction: JurisdictionModel,
+    StaffUser: StaffUserModel,
+    StaffUserDepartment: StaffUserDepartmentModel,
+    Service: ServiceModel,
     ServiceRequest: ServiceRequestModel,
-    ServiceRequestComment: ModelCtor<Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>>,
-    Communication: ModelCtor<Model<CommunicationAttributes, CommunicationCreateAttributes>>,
-    Department: ModelCtor<Model<DepartmentAttributes, DepartmentCreateAttributes>>,
     InboundMap: InboundMapModel,
+    ServiceRequestComment: ServiceRequestCommentModel,
+    Communication: CommunicationModel,
+    Department: DepartmentModel,
 }

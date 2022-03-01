@@ -20,6 +20,10 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: { isEmail: true }
         },
+        enforceAssignmentThroughDepartment: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
     },
     options: {
         freezeTableName: true

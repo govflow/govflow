@@ -10,7 +10,7 @@ import { JurisdictionModel, JurisdictionRepository, jurisdictionRouter } from '.
 import { open311Router } from './open311';
 import { ServiceRequestCommentModel, ServiceRequestModel, ServiceRequestRepository, serviceRequestRouter } from './service-requests';
 import { ServiceModel, ServiceRepository, serviceRouter } from './services';
-import { accountRouter, StaffUserModel, StaffUserRepository } from './staff-users';
+import { accountRouter, StaffUserDepartmentModel, StaffUserModel, StaffUserRepository } from './staff-users';
 import { storageRouter } from './storage';
 
 const coreRoutes = Router();
@@ -34,6 +34,7 @@ const coreModels: ModelDefinition[] = [
     ServiceRequestCommentModel,
     ServiceModel,
     StaffUserModel,
+    StaffUserDepartmentModel,
     CommunicationModel,
     DepartmentModel,
     InboundMapModel,

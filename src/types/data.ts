@@ -4,6 +4,7 @@ export interface JurisdictionAttributes {
     id: string;
     name: string,
     email: string,
+    enforceAssignmentThroughDepartment: boolean;
 }
 
 export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>
@@ -20,13 +21,24 @@ export interface StaffUserAttributes {
     jurisdictionId: string;
     email: string;
     isAdmin: boolean;
-    permissions: string[],
+    permissions: string[];
 }
 
 export type StaffUserCreateAttributes = Partial<StaffUserAttributes>
 
 export interface StaffUserInstance
     extends Model<StaffUserAttributes, StaffUserCreateAttributes>, StaffUserAttributes { }
+
+export interface StaffUserDepartmentAttributes {
+    staffUserId: string;
+    departmentId: string;
+    isLead: boolean;
+}
+
+export type StaffUserDepartmentCreateAttributes = Partial<StaffUserDepartmentAttributes>
+
+export interface StaffUserDepartmentInstance
+    extends Model<StaffUserDepartmentAttributes, StaffUserDepartmentCreateAttributes>, StaffUserDepartmentAttributes {}
 
 export interface StaffUserLookUpAttributes {
     id: string;
@@ -196,6 +208,7 @@ export interface TemplateConfigAttributes {
 export interface TestDataPayload {
     jurisdictions: JurisdictionAttributes[],
     staffUsers: StaffUserAttributes[],
+    staffUserDepartments: StaffUserDepartmentAttributes[],
     services: ServiceAttributes[],
     serviceRequests: ServiceRequestAttributes[],
     communications: CommunicationAttributes[],

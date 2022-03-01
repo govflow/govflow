@@ -24,6 +24,7 @@ function applyCoreModelRelations(models: Models) {
         ServiceRequest,
         Jurisdiction,
         StaffUser,
+        StaffUserDepartment,
         ServiceRequestComment,
         Communication,
         Department,
@@ -50,6 +51,9 @@ function applyCoreModelRelations(models: Models) {
 
     Jurisdiction.hasMany(Department, { as: 'departments', foreignKey: 'jurisdictionId' });
     Department.belongsTo(Jurisdiction, { as: 'jurisdiction' })
+
+    Department.belongsToMany(StaffUser, { through: StaffUserDepartment });
+    StaffUser.belongsToMany(Department, { through: StaffUserDepartment });
 
     Department.hasMany(
         ServiceRequest, {
