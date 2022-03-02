@@ -1,4 +1,5 @@
 import type { ClientResponse } from '@sendgrid/mail';
+import addrs from 'email-addresses';
 import { constants as fsConstants, promises as fs } from 'fs';
 import _ from 'lodash';
 import path from 'path';
@@ -6,7 +7,9 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, InboundEmailDataToRequestAttributes, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+
+export const publicIdSubjectLinePattern = /Request #(\d+):/;
 
 export function makeRequestURL(appClientUrl: string, appClientRequestsPath: string, serviceRequestId: string): string {
     return `${appClientUrl}${appClientRequestsPath}/${serviceRequestId}`
@@ -135,4 +138,64 @@ export async function dispatchMessage(
         delivered: true,
     })
     return record;
+}
+
+export function extractFromEmail(fromEmail: string): addrs.ParsedMailbox | null {
+    // TODO: in more complex scenarios we may need to extract this from the mail body
+    return addrs.parseOneAddress(fromEmail) as addrs.ParsedMailbox | null
+}
+
+export function extractToEmail(inboundEmailDomain: string, toEmail: string, ccEmail?: string, bccEmail?: string): addrs.ParsedMailbox {
+    const rawAddresses = `${toEmail}`;
+    if (ccEmail) { rawAddresses.concat(",", ccEmail)}
+    if (bccEmail) { rawAddresses.concat(",", bccEmail)}
+    const addresses = addrs.parseAddressList(rawAddresses);
+    const address = _.find(addresses, function(a: addrs.ParsedMailbox) { return a.domain === inboundEmailDomain; });
+    return address as addrs.ParsedMailbox
+}
+
+export function findJurisdictionIdentifiers(toEmail: addrs.ParsedMailbox): string[] {
+    // TODO - we are going to have to look up this in a database
+    const { local } = toEmail;
+    const [jurisdictionId, departmentId] = local.split('.');
+    return [jurisdictionId, departmentId];
+}
+
+export function extractDescriptionFromInboundEmail(emailSubject: string, emailBody: string): string {
+    const prefix = emailSubject.replace(publicIdSubjectLinePattern, '');
+    return `${prefix}\n\n${emailBody}`;
+}
+
+export function extractPublicIdFromInboundEmail(emailSubject: string): string | undefined {
+    let publicId;
+    const match = emailSubject.match(publicIdSubjectLinePattern);
+    if (match && match.length == 2) { publicId = match[1]; }
+    return publicId;
+}
+
+export function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string):
+[ParsedServiceRequestAttributes, PublicId] {
+    let firstName = '',
+    lastName = '',
+    email = '';
+    const { subject, to, cc, bcc, from, text } = data;
+    const toEmail = extractToEmail(inboundEmailDomain, to, cc, bcc);
+    const fromEmail = extractFromEmail(from);
+    const [jurisdictionId, departmentId] = findJurisdictionIdentifiers(toEmail);
+    const description = extractDescriptionFromInboundEmail(subject, text);
+    const publicId = extractPublicIdFromInboundEmail(subject);
+    if (fromEmail) {
+        firstName = fromEmail.name || ''
+        lastName = ''
+        email = fromEmail.address || ''
+    }
+    return [{ jurisdictionId, departmentId, firstName, lastName, email, description }, publicId];
+}
+
+export function canSubmitterComment(submitterEmail: string, validEmails: string[]): boolean {
+    if (validEmails.includes(submitterEmail)) {
+        return true
+    } else {
+        return false;
+    }
 }

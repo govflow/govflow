@@ -77,6 +77,15 @@ export interface ServiceRequestAttributes {
 
 export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
 
+export interface ParsedServiceRequestAttributes {
+    jurisdictionId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    description: string,
+    departmentId?: string,
+}
+
 export interface ServiceRequestInstance
     extends Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>, ServiceRequestAttributes {}
 
@@ -189,3 +198,33 @@ export interface TestDataMakerOptions {
     services: ServiceAttributes[],
     serviceRequests: ServiceRequestAttributes[],
 }
+
+export interface InboundEmailDataAttributes {
+    headers: string,
+    attachments: string,
+    dkim: string,
+    subject: string,
+    to: string,
+    cc?: string,
+    bcc?: string,
+    spam_score: string,
+    from: string,
+    text: string,
+    sender_ip: string,
+    spam_report: string,
+    envelope: string,
+    charsets: string,
+    SPF: string,
+
+}
+
+export interface InboundEmailDataToRequestAttributes {
+    to: string,
+    cc?: string,
+    bcc?: string,
+    from: string,
+    subject: string,
+    text: string,
+}
+
+export type PublicId = string | undefined;
