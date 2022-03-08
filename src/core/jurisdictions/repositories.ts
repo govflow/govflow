@@ -1,6 +1,13 @@
 import { inject, injectable } from 'inversify';
+import _ from 'lodash';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, IJurisdictionRepository, JurisdictionAttributes, JurisdictionInstance, Models } from '../../types';
+import {
+    AppSettings,
+    IJurisdictionRepository,
+    JurisdictionAttributes,
+    JurisdictionInstance,
+    Models,
+} from '../../types';
 
 @injectable()
 export class JurisdictionRepository implements IJurisdictionRepository {
@@ -26,6 +33,19 @@ export class JurisdictionRepository implements IJurisdictionRepository {
         const { Jurisdiction } = this.models;
         const params = { where: { id } };
         return await Jurisdiction.findOne(params) as JurisdictionInstance;
+    }
+
+    async update(id: string, data: Partial<JurisdictionAttributes>): Promise<JurisdictionAttributes> {
+        const { Jurisdiction } = this.models;
+        const allowUpdateFields = ['name', 'email'];
+        const safeData = _.pick(data, allowUpdateFields);
+        const record = await Jurisdiction.findByPk(id) as JurisdictionInstance;
+        for (const [key, value] of Object.entries(safeData)) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            record[key] = value;
+        }
+        return await record.save();
     }
 
 }

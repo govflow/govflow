@@ -88,6 +88,13 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.status_code, 500);
     });
 
+    it('should PUT a jurisdiction', async function () {
+        const jurisdictionData = _.cloneDeep(testData.jurisdictions[0]);
+        const res = await chai.request(app).put(`/jurisdictions/${jurisdictionData.id}`).send({ name: 'New Name' });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.name, 'New Name');
+    });
+
     it('should GET all services for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/services?jurisdictionId=${jurisdictionId}`);
