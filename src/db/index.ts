@@ -52,7 +52,12 @@ function applyCoreModelRelations(models: Models) {
     Department.belongsTo(Jurisdiction, { as: 'jurisdiction' })
 
     Department.hasMany(
-        ServiceRequest, { as: 'serviceRequests', foreignKey: 'departmentId', onDelete: 'SET NULL', onUpdate: 'SET NULL' }
+        ServiceRequest, {
+        as: 'serviceRequests',
+        foreignKey: 'departmentId',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    }
     );
     ServiceRequest.belongsTo(Department, { as: 'department' });
 
