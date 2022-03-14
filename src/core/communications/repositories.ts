@@ -60,19 +60,19 @@ export class InboundEmailRepository implements IInboundEmailRepository {
     }
 
     async createServiceRequest(inboundEmailData: InboundEmailDataAttributes):
-    Promise<ServiceRequestAttributes | ServiceRequestCommentAttributes> {
+        Promise<ServiceRequestAttributes | ServiceRequestCommentAttributes> {
         const { ServiceRequest, ServiceRequestComment, StaffUser } = this.models;
-        const { subject, to, cc, bcc, from, text } = inboundEmailData;
+        const { subject, to, cc, bcc, from, text, headers } = inboundEmailData;
         const { inboundEmailDomain } = this.settings;
         let record: ServiceRequestAttributes | ServiceRequestCommentAttributes;
-        const [ cleanedData, publicId ] = extractServiceRequestfromInboundEmail(
-            { subject, to, cc, bcc, from, text }, inboundEmailDomain
+        const [cleanedData, publicId] = extractServiceRequestfromInboundEmail(
+            { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain
         );
         if (publicId) {
-            const staffUsers = await StaffUser.findAll({where: {jurisdictionId: cleanedData.jurisdictionId}});
+            const staffUsers = await StaffUser.findAll({ where: { jurisdictionId: cleanedData.jurisdictionId } });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            const staffEmails = staffUsers.map((user: StaffUserInstance) => {return user.email});
+            const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email });
             const params = { where: { jurisdictionId: cleanedData.jurisdictionId, publicId } };
             const existingRequest = await ServiceRequest.findOne(params) as unknown as ServiceRequestInstance;
             const canComment = canSubmitterComment(cleanedData.email, [...staffEmails, existingRequest.email]);

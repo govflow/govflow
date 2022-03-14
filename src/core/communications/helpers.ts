@@ -145,12 +145,38 @@ export function extractFromEmail(fromEmail: string): addrs.ParsedMailbox | null 
     return addrs.parseOneAddress(fromEmail) as addrs.ParsedMailbox | null
 }
 
-export function extractToEmail(inboundEmailDomain: string, toEmail: string, ccEmail?: string, bccEmail?: string): addrs.ParsedMailbox {
-    const rawAddresses = `${toEmail}`;
-    if (ccEmail) { rawAddresses.concat(",", ccEmail)}
-    if (bccEmail) { rawAddresses.concat(",", bccEmail)}
+export function extractForwardEmail(headers: string): string {
+    const targetHeader = 'X-Forwarded-For:'
+    let forwardStr = '';
+    const headerLines = headers.split('\n');
+    for (let line of headerLines) {
+        if (line.includes(targetHeader)) {
+            forwardStr = line.replace(targetHeader, '').trim();
+            break;
+        }
+    }
+    // we need to clean up potential traps
+    const _parts = forwardStr.split(', ').map(s => s.trim())
+    const cleanForwards = [];
+    for (let part of _parts) {
+        if (part.includes(' ')) {
+            const subparts = part.split(' ');
+            cleanForwards.push(...subparts);
+        } else {
+            cleanForwards.push(part)
+        }
+    }
+    return cleanForwards.join(', ');
+}
+
+export function extractToEmail(inboundEmailDomain: string, headers: string, toEmail: string, ccEmail?: string, bccEmail?: string): addrs.ParsedMailbox {
+    let rawAddresses = `${toEmail}`;
+    const forwardEmail = extractForwardEmail(headers);
+    if (ccEmail) { rawAddresses = rawAddresses.concat(",", ccEmail) }
+    if (bccEmail) { rawAddresses = rawAddresses.concat(",", bccEmail) }
+    if (forwardEmail) { rawAddresses = rawAddresses.concat(",", forwardEmail) }
     const addresses = addrs.parseAddressList(rawAddresses);
-    const address = _.find(addresses, function(a: addrs.ParsedMailbox) { return a.domain === inboundEmailDomain; });
+    const address = _.find(addresses, function (a: addrs.ParsedMailbox) { return a.domain === inboundEmailDomain; });
     return address as addrs.ParsedMailbox
 }
 
@@ -174,12 +200,13 @@ export function extractPublicIdFromInboundEmail(emailSubject: string): string | 
 }
 
 export function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string):
-[ParsedServiceRequestAttributes, PublicId] {
+    [ParsedServiceRequestAttributes, PublicId] {
     let firstName = '',
-    lastName = '',
-    email = '';
-    const { subject, to, cc, bcc, from, text } = data;
-    const toEmail = extractToEmail(inboundEmailDomain, to, cc, bcc);
+        lastName = '',
+        email = '';
+    const inputChannel = 'email';
+    const { subject, to, cc, bcc, from, text, headers } = data;
+    const toEmail = extractToEmail(inboundEmailDomain, headers, to, cc, bcc);
     const fromEmail = extractFromEmail(from);
     const [jurisdictionId, departmentId] = findJurisdictionIdentifiers(toEmail);
     const description = extractDescriptionFromInboundEmail(subject, text);
@@ -189,7 +216,7 @@ export function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRe
         lastName = ''
         email = fromEmail.address || ''
     }
-    return [{ jurisdictionId, departmentId, firstName, lastName, email, description }, publicId];
+    return [{ jurisdictionId, departmentId, firstName, lastName, email, description, inputChannel }, publicId];
 }
 
 export function canSubmitterComment(submitterEmail: string, validEmails: string[]): boolean {
