@@ -138,6 +138,17 @@ export type DepartmentCreateAttributes = Partial<DepartmentAttributes>
 export interface DepartmentInstance
     extends Model<DepartmentAttributes, DepartmentCreateAttributes>, DepartmentAttributes { }
 
+export interface InboundMapAttributes {
+    id: string;
+    jurisdictionId?: string;
+    departmentId?: string;
+}
+
+export type InboundMapCreateAttributes = Partial<InboundMapAttributes>
+
+export interface InboundMapInstance
+    extends Model<InboundMapAttributes, InboundMapCreateAttributes>, InboundMapAttributes { }
+
 export interface SmsAttributes {
     to: string,
     from: string,
@@ -189,6 +200,7 @@ export interface TestDataPayload {
     serviceRequests: ServiceRequestAttributes[],
     communications: CommunicationAttributes[],
     departments: DepartmentAttributes[],
+    inboundMaps: InboundMapAttributes[],
 }
 
 export interface TestDataMakerOptions {
@@ -198,6 +210,8 @@ export interface TestDataMakerOptions {
     staffUsers: StaffUserAttributes[],
     services: ServiceAttributes[],
     serviceRequests: ServiceRequestAttributes[],
+    departments: DepartmentAttributes[],
+    inboundMaps: InboundMapAttributes[],
 }
 
 export interface InboundEmailDataAttributes {

@@ -9,6 +9,8 @@ import type {
     ICommunicationRepository,
     IInboundEmailRepository,
     InboundEmailDataAttributes,
+    InboundMapAttributes,
+    InboundMapInstance,
     Models,
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
@@ -87,6 +89,12 @@ export class InboundEmailRepository implements IInboundEmailRepository {
         } else {
             record = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
         }
+        return record;
+    }
+
+    async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {
+        const { InboundMap } = this.models;
+        const record = await InboundMap.create(data) as InboundMapInstance;
         return record;
     }
 

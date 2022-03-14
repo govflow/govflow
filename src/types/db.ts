@@ -1,6 +1,7 @@
 import { Model, ModelAttributes, ModelCtor, ModelOptions, QueryInterface, Sequelize } from "sequelize/types";
 import { Umzug } from "umzug";
 import { CommunicationAttributes, CommunicationCreateAttributes, DepartmentAttributes, DepartmentCreateAttributes, JurisdictionAttributes, JurisdictionCreateAttributes, ServiceAttributes, ServiceCreateAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCreateAttributes, StaffUserAttributes, StaffUserCreateAttributes } from ".";
+import { InboundMapAttributes, InboundMapCreateAttributes } from "./data";
 
 export type DatabaseEngine = Sequelize;
 export type MigrationEngine = Umzug<QueryInterface>;
@@ -31,7 +32,7 @@ export interface ServiceRequestFilterParams {
     assignedTo?: string;
 }
 
-export type  ServiceRequestModel = ModelCtor<Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>>;
+export type ServiceRequestModel = ModelCtor<Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>>;
 
 export interface Models {
     Jurisdiction: ModelCtor<Model<JurisdictionAttributes, JurisdictionCreateAttributes>>,
@@ -41,4 +42,5 @@ export interface Models {
     ServiceRequestComment: ModelCtor<Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>>,
     Communication: ModelCtor<Model<CommunicationAttributes, CommunicationCreateAttributes>>,
     Department: ModelCtor<Model<DepartmentAttributes, DepartmentCreateAttributes>>,
+    InboundMap: ModelCtor<Model<InboundMapAttributes, InboundMapCreateAttributes>>,
 }

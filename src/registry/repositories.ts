@@ -24,7 +24,7 @@ function bindRepositoriesWithPlugins(
 
     repositoryContainer.bind<IJurisdictionRepository>(
         repositoryIds.IJurisdictionRepository).to(JurisdictionRepository
-    );
+        );
     repositoryContainer.bind<IStaffUserRepository>(repositoryIds.IStaffUserRepository).to(StaffUserRepository);
     repositoryContainer.bind<IServiceRepository>(repositoryIds.IServiceRepository).to(ServiceRepository);
     repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(

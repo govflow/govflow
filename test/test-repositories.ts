@@ -380,4 +380,12 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should write an inbound map record via repository', async function () {
+        const { InboundEmail } = app.repositories;
+        for (const inboundMapData of testData.inboundMaps) {
+            const record = await InboundEmail.createMap(inboundMapData);
+            chai.assert(record);
+        }
+    });
+
 });

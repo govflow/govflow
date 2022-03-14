@@ -26,7 +26,8 @@ function applyCoreModelRelations(models: Models) {
         StaffUser,
         ServiceRequestComment,
         Communication,
-        Department
+        Department,
+        InboundMap
     } = models;
 
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
@@ -51,9 +52,15 @@ function applyCoreModelRelations(models: Models) {
     Department.belongsTo(Jurisdiction, { as: 'jurisdiction' })
 
     Department.hasMany(
-        ServiceRequest, {as: 'serviceRequests', foreignKey: 'departmentId', onDelete: 'SET NULL', onUpdate: 'SET NULL'}
+        ServiceRequest, { as: 'serviceRequests', foreignKey: 'departmentId', onDelete: 'SET NULL', onUpdate: 'SET NULL' }
     );
-    ServiceRequest.belongsTo(Department, { as: 'department' })
+    ServiceRequest.belongsTo(Department, { as: 'department' });
+
+    Jurisdiction.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'jurisdictionId' });
+    InboundMap.belongsTo(Jurisdiction, { as: 'jurisdiction' });
+
+    Department.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'departmentId' });
+    InboundMap.belongsTo(Department, { as: 'department' });
 }
 
 function registerModels(

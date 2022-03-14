@@ -86,4 +86,12 @@ describe('Verify Core Models.', function () {
         }
     });
 
+    it('should write inbound maps to database', async function () {
+        const { InboundMap } = app.database.models;
+        for (const InboundMapData of testData.inboundMaps) {
+            const record = await InboundMap.create(InboundMapData);
+            chai.assert(record);
+        }
+    });
+
 });
