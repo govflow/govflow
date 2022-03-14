@@ -149,7 +149,7 @@ export function extractForwardEmail(headers: string): string {
     const targetHeader = 'X-Forwarded-For:'
     let forwardStr = '';
     const headerLines = headers.split('\n');
-    for (let line of headerLines) {
+    for (const line of headerLines) {
         if (line.includes(targetHeader)) {
             forwardStr = line.replace(targetHeader, '').trim();
             break;
@@ -158,7 +158,7 @@ export function extractForwardEmail(headers: string): string {
     // we need to clean up potential traps
     const _parts = forwardStr.split(', ').map(s => s.trim())
     const cleanForwards = [];
-    for (let part of _parts) {
+    for (const part of _parts) {
         if (part.includes(' ')) {
             const subparts = part.split(' ');
             cleanForwards.push(...subparts);
