@@ -1,9 +1,27 @@
 import chai from 'chai';
+import { Application } from 'express';
 import _ from 'lodash';
 import { extractPublicIdFromInboundEmail, extractServiceRequestfromInboundEmail } from '../src/core/communications/helpers';
+import { createApp } from '../src/index';
+import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
+import { TestDataPayload } from '../src/types';
 import { inboundEmail } from './fixtures/inbound';
 
 describe('Parse inbound email data.', function () {
+
+    let app: Application;
+    let testData: TestDataPayload;
+
+    before(async function () {
+        app = await createApp();
+        await app.migrator.up();
+        testData = makeTestData();
+        await writeTestDataToDatabase(app.database, testData);
+    })
+
+    after(async function () {
+        await app.database.drop({});
+    })
 
     it('parse a public id from an email without a public id', async function () {
         const publicId = extractPublicIdFromInboundEmail(inboundEmail.subject);
@@ -16,10 +34,14 @@ describe('Parse inbound email data.', function () {
     });
 
     it('parse service request data from an email without a public id', async function () {
+        const { InboundMap } = app.database.models;
+        const { inboundEmailDomain } = app.config;
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
         const [
             { jurisdictionId, departmentId, firstName, lastName, email, description },
             publicId
-        ] = extractServiceRequestfromInboundEmail(inboundEmail, 'inbound.example.com');
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
         chai.assert.equal(publicId, null);
         chai.assert(jurisdictionId);
         chai.assert(departmentId);
@@ -30,12 +52,15 @@ describe('Parse inbound email data.', function () {
     });
 
     it('parse service request data from an email with a public id', async function () {
-        const inbound = _.cloneDeep(inboundEmail);
-        inbound.subject = `Request #123456: ${inbound.subject}`
+        const { InboundMap } = app.database.models;
+        const { inboundEmailDomain } = app.config;
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
+        inboundPayload.subject = `Request #123456: ${inboundPayload.subject}`
         const [
             { jurisdictionId, departmentId, firstName, lastName, email, description },
             publicId
-        ] = extractServiceRequestfromInboundEmail(inbound, 'inbound.example.com');
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
         chai.assert.equal(publicId, '123456');
         chai.assert(jurisdictionId);
         chai.assert(departmentId);

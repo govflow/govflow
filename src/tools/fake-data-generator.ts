@@ -136,7 +136,8 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         ServiceRequest,
         ServiceRequestComment,
         Communication,
-        Department
+        Department,
+        InboundMap
     } = databaseEngine.models;
 
     for (const jurisdictionData of testData.jurisdictions) {
@@ -164,6 +165,10 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
 
     for (const departmentData of testData.departments) {
         await Department.create(departmentData);
+    }
+
+    for (const inboundMapData of testData.inboundMaps) {
+        await InboundMap.create(inboundMapData);
     }
 
 }

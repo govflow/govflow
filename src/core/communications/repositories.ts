@@ -66,9 +66,10 @@ export class InboundEmailRepository implements IInboundEmailRepository {
         const { ServiceRequest, ServiceRequestComment, StaffUser } = this.models;
         const { subject, to, cc, bcc, from, text, headers } = inboundEmailData;
         const { inboundEmailDomain } = this.settings;
+        const { InboundMap } = this.models;
         let record: ServiceRequestAttributes | ServiceRequestCommentAttributes;
-        const [cleanedData, publicId] = extractServiceRequestfromInboundEmail(
-            { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain
+        const [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
+            { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, InboundMap
         );
         if (publicId) {
             const staffUsers = await StaffUser.findAll({ where: { jurisdictionId: cleanedData.jurisdictionId } });

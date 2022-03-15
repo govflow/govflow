@@ -140,7 +140,7 @@ export interface DepartmentInstance
 
 export interface InboundMapAttributes {
     id: string;
-    jurisdictionId?: string;
+    jurisdictionId: string;
     departmentId?: string;
 }
 

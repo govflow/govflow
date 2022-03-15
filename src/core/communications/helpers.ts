@@ -7,7 +7,7 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, InboundEmailDataToRequestAttributes, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 
 export const publicIdSubjectLinePattern = /Request #(\d+):/;
 
@@ -180,11 +180,10 @@ export function extractToEmail(inboundEmailDomain: string, headers: string, toEm
     return address as addrs.ParsedMailbox
 }
 
-export function findJurisdictionIdentifiers(toEmail: addrs.ParsedMailbox): string[] {
-    // TODO - we are going to have to look up this in a database
+export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: InboundMapModel): Promise<InboundMapInstance> {
     const { local } = toEmail;
-    const [jurisdictionId, departmentId] = local.split('.');
-    return [jurisdictionId, departmentId];
+    const record = await InboundMap.findOne({ where: { id: local } }) as InboundMapInstance;
+    return record;
 }
 
 export function extractDescriptionFromInboundEmail(emailSubject: string, emailBody: string): string {
@@ -199,8 +198,8 @@ export function extractPublicIdFromInboundEmail(emailSubject: string): string | 
     return publicId;
 }
 
-export function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string):
-    [ParsedServiceRequestAttributes, PublicId] {
+export async function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string, InboundMap: InboundMapModel):
+    Promise<[ParsedServiceRequestAttributes, PublicId]> {
     let firstName = '',
         lastName = '',
         email = '';
@@ -208,7 +207,7 @@ export function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRe
     const { subject, to, cc, bcc, from, text, headers } = data;
     const toEmail = extractToEmail(inboundEmailDomain, headers, to, cc, bcc);
     const fromEmail = extractFromEmail(from);
-    const [jurisdictionId, departmentId] = findJurisdictionIdentifiers(toEmail);
+    const { jurisdictionId, departmentId } = await findIdentifiers(toEmail, InboundMap);
     const description = extractDescriptionFromInboundEmail(subject, text);
     const publicId = extractPublicIdFromInboundEmail(subject);
     if (fromEmail) {

@@ -34,6 +34,8 @@ export interface ServiceRequestFilterParams {
 
 export type ServiceRequestModel = ModelCtor<Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>>;
 
+export type InboundMapModel = ModelCtor<Model<InboundMapAttributes, InboundMapCreateAttributes>>;
+
 export interface Models {
     Jurisdiction: ModelCtor<Model<JurisdictionAttributes, JurisdictionCreateAttributes>>,
     StaffUser: ModelCtor<Model<StaffUserAttributes, StaffUserCreateAttributes>>,
@@ -42,5 +44,5 @@ export interface Models {
     ServiceRequestComment: ModelCtor<Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>>,
     Communication: ModelCtor<Model<CommunicationAttributes, CommunicationCreateAttributes>>,
     Department: ModelCtor<Model<DepartmentAttributes, DepartmentCreateAttributes>>,
-    InboundMap: ModelCtor<Model<InboundMapAttributes, InboundMapCreateAttributes>>,
+    InboundMap: InboundMapModel,
 }
