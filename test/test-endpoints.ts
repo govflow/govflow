@@ -413,6 +413,16 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.id, departmentData.id);
     });
 
+    it('should POST an inbound email map', async function () {
+        const inboundMapData = _.cloneDeep(testData.inboundMaps[0]);
+        inboundMapData.id = 'muni-publicworks';
+        const res = await chai.request(app).post(
+            `/communications/create-map?jurisdictionId=${inboundMapData.jurisdictionId}`
+        ).send(inboundMapData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, inboundMapData.id);
+    });
+
     it('should return 501 not implemented error for Open311 service discovery', async function () {
         const res = await chai.request(app).get('/open311/v2/discovery');
         chai.assert.equal(res.status, 501);
