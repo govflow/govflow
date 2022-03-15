@@ -5,12 +5,15 @@ import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middleware
 
 export const communicationsRouter = Router();
 
-communicationsRouter.post('/create-map', wrapHandler(resolveJurisdiction()), enforceJurisdictionAccess, wrapHandler(async (req: Request, res: Response) => {
-    const { InboundEmail } = res.app.repositories;
-    const data = Object.assign({}, req.body, { jurisdictionId: req.jurisdiction.id });
-    const record = await InboundEmail.createMap(data);
-    res.status(200).send({ data: record });
-}))
+communicationsRouter.post('/create-map',
+    wrapHandler(resolveJurisdiction()),
+    enforceJurisdictionAccess,
+    wrapHandler(async (req: Request, res: Response) => {
+        const { InboundEmail } = res.app.repositories;
+        const data = Object.assign({}, req.body, { jurisdictionId: req.jurisdiction.id });
+        const record = await InboundEmail.createMap(data);
+        res.status(200).send({ data: record });
+    }))
 
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { InboundEmail } = res.app.repositories;
