@@ -5,7 +5,8 @@ import { wrapHandler } from '../../helpers';
 // import { resolveJurisdiction } from '../../middlewares';
 import { maybeCaptcha } from '../../middlewares';
 import { GovFlowEmitter } from '../event-listeners';
-import { toOpen311ServiceRequest } from './helpers';
+import { toGovflowServiceRequest, toOpen311Service, toOpen311ServiceRequest } from './helpers';
+import { Open311ServiceRequestCreatePayload } from './types';
 export const open311Router = Router();
 
 // TODO use once we support resolving based on POST body
@@ -24,17 +25,18 @@ open311Router.get('/discovery', wrapHandler(async (req: Request, res: Response) 
 }))
 
 open311Router.get(['/services.json', '/services.xml'], wrapHandler(async (req: Request, res: Response) => {
-    const { Open311Service } = res.app.repositories;
+    const { Service } = res.app.repositories;
     const { jurisdiction_id: jurisdictionId } = req.query;
-    const records = await Open311Service.findAll(jurisdictionId as string);
+    const [records, _count] = await Service.findAll(jurisdictionId as string);
+    const recordsAs311 = records.map(toOpen311Service)
     const asXML = isXML(req.path);
     if (asXML) {
         const builder = new xml2js.Builder({ rootName: 'services' });
         res.type('text/xml');
-        const XMLBody = builder.buildObject({ service: records })
+        const XMLBody = builder.buildObject({ service: recordsAs311 })
         res.status(200).send(XMLBody);
     } else {
-        res.status(200).send(records);
+        res.status(200).send(recordsAs311);
     }
 }))
 
@@ -70,9 +72,12 @@ open311Router.post(
     xmlparser({ trim: false, explicitArray: false }),
     wrapHandler(maybeCaptcha),
     wrapHandler(async (req: Request, res: Response) => {
-        const { Open311ServiceRequest, Jurisdiction } = res.app.repositories;
+        const { ServiceRequest, Jurisdiction } = res.app.repositories;
         const { Communication: dispatchHandler } = res.app.services;
-        const record = await Open311ServiceRequest.create(req.body);
+        const dataAsGovFlow = toGovflowServiceRequest(
+            req.body as unknown as Open311ServiceRequestCreatePayload
+        );
+        const record = await ServiceRequest.create(dataAsGovFlow);
         const jurisdiction = await Jurisdiction.findOne(record.jurisdictionId);
         GovFlowEmitter.emit('serviceRequestCreate', jurisdiction, record, dispatchHandler);
         res.status(200).send({ data: toOpen311ServiceRequest(record), success: true });

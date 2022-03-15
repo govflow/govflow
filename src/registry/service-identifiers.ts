@@ -3,8 +3,6 @@ export const repositoryIds = {
     IStaffUserRepository: Symbol('IStaffUserRepository'),
     IServiceRequestRepository: Symbol('IServiceRequestRepository'),
     IServiceRepository: Symbol('IServiceRepository'),
-    IOpen311ServiceRepository: Symbol('IOpen311ServiceRepository'),
-    IOpen311ServiceRequestRepository: Symbol('IOpen311ServiceRequestRepository'),
     IEventRepository: Symbol('IEventRepository'),
     ICommunicationRepository: Symbol('ICommunicationRepository'),
     IInboundEmailRepository: Symbol('IInboundEmailRepository'),

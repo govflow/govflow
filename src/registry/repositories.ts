@@ -3,11 +3,10 @@ import { CommunicationRepository, InboundEmailRepository } from '../core/communi
 import { CommunicationService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { JurisdictionRepository } from '../core/jurisdictions';
-import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../core/open311';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IInboundEmailRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
+import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IInboundEmailRepository, IJurisdictionRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -29,12 +28,6 @@ function bindRepositoriesWithPlugins(
     repositoryContainer.bind<IServiceRepository>(repositoryIds.IServiceRepository).to(ServiceRepository);
     repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(
         ServiceRequestRepository
-    );
-    repositoryContainer.bind<IOpen311ServiceRepository>(repositoryIds.IOpen311ServiceRepository).to(
-        Open311ServiceRepository
-    );
-    repositoryContainer.bind<IOpen311ServiceRequestRepository>(repositoryIds.IOpen311ServiceRequestRepository).to(
-        Open311ServiceRequestRepository
     );
     repositoryContainer.bind<ICommunicationRepository>(repositoryIds.ICommunicationRepository).to(
         CommunicationRepository
@@ -58,12 +51,6 @@ function bindRepositoriesWithPlugins(
     const ServiceRequest = repositoryContainer.get<IServiceRequestRepository>(
         repositoryIds.IServiceRequestRepository
     );
-    const Open311Service = repositoryContainer.get<IOpen311ServiceRepository>(
-        repositoryIds.IOpen311ServiceRepository
-    );
-    const Open311ServiceRequest = repositoryContainer.get<IOpen311ServiceRequestRepository>(
-        repositoryIds.IOpen311ServiceRequestRepository
-    );
     const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
     const InboundEmail = repositoryContainer.get<IInboundEmailRepository>(repositoryIds.IInboundEmailRepository);
     const Department = repositoryContainer.get<IDepartmentRepository>(repositoryIds.IDepartmentRepository);
@@ -73,8 +60,6 @@ function bindRepositoriesWithPlugins(
         StaffUser,
         Service,
         ServiceRequest,
-        Open311Service,
-        Open311ServiceRequest,
         Communication,
         InboundEmail,
         Department

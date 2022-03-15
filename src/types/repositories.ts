@@ -8,13 +8,10 @@ import type {
     Models, PluginBase, QueryParamsAll,
     ServiceAttributes,
     ServiceRequestAttributes,
-    ServiceRequestCommentAttributes,
-    ServiceRequestInstance,
-    ServiceRequestStatusAttributes,
+    ServiceRequestCommentAttributes, ServiceRequestStatusAttributes,
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { Open311Service, Open311ServiceRequest } from "../core/open311/types";
 import { InboundMapAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
@@ -43,7 +40,7 @@ export interface IServiceRepository extends RepositoryBase {
 }
 
 export interface IServiceRequestRepository extends RepositoryBase {
-    create: (data: ServiceRequestAttributes) => Promise<ServiceRequestAttributes>;
+    create: (data: Partial<ServiceRequestAttributes>) => Promise<ServiceRequestAttributes>;
     update: (
         jurisdictionId: string, id: string, data: Partial<ServiceRequestAttributes>
     ) => Promise<ServiceRequestAttributes>;
@@ -77,17 +74,6 @@ export interface IServiceRequestRepository extends RepositoryBase {
     ) => Promise<ServiceRequestAttributes>;
 }
 
-export interface IOpen311ServiceRepository extends RepositoryBase {
-    findOne: (jurisdictionId: string, code: string) => Promise<Open311Service>;
-    findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<Open311Service[]>;
-}
-
-export interface IOpen311ServiceRequestRepository extends RepositoryBase {
-    create: (data: Record<string, unknown>) => Promise<ServiceRequestInstance>;
-    findOne: (jurisdictionId: string, id: string) => Promise<Open311ServiceRequest>;
-    // findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[Open311ServiceRequest[], number]>;
-}
-
 export interface ICommunicationRepository extends RepositoryBase {
     create: (data: CommunicationCreateAttributes) => Promise<CommunicationAttributes>;
     findByServiceRequestId: (serviceRequestId: string) => Promise<[CommunicationAttributes[], number]>;
@@ -111,8 +97,6 @@ export interface Repositories {
     StaffUser: IStaffUserRepository,
     Service: IServiceRepository,
     ServiceRequest: IServiceRequestRepository,
-    Open311Service: IOpen311ServiceRepository,
-    Open311ServiceRequest: IOpen311ServiceRequestRepository,
     Communication: ICommunicationRepository,
     InboundEmail: IInboundEmailRepository,
     Department: IDepartmentRepository,

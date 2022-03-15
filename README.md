@@ -4,6 +4,25 @@
 
 An open, modular work order and workflow management system for local governments and resident satisfaction.
 
+## What we are building
+
+Our aim is to build an open source solution that address the following aspects of government service delivery:
+
+- 311 request management ("there is a pothole in my street")
+- general questions and comments from the public ("what time does the library open")
+- "internal" request management ("there is a water leak on the 4th floor of town hall")
+- centralized views of request management status and analytics ("what is our work volume at present and how do we perform over time?")
+
+For smaller cities, we'd like to be able to meet all their work management needs with Gov Flow. For larger cities, we intend to build out integrations with existing CRMs and ticket management software.
+
+We have a focus on expanding "input channels" for requests. The API server currently supports API calls for new requests (used by our web form), and an endpoint for inbound emails. We plan to expand to SMS, chatbots, and potentially other entry points such as audio messages, and social media apps. If you have specific interest or use cases in this area, please talk to us by starting a discussion.
+
+## How we are building it
+
+We are currently a small team within [Zencity](https://zencity.io). We have a high-level roadmap, and we prioritize features based on real use cases with our early adopter users.
+
+The API server (this codebase) is open source. We have some UI components that we have not yet open sourced. If you are interested in Gov Flow and need some pointers on building UI please open a ticket or a discussion and talk to us about your needs.
+
 # Get involved
 
 - **[Discussions](https://github.com/govflow/govflow/discussions)**: We discuss new features, architecture and so on in our Discussions forum. Feel free to take part in existing discussions or start a new one.

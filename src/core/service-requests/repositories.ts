@@ -23,7 +23,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         this.settings = settings
     }
 
-    async create(data: ServiceRequestAttributes): Promise<ServiceRequestAttributes> {
+    async create(data: Partial<ServiceRequestAttributes>): Promise<ServiceRequestAttributes> {
         const { ServiceRequest } = this.models;
         const record = await ServiceRequest.create(data) as ServiceRequestInstance;
         return record;
@@ -97,7 +97,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     async findStatusList(jurisdictionId: string): Promise<ServiceRequestStatusAttributes[]> {
         const serviceRequestStatusList: ServiceRequestStatusAttributes[] = [];
         for (const [key, value] of Object.entries(REQUEST_STATUSES)) {
-            serviceRequestStatusList.push({id: key, label: value})
+            serviceRequestStatusList.push({ id: key, label: value })
         }
         return Promise.resolve(serviceRequestStatusList);
     }
@@ -139,7 +139,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const auditMessage = makeAuditMessage(user, '"status"', record.status, status);
         record.status = status;
         record = await record.save();
-        await this.createComment(jurisdictionId, record.id, {comment: auditMessage, addedBy: user?.id});
+        await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
         return record;
     }
 
@@ -151,7 +151,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const auditMessage = makeAuditMessage(user, '"assigned to"', record.assignedTo, assignedTo);
         record.assignedTo = assignedTo;
         record = await record.save();
-        await this.createComment(jurisdictionId, record.id, {comment: auditMessage, addedBy: user?.id});
+        await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
         return record;
     }
 
@@ -163,7 +163,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const auditMessage = makeAuditMessage(user, '"department"', record.departmentId, department);
         record.departmentId = department;
         record = await record.save();
-        await this.createComment(jurisdictionId, record.id, {comment: auditMessage, addedBy: user?.id});
+        await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
         return record;
     }
 
@@ -175,7 +175,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const auditMessage = makeAuditMessage(user, '"service"', record.serviceId as string, service);
         record.serviceId = service;
         record = await record.save();
-        await this.createComment(jurisdictionId, record.id, {comment: auditMessage, addedBy: user?.id});
+        await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
         return record;
     }
 }
