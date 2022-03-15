@@ -2,7 +2,7 @@ import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, StaffUserDepartmentAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
+import { CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserModel, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -127,125 +127,126 @@ function makeInboundMap(options: Partial<TestDataMakerOptions>) {
         jurisdictionId: options.jurisdiction?.id,
         departmentId: faker.helpers.randomize(options.departments as DepartmentAttributes[]).id,
     } as InboundMapAttributes
-    function makeStaffUserDepartments(staffUsers: StaffUserAttributes[], departments: DepartmentAttributes[]) {
-        const staffUserDepartments: StaffUserDepartmentAttributes[] = [];
-        for (const staffUser of staffUsers.slice(5)) {
-            staffUserDepartments.push({
-                staffUserId: staffUser.id,
-                departmentId: faker.helpers.randomize(departments.map((d) => { return d.id })),
-                isLead: true
-            })
-        }
-        // make sure some are not leads
-        for (const sud of staffUserDepartments.slice(5)) { // TODO - not just slice
-            sud.isLead = false
-        }
-        return staffUserDepartments;
+}
+function makeStaffUserDepartments(staffUsers: StaffUserAttributes[], departments: DepartmentAttributes[]) {
+    const staffUserDepartments: StaffUserDepartmentAttributes[] = [];
+    for (const staffUser of staffUsers.slice(5)) {
+        staffUserDepartments.push({
+            staffUserId: staffUser.id,
+            departmentId: faker.helpers.randomize(departments.map((d) => { return d.id })),
+            isLead: true
+        })
+    }
+    // make sure some are not leads
+    for (const sud of staffUserDepartments.slice(5)) { // TODO - not just slice
+        sud.isLead = false
+    }
+    return staffUserDepartments;
+}
+
+export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: TestDataPayload): Promise<void> {
+    const {
+        Jurisdiction,
+        StaffUser,
+        Service,
+        ServiceRequest,
+        ServiceRequestComment,
+        Communication,
+        Department,
+        InboundMap
+    } = databaseEngine.models;
+
+    for (const jurisdictionData of testData.jurisdictions) {
+        await Jurisdiction.create(jurisdictionData);
     }
 
-    export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: TestDataPayload): Promise<void> {
-        const {
-            Jurisdiction,
-            StaffUser,
-            Service,
-            ServiceRequest,
-            ServiceRequestComment,
-            Communication,
-            Department,
-            InboundMap
-        } = databaseEngine.models;
-
-        for (const jurisdictionData of testData.jurisdictions) {
-            await Jurisdiction.create(jurisdictionData);
-        }
-
-        for (const staffUserData of testData.staffUsers) {
-            const staffUser = await StaffUser.create(staffUserData) as unknown as StaffUserModel;
-            const departments = testData.staffUserDepartments.filter(sud => sud.staffUserId === staffUserData.id);
-            for (const sud of departments) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                const dept = await Department.findOne(sud.id);
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                await staffUser.addDepartment(dept, { through: { isLead: sud.isLead } });
-            }
-
-        }
-
-        for (const serviceData of testData.services) {
-            await Service.create(serviceData);
-        }
-
-        for (const serviceRequestData of testData.serviceRequests) {
-            const record = await ServiceRequest.create(serviceRequestData) as ServiceRequestInstance;
-            for (const comment of serviceRequestData.comments) {
-                await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }))
-            }
-        }
-
-        for (const communicationData of testData.communications) {
-            await Communication.create(communicationData);
-        }
-
-        for (const departmentData of testData.departments) {
-            await Department.create(departmentData);
-        }
-
-        for (const inboundMapData of testData.inboundMaps) {
-            await InboundMap.create(inboundMapData);
+    for (const staffUserData of testData.staffUsers) {
+        const staffUser = await StaffUser.create(staffUserData) as unknown as StaffUserModel;
+        const departments = testData.staffUserDepartments.filter(sud => sud.staffUserId === staffUserData.id);
+        for (const sud of departments) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const dept = await Department.findOne(sud.id);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            await staffUser.addDepartment(dept, { through: { isLead: sud.isLead } });
         }
 
     }
 
-    export default function makeTestData(): TestDataPayload {
-        const jurisdictions = factory(makeJurisdiction, 3, {}) as unknown as JurisdictionAttributes[];
-        let staffUsers: StaffUserAttributes[] = [];
-        let staffUserDepartments: StaffUserDepartmentAttributes[] = [];
-        let services: ServiceAttributes[] = [];
-        let serviceRequests: ServiceRequestAttributes[] = [];
-        let communications: CommunicationAttributes[] = [];
-        let departments: DepartmentAttributes[] = [];
-        let inboundMaps: InboundMapAttributes[] = [];
+    for (const serviceData of testData.services) {
+        await Service.create(serviceData);
+    }
 
-        // we want some jurisdictions to enforce assignment through department
-        jurisdictions[0].enforceAssignmentThroughDepartment = true
-
-        for (const jurisdiction of jurisdictions) {
-            staffUsers = staffUsers.concat(
-                factory(
-                    makeStaffUser, 20, { jurisdiction }
-                ) as unknown as StaffUserAttributes[])
-            services = services.concat(factory(makeService, 5, { jurisdiction }) as unknown as ServiceAttributes[])
-            serviceRequests = serviceRequests.concat(
-                factory(
-                    makeServiceRequest, 20, { staffUsers, services, jurisdiction }
-                ) as unknown as ServiceRequestAttributes[]
-            )
-            departments = departments.concat(
-                factory(makeDepartment, 20, { jurisdiction }) as unknown as DepartmentAttributes[]
-            )
-            inboundMaps = inboundMaps.concat(
-                factory(makeInboundMap, 3, { jurisdiction, departments }) as unknown as InboundMapAttributes[]
-            )
-            staffUserDepartments = makeStaffUserDepartments(staffUsers, departments);
-
-        }
-
-        for (const serviceRequest of serviceRequests) {
-            communications = communications.concat(
-                factory(makeCommunication, 10, { serviceRequest }) as unknown as CommunicationAttributes[]
-            )
-        }
-
-        return {
-            jurisdictions,
-            staffUsers,
-            staffUserDepartments,
-            services,
-            serviceRequests,
-            communications,
-            departments,
-            inboundMaps
+    for (const serviceRequestData of testData.serviceRequests) {
+        const record = await ServiceRequest.create(serviceRequestData) as ServiceRequestInstance;
+        for (const comment of serviceRequestData.comments) {
+            await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }))
         }
     }
+
+    for (const communicationData of testData.communications) {
+        await Communication.create(communicationData);
+    }
+
+    for (const departmentData of testData.departments) {
+        await Department.create(departmentData);
+    }
+
+    for (const inboundMapData of testData.inboundMaps) {
+        await InboundMap.create(inboundMapData);
+    }
+
+}
+
+export default function makeTestData(): TestDataPayload {
+    const jurisdictions = factory(makeJurisdiction, 3, {}) as unknown as JurisdictionAttributes[];
+    let staffUsers: StaffUserAttributes[] = [];
+    let staffUserDepartments: StaffUserDepartmentAttributes[] = [];
+    let services: ServiceAttributes[] = [];
+    let serviceRequests: ServiceRequestAttributes[] = [];
+    let communications: CommunicationAttributes[] = [];
+    let departments: DepartmentAttributes[] = [];
+    let inboundMaps: InboundMapAttributes[] = [];
+
+    // we want some jurisdictions to enforce assignment through department
+    jurisdictions[0].enforceAssignmentThroughDepartment = true
+
+    for (const jurisdiction of jurisdictions) {
+        staffUsers = staffUsers.concat(
+            factory(
+                makeStaffUser, 20, { jurisdiction }
+            ) as unknown as StaffUserAttributes[])
+        services = services.concat(factory(makeService, 5, { jurisdiction }) as unknown as ServiceAttributes[])
+        serviceRequests = serviceRequests.concat(
+            factory(
+                makeServiceRequest, 20, { staffUsers, services, jurisdiction }
+            ) as unknown as ServiceRequestAttributes[]
+        )
+        departments = departments.concat(
+            factory(makeDepartment, 20, { jurisdiction }) as unknown as DepartmentAttributes[]
+        )
+        inboundMaps = inboundMaps.concat(
+            factory(makeInboundMap, 3, { jurisdiction, departments }) as unknown as InboundMapAttributes[]
+        )
+        staffUserDepartments = makeStaffUserDepartments(staffUsers, departments);
+
+    }
+
+    for (const serviceRequest of serviceRequests) {
+        communications = communications.concat(
+            factory(makeCommunication, 10, { serviceRequest }) as unknown as CommunicationAttributes[]
+        )
+    }
+
+    return {
+        jurisdictions,
+        staffUsers,
+        staffUserDepartments,
+        services,
+        serviceRequests,
+        communications,
+        departments,
+        inboundMaps
+    }
+}
