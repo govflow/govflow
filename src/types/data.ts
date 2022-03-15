@@ -9,7 +9,7 @@ export interface JurisdictionAttributes {
 export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>
 
 export interface JurisdictionInstance
-    extends Model<JurisdictionAttributes, JurisdictionCreateAttributes>, JurisdictionAttributes {}
+    extends Model<JurisdictionAttributes, JurisdictionCreateAttributes>, JurisdictionAttributes { }
 
 
 export interface StaffUserAttributes {
@@ -26,7 +26,7 @@ export interface StaffUserAttributes {
 export type StaffUserCreateAttributes = Partial<StaffUserAttributes>
 
 export interface StaffUserInstance
-    extends Model<StaffUserAttributes, StaffUserCreateAttributes>, StaffUserAttributes {}
+    extends Model<StaffUserAttributes, StaffUserCreateAttributes>, StaffUserAttributes { }
 
 export interface StaffUserLookUpAttributes {
     id: string;
@@ -45,7 +45,7 @@ export interface ServiceAttributes {
 export type ServiceCreateAttributes = Partial<ServiceAttributes>
 
 export interface ServiceInstance
-    extends Model<ServiceAttributes, ServiceCreateAttributes>, ServiceAttributes {}
+    extends Model<ServiceAttributes, ServiceCreateAttributes>, ServiceAttributes { }
 
 export interface ServiceRequestAttributes {
     id: string;
@@ -77,8 +77,18 @@ export interface ServiceRequestAttributes {
 
 export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
 
+export interface ParsedServiceRequestAttributes {
+    jurisdictionId: string;
+    inputChannel: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    description: string,
+    departmentId?: string,
+}
+
 export interface ServiceRequestInstance
-    extends Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>, ServiceRequestAttributes {}
+    extends Model<ServiceRequestAttributes, ServiceRequestCreateAttributes>, ServiceRequestAttributes { }
 
 export interface ServiceRequestCommentAttributes {
     id: string;
@@ -92,7 +102,7 @@ export type ServiceRequestCommentCreateAttributes = Partial<ServiceRequestCommen
 
 export interface ServiceRequestCommentInstance
     extends Model<ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes>,
-    ServiceRequestCommentAttributes {}
+    ServiceRequestCommentAttributes { }
 
 export interface ServiceRequestStatusAttributes {
     id: string;
@@ -113,7 +123,7 @@ export interface CommunicationAttributes {
 export type CommunicationCreateAttributes = Partial<CommunicationAttributes>
 
 export interface CommunicationInstance
-    extends Model<CommunicationAttributes, CommunicationCreateAttributes>, CommunicationAttributes {}
+    extends Model<CommunicationAttributes, CommunicationCreateAttributes>, CommunicationAttributes { }
 
 export interface DepartmentAttributes {
     id: string;
@@ -126,7 +136,18 @@ export interface DepartmentAttributes {
 export type DepartmentCreateAttributes = Partial<DepartmentAttributes>
 
 export interface DepartmentInstance
-    extends Model<DepartmentAttributes, DepartmentCreateAttributes>, DepartmentAttributes {}
+    extends Model<DepartmentAttributes, DepartmentCreateAttributes>, DepartmentAttributes { }
+
+export interface InboundMapAttributes {
+    id: string;
+    jurisdictionId: string;
+    departmentId?: string;
+}
+
+export type InboundMapCreateAttributes = Partial<InboundMapAttributes>
+
+export interface InboundMapInstance
+    extends Model<InboundMapAttributes, InboundMapCreateAttributes>, InboundMapAttributes { }
 
 export interface SmsAttributes {
     to: string,
@@ -179,6 +200,7 @@ export interface TestDataPayload {
     serviceRequests: ServiceRequestAttributes[],
     communications: CommunicationAttributes[],
     departments: DepartmentAttributes[],
+    inboundMaps: InboundMapAttributes[],
 }
 
 export interface TestDataMakerOptions {
@@ -188,4 +210,37 @@ export interface TestDataMakerOptions {
     staffUsers: StaffUserAttributes[],
     services: ServiceAttributes[],
     serviceRequests: ServiceRequestAttributes[],
+    departments: DepartmentAttributes[],
+    inboundMaps: InboundMapAttributes[],
 }
+
+export interface InboundEmailDataAttributes {
+    headers: string,
+    attachments: string,
+    dkim: string,
+    subject: string,
+    to: string,
+    cc?: string,
+    bcc?: string,
+    spam_score: string,
+    from: string,
+    text: string,
+    sender_ip: string,
+    spam_report: string,
+    envelope: string,
+    charsets: string,
+    SPF: string,
+
+}
+
+export interface InboundEmailDataToRequestAttributes {
+    headers: string,
+    to: string,
+    cc?: string,
+    bcc?: string,
+    from: string,
+    subject: string,
+    text: string,
+}
+
+export type PublicId = string | undefined;

@@ -7,6 +7,7 @@ export const repositoryIds = {
     IOpen311ServiceRequestRepository: Symbol('IOpen311ServiceRequestRepository'),
     IEventRepository: Symbol('IEventRepository'),
     ICommunicationRepository: Symbol('ICommunicationRepository'),
+    IInboundEmailRepository: Symbol('IInboundEmailRepository'),
     IDepartmentRepository: Symbol('IDepartmentRepository'),
 };
 

@@ -1,5 +1,5 @@
 import { Container } from 'inversify';
-import { CommunicationRepository } from '../core/communications';
+import { CommunicationRepository, InboundEmailRepository } from '../core/communications';
 import { CommunicationService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { JurisdictionRepository } from '../core/jurisdictions';
@@ -7,7 +7,7 @@ import { Open311ServiceRepository, Open311ServiceRequestRepository } from '../co
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
+import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IInboundEmailRepository, IJurisdictionRepository, IOpen311ServiceRepository, IOpen311ServiceRequestRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -24,7 +24,7 @@ function bindRepositoriesWithPlugins(
 
     repositoryContainer.bind<IJurisdictionRepository>(
         repositoryIds.IJurisdictionRepository).to(JurisdictionRepository
-    );
+        );
     repositoryContainer.bind<IStaffUserRepository>(repositoryIds.IStaffUserRepository).to(StaffUserRepository);
     repositoryContainer.bind<IServiceRepository>(repositoryIds.IServiceRepository).to(ServiceRepository);
     repositoryContainer.bind<IServiceRequestRepository>(repositoryIds.IServiceRequestRepository).to(
@@ -38,6 +38,9 @@ function bindRepositoriesWithPlugins(
     );
     repositoryContainer.bind<ICommunicationRepository>(repositoryIds.ICommunicationRepository).to(
         CommunicationRepository
+    );
+    repositoryContainer.bind<IInboundEmailRepository>(repositoryIds.IInboundEmailRepository).to(
+        InboundEmailRepository
     );
     repositoryContainer.bind<IDepartmentRepository>(repositoryIds.IDepartmentRepository).to(
         DepartmentRepository
@@ -62,6 +65,7 @@ function bindRepositoriesWithPlugins(
         repositoryIds.IOpen311ServiceRequestRepository
     );
     const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
+    const InboundEmail = repositoryContainer.get<IInboundEmailRepository>(repositoryIds.IInboundEmailRepository);
     const Department = repositoryContainer.get<IDepartmentRepository>(repositoryIds.IDepartmentRepository);
 
     const repositories = {
@@ -72,6 +76,7 @@ function bindRepositoriesWithPlugins(
         Open311Service,
         Open311ServiceRequest,
         Communication,
+        InboundEmail,
         Department
     }
     return repositories;

@@ -76,3 +76,24 @@ export const CommunicationModel: ModelDefinition = {
         ]
     }
 }
+
+export const InboundMapModel: ModelDefinition = {
+    name: 'InboundMap',
+    attributes: {
+        id: {
+            type: DataTypes.STRING,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
+            primaryKey: true,
+        },
+    },
+    options: {
+        freezeTableName: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'departmentId']
+            }
+        ]
+    }
+}

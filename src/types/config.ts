@@ -20,6 +20,7 @@ export interface AppSettings {
     communicationsToConsole: string,
     captchaEnabled: boolean;
     reCaptchaSecretKey: string;
+    inboundEmailDomain: string;
 }
 
 export interface Config {

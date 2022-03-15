@@ -37,7 +37,8 @@ const defaultSettings: AppSettings = {
     'storageEndpoint': process.env.STORAGE_ENDPOINT || '127.0.0.1',
     'storageAccessKey': process.env.STORAGE_ACCESS_KEY || '',
     'storageSecretKey': process.env.STORAGE_SECRET_KEY || '',
-    'storageSignedGetExpiry': parseInt(process.env.STORAGE_SIGNED_GET_EXPIRY || '1', 10) * 60 // minutes
+    'storageSignedGetExpiry': parseInt(process.env.STORAGE_SIGNED_GET_EXPIRY || '1', 10) * 60, // minutes
+    'inboundEmailDomain': process.env.INBOUND_EMAIL_DOMAIN || 'inbound.example.com',
 }
 
 async function resolveCustomConfig(): Promise<Config> {

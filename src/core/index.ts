@@ -1,10 +1,10 @@
 import cors from 'cors';
 import type { Request, RequestHandler, Response } from 'express';
-import { json, Router } from 'express';
+import { json, Router, urlencoded } from 'express';
 import { wrapHandler } from '../helpers';
 import { internalServerError, notFound } from '../middlewares';
 import type { ModelDefinition, PluginBase } from '../types';
-import { CommunicationModel, CommunicationRepository } from './communications';
+import { CommunicationModel, CommunicationRepository, communicationsRouter, InboundMapModel } from './communications';
 import { DepartmentModel, DepartmentRepository, departmentRouter } from './departments';
 import { JurisdictionModel, JurisdictionRepository, jurisdictionRouter } from './jurisdictions';
 import { open311Router } from './open311';
@@ -21,6 +21,7 @@ coreRoutes.get('/', wrapHandler(async (req: Request, res: Response) => {
 coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
 coreRoutes.use('/accounts', accountRouter);
+coreRoutes.use('/communications', communicationsRouter);
 coreRoutes.use('/jurisdictions', jurisdictionRouter);
 coreRoutes.use('/departments', departmentRouter);
 coreRoutes.use('/storage', storageRouter);
@@ -35,6 +36,7 @@ const coreModels: ModelDefinition[] = [
     StaffUserModel,
     CommunicationModel,
     DepartmentModel,
+    InboundMapModel,
 ]
 
 const coreRepositories: PluginBase[] = [
@@ -49,6 +51,7 @@ const coreRepositories: PluginBase[] = [
 const coreMiddlewares: RequestHandler[] = [
     cors(),
     json(),
+    urlencoded({ extended: true })
 ]
 
 export {

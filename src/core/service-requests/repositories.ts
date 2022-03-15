@@ -51,6 +51,16 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         return record;
     }
 
+    async findOneByPublicId(jurisdictionId: string, publicId: string): Promise<ServiceRequestAttributes> {
+        const { ServiceRequest, ServiceRequestComment } = this.models;
+        const params = {
+            where: { jurisdictionId, publicId },
+            include: [{ model: ServiceRequestComment, as: 'comments' }],
+        };
+        const record = await ServiceRequest.findOne(params) as ServiceRequestInstance;
+        return record;
+    }
+
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[ServiceRequestAttributes[], number]> {
         const { ServiceRequest } = this.models;
         const params = merge(

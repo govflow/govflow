@@ -80,7 +80,7 @@ describe('Verify Core Communications Functionality.', function () {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone
-        } = app.settings;
+        } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [serviceRequests, count] = await ServiceRequest.findAll(jurisdictionId);
@@ -123,7 +123,7 @@ describe('Verify Core Communications Functionality.', function () {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone
-        } = app.settings;
+        } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [staffUsers, staffUsersCount] = await StaffUser.findAll(jurisdictionId);

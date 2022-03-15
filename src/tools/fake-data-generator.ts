@@ -2,7 +2,7 @@ import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { CommunicationAttributes, DepartmentAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
+import { CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -120,6 +120,14 @@ function makeDepartment(options: Partial<TestDataMakerOptions>) {
     } as DepartmentAttributes
 }
 
+function makeInboundMap(options: Partial<TestDataMakerOptions>) {
+    return {
+        id: faker.datatype.uuid(),
+        jurisdictionId: options.jurisdiction?.id,
+        departmentId: faker.helpers.randomize(options.departments as DepartmentAttributes[]).id,
+    } as InboundMapAttributes
+}
+
 export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: TestDataPayload): Promise<void> {
     const {
         Jurisdiction,
@@ -128,7 +136,8 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         ServiceRequest,
         ServiceRequestComment,
         Communication,
-        Department
+        Department,
+        InboundMap
     } = databaseEngine.models;
 
     for (const jurisdictionData of testData.jurisdictions) {
@@ -158,6 +167,10 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         await Department.create(departmentData);
     }
 
+    for (const inboundMapData of testData.inboundMaps) {
+        await InboundMap.create(inboundMapData);
+    }
+
 }
 
 export default function makeTestData(): TestDataPayload {
@@ -167,6 +180,7 @@ export default function makeTestData(): TestDataPayload {
     let serviceRequests: ServiceRequestAttributes[] = [];
     let communications: CommunicationAttributes[] = [];
     let departments: DepartmentAttributes[] = [];
+    let inboundMaps: InboundMapAttributes[] = [];
 
     for (const jurisdiction of jurisdictions) {
         staffUsers = staffUsers.concat(
@@ -181,6 +195,9 @@ export default function makeTestData(): TestDataPayload {
         )
         departments = departments.concat(
             factory(makeDepartment, 20, { jurisdiction }) as unknown as DepartmentAttributes[]
+        )
+        inboundMaps = inboundMaps.concat(
+            factory(makeInboundMap, 3, { jurisdiction, departments }) as unknown as InboundMapAttributes[]
         )
 
     }
@@ -197,6 +214,7 @@ export default function makeTestData(): TestDataPayload {
         services,
         serviceRequests,
         communications,
-        departments
+        departments,
+        inboundMaps
     }
 }

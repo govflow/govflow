@@ -3,6 +3,7 @@ import type {
     CommunicationAttributes,
     CommunicationCreateAttributes,
     DepartmentAttributes,
+    InboundEmailDataAttributes,
     JurisdictionAttributes,
     Models, PluginBase, QueryParamsAll,
     ServiceAttributes,
@@ -14,6 +15,7 @@ import type {
     StaffUserLookUpAttributes
 } from '.';
 import { Open311Service, Open311ServiceRequest } from "../core/open311/types";
+import { InboundMapAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models
@@ -46,6 +48,7 @@ export interface IServiceRequestRepository extends RepositoryBase {
         jurisdictionId: string, id: string, data: Partial<ServiceRequestAttributes>
     ) => Promise<ServiceRequestAttributes>;
     findOne: (jurisdictionId: string, id: string) => Promise<ServiceRequestAttributes>;
+    findOneByPublicId: (jurisdictionId: string, publicId: string) => Promise<ServiceRequestAttributes>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[ServiceRequestAttributes[], number]>;
     findStatusList: (jurisdictionId: string) => Promise<ServiceRequestStatusAttributes[]>;
     getStats: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<Record<string, Record<string, number>>>;
@@ -97,6 +100,12 @@ export interface IDepartmentRepository extends RepositoryBase {
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[DepartmentAttributes[], number]>;
 }
 
+export interface IInboundEmailRepository extends RepositoryBase {
+    createServiceRequest: (inboundEmailData: InboundEmailDataAttributes) =>
+        Promise<ServiceRequestAttributes | ServiceRequestCommentAttributes>;
+    createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
+}
+
 export interface Repositories {
     Jurisdiction: IJurisdictionRepository,
     StaffUser: IStaffUserRepository,
@@ -105,5 +114,6 @@ export interface Repositories {
     Open311Service: IOpen311ServiceRepository,
     Open311ServiceRequest: IOpen311ServiceRequestRepository,
     Communication: ICommunicationRepository,
+    InboundEmail: IInboundEmailRepository,
     Department: IDepartmentRepository,
 }
