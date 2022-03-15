@@ -163,15 +163,14 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     for (const staffUserData of testData.staffUsers) {
         const staffUser = await StaffUser.create(staffUserData) as unknown as StaffUserModel;
         const departments = testData.staffUserDepartments.filter(sud => sud.staffUserId === staffUserData.id);
-        for (const sud of departments) {
+        for (const staffUserData of departments) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            const dept = await Department.findOne(sud.id);
+            const dept = await Department.findOne(staffUserData.id);
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            await staffUser.addDepartment(dept, { through: { isLead: sud.isLead } });
+            await staffUser.addDepartment(dept, { through: { isLead: staffUserData.isLead } });
         }
-
     }
 
     for (const serviceData of testData.services) {
