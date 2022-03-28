@@ -10,9 +10,10 @@ export const REQUEST_STATUSES = {
     'done': 'Done',
     'invalid': 'Invalid',
     'moved': 'Moved',
+    'junk': 'Junk'
 };
 
-export const SERVICE_REQUEST_CLOSED_STATES = ['done', 'invalid', 'moved']
+export const SERVICE_REQUEST_CLOSED_STATES = ['done', 'invalid', 'moved', 'junk']
 
 export const REQUEST_STATUS_KEYS = Object.keys(REQUEST_STATUSES);
 
