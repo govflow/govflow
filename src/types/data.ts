@@ -2,8 +2,8 @@ import type { Model } from 'sequelize';
 
 export interface JurisdictionAttributes {
     id: string;
-    name: string,
-    email: string,
+    name: string;
+    email: string;
 }
 
 export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>
@@ -20,7 +20,7 @@ export interface StaffUserAttributes {
     jurisdictionId: string;
     email: string;
     isAdmin: boolean;
-    permissions: string[],
+    permissions: string[];
 }
 
 export type StaffUserCreateAttributes = Partial<StaffUserAttributes>
@@ -49,8 +49,8 @@ export interface ServiceInstance
 
 export interface ServiceRequestAttributes {
     id: string;
-    publicId: string,
-    idCounter: number,
+    publicId: string;
+    idCounter: number;
     serviceId?: string;
     jurisdictionId: string;
     description: string;
@@ -72,7 +72,7 @@ export interface ServiceRequestAttributes {
     closeDate: Date;
     displayName: string;
     departmentId: string;
-    comments: ServiceRequestCommentAttributes[],
+    comments: ServiceRequestCommentAttributes[];
 }
 
 export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
@@ -83,9 +83,9 @@ export interface ParsedServiceRequestAttributes {
     firstName: string;
     lastName: string;
     email: string;
-    description: string,
-    createdAt: Date | undefined,
-    departmentId?: string,
+    description: string;
+    createdAt: Date | undefined;
+    departmentId?: string;
 }
 
 export interface ServiceRequestInstance
@@ -93,10 +93,10 @@ export interface ServiceRequestInstance
 
 export interface ServiceRequestCommentAttributes {
     id: string;
-    serviceRequestId: string,
+    serviceRequestId: string;
     comment?: string;
-    addedBy?: string,
-    images?: string[]
+    addedBy?: string;
+    images?: string[];
 }
 
 export type ServiceRequestCommentCreateAttributes = Partial<ServiceRequestCommentAttributes>
@@ -107,7 +107,7 @@ export interface ServiceRequestCommentInstance
 
 export interface ServiceRequestStatusAttributes {
     id: string;
-    label: string
+    label: string;
 }
 
 export interface CommunicationAttributes {
@@ -129,8 +129,8 @@ export interface CommunicationInstance
 export interface DepartmentAttributes {
     id: string;
     name: string;
-    primaryContactName: string,
-    primaryContactEmail: string,
+    primaryContactName: string;
+    primaryContactEmail: string;
     jurisdictionId: string;
 }
 
@@ -151,97 +151,96 @@ export interface InboundMapInstance
     extends Model<InboundMapAttributes, InboundMapCreateAttributes>, InboundMapAttributes { }
 
 export interface SmsAttributes {
-    to: string,
-    from: string,
-    body: string,
+    to: string;
+    from: string;
+    body: string;
 }
 
 export interface EmailAttributes {
-    to: string,
-    form: string,
-    subject: string,
-    body: string,
+    to: string;
+    form: string;
+    subject: string;
+    body: string;
 }
 
 export interface DispatchConfigAttributes {
-    channel: string,
-    sendGridApiKey: string,
-    toEmail: string,
-    fromEmail: string,
-    twilioAccountSid: string,
-    twilioAuthToken: string,
-    fromPhone: string,
-    toPhone: string,
+    channel: string;
+    sendGridApiKey: string;
+    toEmail: string;
+    fromEmail: string;
+    twilioAccountSid: string;
+    twilioAuthToken: string;
+    fromPhone: string;
+    toPhone: string;
 }
 
 export interface DispatchPayloadAttributes extends DispatchConfigAttributes {
-    subject?: string,
-    textBody: string,
-    htmlBody?: string
+    subject?: string;
+    textBody: string;
+    htmlBody?: string;
 }
 
 export interface TemplateConfigContextAttributes {
-    appName: string,
-    appRequestUrl: string,
-    serviceRequestStatus: string,
-    jurisdictionName: string,
-    jurisdictionEmail: string,
-    recipientName: string,
+    appName: string;
+    appRequestUrl: string;
+    serviceRequestStatus: string;
+    jurisdictionName: string;
+    jurisdictionEmail: string;
+    recipientName: string;
 }
 
 export interface TemplateConfigAttributes {
-    name: string,
-    context: TemplateConfigContextAttributes,
+    name: string;
+    context: TemplateConfigContextAttributes;
 }
 
 export interface TestDataPayload {
-    jurisdictions: JurisdictionAttributes[],
-    staffUsers: StaffUserAttributes[],
-    services: ServiceAttributes[],
-    serviceRequests: ServiceRequestAttributes[],
-    communications: CommunicationAttributes[],
-    departments: DepartmentAttributes[],
-    inboundMaps: InboundMapAttributes[],
+    jurisdictions: JurisdictionAttributes[];
+    staffUsers: StaffUserAttributes[];
+    services: ServiceAttributes[];
+    serviceRequests: ServiceRequestAttributes[];
+    communications: CommunicationAttributes[];
+    departments: DepartmentAttributes[];
+    inboundMaps: InboundMapAttributes[];
 }
 
 export interface TestDataMakerOptions {
-    jurisdiction: JurisdictionAttributes,
-    serviceRequest: ServiceRequestAttributes,
-    jurisdictions: JurisdictionAttributes[],
-    staffUsers: StaffUserAttributes[],
-    services: ServiceAttributes[],
-    serviceRequests: ServiceRequestAttributes[],
-    departments: DepartmentAttributes[],
-    inboundMaps: InboundMapAttributes[],
+    jurisdiction: JurisdictionAttributes;
+    serviceRequest: ServiceRequestAttributes;
+    jurisdictions: JurisdictionAttributes[];
+    staffUsers: StaffUserAttributes[];
+    services: ServiceAttributes[];
+    serviceRequests: ServiceRequestAttributes[];
+    departments: DepartmentAttributes[];
+    inboundMaps: InboundMapAttributes[];
 }
 
 export interface InboundEmailDataAttributes {
-    headers: string,
-    attachments: string,
-    dkim: string,
-    subject: string,
-    to: string,
-    cc?: string,
-    bcc?: string,
-    spam_score: string,
-    from: string,
-    text: string,
-    sender_ip: string,
-    spam_report: string,
-    envelope: string,
-    charsets: string,
-    SPF: string,
-
+    headers: string;
+    attachments: string;
+    dkim: string;
+    subject: string;
+    to: string;
+    cc?: string;
+    bcc?: string;
+    spam_score: string;
+    from: string;
+    text: string;
+    sender_ip: string;
+    spam_report: string;
+    envelope: string;
+    charsets: string;
+    SPF: string;
 }
 
 export interface InboundEmailDataToRequestAttributes {
-    headers: string,
-    to: string,
-    cc?: string,
-    bcc?: string,
-    from: string,
-    subject: string,
-    text: string,
+    headers: string;
+    to: string;
+    cc?: string;
+    bcc?: string;
+    from: string;
+    subject: string;
+    text: string;
 }
 
 export type PublicId = string | undefined;

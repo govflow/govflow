@@ -15,8 +15,8 @@ import type {
 import { InboundMapAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
-    models: Models
-    settings: AppSettings
+    models: Models;
+    settings: AppSettings;
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {
@@ -93,11 +93,11 @@ export interface IInboundEmailRepository extends RepositoryBase {
 }
 
 export interface Repositories {
-    Jurisdiction: IJurisdictionRepository,
-    StaffUser: IStaffUserRepository,
-    Service: IServiceRepository,
-    ServiceRequest: IServiceRequestRepository,
-    Communication: ICommunicationRepository,
-    InboundEmail: IInboundEmailRepository,
-    Department: IDepartmentRepository,
+    Jurisdiction: IJurisdictionRepository;
+    StaffUser: IStaffUserRepository;
+    Service: IServiceRepository;
+    ServiceRequest: IServiceRequestRepository;
+    Communication: ICommunicationRepository;
+    InboundEmail: IInboundEmailRepository;
+    Department: IDepartmentRepository;
 }

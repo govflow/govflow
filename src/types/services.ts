@@ -1,8 +1,8 @@
 import { AppSettings, CommunicationAttributes, JurisdictionAttributes, PluginBase, Repositories, ServiceRequestAttributes } from ".";
 
 export interface ServiceBase extends PluginBase {
-    repositories: Repositories
-    settings: AppSettings
+    repositories: Repositories;
+    settings: AppSettings;
 }
 
 export interface ICommunicationService extends ServiceBase {
@@ -25,5 +25,5 @@ export interface ICommunicationService extends ServiceBase {
 }
 
 export interface Services {
-    Communication: ICommunicationService,
+    Communication: ICommunicationService;
 }
