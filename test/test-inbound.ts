@@ -1,7 +1,7 @@
 import chai from 'chai';
 import { Application } from 'express';
 import _ from 'lodash';
-import { extractPublicIdFromInboundEmail, extractServiceRequestfromInboundEmail } from '../src/core/communications/helpers';
+import { extractCreatedAtFromInboundEmail, extractPublicIdFromInboundEmail, extractServiceRequestfromInboundEmail } from '../src/core/communications/helpers';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { TestDataPayload } from '../src/types';
@@ -31,6 +31,25 @@ describe('Parse inbound email data.', function () {
     it('parse a public id from an email with a public id', async function () {
         const publicId = extractPublicIdFromInboundEmail(`Request #12987: ${inboundEmail.subject}`);
         chai.assert.equal(publicId, '12987');
+    });
+
+    it('parse a date from an email with a date', async function () {
+        const extractedCreatedAt = extractCreatedAtFromInboundEmail(inboundEmail.headers);
+        chai.assert.equal(extractedCreatedAt.toUTCString(), 'Tue, 01 Mar 2022 13:31:54 GMT');
+    });
+
+    it('parse a date from an email without a date', async function () {
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.headers = '';
+        const extractedCreatedAt = extractCreatedAtFromInboundEmail(inboundPayload.headers);
+        chai.assert.equal(extractedCreatedAt.toUTCString(), 'Invalid Date');
+    });
+
+    it('parse a date from an email with an unparsable date', async function () {
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.headers = 'Date: Hi How Are You';
+        const extractedCreatedAt = extractCreatedAtFromInboundEmail(inboundPayload.headers);
+        chai.assert.equal(extractedCreatedAt.toUTCString(), 'Invalid Date');
     });
 
     it('parse service request data from an email without a public id', async function () {
@@ -68,6 +87,31 @@ describe('Parse inbound email data.', function () {
         chai.assert.equal(lastName, '');
         chai.assert.equal(email, 'jo.bloggs@example.com');
         chai.assert(description);
+    });
+
+    it('uses email date as creation date', async function () {
+        const { InboundMap } = app.database.models;
+        const { inboundEmailDomain } = app.config;
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
+        const [
+            { createdAt }, _publicId
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        chai.assert.equal(createdAt.toUTCString(), 'Tue, 01 Mar 2022 13:31:54 GMT');
+    });
+
+    it('cant use email date as creation date', async function () {
+        const { InboundMap } = app.database.models;
+        const { inboundEmailDomain } = app.config;
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.headers = 'Date: Who knows';
+        inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
+        const [
+            { createdAt }, _publicId
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
+        chai.assert.equal(createdAt, undefined);
     });
 
 });

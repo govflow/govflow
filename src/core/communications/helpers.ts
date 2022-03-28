@@ -169,6 +169,20 @@ export function extractForwardEmail(headers: string): string {
     return cleanForwards.join(', ');
 }
 
+export function extractDate(headers: string): string {
+    const targetHeader = 'Date:'
+    let dateStr = '';
+    const headerLines = headers.split('\n');
+    for (const line of headerLines) {
+        if (line.includes(targetHeader)) {
+            dateStr = line.replace(targetHeader, '').trim();
+            break;
+        }
+    }
+    return dateStr;
+}
+
+
 export function extractToEmail(inboundEmailDomain: string, headers: string, toEmail: string, ccEmail?: string, bccEmail?: string): addrs.ParsedMailbox {
     let rawAddresses = `${toEmail}`;
     const forwardEmail = extractForwardEmail(headers);
@@ -198,6 +212,11 @@ export function extractPublicIdFromInboundEmail(emailSubject: string): string | 
     return publicId;
 }
 
+export function extractCreatedAtFromInboundEmail(headers: string): Date {
+    const dateStr = extractDate(headers);
+    return new Date(dateStr);
+}
+
 export async function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string, InboundMap: InboundMapModel):
     Promise<[ParsedServiceRequestAttributes, PublicId]> {
     let firstName = '',
@@ -210,12 +229,17 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
     const { jurisdictionId, departmentId } = await findIdentifiers(toEmail, InboundMap);
     const description = extractDescriptionFromInboundEmail(subject, text);
     const publicId = extractPublicIdFromInboundEmail(subject);
+    const extractCreatedAt = extractCreatedAtFromInboundEmail(headers);
+    let createdAt;
+    if (extractCreatedAt.toUTCString() != "Invalid Date") { createdAt = extractCreatedAt; }
     if (fromEmail) {
         firstName = fromEmail.name || ''
         lastName = ''
         email = fromEmail.address || ''
     }
-    return [{ jurisdictionId, departmentId, firstName, lastName, email, description, inputChannel }, publicId];
+    return [
+        { jurisdictionId, departmentId, firstName, lastName, email, description, inputChannel, createdAt }, publicId
+    ];
 }
 
 export function canSubmitterComment(submitterEmail: string, validEmails: string[]): boolean {

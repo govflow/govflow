@@ -84,6 +84,7 @@ export interface ParsedServiceRequestAttributes {
     lastName: string;
     email: string;
     description: string,
+    createdAt: Date | undefined,
     departmentId?: string,
 }
 
