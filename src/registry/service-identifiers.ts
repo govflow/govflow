@@ -6,6 +6,7 @@ export const repositoryIds = {
     IEventRepository: Symbol('IEventRepository'),
     ICommunicationRepository: Symbol('ICommunicationRepository'),
     IInboundEmailRepository: Symbol('IInboundEmailRepository'),
+    IEmailStatusRepository: Symbol('IEmailStatusRepository'),
     IDepartmentRepository: Symbol('IDepartmentRepository'),
 };
 

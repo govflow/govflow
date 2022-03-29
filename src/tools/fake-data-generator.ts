@@ -2,7 +2,7 @@ import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
+import { ChannelStatusAttributes, CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -128,6 +128,31 @@ function makeInboundMap(options: Partial<TestDataMakerOptions>) {
     } as InboundMapAttributes
 }
 
+function makeChannelStatus() {
+    const statuses = [
+        ['delivered', true],
+        ['group_resubscribe', true],
+        ['blocked', false],
+        ['dropped', false],
+        ['processed', null],
+        ['open', null],
+    ];
+    const statusGenerator = faker.helpers.randomize(statuses);
+    const email = {
+        id: faker.internet.email(),
+        channel: 'email',
+        isAllowed: statusGenerator[1],
+        log: [statusGenerator]
+    };
+    const phone = {
+        id: faker.phone.phoneNumber(),
+        channel: 'phone',
+        isAllowed: statusGenerator[1],
+        log: [statusGenerator]
+    };
+    return faker.helpers.randomize([email, phone]) as ChannelStatusAttributes
+}
+
 export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: TestDataPayload): Promise<void> {
     const {
         Jurisdiction,
@@ -137,7 +162,8 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         ServiceRequestComment,
         Communication,
         Department,
-        InboundMap
+        InboundMap,
+        ChannelStatus
     } = databaseEngine.models;
 
     for (const jurisdictionData of testData.jurisdictions) {
@@ -171,6 +197,10 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         await InboundMap.create(inboundMapData);
     }
 
+    for (const channelStatusData of testData.channelStatuses) {
+        await ChannelStatus.create(channelStatusData);
+    }
+
 }
 
 export default function makeTestData(): TestDataPayload {
@@ -181,6 +211,7 @@ export default function makeTestData(): TestDataPayload {
     let communications: CommunicationAttributes[] = [];
     let departments: DepartmentAttributes[] = [];
     let inboundMaps: InboundMapAttributes[] = [];
+    let channelStatuses: ChannelStatusAttributes[] = [];
 
     for (const jurisdiction of jurisdictions) {
         staffUsers = staffUsers.concat(
@@ -208,6 +239,8 @@ export default function makeTestData(): TestDataPayload {
         )
     }
 
+    channelStatuses = factory(makeChannelStatus, 100, {}) as unknown as ChannelStatusAttributes[];
+
     return {
         jurisdictions,
         staffUsers,
@@ -215,6 +248,7 @@ export default function makeTestData(): TestDataPayload {
         serviceRequests,
         communications,
         departments,
-        inboundMaps
+        inboundMaps,
+        channelStatuses
     }
 }

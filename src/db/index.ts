@@ -27,7 +27,7 @@ function applyCoreModelRelations(models: Models) {
         ServiceRequestComment,
         Communication,
         Department,
-        InboundMap
+        InboundMap,
     } = models;
 
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });

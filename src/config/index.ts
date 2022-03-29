@@ -18,6 +18,7 @@ const defaultSettings: AppSettings = {
     'databaseExtraMigrationPaths': '',
     'sendGridApiKey': process.env.SENDGRID_API_KEY || '',
     'sendGridFromEmail': process.env.SENDGRID_FROM_EMAIL || '',
+    'sendGridSignedWebhookVerificationKey': process.env.SENDGRID_SIGNED_WEBHOOK_VERIFICATION_KEY || '',
     'twilioAccountSid': process.env.TWILIO_ACCOUNT_SID || '',
     'twilioAuthToken': process.env.TWILIO_AUTH_TOKEN || '',
     'twilioFromPhone': process.env.TWILIO_FROM_PHONE || '',

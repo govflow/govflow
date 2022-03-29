@@ -202,6 +202,7 @@ export interface TestDataPayload {
     communications: CommunicationAttributes[];
     departments: DepartmentAttributes[];
     inboundMaps: InboundMapAttributes[];
+    channelStatuses: ChannelStatusAttributes[];
 }
 
 export interface TestDataMakerOptions {
@@ -244,3 +245,28 @@ export interface InboundEmailDataToRequestAttributes {
 }
 
 export type PublicId = string | undefined;
+
+export interface EmailEventAttributes {
+    email: string;
+    event: string;
+    timestamp: number;
+    'smtp-id': string;
+    category: string | [];
+    sg_event_id?: string;
+    sg_message_id?: string;
+    type?: string;
+}
+
+export type LogEntry = [string, boolean | null | undefined];
+
+export interface ChannelStatusAttributes {
+    id: string;
+    channel: string;
+    isAllowed: boolean | null;
+    log: LogEntry[];
+}
+
+export type ChannelStatusCreateAttributes = Partial<ChannelStatusAttributes>
+
+export interface ChannelStatusInstance
+    extends Model<ChannelStatusAttributes, ChannelStatusCreateAttributes>, ChannelStatusAttributes { }

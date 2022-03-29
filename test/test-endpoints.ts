@@ -7,6 +7,7 @@ import { createApp } from '../src';
 import { Open311ServiceRequestCreatePayload } from '../src/core/open311/types';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { TestDataPayload } from '../src/types';
+import { emailEvent } from './fixtures/event-email';
 import { validServiceRequestData } from './fixtures/open311';
 
 chai.use(chaiHttp);
@@ -421,6 +422,31 @@ describe('Hit all API endpoints', function () {
         ).send(inboundMapData);
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.id, inboundMapData.id);
+    });
+
+    it('should POST an email event payload', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const payload = _.cloneDeep(emailEvent);
+        const res = await chai.request(app).post(
+            `/communications/events/email?jurisdictionId=${jurisdictionId}`
+        ).send(payload);
+        chai.assert.equal(res.status, 200);
+        chai.assert(res.body.data);
+        chai.assert.equal(res.body.data.message, "Received email event")
+    });
+
+    it('should GET a comms status for an email', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const emailStatuses = _.filter(testData.channelStatuses, { channel: 'email' });
+        for (const status of emailStatuses) {
+            const base64Email = Buffer.from(status.id).toString('base64url');
+            const res = await chai.request(app).get(
+                `/communications/status/email/${base64Email}?jurisdictionId=${jurisdictionId}`
+            );
+            chai.assert.equal(res.status, 200);
+            chai.assert(res.body.data);
+            chai.assert.equal(res.body.data.id, status.id)
+        }
     });
 
     it('should return 501 not implemented error for Open311 service discovery', async function () {

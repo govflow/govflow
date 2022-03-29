@@ -4,7 +4,7 @@ import { json, Router, urlencoded } from 'express';
 import { wrapHandler } from '../helpers';
 import { internalServerError, notFound } from '../middlewares';
 import type { ModelDefinition, PluginBase } from '../types';
-import { CommunicationModel, CommunicationRepository, communicationsRouter, InboundMapModel } from './communications';
+import { ChannelStatusModel, CommunicationModel, CommunicationRepository, communicationsRouter, EmailStatusRepository, InboundEmailRepository, InboundMapModel } from './communications';
 import { DepartmentModel, DepartmentRepository, departmentRouter } from './departments';
 import { JurisdictionModel, JurisdictionRepository, jurisdictionRouter } from './jurisdictions';
 import { open311Router } from './open311';
@@ -37,6 +37,7 @@ const coreModels: ModelDefinition[] = [
     CommunicationModel,
     DepartmentModel,
     InboundMapModel,
+    ChannelStatusModel
 ]
 
 const coreRepositories: PluginBase[] = [
@@ -45,7 +46,10 @@ const coreRepositories: PluginBase[] = [
     ServiceRepository,
     StaffUserRepository,
     CommunicationRepository,
-    DepartmentRepository
+    DepartmentRepository,
+    InboundEmailRepository,
+    EmailStatusRepository,
+
 ]
 
 const coreMiddlewares: RequestHandler[] = [

@@ -1,7 +1,7 @@
 import { Model, ModelAttributes, ModelCtor, ModelOptions, QueryInterface, Sequelize } from "sequelize/types";
 import { Umzug } from "umzug";
 import { CommunicationAttributes, CommunicationCreateAttributes, DepartmentAttributes, DepartmentCreateAttributes, JurisdictionAttributes, JurisdictionCreateAttributes, ServiceAttributes, ServiceCreateAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCreateAttributes, StaffUserAttributes, StaffUserCreateAttributes } from ".";
-import { InboundMapAttributes, InboundMapCreateAttributes } from "./data";
+import { ChannelStatusAttributes, ChannelStatusCreateAttributes, InboundMapAttributes, InboundMapCreateAttributes } from "./data";
 
 export type DatabaseEngine = Sequelize;
 export type MigrationEngine = Umzug<QueryInterface>;
@@ -36,6 +36,8 @@ export type ServiceRequestModel = ModelCtor<Model<ServiceRequestAttributes, Serv
 
 export type InboundMapModel = ModelCtor<Model<InboundMapAttributes, InboundMapCreateAttributes>>;
 
+export type IChannelStatusModel = ModelCtor<Model<ChannelStatusAttributes, ChannelStatusCreateAttributes>>;
+
 export interface Models {
     Jurisdiction: ModelCtor<Model<JurisdictionAttributes, JurisdictionCreateAttributes>>;
     StaffUser: ModelCtor<Model<StaffUserAttributes, StaffUserCreateAttributes>>;
@@ -45,4 +47,5 @@ export interface Models {
     Communication: ModelCtor<Model<CommunicationAttributes, CommunicationCreateAttributes>>;
     Department: ModelCtor<Model<DepartmentAttributes, DepartmentCreateAttributes>>;
     InboundMap: InboundMapModel;
+    ChannelStatus: IChannelStatusModel;
 }
