@@ -102,7 +102,7 @@ export async function dispatchMessage(
         // Because we cant control how the various APIs are used and interact,
         // We are doing a check here at the last step before actually sending
         const emailStatus = await EmailStatusRepository.findOne(dispatchConfig.toEmail);
-        if (emailStatus && emailStatus.status === false) {
+        if (emailStatus && emailStatus.isAllowed === false) {
             const errorMsg = `${dispatchConfig.toEmail} is not allowed for communications.`;
             logger.error(errorMsg);
             throw new Error(errorMsg);

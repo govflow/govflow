@@ -141,14 +141,14 @@ function makeChannelStatus() {
     const email = {
         id: faker.internet.email(),
         channel: 'email',
-        status: statusGenerator[1],
-        statusLog: [statusGenerator]
+        isAllowed: statusGenerator[1],
+        log: [statusGenerator]
     };
     const phone = {
         id: faker.phone.phoneNumber(),
         channel: 'phone',
-        status: statusGenerator[1],
-        statusLog: [statusGenerator]
+        isAllowed: statusGenerator[1],
+        log: [statusGenerator]
     };
     return faker.helpers.randomize([email, phone]) as ChannelStatusAttributes
 }

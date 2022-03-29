@@ -412,8 +412,8 @@ describe('Verify Core Repositories.', function () {
             const record = await EmailStatus.findOne(status.id);
             chai.assert(record);
             chai.assert.equal(record.id, status.id);
-            chai.assert.equal(record.status, status.status);
-            chai.assert.equal(record.statusLog[0][0], status.statusLog[0][0]);
+            chai.assert.equal(record.isAllowed, status.isAllowed);
+            chai.assert.equal(record.log[0][0], status.log[0][0]);
         }
     });
 });

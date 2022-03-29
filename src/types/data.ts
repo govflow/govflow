@@ -257,13 +257,13 @@ export interface EmailEventAttributes {
     type?: string;
 }
 
-export type StatusLogEntry = [string, boolean | null | undefined];
+export type LogEntry = [string, boolean | null | undefined];
 
 export interface ChannelStatusAttributes {
     id: string;
     channel: string;
-    status: boolean | null | undefined;
-    statusLog: StatusLogEntry[];
+    isAllowed: boolean | null;
+    log: LogEntry[];
 }
 
 export type ChannelStatusCreateAttributes = Partial<ChannelStatusAttributes>

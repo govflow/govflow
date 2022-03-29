@@ -12,12 +12,11 @@ import type {
     IInboundEmailRepository,
     InboundEmailDataAttributes,
     InboundMapAttributes,
-    InboundMapInstance,
-    Models,
+    InboundMapInstance, LogEntry, Models,
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
     ServiceRequestCommentInstance,
-    ServiceRequestInstance, StaffUserInstance, StatusLogEntry
+    ServiceRequestInstance, StaffUserInstance
 } from '../../types';
 import { canSubmitterComment, extractServiceRequestfromInboundEmail } from './helpers';
 import { EMAIL_EVENT_MAP } from './models';
@@ -130,18 +129,18 @@ export class EmailStatusRepository implements IEmailStatusRepository {
         if (event === 'bounced') {
             eventKey = type as string;
         }
-        const status = EMAIL_EVENT_MAP[eventKey];
-        const statusLogEntry = [eventKey, EMAIL_EVENT_MAP[eventKey]] as StatusLogEntry;
+        const isAllowed = EMAIL_EVENT_MAP[eventKey];
+        const logEntry = [eventKey, EMAIL_EVENT_MAP[eventKey]] as LogEntry;
         const exists = await ChannelStatus.findOne({ where: { id: email } }) as ChannelStatusInstance;
         let record;
         if (exists) {
-            exists.status = status
-            exists.statusLog.unshift(statusLogEntry)
+            exists.isAllowed = isAllowed
+            exists.log.unshift(logEntry)
             record = exists.save()
         } else {
-            const statusLog = [statusLogEntry];
+            const log = [logEntry];
             record = await ChannelStatus.create(
-                { id: email, channel: 'email', status, statusLog }
+                { id: email, channel: 'email', isAllowed, log }
             ) as ChannelStatusInstance;
         }
         return record;

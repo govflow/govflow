@@ -129,11 +129,11 @@ export const ChannelStatusModel: ModelDefinition = {
             allowNull: false,
             type: DataTypes.ENUM('email', 'phone'),
         },
-        status: {
+        isAllowed: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
         },
-        statusLog: { // an array of [event, status] ordered new to old
+        log: { // an array of [event, status] ordered new to old
             type: DataTypes.JSONB,
             allowNull: false,
         },
