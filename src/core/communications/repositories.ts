@@ -84,7 +84,9 @@ export class InboundEmailRepository implements IInboundEmailRepository {
             } else {
                 params = Object.assign({}, params, { publicId });
             }
-            const existingRequest = await ServiceRequest.findOne({ where: params }) as unknown as ServiceRequestInstance;
+            const existingRequest = await ServiceRequest.findOne(
+                { where: params }
+            ) as unknown as ServiceRequestInstance;
             const canComment = canSubmitterComment(cleanedData.email, [...staffEmails, existingRequest.email]);
             if (canComment && existingRequest) {
                 const comment = { comment: cleanedData.description, serviceRequestId: existingRequest.id };

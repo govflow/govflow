@@ -243,7 +243,9 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
     const { subject, to, cc, bcc, from, text, headers } = data;
     const toEmail = extractToEmail(inboundEmailDomain, headers, to, cc, bcc);
     const fromEmail = extractFromEmail(from);
-    const { jurisdictionId, departmentId, staffUserId, serviceRequestId, serviceId } = await findIdentifiers(toEmail, InboundMap);
+    const { jurisdictionId, departmentId, staffUserId, serviceRequestId, serviceId } = await findIdentifiers(
+        toEmail, InboundMap
+    );
     const description = extractDescriptionFromInboundEmail(subject, text);
     const publicId = extractPublicIdFromInboundEmail(subject);
     const extractCreatedAt = extractCreatedAtFromInboundEmail(headers);
@@ -255,7 +257,20 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
         email = fromEmail.address || ''
     }
     return [
-        { jurisdictionId, departmentId, assignedTo: staffUserId, serviceRequestId, serviceId, firstName, lastName, email, description, inputChannel, createdAt }, publicId
+        {
+            jurisdictionId,
+            departmentId,
+            assignedTo: staffUserId,
+            serviceRequestId,
+            serviceId,
+            firstName,
+            lastName,
+            email,
+            description,
+            inputChannel,
+            createdAt
+        },
+        publicId
     ];
 }
 
