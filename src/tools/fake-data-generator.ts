@@ -128,7 +128,7 @@ function makeInboundMap(options: Partial<TestDataMakerOptions>) {
     } as InboundMapAttributes
 }
 
-function makeChannelStatus(options: Partial<TestDataMakerOptions>) {
+function makeChannelStatus() {
     const statuses = [
         ['delivered', true],
         ['group_resubscribe', true],

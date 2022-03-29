@@ -120,7 +120,7 @@ export class EmailStatusRepository implements IEmailStatusRepository {
 
     async create(data: ChannelStatusCreateAttributes): Promise<ChannelStatusInstance> {
         const { ChannelStatus } = this.models;
-        return await ChannelStatus.create(data) as ChannelStatusInstance;;
+        return await ChannelStatus.create(data) as ChannelStatusInstance;
     }
 
     async createFromEvent(data: EmailEventAttributes): Promise<ChannelStatusInstance> {

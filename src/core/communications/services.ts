@@ -255,7 +255,9 @@ export class CommunicationService implements ICommunicationService {
                     recipientName: admin.displayName as string
                 }
             }
-            const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication, EmailStatus);
+            const record = await dispatchMessageForStaffUser(
+                dispatchConfig, templateConfig, Communication, EmailStatus
+            );
             records.push(record);
         }
         return records;

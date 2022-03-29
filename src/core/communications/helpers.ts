@@ -61,7 +61,9 @@ export async function dispatchMessageForPublicUser(
         logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address is valid.`);
         return {} as CommunicationAttributes;
     } else {
-        const record = await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository, EmailStatusRepository);
+        const record = await dispatchMessage(
+            dispatchConfig, templateConfig, CommunicationRepository, EmailStatusRepository
+        );
         if (record.accepted === true) {
             serviceRequest.communicationValid = true
         } else {
