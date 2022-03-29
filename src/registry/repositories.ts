@@ -1,12 +1,12 @@
 import { Container } from 'inversify';
-import { CommunicationRepository, InboundEmailRepository } from '../core/communications';
+import { CommunicationRepository, EmailStatusRepository, InboundEmailRepository } from '../core/communications';
 import { CommunicationService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { JurisdictionRepository } from '../core/jurisdictions';
 import { ServiceRequestRepository } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IInboundEmailRepository, IJurisdictionRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
+import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IEmailStatusRepository, IInboundEmailRepository, IJurisdictionRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -35,6 +35,9 @@ function bindRepositoriesWithPlugins(
     repositoryContainer.bind<IInboundEmailRepository>(repositoryIds.IInboundEmailRepository).to(
         InboundEmailRepository
     );
+    repositoryContainer.bind<IEmailStatusRepository>(repositoryIds.IEmailStatusRepository).to(
+        EmailStatusRepository
+    );
     repositoryContainer.bind<IDepartmentRepository>(repositoryIds.IDepartmentRepository).to(
         DepartmentRepository
     );
@@ -53,6 +56,7 @@ function bindRepositoriesWithPlugins(
     );
     const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
     const InboundEmail = repositoryContainer.get<IInboundEmailRepository>(repositoryIds.IInboundEmailRepository);
+    const EmailStatus = repositoryContainer.get<IEmailStatusRepository>(repositoryIds.IEmailStatusRepository);
     const Department = repositoryContainer.get<IDepartmentRepository>(repositoryIds.IDepartmentRepository);
 
     const repositories = {
@@ -62,6 +66,7 @@ function bindRepositoriesWithPlugins(
         ServiceRequest,
         Communication,
         InboundEmail,
+        EmailStatus,
         Department
     }
     return repositories;

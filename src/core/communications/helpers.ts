@@ -7,7 +7,7 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 
 export const publicIdSubjectLinePattern = /Request #(\d+):/;
 
@@ -51,7 +51,8 @@ export async function dispatchMessageForPublicUser(
     serviceRequest: ServiceRequestAttributes,
     dispatchConfig: DispatchConfigAttributes,
     templateConfig: TemplateConfigAttributes,
-    CommunicationRepository: ICommunicationRepository):
+    CommunicationRepository: ICommunicationRepository,
+    EmailStatusRepository: IEmailStatusRepository):
     Promise<CommunicationAttributes> {
     if (serviceRequest.communicationChannel === null) {
         logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address was supplied.`);
@@ -60,7 +61,7 @@ export async function dispatchMessageForPublicUser(
         logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address is valid.`);
         return {} as CommunicationAttributes;
     } else {
-        const record = await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository);
+        const record = await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository, EmailStatusRepository);
         if (record.accepted === true) {
             serviceRequest.communicationValid = true
         } else {
@@ -74,15 +75,17 @@ export async function dispatchMessageForPublicUser(
 export async function dispatchMessageForStaffUser(
     dispatchConfig: DispatchConfigAttributes,
     templateConfig: TemplateConfigAttributes,
-    CommunicationRepository: ICommunicationRepository):
+    CommunicationRepository: ICommunicationRepository,
+    EmailStatusRepository: IEmailStatusRepository):
     Promise<CommunicationAttributes> {
-    return await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository);
+    return await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository, EmailStatusRepository);
 }
 
 export async function dispatchMessage(
     dispatchConfig: DispatchConfigAttributes,
     templateConfig: TemplateConfigAttributes,
-    CommunicationRepository: ICommunicationRepository):
+    CommunicationRepository: ICommunicationRepository,
+    EmailStatusRepository: IEmailStatusRepository):
     Promise<CommunicationAttributes> {
     let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown>;
     let dispatchPayload: DispatchPayloadAttributes;
@@ -90,6 +93,17 @@ export async function dispatchMessage(
     let textBody: string;
     let htmlBody: string;
     if (dispatchConfig.channel === 'email') {
+        // first, check we can send to this email address
+        // and we exit early if we cannot.
+        // Ideally we'd never get an invalid address here but
+        // Because we cant control how the various APIs are used and interact,
+        // We are doing a check here at the last step before actually sending
+        const emailStatus = await EmailStatusRepository.findOne(dispatchConfig.toEmail);
+        if (emailStatus && emailStatus.status === false) {
+            const errorMsg = `${dispatchConfig.toEmail} is not allowed for communications.`;
+            logger.error(errorMsg);
+            throw new Error(errorMsg);
+        }
         subject = await loadTemplate(
             `email.${templateConfig.name}.subject`,
             templateConfig.context

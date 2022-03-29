@@ -7,6 +7,7 @@ import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
 import { TestDataPayload } from '../src/types';
+import { emailEvent } from './fixtures/event-email';
 
 describe('Verify Core Repositories.', function () {
 
@@ -388,4 +389,31 @@ describe('Verify Core Repositories.', function () {
         }
     });
 
+    it('should write email channel statuses from email events via repository', async function () {
+        const { EmailStatus } = app.repositories;
+        for (const event of emailEvent) {
+            const record = await EmailStatus.createFromEvent(event);
+            chai.assert(record);
+        }
+    });
+
+    it('should write email channel statuses via repository', async function () {
+        const { EmailStatus } = app.repositories;
+        for (const status of testData.channelStatuses) {
+            const record = await EmailStatus.create(status);
+            chai.assert(record);
+        }
+    });
+
+    it('should get an email channel status via repository', async function () {
+        const { EmailStatus } = app.repositories;
+        const emailStatuses = _.filter(testData.channelStatuses, { channel: 'email' });
+        for (const status of emailStatuses) {
+            const record = await EmailStatus.findOne(status.id);
+            chai.assert(record);
+            chai.assert.equal(record.id, status.id);
+            chai.assert.equal(record.status, status.status);
+            chai.assert.equal(record.statusLog[0][0], status.statusLog[0][0]);
+        }
+    });
 });

@@ -150,14 +150,6 @@ export const ServiceRequestModel: ModelDefinition = {
                 }
             }
         },
-        // if, when communicating, we find out that the email/phone is not valid
-        // then we set to false, if is valid set to true, and, if value is null
-        // then we dont know yet.
-        communicationChannelValid: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: null,
-            allowNull: true,
-        },
         closeDate: {
             allowNull: true,
             type: DataTypes.DATE,

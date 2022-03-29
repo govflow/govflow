@@ -12,7 +12,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { InboundMapAttributes } from './data';
+import { ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -92,6 +92,14 @@ export interface IInboundEmailRepository extends RepositoryBase {
     createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
 }
 
+export interface IEmailStatusRepository extends RepositoryBase {
+    create: (data: ChannelStatusAttributes) =>
+        Promise<ChannelStatusInstance>;
+    createFromEvent: (data: EmailEventAttributes) =>
+        Promise<ChannelStatusInstance>;
+    findOne: (email: string) => Promise<ChannelStatusInstance>;
+}
+
 export interface Repositories {
     Jurisdiction: IJurisdictionRepository;
     StaffUser: IStaffUserRepository;
@@ -100,4 +108,5 @@ export interface Repositories {
     Communication: ICommunicationRepository;
     InboundEmail: IInboundEmailRepository;
     Department: IDepartmentRepository;
+    EmailStatus: IEmailStatusRepository;
 }

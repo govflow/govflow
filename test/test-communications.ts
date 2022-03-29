@@ -70,7 +70,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatch a message for a public user', async function () {
-        const { ServiceRequest, Communication } = app.repositories;
+        const { ServiceRequest, Communication, EmailStatus } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -107,13 +107,13 @@ describe('Verify Core Communications Functionality.', function () {
             }
         }
         const record = await dispatchMessageForPublicUser(
-            serviceRequest, dispatchConfig, templateConfig, Communication
+            serviceRequest, dispatchConfig, templateConfig, Communication, EmailStatus
         );
         chai.assert(record);
     });
 
     it('dispatch a message for a staff user', async function () {
-        const { StaffUser, Communication } = app.repositories;
+        const { StaffUser, Communication, EmailStatus } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -151,7 +151,7 @@ describe('Verify Core Communications Functionality.', function () {
             }
         }
         const record = await dispatchMessageForStaffUser(
-            dispatchConfig, templateConfig, Communication
+            dispatchConfig, templateConfig, Communication, EmailStatus
         );
         chai.assert(record);
     });

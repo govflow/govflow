@@ -21,8 +21,8 @@ export class CommunicationService implements ICommunicationService {
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
         @inject(appIds.AppSettings) settings: AppSettings,) {
-            this.repositories = repositories;
-            this.settings = settings;
+        this.repositories = repositories;
+        this.settings = settings;
     }
 
     async dispatchServiceRequestCreate(
@@ -40,7 +40,7 @@ export class CommunicationService implements ICommunicationService {
             twilioFromPhone
         } = this.settings;
 
-        const { Communication, StaffUser } = this.repositories;
+        const { Communication, StaffUser, EmailStatus } = this.repositories;
 
         const records: CommunicationAttributes[] = [];
 
@@ -66,7 +66,7 @@ export class CommunicationService implements ICommunicationService {
             }
         }
         const record = await dispatchMessageForPublicUser(
-            serviceRequest, dispatchConfig, templateConfig, Communication
+            serviceRequest, dispatchConfig, templateConfig, Communication, EmailStatus
         );
         records.push(record);
         const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
@@ -94,7 +94,7 @@ export class CommunicationService implements ICommunicationService {
                 }
             }
             const record = await dispatchMessageForStaffUser(
-                dispatchConfig, templateConfig, Communication
+                dispatchConfig, templateConfig, Communication, EmailStatus
             );
             records.push(record);
         }
@@ -115,7 +115,7 @@ export class CommunicationService implements ICommunicationService {
             twilioAuthToken,
             twilioFromPhone
         } = this.settings;
-        const { StaffUser, Communication } = this.repositories;
+        const { StaffUser, Communication, EmailStatus } = this.repositories;
         const staffUser = await StaffUser.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
         );
@@ -140,7 +140,7 @@ export class CommunicationService implements ICommunicationService {
                 recipientName: staffUser.displayName as string
             }
         }
-        const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication);
+        const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication, EmailStatus);
         return record;
     }
 
@@ -162,7 +162,7 @@ export class CommunicationService implements ICommunicationService {
             twilioAuthToken,
             twilioFromPhone
         } = this.settings;
-        const { StaffUser, Communication } = this.repositories;
+        const { StaffUser, Communication, EmailStatus } = this.repositories;
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
         const dispatchConfig = {
             channel: 'email',
@@ -185,7 +185,7 @@ export class CommunicationService implements ICommunicationService {
                 recipientName: staffUser.displayName as string
             }
         }
-        const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication);
+        const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication, EmailStatus);
         return record;
     }
 
@@ -204,7 +204,7 @@ export class CommunicationService implements ICommunicationService {
             twilioAuthToken,
             twilioFromPhone
         } = this.settings;
-        const { Communication, StaffUser } = this.repositories;
+        const { Communication, StaffUser, EmailStatus } = this.repositories;
         const records: CommunicationAttributes[] = [];
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
@@ -228,7 +228,7 @@ export class CommunicationService implements ICommunicationService {
             }
         }
         const record = await dispatchMessageForPublicUser(
-            serviceRequest, dispatchConfig, templateConfig, Communication
+            serviceRequest, dispatchConfig, templateConfig, Communication, EmailStatus
         );
         records.push(record);
         const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
@@ -255,7 +255,7 @@ export class CommunicationService implements ICommunicationService {
                     recipientName: admin.displayName as string
                 }
             }
-            const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication);
+            const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication, EmailStatus);
             records.push(record);
         }
         return records;
