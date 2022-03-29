@@ -125,6 +125,9 @@ function makeInboundMap(options: Partial<TestDataMakerOptions>) {
         id: faker.datatype.uuid(),
         jurisdictionId: options.jurisdiction?.id,
         departmentId: faker.helpers.randomize(options.departments as DepartmentAttributes[]).id,
+        serviceRequestId: faker.helpers.randomize(options.serviceRequests as ServiceRequestAttributes[]).id,
+        serviceId: faker.helpers.randomize(options.services as ServiceAttributes[]).id,
+        staffUserId: faker.helpers.randomize(options.staffUsers as StaffUserAttributes[]).id,
     } as InboundMapAttributes
 }
 

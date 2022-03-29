@@ -4,7 +4,7 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
-import type { AppSettings, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCommentInstance, ServiceRequestInstance, ServiceRequestStatusAttributes, StaffUserAttributes } from '../../types';
+import type { AppSettings, InboundMapInstance, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCommentInstance, ServiceRequestInstance, ServiceRequestStatusAttributes, StaffUserAttributes } from '../../types';
 import { makeAuditMessage } from './helpers';
 import { REQUEST_STATUSES } from './models';
 
@@ -24,8 +24,10 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
 
     async create(data: Partial<ServiceRequestAttributes>): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest } = this.models;
+        const { ServiceRequest, InboundMap } = this.models;
         const record = await ServiceRequest.create(data) as ServiceRequestInstance;
+        // ensure we have an inbound routing email
+        await InboundMap.create({ id: record.id }) as InboundMapInstance;
         return record;
     }
 

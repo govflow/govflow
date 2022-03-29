@@ -14,7 +14,8 @@
     "send-test-email": "ts-node ./src/cli/send-test-email",
     "send-test-sms": "ts-node ./src/cli/send-test-sms",
     "send-test-dispatch": "ts-node ./src/cli/send-test-dispatch",
-    "ensure-public-ids": "ts-node ./src/cli/ensure-public-ids"
+    "ensure-public-ids": "ts-node ./src/cli/ensure-public-ids",
+    "ensure-service-request-inbound-map": "ts-node ./src/cli/ensure-service-request-inbound-map"
   },
   "bin": {
     "govflow-start": "./cli/default-server.js",
@@ -23,7 +24,8 @@
     "govflow-send-test-email": "./cli/send-test-email.js",
     "govflow-send-test-sms": "./cli/send-test-sms.js",
     "govflow-send-test-dispatch": "./cli/send-test-dispatch.js",
-    "govflow-ensure-public-ids": "./cli/ensure-public-ids.js"
+    "govflow-ensure-public-ids": "./cli/ensure-public-ids.js",
+    "govflow-service-request-inbound-map": "./cli/ensure-service-request-inbound-map.js"
   },
   "license": "MIT",
   "dependencies": {

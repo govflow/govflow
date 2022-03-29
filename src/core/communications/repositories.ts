@@ -73,13 +73,18 @@ export class InboundEmailRepository implements IInboundEmailRepository {
         const [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
             { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, InboundMap
         );
-        if (publicId) {
+        if (publicId || cleanedData.serviceRequestId) {
             const staffUsers = await StaffUser.findAll({ where: { jurisdictionId: cleanedData.jurisdictionId } });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email });
-            const params = { where: { jurisdictionId: cleanedData.jurisdictionId, publicId } };
-            const existingRequest = await ServiceRequest.findOne(params) as unknown as ServiceRequestInstance;
+            let params = { jurisdictionId: cleanedData.jurisdictionId };
+            if (cleanedData.serviceRequestId) {
+                params = Object.assign({}, params, { id: cleanedData.serviceRequestId });
+            } else {
+                params = Object.assign({}, params, { publicId });
+            }
+            const existingRequest = await ServiceRequest.findOne({ where: params }) as unknown as ServiceRequestInstance;
             const canComment = canSubmitterComment(cleanedData.email, [...staffEmails, existingRequest.email]);
             if (canComment && existingRequest) {
                 const comment = { comment: cleanedData.description, serviceRequestId: existingRequest.id };
