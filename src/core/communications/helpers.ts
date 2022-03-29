@@ -1,3 +1,4 @@
+import { EventWebhook } from '@sendgrid/eventwebhook';
 import type { ClientResponse } from '@sendgrid/mail';
 import addrs from 'email-addresses';
 import { constants as fsConstants, promises as fs } from 'fs';
@@ -7,7 +8,7 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 
 export const publicIdSubjectLinePattern = /Request #(\d+):/;
 
@@ -264,4 +265,14 @@ export function canSubmitterComment(submitterEmail: string, validEmails: string[
     } else {
         return false;
     }
+}
+
+export function verifySendGridWebhook(
+    publicKey: string, payload: EmailEventAttributes, signature: string | undefined, timestamp: string | undefined
+): boolean {
+    const ew = new EventWebhook();
+    const key = ew.convertPublicKeyToECDSA(publicKey);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return ew.verifySignature(key, payload, signature, timestamp);
 }

@@ -4,6 +4,7 @@ import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
 import { EmailEventAttributes } from '../../types';
 import { GovFlowEmitter } from '../event-listeners';
+import { verifySendGridWebhook } from './helpers';
 import { EMAIL_EVENT_IGNORE } from './models';
 
 export const communicationsRouter = Router();
@@ -19,6 +20,25 @@ communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (
 
 // public route for web hook integration
 communicationsRouter.post('/events/email', wrapHandler(async (req: Request, res: Response) => {
+    const { sendGridSignedWebhookVerificationKey } = res.app.config;
+    let verified;
+    if (sendGridSignedWebhookVerificationKey) {
+        // we are allowing unverified events IF this variable is not set
+        // it really does need to be set for production use
+        const signature = res.getHeader('X-Twilio-Email-Event-Webhook-Signature');
+        const timestamp = res.getHeader('X-Twilio-Email-Event-Webhook-Timestamp');
+        verified = verifySendGridWebhook(
+            sendGridSignedWebhookVerificationKey as string,
+            req.body as EmailEventAttributes,
+            signature as string | undefined,
+            timestamp as string | undefined
+        );
+    }
+
+    if (sendGridSignedWebhookVerificationKey && !verified) {
+        res.status(403).send({ data: { status: 403, message: "Unverified POST" } });
+    }
+
     const { EmailStatus } = res.app.repositories;
     const emailEvents = req.body as unknown as EmailEventAttributes[];
     for (const event of emailEvents) {
