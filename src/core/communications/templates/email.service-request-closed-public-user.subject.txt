@@ -1,1 +1,1 @@
-[${context.appName}]: Your Service Request Has Been Closed
+[${context.appName} - Request #${context.serviceRequestPublicId}]: Your Service Request Has Been Closed

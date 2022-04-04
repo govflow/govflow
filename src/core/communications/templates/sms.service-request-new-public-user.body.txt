@@ -1,5 +1,5 @@
 Hello ${context.recipientName},
 
-Thank you for submitting your service request for ${context.jurisdictionName}.
+Thank you for submitting your service request for ${context.jurisdictionName}. Your request number is #${context.serviceRequestPublicId}.
 
 We have received your request and will look into it as soon as possible.

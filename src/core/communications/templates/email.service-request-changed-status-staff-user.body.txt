@@ -1,9 +1,9 @@
 Hello ${context.recipientName},
 <br />
 <br />
-A service request has been changed to the ${context.serviceRequestStatus} status.
+Service Request #${context.serviceRequestPublicId} has been changed to the ${context.serviceRequestStatus} status.
 <br />
 <br />
-Go to ${context.appName} at ${context.appRequestUrl} for further details.
+Further information is available in ${context.appName} here: <a href="${context.appRequestUrl}">Request #${context.serviceRequestPublicId}</a>.
 <br />
 <br />

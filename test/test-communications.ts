@@ -55,12 +55,13 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('loads a template', async function () {
-        const expectedOutput = '[Gov Flow]: A New Service Request Has Been Submitted\n'
+        const expectedOutput = '[Gov Flow - Request #1234]: A New Service Request Has Been Submitted\n'
         const templateName = 'email.service-request-new-staff-user.subject'
         const templateContext = {
             appName: 'Gov Flow',
             appRequestUrl: 'https://dummy.url',
             serviceRequestStatus: 'dummy-status',
+            serviceRequestPublicId: '1234',
             jurisdictionName: 'dummy-name',
             jurisdictionEmail: 'dummy@example.com',
             recipientName: 'Dummy Name'
@@ -101,6 +102,7 @@ describe('Verify Core Communications Functionality.', function () {
                 appName,
                 appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
+                serviceRequestPublicId: '1234',
                 jurisdictionName: 'dummy-name',
                 jurisdictionEmail: 'dummy@example.com',
                 recipientName: serviceRequest.displayName as string
@@ -145,6 +147,7 @@ describe('Verify Core Communications Functionality.', function () {
                 appName,
                 appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, ''),
                 serviceRequestStatus: 'dummy',
+                serviceRequestPublicId: '1234',
                 jurisdictionName: 'dummy-name',
                 jurisdictionEmail: 'dummy@example.com',
                 recipientName: admin.displayName as string

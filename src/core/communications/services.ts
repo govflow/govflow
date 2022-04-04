@@ -60,6 +60,7 @@ export class CommunicationService implements ICommunicationService {
                 appName: appName as string,
                 appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
+                serviceRequestPublicId: serviceRequest.publicId,
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
                 recipientName: serviceRequest.displayName as string
@@ -88,6 +89,7 @@ export class CommunicationService implements ICommunicationService {
                     appName,
                     appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                     serviceRequestStatus: serviceRequest.status,
+                    serviceRequestPublicId: serviceRequest.publicId,
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
                     recipientName: admin.displayName as string
@@ -135,6 +137,7 @@ export class CommunicationService implements ICommunicationService {
                 appName,
                 appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
+                serviceRequestPublicId: serviceRequest.publicId,
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
                 recipientName: staffUser.displayName as string
@@ -180,6 +183,7 @@ export class CommunicationService implements ICommunicationService {
                 appName,
                 appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
+                serviceRequestPublicId: serviceRequest.publicId,
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
                 recipientName: staffUser.displayName as string
@@ -222,6 +226,7 @@ export class CommunicationService implements ICommunicationService {
                 appName,
                 appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
+                serviceRequestPublicId: serviceRequest.publicId,
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
                 recipientName: serviceRequest.displayName as string
@@ -250,6 +255,7 @@ export class CommunicationService implements ICommunicationService {
                     appName,
                     appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                     serviceRequestStatus: serviceRequest.status,
+                    serviceRequestPublicId: serviceRequest.publicId,
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
                     recipientName: admin.displayName as string

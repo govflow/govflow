@@ -190,6 +190,7 @@ export interface TemplateConfigContextAttributes {
     appName: string;
     appRequestUrl: string;
     serviceRequestStatus: string;
+    serviceRequestPublicId: string;
     jurisdictionName: string;
     jurisdictionEmail: string;
     recipientName: string;

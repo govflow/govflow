@@ -1,1 +1,1 @@
-[${context.appName}]: A New Service Request Has Been Submitted
+[${context.appName} - Request #${context.serviceRequestPublicId}]: A New Service Request Has Been Submitted

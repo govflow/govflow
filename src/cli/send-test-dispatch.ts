@@ -15,7 +15,7 @@ import { createApp } from '../index';
         testToEmail,
         testToPhone
     } = app.config;
-    const { Communication } = app.repositories;
+    const { Communication, EmailStatus } = app.repositories;
     const dispatchConfig = {
         channel: 'email', // can manually change to sms to test that
         sendGridApiKey: sendGridApiKey as string,
@@ -32,6 +32,7 @@ import { createApp } from '../index';
             appName: 'Test Gov Flow Message Dispatch',
             appRequestUrl: `https://example.com/`,
             serviceRequestStatus: 'inbox',
+            serviceRequestPublicId: '1234',
             jurisdictionName: 'Dummy Name',
             jurisdictionEmail: 'dummy@example.com',
             recipientName: 'Test Recipient Name'
@@ -40,7 +41,8 @@ import { createApp } from '../index';
     const record = await dispatchMessage(
         dispatchConfig,
         templateConfig,
-        Communication
+        Communication,
+        EmailStatus
     );
     console.log(record);
 })();
