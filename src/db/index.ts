@@ -66,6 +66,15 @@ function applyCoreModelRelations(models: Models) {
 
     Department.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'departmentId' });
     InboundMap.belongsTo(Department, { as: 'department' });
+
+    // StaffUser.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'staffUserId' });
+    // InboundMap.belongsTo(StaffUser, { as: 'staffUser' });
+
+    Service.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'serviceId' });
+    InboundMap.belongsTo(Service, { as: 'service' });
+
+    ServiceRequest.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'serviceRequestId' });
+    InboundMap.belongsTo(ServiceRequest, { as: 'serviceRequest' });
 }
 
 function registerModels(

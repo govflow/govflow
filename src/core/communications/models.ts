@@ -106,6 +106,10 @@ export const InboundMapModel: ModelDefinition = {
             allowNull: false,
             primaryKey: true,
         },
+        staffUserId: { // is not a foreignKey as commonly customised
+            type: DataTypes.STRING,
+            allowNull: true,
+        }
     },
     options: {
         freezeTableName: true,
@@ -113,6 +117,26 @@ export const InboundMapModel: ModelDefinition = {
             {
                 unique: true,
                 fields: ['id', 'jurisdictionId', 'departmentId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'departmentId', 'staffUserId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'departmentId', 'serviceId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'staffUserId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'serviceId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'serviceRequestId']
             }
         ]
     }

@@ -86,6 +86,9 @@ export interface ParsedServiceRequestAttributes {
     description: string;
     createdAt: Date | undefined;
     departmentId?: string;
+    assignedTo?: string;
+    serviceRequestId?: string;
+    serviceId?: string;
 }
 
 export interface ServiceRequestInstance
@@ -143,6 +146,9 @@ export interface InboundMapAttributes {
     id: string;
     jurisdictionId: string;
     departmentId?: string;
+    staffUserId?: string;
+    serviceRequestId?: string;
+    serviceId?: string;
 }
 
 export type InboundMapCreateAttributes = Partial<InboundMapAttributes>
