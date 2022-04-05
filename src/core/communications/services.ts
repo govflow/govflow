@@ -41,14 +41,15 @@ export class CommunicationService implements ICommunicationService {
         } = this.settings;
 
         const { Communication, StaffUser, EmailStatus } = this.repositories;
-
         const records: CommunicationAttributes[] = [];
+        const replyToEmail = jurisdiction.email || sendGridFromEmail;
 
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
             fromEmail: sendGridFromEmail as string,
+            replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,
@@ -78,6 +79,7 @@ export class CommunicationService implements ICommunicationService {
                 sendGridApiKey: sendGridApiKey as string,
                 toEmail: admin.email as string,
                 fromEmail: sendGridFromEmail as string,
+                replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
                 fromPhone: twilioFromPhone as string,
@@ -121,11 +123,13 @@ export class CommunicationService implements ICommunicationService {
         const staffUser = await StaffUser.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
         );
+        const replyToEmail = jurisdiction.email || sendGridFromEmail;
         const dispatchConfig = {
             channel: 'email',
             sendGridApiKey: sendGridApiKey as string,
             toEmail: staffUser.email as string,
             fromEmail: sendGridFromEmail as string,
+            replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,
@@ -167,11 +171,13 @@ export class CommunicationService implements ICommunicationService {
         } = this.settings;
         const { StaffUser, Communication, EmailStatus } = this.repositories;
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
+        const replyToEmail = jurisdiction.email || sendGridFromEmail;
         const dispatchConfig = {
             channel: 'email',
             sendGridApiKey: sendGridApiKey as string,
             toEmail: staffUser.email as string,
             fromEmail: sendGridFromEmail as string,
+            replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,
@@ -210,11 +216,13 @@ export class CommunicationService implements ICommunicationService {
         } = this.settings;
         const { Communication, StaffUser, EmailStatus } = this.repositories;
         const records: CommunicationAttributes[] = [];
+        const replyToEmail = jurisdiction.email || sendGridFromEmail;
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
             fromEmail: sendGridFromEmail as string,
+            replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,
@@ -244,6 +252,7 @@ export class CommunicationService implements ICommunicationService {
                 sendGridApiKey: sendGridApiKey as string,
                 toEmail: admin.email as string,
                 fromEmail: sendGridFromEmail as string,
+                replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
                 fromPhone: twilioFromPhone as string,

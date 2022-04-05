@@ -6,7 +6,9 @@ import logger from '../logging';
 
 export async function sendEmail(
     sendGridApiKey: string,
-    toEmail: string, fromEmail: string,
+    toEmail: string,
+    fromEmail: string,
+    replyToEmail: string,
     subject: string,
     htmlBody: string,
     textBody: string
@@ -19,6 +21,7 @@ export async function sendEmail(
     const message = {
         to: toEmail,
         from: fromEmail,
+        replyTo: replyToEmail,
         subject: subject,
         text: textBody,
         html: htmlBody,

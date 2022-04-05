@@ -34,6 +34,7 @@ describe('Verify Core Communications Functionality.', function () {
             sendGridApiKey as string,
             'example@example.com',
             'example@example.com',
+            'example@example.com', // replyTo
             'Test subject line',
             'Test <strong>html</strong> body',
             'Test text body'
@@ -71,7 +72,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatch a message for a public user', async function () {
-        const { ServiceRequest, Communication, EmailStatus } = app.repositories;
+        const { ServiceRequest, Communication, EmailStatus, Jurisdiction } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -83,14 +84,16 @@ describe('Verify Core Communications Functionality.', function () {
             twilioFromPhone
         } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [serviceRequests, count] = await ServiceRequest.findAll(jurisdictionId);
+        const [serviceRequests, _count] = await ServiceRequest.findAll(jurisdictionId);
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const replyToEmail = jurisdiction.email || sendGridFromEmail;
         const serviceRequest = serviceRequests[0];
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
             fromEmail: sendGridFromEmail as string,
+            replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,
@@ -115,7 +118,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatch a message for a staff user', async function () {
-        const { StaffUser, Communication, EmailStatus } = app.repositories;
+        const { StaffUser, Communication, EmailStatus, Jurisdiction } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -127,8 +130,9 @@ describe('Verify Core Communications Functionality.', function () {
             twilioFromPhone
         } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [staffUsers, staffUsersCount] = await StaffUser.findAll(jurisdictionId);
+        const [staffUsers, _staffUsersCount] = await StaffUser.findAll(jurisdictionId);
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const replyToEmail = jurisdiction.email || sendGridFromEmail;
         const admins = _.filter(staffUsers, { isAdmin: true });
         const admin = admins[0] as StaffUserAttributes;
         const dispatchConfig = {
@@ -136,6 +140,7 @@ describe('Verify Core Communications Functionality.', function () {
             sendGridApiKey: sendGridApiKey as string,
             toEmail: admin.email as string,
             fromEmail: sendGridFromEmail as string,
+            replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,

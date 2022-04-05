@@ -11,6 +11,7 @@ import { AppSettings } from '../types';
         sendGridApiKey as string,
         testToEmail as string,
         sendGridFromEmail as string,
+        sendGridFromEmail as string, // replyTo
         'Test subject line',
         'Test <strong>html</strong> body',
         'Test text body',

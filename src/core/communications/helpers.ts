@@ -124,6 +124,7 @@ export async function dispatchMessage(
             dispatchPayload.sendGridApiKey,
             dispatchPayload.toEmail,
             dispatchPayload.fromEmail,
+            dispatchPayload.replyToEmail,
             dispatchPayload.subject as string,
             dispatchPayload.htmlBody as string,
             dispatchPayload.textBody as string,

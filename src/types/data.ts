@@ -174,6 +174,7 @@ export interface DispatchConfigAttributes {
     sendGridApiKey: string;
     toEmail: string;
     fromEmail: string;
+    replyToEmail: string;
     twilioAccountSid: string;
     twilioAuthToken: string;
     fromPhone: string;
