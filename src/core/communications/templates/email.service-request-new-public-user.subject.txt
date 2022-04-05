@@ -1,1 +1,1 @@
-[${context.appName} - Request #${context.serviceRequestPublicId}]: Thank You For Submitting Your Service Request
+[${context.jurisdictionName} - Request #${context.serviceRequestPublicId}]: Thank You For Submitting Your Service Request

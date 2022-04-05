@@ -1,1 +1,1 @@
-[${context.appName} - Request #${context.serviceRequestPublicId}]: A Service Request Has Changed Status
+[${context.jurisdictionName} - Request #${context.serviceRequestPublicId}]: A Service Request Has Changed Status

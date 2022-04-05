@@ -55,14 +55,14 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('loads a template', async function () {
-        const expectedOutput = '[Gov Flow - Request #1234]: A New Service Request Has Been Submitted\n'
+        const expectedOutput = '[Dummy Name - Request #1234]: A New Service Request Has Been Submitted\n'
         const templateName = 'email.service-request-new-staff-user.subject'
         const templateContext = {
             appName: 'Gov Flow',
             appRequestUrl: 'https://dummy.url',
             serviceRequestStatus: 'dummy-status',
             serviceRequestPublicId: '1234',
-            jurisdictionName: 'dummy-name',
+            jurisdictionName: 'Dummy Name',
             jurisdictionEmail: 'dummy@example.com',
             recipientName: 'Dummy Name'
         }
