@@ -8,7 +8,7 @@ Gov Flow dispatches emails to SendGrid, and SendGrid queues and sends the emails
 
 Optionally (and, recommended), the `SENDGRID_SIGNED_WEBHOOK_VERIFICATION_KEY` can be set to verify the web requests, to ensure **only** SendGrid is sending data to this endpoint. When this value is falsy, the verification is bypassed and the feature works without verification (we allow this as SendGrid also allow the functionality with our withut verification).
 
-The delivery data is stored in a form that is optimized for querying in the Gov Flow use case [ref.]](https://github.com/govflow/govflow/blob/main/src/core/communications/repositories.ts#L132) and clients of the Gov Flow API can query the status of an email at any given time with a [dedicated status endpoint](https://github.com/govflow/govflow/blob/main/src/core/communications/routes.ts#L51).
+The delivery data is stored in a form that is optimized for querying in the Gov Flow use case ([ref.](https://github.com/govflow/govflow/blob/main/src/core/communications/repositories.ts#L132)) and clients of the Gov Flow API can query the status of an email at any given time with a [dedicated status endpoint](https://github.com/govflow/govflow/blob/main/src/core/communications/routes.ts#L51).
 
 **NOTE:** It is recommended that clients do query this endpoint before allowing users to perform actions that require email delivery, to ensure delivery is probable/likely, and to provide feedback to users when delivery is not possible in some circumstances (common case: a request submission was made with an email address this is fake or simply has a typo).
 
