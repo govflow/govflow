@@ -17,7 +17,6 @@ content-type: application/json
 {
     "jurisdictionId": "{{ jurisdictionId }}"
 }
-
 ```
 
 The `sendFromEmail` field of the `Jurisdiction` needs to be set for this request to be send successfully.
