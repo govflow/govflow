@@ -86,13 +86,14 @@ describe('Verify Core Communications Functionality.', function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const [serviceRequests, _count] = await ServiceRequest.findAll(jurisdictionId);
         const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
-        const replyToEmail = jurisdiction.email || sendGridFromEmail;
+        const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
         const serviceRequest = serviceRequests[0];
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
-            fromEmail: sendGridFromEmail as string,
+            fromEmail: sendFromEmail as string,
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
@@ -132,14 +133,15 @@ describe('Verify Core Communications Functionality.', function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const [staffUsers, _staffUsersCount] = await StaffUser.findAll(jurisdictionId);
         const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
-        const replyToEmail = jurisdiction.email || sendGridFromEmail;
+        const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
         const admins = _.filter(staffUsers, { isAdmin: true });
         const admin = admins[0] as StaffUserAttributes;
         const dispatchConfig = {
             channel: 'email',
             sendGridApiKey: sendGridApiKey as string,
             toEmail: admin.email as string,
-            fromEmail: sendGridFromEmail as string,
+            fromEmail: sendFromEmail as string,
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,

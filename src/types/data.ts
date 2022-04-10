@@ -4,6 +4,13 @@ export interface JurisdictionAttributes {
     id: string;
     name: string;
     email: string;
+    sendFromEmail?: string;
+    replyToEmail?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zip?: string;
 }
 
 export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>

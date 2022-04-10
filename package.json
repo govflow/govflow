@@ -29,6 +29,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@sendgrid/client": "^7.6.2",
     "@sendgrid/eventwebhook": "^7.4.5",
     "@sendgrid/mail": "^7.6.0",
     "@types/nodemailer": "^6.4.4",

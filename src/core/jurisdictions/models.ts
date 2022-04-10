@@ -20,6 +20,36 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: { isEmail: true }
         },
+        sendFromEmail: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            validate: { isEmail: true }
+        },
+        replyToEmail: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            validate: { isEmail: true }
+        },
+        address: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        city: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        state: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        country: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        zip: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
     },
     options: {
         freezeTableName: true
