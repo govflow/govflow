@@ -29,7 +29,7 @@ Gov Flow **only** processes parsed emails if the local identifier of the email i
 
 ## Example requests
 
-```bash
+```http
 POST {{ host }}/communications/create-map?jurisdictionId={{ jurisdictionId }}
 content-type: application/json
 
@@ -40,7 +40,7 @@ content-type: application/json
 }
 ```
 
-```bash
+```http
 POST {{ host }}/communications/create-map?jurisdictionId={{ jurisdictionId }}
 content-type: application/json
 
@@ -51,7 +51,7 @@ content-type: application/json
 }
 ```
 
-```bash
+```http
 POST {{ host }}/communications/create-map?jurisdictionId={{ jurisdictionId }}
 content-type: application/json
 
@@ -62,7 +62,7 @@ content-type: application/json
 }
 ```
 
-```bash
+```http
 POST {{ host }}/communications/create-map?jurisdictionId={{ jurisdictionId }}
 content-type: application/json
 
