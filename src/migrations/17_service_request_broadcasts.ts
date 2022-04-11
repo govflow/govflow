@@ -4,6 +4,7 @@ import { DataTypes } from 'sequelize';
 export async function up({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
     await queryInterface.addColumn('ServiceRequestComment', 'broadcastToSubmitter', {
         allowNull: false,
+        defaultValue: false,
         type: DataTypes.BOOLEAN,
     });
     await queryInterface.addColumn('ServiceRequestComment', 'broadcastToAssignee', {
