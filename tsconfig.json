@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ESNext",
+    "lib": [
+      "ES2021.String"
+    ],
     "module": "commonjs",
     "rootDir": "./src/",
     "outDir": "lib",

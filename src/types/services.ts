@@ -1,4 +1,5 @@
 import { AppSettings, CommunicationAttributes, JurisdictionAttributes, PluginBase, Repositories, ServiceRequestAttributes } from ".";
+import { ServiceRequestCommentAttributes } from "./data";
 
 export interface ServiceBase extends PluginBase {
     repositories: Repositories;
@@ -21,6 +22,10 @@ export interface ICommunicationService extends ServiceBase {
     dispatchServiceRequestClosed: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
+    ) => Promise<CommunicationAttributes[]>;
+    dispatchServiceRequestCommentBroadcast: (
+        jurisdiction: JurisdictionAttributes,
+        serviceRequestComment: ServiceRequestCommentAttributes
     ) => Promise<CommunicationAttributes[]>;
 }
 

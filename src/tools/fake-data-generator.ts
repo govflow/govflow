@@ -186,6 +186,11 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         for (const comment of serviceRequestData.comments) {
             await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }))
         }
+        await InboundMap.create({
+            id: record.id.replaceAll('-', ''),
+            jurisdictionId: record.jurisdictionId,
+            serviceRequestId: record.id,
+        })
     }
 
     for (const communicationData of testData.communications) {

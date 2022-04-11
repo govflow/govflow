@@ -49,43 +49,6 @@ function makePlainTextFromHtml(html: string) {
     return striptags(_tmp, [], '\n');
 }
 
-
-export async function dispatchMessageForPublicUser(
-    serviceRequest: ServiceRequestAttributes,
-    dispatchConfig: DispatchConfigAttributes,
-    templateConfig: TemplateConfigAttributes,
-    CommunicationRepository: ICommunicationRepository,
-    EmailStatusRepository: IEmailStatusRepository):
-    Promise<CommunicationAttributes> {
-    if (serviceRequest.communicationChannel === null) {
-        logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address was supplied.`);
-        return {} as CommunicationAttributes;
-    } else if (serviceRequest.communicationValid === false) {
-        logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address is valid.`);
-        return {} as CommunicationAttributes;
-    } else {
-        const record = await dispatchMessage(
-            dispatchConfig, templateConfig, CommunicationRepository, EmailStatusRepository
-        );
-        if (record.accepted === true) {
-            serviceRequest.communicationValid = true
-        } else {
-            logger.warn(`Cannot send message for ${serviceRequest.id} as backend rejected the payload.`);
-            serviceRequest.communicationValid = false
-        }
-        return record;
-    }
-}
-
-export async function dispatchMessageForStaffUser(
-    dispatchConfig: DispatchConfigAttributes,
-    templateConfig: TemplateConfigAttributes,
-    CommunicationRepository: ICommunicationRepository,
-    EmailStatusRepository: IEmailStatusRepository):
-    Promise<CommunicationAttributes> {
-    return await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository, EmailStatusRepository);
-}
-
 export async function dispatchMessage(
     dispatchConfig: DispatchConfigAttributes,
     templateConfig: TemplateConfigAttributes,
@@ -294,4 +257,9 @@ export function verifySendGridWebhook(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return ew.verifySignature(key, payload, signature, timestamp);
+}
+
+export function getServiceRequestCommentReplyTo(serviceRequest: ServiceRequestAttributes, inboundEmailDomain: string): string {
+    const map = serviceRequest.inboundMaps[0];
+    return `${map.id}@${inboundEmailDomain}`;
 }

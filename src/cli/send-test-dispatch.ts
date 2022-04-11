@@ -2,6 +2,7 @@
 import 'reflect-metadata';
 import { dispatchMessage } from '../core/communications/helpers';
 import { createApp } from '../index';
+import { DispatchConfigAttributes } from '../types';
 
 (async () => {
     // Ensure you unset process.env.COMMUNICATIONS_TO_CONSOLE to use the real backend.
@@ -25,7 +26,7 @@ import { createApp } from '../index';
         twilioAuthToken: twilioAuthToken as string,
         fromPhone: twilioFromPhone as string,
         toPhone: testToPhone as string
-    }
+    } as DispatchConfigAttributes;
     const templateConfig = {
         name: 'service-request-new-public-user',
         context: {

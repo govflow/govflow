@@ -3,7 +3,7 @@ import type { Application } from 'express';
 import _ from 'lodash';
 import { createApp } from '../src';
 import { initConfig } from '../src/config';
-import { dispatchMessageForPublicUser, dispatchMessageForStaffUser, loadTemplate, makeRequestURL } from '../src/core/communications/helpers';
+import { dispatchMessage, loadTemplate, makeRequestURL } from '../src/core/communications/helpers';
 import { sendEmail } from '../src/email';
 import { sendSms } from '../src/sms';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
@@ -112,10 +112,14 @@ describe('Verify Core Communications Functionality.', function () {
                 recipientName: serviceRequest.displayName as string
             }
         }
-        const record = await dispatchMessageForPublicUser(
-            serviceRequest, dispatchConfig, templateConfig, Communication, EmailStatus
-        );
-        chai.assert(record);
+        if (serviceRequest.communicationChannel) {
+            const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
+            chai.assert(record);
+        } else {
+            chai.expect(
+                async () => await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus)
+            ).to.throw();
+        }
     });
 
     it('dispatch a message for a staff user', async function () {
@@ -160,7 +164,7 @@ describe('Verify Core Communications Functionality.', function () {
                 recipientName: admin.displayName as string
             }
         }
-        const record = await dispatchMessageForStaffUser(
+        const record = await dispatchMessage(
             dispatchConfig, templateConfig, Communication, EmailStatus
         );
         chai.assert(record);

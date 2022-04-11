@@ -12,7 +12,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapAttributes } from './data';
+import { ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapAttributes, ServiceRequestCommentCreateAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -52,7 +52,7 @@ export interface IServiceRequestRepository extends RepositoryBase {
     createComment: (
         jurisdictionId: string,
         serviceRequestId: string,
-        data: ServiceRequestCommentAttributes,
+        data: ServiceRequestCommentCreateAttributes,
         user?: StaffUserAttributes
     ) => Promise<ServiceRequestCommentAttributes>;
     updateComment: (

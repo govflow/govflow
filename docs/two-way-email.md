@@ -12,6 +12,8 @@ This means that, as well as [commenting on a Service Request](https://github.com
   - All Staff Users which are admins (the current behaviour of Gov Flow for notifications around a request)
   - If `jurisdiction.enforceAssignmentThroughDepartment` is `true`, and if the Service Request has `departmentId` set, then, only Staff Users which are leads of a department receive the broadcast to email.
 
+  `ServiceRequestComment.addedBy` is a field for a string, and generally used to store an ID of a staff user. With the new two-way communication features, this field can also take a constant `__SUBMITTER__` to signify when the comment was created by the submitter.
+
 ## Example request
 
 ```http

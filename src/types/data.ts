@@ -75,11 +75,11 @@ export interface ServiceRequestAttributes {
     lon: number;
     inputChannel: string;
     communicationChannel: string;
-    communicationValid: boolean;
     closeDate: Date;
     displayName: string;
     departmentId: string;
     comments: ServiceRequestCommentAttributes[];
+    inboundMaps: InboundMapAttributes[];
 }
 
 export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
@@ -107,6 +107,10 @@ export interface ServiceRequestCommentAttributes {
     comment?: string;
     addedBy?: string;
     images?: string[];
+    isBroadcast: boolean;
+    broadcastToSubmitter: boolean;
+    broadcastToAssignee: boolean;
+    broadcastToStaff: boolean;
 }
 
 export type ServiceRequestCommentCreateAttributes = Partial<ServiceRequestCommentAttributes>
@@ -270,6 +274,12 @@ export interface EmailEventAttributes {
     sg_event_id?: string;
     sg_message_id?: string;
     type?: string;
+}
+
+export interface RecipientAttributes {
+    email: string;
+    displayName: string;
+    isStaff: boolean;
 }
 
 export type LogEntry = [string, boolean | null | undefined];

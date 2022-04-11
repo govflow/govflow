@@ -6,11 +6,11 @@ import type {
     CommunicationAttributes,
     ICommunicationService,
     JurisdictionAttributes,
+    RecipientAttributes,
     Repositories,
-    ServiceRequestAttributes,
-    StaffUserAttributes
+    ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes
 } from '../../types';
-import { dispatchMessageForPublicUser, dispatchMessageForStaffUser, makeRequestURL } from './helpers';
+import { dispatchMessage, getServiceRequestCommentReplyTo, makeRequestURL } from './helpers';
 
 @injectable()
 export class CommunicationService implements ICommunicationService {
@@ -68,9 +68,7 @@ export class CommunicationService implements ICommunicationService {
                 recipientName: serviceRequest.displayName as string
             }
         }
-        const record = await dispatchMessageForPublicUser(
-            serviceRequest, dispatchConfig, templateConfig, Communication, EmailStatus
-        );
+        const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
         records.push(record);
         const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
@@ -98,7 +96,7 @@ export class CommunicationService implements ICommunicationService {
                     recipientName: admin.displayName as string
                 }
             }
-            const record = await dispatchMessageForStaffUser(
+            const record = await dispatchMessage(
                 dispatchConfig, templateConfig, Communication, EmailStatus
             );
             records.push(record);
@@ -149,7 +147,7 @@ export class CommunicationService implements ICommunicationService {
                 recipientName: staffUser.displayName as string
             }
         }
-        const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication, EmailStatus);
+        const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
         return record;
     }
 
@@ -198,7 +196,7 @@ export class CommunicationService implements ICommunicationService {
                 recipientName: staffUser.displayName as string
             }
         }
-        const record = await dispatchMessageForStaffUser(dispatchConfig, templateConfig, Communication, EmailStatus);
+        const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
         return record;
     }
 
@@ -244,9 +242,7 @@ export class CommunicationService implements ICommunicationService {
                 recipientName: serviceRequest.displayName as string
             }
         }
-        const record = await dispatchMessageForPublicUser(
-            serviceRequest, dispatchConfig, templateConfig, Communication, EmailStatus
-        );
+        const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
         records.push(record);
         const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
@@ -274,7 +270,105 @@ export class CommunicationService implements ICommunicationService {
                     recipientName: admin.displayName as string
                 }
             }
-            const record = await dispatchMessageForStaffUser(
+            const record = await dispatchMessage(
+                dispatchConfig, templateConfig, Communication, EmailStatus
+            );
+            records.push(record);
+        }
+        return records;
+    }
+
+    async dispatchServiceRequestCommentBroadcast(
+        jurisdiction: JurisdictionAttributes,
+        serviceRequestComment: ServiceRequestCommentAttributes
+    ): Promise<CommunicationAttributes[]> {
+        const {
+            sendGridApiKey,
+            sendGridFromEmail,
+            appName,
+            appClientUrl,
+            appClientRequestsPath,
+            twilioAccountSid,
+            twilioAuthToken,
+            twilioFromPhone,
+            inboundEmailDomain
+        } = this.settings;
+        const { Communication, StaffUser, ServiceRequest, EmailStatus } = this.repositories;
+        const serviceRequest = await ServiceRequest.findOne(jurisdiction.id, serviceRequestComment.serviceRequestId);
+        const records: CommunicationAttributes[] = [];
+        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain);
+        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
+        let serviceRequestCommenterName = '';
+        if (serviceRequestComment.addedBy === '__SUBMITTER__') {
+            serviceRequestCommenterName = serviceRequest.displayName;
+        } else {
+            const commenter = await StaffUser.findOne(jurisdiction.id, serviceRequestComment.addedBy as string);
+            serviceRequestCommenterName = commenter.displayName;
+        }
+        const dispatchConfig = {
+            channel: serviceRequest.communicationChannel as string,
+            sendGridApiKey: sendGridApiKey as string,
+            toEmail: serviceRequest.email as string,
+            fromEmail: sendFromEmail as string,
+            replyToEmail: replyToEmail as string,
+            twilioAccountSid: twilioAccountSid as string,
+            twilioAuthToken: twilioAuthToken as string,
+            fromPhone: twilioFromPhone as string,
+            toPhone: serviceRequest.phone as string
+        }
+
+        const recipients = [] as RecipientAttributes[];
+        if (serviceRequestComment.broadcastToSubmitter) {
+            recipients.push({
+                email: serviceRequest.email,
+                displayName: serviceRequest.displayName,
+                isStaff: false,
+            })
+        }
+
+        if (serviceRequestComment.broadcastToAssignee) {
+            const assignee = await StaffUser.findOne(jurisdiction.id, serviceRequest.assignedTo);
+            recipients.push({
+                email: assignee.email,
+                displayName: assignee.displayName,
+                isStaff: true
+            })
+        }
+
+        if (serviceRequestComment.broadcastToStaff) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            if (jurisdiction.enforceAssignmentThroughDepartment) {
+                // if department leads enabled
+                // The feature does not exist yet,
+                // it is in another pull request
+            } else {
+                const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
+                const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
+                recipients.push(...admins.map(
+                    (u) => { return { email: u.email, displayName: u.displayName, isStaff: true } },
+                    admins
+                ))
+            }
+        }
+
+        for (const recipient of recipients) {
+            const _userType = recipient.isStaff ? 'staff-user' : 'public-user';
+            const templateConfig = {
+                name: 'service-request-comment-broadcast-${_userType}',
+                context: {
+                    appName,
+                    appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
+                    serviceRequestStatus: serviceRequest.status,
+                    serviceRequestPublicId: serviceRequest.publicId,
+                    serviceRequestCommenterName: serviceRequestCommenterName,
+                    serviceRequestComment: serviceRequestComment.comment,
+                    jurisdictionName: jurisdiction.name,
+                    jurisdictionEmail: jurisdiction.email,
+                    recipientName: recipient.displayName as string
+                }
+            }
+            const record = await dispatchMessage(
                 dispatchConfig, templateConfig, Communication, EmailStatus
             );
             records.push(record);

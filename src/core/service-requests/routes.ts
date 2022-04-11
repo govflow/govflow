@@ -71,9 +71,13 @@ serviceRequestRouter.post('/service', wrapHandler(async (req: Request, res: Resp
 
 serviceRequestRouter.post('/comments/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
+    const { Communication: dispatchHandler } = res.app.services;
     const { serviceRequestId } = req.params;
-    const data = Object.assign({}, req.body, {addedBy: req.user?.id});
+    const data = Object.assign({}, req.body, { addedBy: req.user?.id });
     const record = await ServiceRequest.createComment(req.jurisdiction.id, serviceRequestId, data);
+    if (record.isBroadcast) {
+        GovFlowEmitter.emit('serviceRequestCommentBroadcast', req.jurisdiction, record, dispatchHandler);
+    }
     res.status(200).send({ data: record });
 }))
 

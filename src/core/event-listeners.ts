@@ -3,8 +3,7 @@ import logger from '../logging';
 import {
     serviceRequestChangeAssignedToHandler,
     serviceRequestChangeStatusHandler,
-    serviceRequestClosedHandler,
-    serviceRequestCreateHandler
+    serviceRequestClosedHandler, serviceRequestCommentBroadcastHandler, serviceRequestCreateHandler
 } from './communications/event-handlers';
 
 export const GovFlowEmitter = new EventEmitter();
@@ -27,4 +26,9 @@ GovFlowEmitter.on('serviceRequestChangeAssignedTo', async (jurisdiction, service
 GovFlowEmitter.on('serviceRequestClosed', async (jurisdiction, serviceRequest, dispatchHandler) => {
     logger.info('Responding to serviceRequestClosed event.');
     await serviceRequestClosedHandler(jurisdiction, serviceRequest, dispatchHandler);
+});
+
+GovFlowEmitter.on('serviceRequestCommentBroadcast', async (jurisdiction, serviceRequest, dispatchHandler) => {
+    logger.info('Responding to serviceRequestCommentBroadcast event.');
+    await serviceRequestCommentBroadcastHandler(jurisdiction, serviceRequest, dispatchHandler);
 });

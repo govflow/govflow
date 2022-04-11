@@ -1,0 +1,10 @@
+Hello ${context.recipientName},
+<br />
+<br />
+Service Request #${context.serviceRequestPublicId} has a new comment by ${context.serviceRequestCommenterName}
+<br />
+"${context.serviceRequestComment}"
+<br />
+Reply to this email to respond.
+<br />
+<br />

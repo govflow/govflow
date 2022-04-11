@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify';
+import _ from 'lodash';
 import logger from '../../logging';
 import { appIds } from '../../registry/service-identifiers';
 import type {
@@ -77,7 +78,13 @@ export class InboundEmailRepository implements IInboundEmailRepository {
             const staffUsers = await StaffUser.findAll({ where: { jurisdictionId: cleanedData.jurisdictionId } });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email });
+            const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email }) as string[];
+            let addedBy = '__SUBMITTER__';
+            if (staffEmails.includes(cleanedData.email)) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                addedBy = _.find(staffUsers, (u) => { return u.email === cleanedData.email })
+            }
             let params = { jurisdictionId: cleanedData.jurisdictionId };
             if (cleanedData.serviceRequestId) {
                 params = Object.assign({}, params, { id: cleanedData.serviceRequestId });
@@ -89,7 +96,7 @@ export class InboundEmailRepository implements IInboundEmailRepository {
             ) as unknown as ServiceRequestInstance;
             const canComment = canSubmitterComment(cleanedData.email, [...staffEmails, existingRequest.email]);
             if (canComment && existingRequest) {
-                const comment = { comment: cleanedData.description, serviceRequestId: existingRequest.id };
+                const comment = { comment: cleanedData.description, serviceRequestId: existingRequest.id, addedBy };
                 record = await ServiceRequestComment.create(comment) as ServiceRequestCommentInstance;
             } else {
                 const dataToLog = { message: 'Invalid Comment Submitter.' }

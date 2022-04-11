@@ -1,4 +1,4 @@
-import type { ICommunicationService, JurisdictionAttributes, ServiceRequestAttributes } from '../../types';
+import type { ICommunicationService, JurisdictionAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes } from '../../types';
 
 export async function serviceRequestCreateHandler(
     jurisdiction: JurisdictionAttributes,
@@ -30,4 +30,12 @@ export async function serviceRequestClosedHandler(
     dispatchHandler: ICommunicationService
 ): Promise<void> {
     await dispatchHandler.dispatchServiceRequestClosed(jurisdiction, serviceRequest);
+}
+
+export async function serviceRequestCommentBroadcastHandler(
+    jurisdiction: JurisdictionAttributes,
+    serviceRequestComment: ServiceRequestCommentAttributes,
+    dispatchHandler: ICommunicationService
+): Promise<void> {
+    await dispatchHandler.dispatchServiceRequestCommentBroadcast(jurisdiction, serviceRequestComment);
 }

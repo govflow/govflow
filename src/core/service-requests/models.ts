@@ -245,6 +245,32 @@ export const ServiceRequestCommentModel: ModelDefinition = {
                 }
             }
         },
+        broadcastToSubmitter: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        },
+        broadcastToAssignee: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        },
+        broadcastToStaff: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        },
+        isBroadcast: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('broadcastToSubmitter')
+                    || this.getDataValue('broadcastToAssignee')
+                    || this.getDataValue('broadcastToStaff');
+            },
+            set(value) {
+                throw new Error(`The 'isBroadcast' attribute is not allowed to be directly set: ${value}`);
+            }
+        },
     },
     options: {
         freezeTableName: true,

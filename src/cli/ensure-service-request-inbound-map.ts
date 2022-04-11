@@ -8,6 +8,10 @@ import { ServiceRequestInstance } from '../types';
     const { ServiceRequest, InboundMap } = database.models;
     const records = await ServiceRequest.findAll() as ServiceRequestInstance[];
     for (const record of records) {
-        await InboundMap.create({ id: record.id })
+        await InboundMap.create({
+            id: record.id.replaceAll('-', ''),
+            jurisdictionId: record.jurisdictionId,
+            serviceRequestId: record.id
+        });
     }
 })();
