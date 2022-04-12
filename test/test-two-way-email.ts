@@ -61,7 +61,8 @@ describe('Test two-way email communications.', function () {
         const { ServiceRequest, InboundEmail } = app.repositories;
         const { inboundEmailDomain, sendGridFromEmail } = app.config;
         const serviceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
-        serviceRequestInboundEmailAddress = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain) || sendGridFromEmail;
+        serviceRequestInboundEmailAddress = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
+            || sendGridFromEmail;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = serviceRequestInboundEmailAddress;
         inboundPayload.from = serviceRequestSubmitterEmail;
