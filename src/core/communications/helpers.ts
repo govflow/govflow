@@ -259,7 +259,10 @@ export function verifySendGridWebhook(
     return ew.verifySignature(key, payload, signature, timestamp);
 }
 
-export function getServiceRequestCommentReplyTo(serviceRequest: ServiceRequestAttributes, inboundEmailDomain: string): string {
-    const map = serviceRequest.inboundMaps[0];
-    return `${map.id}@${inboundEmailDomain}`;
+export function getServiceRequestCommentReplyTo(serviceRequest: ServiceRequestAttributes, inboundEmailDomain: string): string | null {
+    if (serviceRequest.inboundMaps.length > 0) {
+        const map = serviceRequest.inboundMaps[0];
+        return `${map.id}@${inboundEmailDomain}`;
+    }
+    return null;
 }
