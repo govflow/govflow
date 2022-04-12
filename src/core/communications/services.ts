@@ -37,12 +37,15 @@ export class CommunicationService implements ICommunicationService {
             appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
-            twilioFromPhone
+            twilioFromPhone,
+            inboundEmailDomain
         } = this.settings;
 
         const { Communication, StaffUser, EmailStatus } = this.repositories;
         const records: CommunicationAttributes[] = [];
-        const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
+        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
+            || jurisdiction.replyToEmail
+            || sendGridFromEmail;
         const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
 
         const dispatchConfig = {
@@ -116,13 +119,16 @@ export class CommunicationService implements ICommunicationService {
             appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
-            twilioFromPhone
+            twilioFromPhone,
+            inboundEmailDomain
         } = this.settings;
         const { StaffUser, Communication, EmailStatus } = this.repositories;
         const staffUser = await StaffUser.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
         );
-        const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
+        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
+            || jurisdiction.replyToEmail
+            || sendGridFromEmail;
         const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
         const dispatchConfig = {
             channel: 'email',
@@ -167,11 +173,14 @@ export class CommunicationService implements ICommunicationService {
             appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
-            twilioFromPhone
+            twilioFromPhone,
+            inboundEmailDomain
         } = this.settings;
         const { StaffUser, Communication, EmailStatus } = this.repositories;
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
-        const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
+        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
+            || jurisdiction.replyToEmail
+            || sendGridFromEmail;
         const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
         const dispatchConfig = {
             channel: 'email',
@@ -296,7 +305,9 @@ export class CommunicationService implements ICommunicationService {
         const { Communication, StaffUser, ServiceRequest, EmailStatus } = this.repositories;
         const serviceRequest = await ServiceRequest.findOne(jurisdiction.id, serviceRequestComment.serviceRequestId);
         const records: CommunicationAttributes[] = [];
-        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain);
+        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
+            || jurisdiction.replyToEmail
+            || sendGridFromEmail;
         const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
         let serviceRequestCommenterName = '';
         if (serviceRequestComment.addedBy === '__SUBMITTER__') {

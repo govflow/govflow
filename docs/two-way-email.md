@@ -1,4 +1,4 @@
-# Two-way email [DRAFT]
+# Two-way email
 
 Extending the functionality described in [Inbound Email](inbound-email.md), [Email Delivery Management](email-delivery-management.md), and [core email dispatch functionality](https://github.com/govflow/govflow/blob/main/src/email/index.ts#L9), Gov Flow supports full two way communication between Staff Users and Submitters around a Service Request.
 
@@ -32,6 +32,7 @@ content-type: application/json
 
 User interfaces that allow Staff Users to send messages from within a Gov Flow dashboard should consider the following points:
 
+- Before the introduction of the two-way feature, adding a comment to a Service Request did not trigger a notification. This behaviour remains the same - the default action (not passing any of the `broadcastTo*` attributes when creating a new comment) does not send a notification for a new comment, and we could consider that implies there is a comment type that is "internal".
 - The backend always ensure that communication around a service request is only allowed for staff users and the original submitter of a request, and where the emails of those potential receipts are valid for sending emails [ref.](https://github.com/govflow/govflow/blob/main/src/core/communications/helpers.ts#L106), [ref.](https://github.com/govflow/govflow/blob/main/src/core/communications/repositories.ts#L90), [ref.](https://github.com/govflow/govflow/blob/main/src/core/service-requests/routes.ts#L72).
 - Before allowing a Staff User to "send an email" via a UI, call the "email status" endpoint for any potential recipients `/communications/status/email/:email` (ref.)[https://github.com/govflow/govflow/blob/main/src/core/communications/routes.ts#L51] to verify that the email address can be delivered to (see [Email Delivery Management](email-deliver-management.md) for further details).
   - If the email address cannot be delivered, alert the user. A payload for sending an email to an undeliverable address will still be accepted by the Gov Flow server, but, it will ultimately throw an error outside of the request/response cycle and not be delivered [ref.](https://github.com/govflow/govflow/blob/main/src/core/communications/helpers.ts#L106).

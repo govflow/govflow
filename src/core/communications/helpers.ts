@@ -32,11 +32,11 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     if (isBody) {
         const poweredBy = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
         const poweredByBuffer = await fs.readFile(poweredBy);
-        appendString = `<br />${poweredByBuffer.toString()}`;
+        appendString = `<br />${poweredByBuffer.toString()}<br />`;
 
         const unsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
         const unsubscribeBuffer = await fs.readFile(unsubscribe);
-        appendString = `${appendString}<br />${unsubscribeBuffer.toString()}`;
+        appendString = `${appendString}<br />${unsubscribeBuffer.toString()}<br />`;
     }
 
     const fullTemplateString = `${templateString}${appendString}`;
