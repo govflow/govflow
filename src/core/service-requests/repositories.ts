@@ -150,8 +150,16 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     async updateStatus(
         jurisdictionId: string, id: string, status: string, user?: StaffUserAttributes
     ): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest } = this.models;
-        let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;
+        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
+        let record = await ServiceRequest.findByPk(
+            id,
+            {
+                include: [
+                    { model: ServiceRequestComment, as: 'comments' },
+                    { model: InboundMap, as: 'inboundMaps' }
+                ],
+            }
+        ) as ServiceRequestInstance;
         const auditMessage = makeAuditMessage(user, '"status"', record.status, status);
         record.status = status;
         record = await record.save();
@@ -162,8 +170,16 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     async updateAssignedTo(
         jurisdictionId: string, id: string, assignedTo: string, user?: StaffUserAttributes
     ): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest } = this.models;
-        let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;
+        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
+        let record = await ServiceRequest.findByPk(
+            id,
+            {
+                include: [
+                    { model: ServiceRequestComment, as: 'comments' },
+                    { model: InboundMap, as: 'inboundMaps' }
+                ],
+            }
+        ) as ServiceRequestInstance;
         const auditMessage = makeAuditMessage(user, '"assigned to"', record.assignedTo, assignedTo);
         record.assignedTo = assignedTo;
         record = await record.save();
@@ -174,8 +190,16 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     async updateDepartment(
         jurisdictionId: string, id: string, department: string, user?: StaffUserAttributes
     ): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest } = this.models;
-        let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;
+        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
+        let record = await ServiceRequest.findByPk(
+            id,
+            {
+                include: [
+                    { model: ServiceRequestComment, as: 'comments' },
+                    { model: InboundMap, as: 'inboundMaps' }
+                ],
+            }
+        ) as ServiceRequestInstance;
         const auditMessage = makeAuditMessage(user, '"department"', record.departmentId, department);
         record.departmentId = department;
         record = await record.save();
@@ -186,8 +210,16 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     async updateService(
         jurisdictionId: string, id: string, service: string, user?: StaffUserAttributes
     ): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest } = this.models;
-        let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;
+        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
+        let record = await ServiceRequest.findByPk(
+            id,
+            {
+                include: [
+                    { model: ServiceRequestComment, as: 'comments' },
+                    { model: InboundMap, as: 'inboundMaps' }
+                ],
+            }
+        ) as ServiceRequestInstance;
         const auditMessage = makeAuditMessage(user, '"service"', record.serviceId as string, service);
         record.serviceId = service;
         record = await record.save();
