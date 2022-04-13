@@ -6,6 +6,8 @@ This means that, as well as [commenting on a Service Request](https://github.com
 
 ## How it works
 
+There is a jurisdiction setting: `jursidiction.replyToServiceRequestEnabled`. If this is `false` (the default). Emails emitted from the system will not have the Service Request reply to inbound email, and they will just fall back to the (i) jursidiction reply to, or (ii) the system reply to. The rest works when this is `true`.
+
 - Comments POSTed with `broadcastToSubmitter` as `true` are send by email to the original submitter of the request. Additionally, the submitter can reply to the email and it will write her comment into Gov Flow as a new Service Request Comment.
 - Comments POSTed with `broadcastToAssignee` as `true` are send by email to the current assignee of the request. Additionally, the assignee can reply to the email and it will write her comment into Gov Flow as a new Service Request Comment.
 - Comments POSTed with `broadcastToStaff` as `true` are send by email to the staff of GovFlow of the request. Depending on the jurisdiction configuration, these currently means one of two scenarios:
