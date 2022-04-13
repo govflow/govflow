@@ -1,6 +1,5 @@
 import { Request, Response, Router } from 'express';
 import multer from 'multer';
-import { verifySenderRequest } from '../../email';
 import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
 import { EmailEventAttributes, JurisdictionAttributes } from '../../types';
@@ -16,6 +15,7 @@ communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (
     const { Communication: dispatchHandler } = res.app.services;
     const [record, recordCreated] = await InboundEmail.createServiceRequest(req.body);
     const jurisdiction = await Jurisdiction.findOne(record.jurisdictionId) as JurisdictionAttributes;
+
     let eventName = 'serviceRequestCreate';
     if (recordCreated) {
         GovFlowEmitter.emit(eventName, jurisdiction, record, dispatchHandler);
@@ -77,25 +77,4 @@ communicationsRouter.post('/create-map',
         const data = Object.assign({}, req.body, { jurisdictionId: req.jurisdiction.id });
         const record = await InboundEmail.createMap(data);
         res.status(200).send({ data: record });
-    }))
-
-communicationsRouter.post('/verify-sender-request',
-    wrapHandler(resolveJurisdiction()),
-    enforceJurisdictionAccess,
-    wrapHandler(async (req: Request, res: Response) => {
-        const { sendFromEmail, replyToEmail, name, address, city, state, country, zip } = req.jurisdiction;
-        const { sendGridApiKey } = res.app.config;
-        if (sendFromEmail) {
-            const response = await verifySenderRequest(
-                sendGridApiKey, sendFromEmail, replyToEmail, name, address, city, state, country, zip
-            );
-            if (response.statusCode != 200) {
-                res.status(response.statusCode).send({ data: { message: 'Something went wrong' } })
-            }
-        } else {
-            res.status(400).send({
-                data: { message: 'This jurisdiction does not have a send from address configured' }
-            })
-        }
-        res.status(200).send({ data: { message: 'Verify sender request successfully sent' } });
     }))

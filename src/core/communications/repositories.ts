@@ -113,6 +113,14 @@ export class InboundEmailRepository implements IInboundEmailRepository {
             // need to do this because sequelize cant return existing associations on a create,
             // in the case where the associations are not being created
             intermediateRecord = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
+            // ensure we have an inbound routing email
+            // wont need to do this when we use the repository here
+            // instead of using the model directly
+            await InboundMap.create({
+                id: intermediateRecord.id.replaceAll('-', ''),
+                jurisdictionId: intermediateRecord.jurisdictionId,
+                serviceRequestId: intermediateRecord.id
+            }) as InboundMapInstance;
         }
         // requery to ensure we have all relations
         const record = await ServiceRequest.findByPk(
