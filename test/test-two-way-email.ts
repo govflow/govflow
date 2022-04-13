@@ -66,7 +66,9 @@ describe('Test two-way email communications.', function () {
         const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
         jurisdiction.replyToServiceRequestEnabled = true
         // END need this for the logic of this test, to ensure we get an inbound email for the request
-        serviceRequestInboundEmailAddress = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail)
+        serviceRequestInboundEmailAddress = getReplyToEmail(
+            serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail
+        );
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = serviceRequestInboundEmailAddress;
         inboundPayload.from = serviceRequestSubmitterEmail;

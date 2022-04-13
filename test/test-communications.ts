@@ -140,7 +140,7 @@ describe('Verify Core Communications Functionality.', function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const [staffUsers, _staffUsersCount] = await StaffUser.findAll(jurisdictionId);
         const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
-        const replyToEmail = getReplyToEmail(null, jurisdiction, inboundEmailDomain, sendGridFromEmail);;
+        const replyToEmail = getReplyToEmail(null, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const admins = _.filter(staffUsers, { isAdmin: true });
         const admin = admins[0] as StaffUserAttributes;
