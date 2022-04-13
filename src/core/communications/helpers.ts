@@ -8,7 +8,8 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, JurisdictionAttributes, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export const publicIdSubjectLinePattern = /Request #(\d+):/;
 
@@ -259,10 +260,32 @@ export function verifySendGridWebhook(
     return ew.verifySignature(key, payload, signature, timestamp);
 }
 
-export function getServiceRequestCommentReplyTo(serviceRequest: ServiceRequestAttributes, inboundEmailDomain: string): string | null {
-    if (serviceRequest.inboundMaps && serviceRequest.inboundMaps.length > 0) {
-        const map = serviceRequest.inboundMaps[0];
-        return `${map.id}@${inboundEmailDomain}`;
+export function getServiceRequestCommentReplyTo(
+    serviceRequest: ServiceRequestAttributes | null,
+    inboundEmailDomain: string
+): string | null {
+    let returnValue = null;
+    if (serviceRequest && serviceRequest.inboundMaps && serviceRequest.inboundMaps.length > 0) {
+        if (!SERVICE_REQUEST_CLOSED_STATES.includes(serviceRequest.status)) {
+            const map = serviceRequest.inboundMaps[0];
+            returnValue = `${map.id}@${inboundEmailDomain}`;
+        }
     }
-    return null;
+    return returnValue;
+}
+
+export function getReplyToEmail(
+    serviceRequest: ServiceRequestAttributes | null,
+    jurisdiction: JurisdictionAttributes,
+    inboundEmailDomain: string,
+    defaultReplyToEmail: string): string {
+    let serviceRequestReplyTo = null;
+    if (jurisdiction.replyToServiceRequestEnabled) {
+        serviceRequestReplyTo = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain);
+    }
+    return serviceRequestReplyTo || jurisdiction.replyToEmail || defaultReplyToEmail;
+}
+
+export function getSendFromEmail(jurisdiction: JurisdictionAttributes, defaultSendFromEmail: string) {
+    return jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : defaultSendFromEmail;
 }

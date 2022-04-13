@@ -3,7 +3,7 @@ import chaiAsPromised from 'chai-as-promised';
 import { Application } from 'express';
 import faker from 'faker';
 import _ from 'lodash';
-import { getServiceRequestCommentReplyTo } from '../src/core/communications/helpers';
+import { getReplyToEmail } from '../src/core/communications/helpers';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { TestDataPayload } from '../src/types';
@@ -58,11 +58,15 @@ describe('Test two-way email communications.', function () {
     });
 
     it('receives an email to create a service request comment', async function () {
-        const { ServiceRequest, InboundEmail } = app.repositories;
+        const { ServiceRequest, InboundEmail, Jurisdiction } = app.repositories;
         const { inboundEmailDomain, sendGridFromEmail } = app.config;
         const serviceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
-        serviceRequestInboundEmailAddress = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
-            || sendGridFromEmail;
+        // START need this for the logic of this test, to ensure we get an inbound email for the request
+        serviceRequest.status = 'todo';
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        jurisdiction.replyToServiceRequestEnabled = true
+        // END need this for the logic of this test, to ensure we get an inbound email for the request
+        serviceRequestInboundEmailAddress = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail)
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = serviceRequestInboundEmailAddress;
         inboundPayload.from = serviceRequestSubmitterEmail;

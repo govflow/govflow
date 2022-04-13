@@ -35,6 +35,11 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: { isEmail: true }
         },
+        replyToServiceRequestEnabled: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN,
+        },
         address: {
             allowNull: true,
             type: DataTypes.STRING,

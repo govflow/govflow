@@ -10,7 +10,7 @@ import type {
     Repositories,
     ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes
 } from '../../types';
-import { dispatchMessage, getServiceRequestCommentReplyTo, makeRequestURL } from './helpers';
+import { dispatchMessage, getReplyToEmail, getSendFromEmail, makeRequestURL } from './helpers';
 
 @injectable()
 export class CommunicationService implements ICommunicationService {
@@ -43,10 +43,8 @@ export class CommunicationService implements ICommunicationService {
 
         const { Communication, StaffUser, EmailStatus } = this.repositories;
         const records: CommunicationAttributes[] = [];
-        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
-            || jurisdiction.replyToEmail
-            || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
+        const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
 
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
@@ -126,10 +124,8 @@ export class CommunicationService implements ICommunicationService {
         const staffUser = await StaffUser.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
         );
-        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
-            || jurisdiction.replyToEmail
-            || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
+        const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const dispatchConfig = {
             channel: 'email',
             sendGridApiKey: sendGridApiKey as string,
@@ -178,10 +174,8 @@ export class CommunicationService implements ICommunicationService {
         } = this.settings;
         const { StaffUser, Communication, EmailStatus } = this.repositories;
         const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
-        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
-            || jurisdiction.replyToEmail
-            || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
+        const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const dispatchConfig = {
             channel: 'email',
             sendGridApiKey: sendGridApiKey as string,
@@ -222,12 +216,13 @@ export class CommunicationService implements ICommunicationService {
             appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
-            twilioFromPhone
+            twilioFromPhone,
+            inboundEmailDomain
         } = this.settings;
         const { Communication, StaffUser, EmailStatus } = this.repositories;
         const records: CommunicationAttributes[] = [];
-        const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
+        const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
@@ -305,10 +300,8 @@ export class CommunicationService implements ICommunicationService {
         const { Communication, StaffUser, ServiceRequest, EmailStatus } = this.repositories;
         const serviceRequest = await ServiceRequest.findOne(jurisdiction.id, serviceRequestComment.serviceRequestId);
         const records: CommunicationAttributes[] = [];
-        const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
-            || jurisdiction.replyToEmail
-            || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
+        const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         let serviceRequestCommenterName = '';
         if (serviceRequestComment.addedBy === '__SUBMITTER__') {
             serviceRequestCommenterName = serviceRequest.displayName;
