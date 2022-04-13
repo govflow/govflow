@@ -24,8 +24,19 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     }
 
     async create(data: ServiceRequestCreateAttributes): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest, InboundMap } = this.models;
-        const record = await ServiceRequest.create(data) as ServiceRequestInstance;
+        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
+        // need to do this because sequelize cant return existing associations on a create,
+        // in the case where the associations are not being created
+        const createdRecord = await ServiceRequest.create(data) as ServiceRequestInstance;
+        const record = await ServiceRequest.findByPk(
+            createdRecord.id,
+            {
+                include: [
+                    { model: ServiceRequestComment, as: 'comments' },
+                    { model: InboundMap, as: 'inboundMaps' }
+                ]
+            }
+        ) as ServiceRequestInstance;
         // ensure we have an inbound routing email
         await InboundMap.create({
             id: record.id.replaceAll('-', ''),

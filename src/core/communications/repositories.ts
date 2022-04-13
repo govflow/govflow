@@ -92,7 +92,13 @@ export class InboundEmailRepository implements IInboundEmailRepository {
                 params = Object.assign({}, params, { publicId });
             }
             const existingRequest = await ServiceRequest.findOne(
-                { where: params }
+                {
+                    where: params,
+                    include: [
+                        { model: ServiceRequestComment, as: 'comments' },
+                        { model: InboundMap, as: 'inboundMaps' }
+                    ],
+                }
             ) as unknown as ServiceRequestInstance;
             const canComment = canSubmitterComment(cleanedData.email, [...staffEmails, existingRequest.email]);
             if (canComment && existingRequest) {
@@ -104,7 +110,18 @@ export class InboundEmailRepository implements IInboundEmailRepository {
                 throw new Error(dataToLog.message);
             }
         } else {
-            record = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
+            // need to do this because sequelize cant return existing associations on a create,
+            // in the case where the associations are not being created
+            const createdRecord = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
+            record = await ServiceRequest.findByPk(
+                createdRecord.id,
+                {
+                    include: [
+                        { model: ServiceRequestComment, as: 'comments' },
+                        { model: InboundMap, as: 'inboundMaps' }
+                    ]
+                }
+            ) as ServiceRequestInstance;
         }
         return record;
     }
