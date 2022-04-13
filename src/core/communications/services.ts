@@ -46,7 +46,7 @@ export class CommunicationService implements ICommunicationService {
         const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
             || jurisdiction.replyToEmail
             || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
 
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
@@ -129,7 +129,7 @@ export class CommunicationService implements ICommunicationService {
         const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
             || jurisdiction.replyToEmail
             || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
         const dispatchConfig = {
             channel: 'email',
             sendGridApiKey: sendGridApiKey as string,
@@ -181,7 +181,7 @@ export class CommunicationService implements ICommunicationService {
         const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
             || jurisdiction.replyToEmail
             || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
         const dispatchConfig = {
             channel: 'email',
             sendGridApiKey: sendGridApiKey as string,
@@ -227,7 +227,7 @@ export class CommunicationService implements ICommunicationService {
         const { Communication, StaffUser, EmailStatus } = this.repositories;
         const records: CommunicationAttributes[] = [];
         const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
@@ -308,7 +308,7 @@ export class CommunicationService implements ICommunicationService {
         const replyToEmail = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain)
             || jurisdiction.replyToEmail
             || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
         let serviceRequestCommenterName = '';
         if (serviceRequestComment.addedBy === '__SUBMITTER__') {
             serviceRequestCommenterName = serviceRequest.displayName;

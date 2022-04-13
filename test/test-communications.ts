@@ -87,7 +87,7 @@ describe('Verify Core Communications Functionality.', function () {
         const [serviceRequests, _count] = await ServiceRequest.findAll(jurisdictionId);
         const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
         const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
         const serviceRequest = serviceRequests[0];
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
@@ -138,7 +138,7 @@ describe('Verify Core Communications Functionality.', function () {
         const [staffUsers, _staffUsersCount] = await StaffUser.findAll(jurisdictionId);
         const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
         const replyToEmail = jurisdiction.replyToEmail || sendGridFromEmail;
-        const sendFromEmail = jurisdiction.sendFromEmail || sendGridFromEmail;
+        const sendFromEmail = jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : sendGridFromEmail;
         const admins = _.filter(staffUsers, { isAdmin: true });
         const admin = admins[0] as StaffUserAttributes;
         const dispatchConfig = {

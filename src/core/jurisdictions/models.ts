@@ -25,6 +25,11 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: { isEmail: true }
         },
+        sendFromEmailVerified: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN,
+        },
         replyToEmail: {
             allowNull: true,
             type: DataTypes.STRING,

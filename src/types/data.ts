@@ -5,6 +5,7 @@ export interface JurisdictionAttributes {
     name: string;
     email: string;
     sendFromEmail?: string;
+    sendFromEmailVerified: boolean,
     replyToEmail?: string;
     address?: string;
     city?: string;
