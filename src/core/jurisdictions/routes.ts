@@ -26,7 +26,10 @@ jurisdictionRouter.put('/:id', wrapHandler(async (req: Request, res: Response) =
 
 jurisdictionRouter.post('/verify-sender-request',
     wrapHandler(async (req: Request, res: Response) => {
-        const { sendFromEmail, replyToEmail, name, address, city, state, country, zip } = req.jurisdiction;
+        const { Jurisdiction } = res.app.repositories;
+        const { jurisdictionId } = req.body;
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const { sendFromEmail, replyToEmail, name, address, city, state, country, zip } = jurisdiction;
         const { sendGridApiKey } = res.app.config;
         if (sendFromEmail) {
             const response = await verifySenderRequest(
