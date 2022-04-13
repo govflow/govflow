@@ -14,9 +14,7 @@ import type {
     InboundEmailDataAttributes,
     InboundMapAttributes,
     InboundMapInstance, LogEntry, Models,
-    ServiceRequestAttributes,
-    ServiceRequestCommentAttributes,
-    ServiceRequestCommentInstance,
+    ServiceRequestAttributes, ServiceRequestCommentInstance,
     ServiceRequestInstance, StaffUserInstance
 } from '../../types';
 import { canSubmitterComment, extractServiceRequestfromInboundEmail } from './helpers';
@@ -65,12 +63,13 @@ export class InboundEmailRepository implements IInboundEmailRepository {
     }
 
     async createServiceRequest(inboundEmailData: InboundEmailDataAttributes):
-        Promise<ServiceRequestAttributes | ServiceRequestCommentAttributes> {
+        Promise<[ServiceRequestAttributes, boolean]> {
         const { ServiceRequest, ServiceRequestComment, StaffUser } = this.models;
         const { subject, to, cc, bcc, from, text, headers } = inboundEmailData;
         const { inboundEmailDomain } = this.settings;
         const { InboundMap } = this.models;
-        let record: ServiceRequestAttributes | ServiceRequestCommentAttributes;
+        let intermediateRecord: ServiceRequestInstance;
+        let recordCreated = true;
         const [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
             { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, InboundMap
         );
@@ -91,7 +90,7 @@ export class InboundEmailRepository implements IInboundEmailRepository {
             } else {
                 params = Object.assign({}, params, { publicId });
             }
-            const existingRequest = await ServiceRequest.findOne(
+            intermediateRecord = await ServiceRequest.findOne(
                 {
                     where: params,
                     include: [
@@ -99,11 +98,12 @@ export class InboundEmailRepository implements IInboundEmailRepository {
                         { model: InboundMap, as: 'inboundMaps' }
                     ],
                 }
-            ) as unknown as ServiceRequestInstance;
-            const canComment = canSubmitterComment(cleanedData.email, [...staffEmails, existingRequest.email]);
-            if (canComment && existingRequest) {
-                const comment = { comment: cleanedData.description, serviceRequestId: existingRequest.id, addedBy };
-                record = await ServiceRequestComment.create(comment) as ServiceRequestCommentInstance;
+            ) as ServiceRequestInstance;
+            recordCreated = false;
+            const canComment = canSubmitterComment(cleanedData.email, [...staffEmails, intermediateRecord.email]);
+            if (canComment && intermediateRecord) {
+                const comment = { comment: cleanedData.description, serviceRequestId: intermediateRecord.id, addedBy };
+                await ServiceRequestComment.create(comment) as ServiceRequestCommentInstance;
             } else {
                 const dataToLog = { message: 'Invalid Comment Submitter.' }
                 logger.error(dataToLog);
@@ -112,18 +112,19 @@ export class InboundEmailRepository implements IInboundEmailRepository {
         } else {
             // need to do this because sequelize cant return existing associations on a create,
             // in the case where the associations are not being created
-            const createdRecord = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
-            record = await ServiceRequest.findByPk(
-                createdRecord.id,
-                {
-                    include: [
-                        { model: ServiceRequestComment, as: 'comments' },
-                        { model: InboundMap, as: 'inboundMaps' }
-                    ]
-                }
-            ) as ServiceRequestInstance;
+            intermediateRecord = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
         }
-        return record;
+        // requery to ensure we have all relations
+        const record = await ServiceRequest.findByPk(
+            intermediateRecord.id,
+            {
+                include: [
+                    { model: ServiceRequestComment, as: 'comments' },
+                    { model: InboundMap, as: 'inboundMaps' }
+                ]
+            }
+        ) as ServiceRequestInstance;
+        return [record, recordCreated];
     }
 
     async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {

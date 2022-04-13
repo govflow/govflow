@@ -88,7 +88,7 @@ export interface IDepartmentRepository extends RepositoryBase {
 
 export interface IInboundEmailRepository extends RepositoryBase {
     createServiceRequest: (inboundEmailData: InboundEmailDataAttributes) =>
-        Promise<ServiceRequestAttributes | ServiceRequestCommentAttributes>;
+        Promise<[ServiceRequestAttributes, boolean]>;
     createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
 }
 

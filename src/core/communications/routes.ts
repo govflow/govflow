@@ -3,7 +3,7 @@ import multer from 'multer';
 import { verifySenderRequest } from '../../email';
 import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
-import { EmailEventAttributes } from '../../types';
+import { EmailEventAttributes, JurisdictionAttributes } from '../../types';
 import { GovFlowEmitter } from '../event-listeners';
 import { verifySendGridWebhook } from './helpers';
 import { EMAIL_EVENT_IGNORE } from './models';
@@ -12,10 +12,17 @@ export const communicationsRouter = Router();
 
 // public route for web hook integration
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
-    const { InboundEmail } = res.app.repositories;
+    const { InboundEmail, Jurisdiction } = res.app.repositories;
     const { Communication: dispatchHandler } = res.app.services;
-    const record = await InboundEmail.createServiceRequest(req.body);
-    GovFlowEmitter.emit('serviceRequestCreate', req.jurisdiction, record, dispatchHandler);
+    const [record, recordCreated] = await InboundEmail.createServiceRequest(req.body);
+    const jurisdiction = await Jurisdiction.findOne(record.jurisdictionId) as JurisdictionAttributes;
+    let eventName = 'serviceRequestCreate';
+    if (recordCreated) {
+        GovFlowEmitter.emit(eventName, jurisdiction, record, dispatchHandler);
+    } else {
+        eventName = 'serviceRequestCommentBroadcast';
+        GovFlowEmitter.emit(eventName, jurisdiction, record, dispatchHandler);
+    }
     res.status(200).send({ data: { status: 200, message: "Received inbound email" } });
 }))
 
