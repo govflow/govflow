@@ -359,7 +359,7 @@ export class CommunicationService implements ICommunicationService {
         for (const recipient of recipients) {
             const _userType = recipient.isStaff ? 'staff-user' : 'public-user';
             const templateConfig = {
-                name: 'service-request-comment-broadcast-${_userType}',
+                name: `service-request-comment-broadcast-${_userType}`,
                 context: {
                     appName,
                     appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
