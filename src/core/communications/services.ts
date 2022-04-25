@@ -331,12 +331,14 @@ export class CommunicationService implements ICommunicationService {
         }
 
         if (serviceRequestComment.broadcastToAssignee) {
-            const assignee = await StaffUser.findOne(jurisdiction.id, serviceRequest.assignedTo) as StaffUserAttributes;
-            recipients.push({
-                email: assignee.email,
-                displayName: assignee.displayName,
-                isStaff: true
-            })
+            const assignee = await StaffUser.findOne(jurisdiction.id, serviceRequest.assignedTo);
+            if (assignee) {
+                recipients.push({
+                    email: assignee.email,
+                    displayName: assignee.displayName,
+                    isStaff: true
+                })
+            }
         }
 
         if (serviceRequestComment.broadcastToStaff) {
