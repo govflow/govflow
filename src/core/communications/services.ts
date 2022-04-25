@@ -4,6 +4,7 @@ import { appIds } from '../../registry/service-identifiers';
 import type {
     AppSettings,
     CommunicationAttributes,
+    DispatchConfigAttributes,
     ICommunicationService,
     JurisdictionAttributes,
     RecipientAttributes,
@@ -321,14 +322,14 @@ export class CommunicationService implements ICommunicationService {
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
-            toEmail: serviceRequest.email as string,
+            toEmail: '', // populated per recipient
             fromEmail: sendFromEmail as string,
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,
             toPhone: serviceRequest.phone as string
-        }
+        } as DispatchConfigAttributes
 
         const recipients = [] as RecipientAttributes[];
         if (serviceRequestComment.broadcastToSubmitter) {
@@ -368,6 +369,7 @@ export class CommunicationService implements ICommunicationService {
         }
 
         for (const recipient of recipients) {
+            dispatchConfig.toEmail = recipient.email;
             const _userType = recipient.isStaff ? 'staff-user' : 'public-user';
             const templateConfig = {
                 name: `service-request-comment-broadcast-${_userType}`,

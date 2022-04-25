@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { getReplyToEmail } from '../src/core/communications/helpers';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
-import { TestDataPayload } from '../src/types';
+import { StaffUserInstance, TestDataPayload } from '../src/types';
 import { inboundEmail } from './fixtures/inbound';
 
 chai.use(chaiAsPromised);
@@ -78,6 +78,62 @@ describe('Test two-way email communications.', function () {
         chai.assert(updatedServiceRequest);
         chai.assert.equal(updatedServiceRequest.comments.length, 2);
         chai.assert.equal(updatedServiceRequest.comments[1].comment, 'This is the subject line\n\nthis is the message');
+    });
+
+    it('broadcasts a service request comment to submitter', async function () {
+        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
+        const { Communication } = app.services;
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const [staffUsers, _count] = await StaffUser.findAll(jurisdictionId);
+        const data = {
+            comment: "Comment by staff for submitter only",
+            addedBy: staffUsers[0].id,
+            broadcastToSubmitter: true,
+            broadcastToAssignee: false,
+            broadcastToStaff: false
+        }
+        const serviceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
+        const serviceRequestComment = await ServiceRequest.createComment(
+            jurisdictionId, serviceRequestId, data
+        );
+        const response = await Communication.dispatchServiceRequestCommentBroadcast(
+            jurisdiction, serviceRequestComment
+        );
+        const dispatchPayload = response[0].dispatchPayload;
+        // we only broadcast to submitter so we should only have a single communication record
+        chai.assert.equal(response.length, 1);
+        chai.assert.equal(dispatchPayload.channel, 'email');
+        chai.assert.equal(dispatchPayload.toEmail, serviceRequest.email);
+    });
+
+    it('broadcasts a service request comment to staff only', async function () {
+        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
+        const { Communication } = app.services;
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const [staffUsers, count] = await StaffUser.findAll(jurisdictionId);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email }) as string[];
+        const data = {
+            comment: "Comment by staff for staff only",
+            addedBy: staffUsers[0].id,
+            broadcastToSubmitter: false,
+            broadcastToAssignee: false,
+            broadcastToStaff: true
+        }
+        const serviceRequestComment = await ServiceRequest.createComment(
+            jurisdictionId, serviceRequestId, data
+        );
+        const response = await Communication.dispatchServiceRequestCommentBroadcast(
+            jurisdiction, serviceRequestComment
+        );
+        // we should have a communication record per staff user
+        chai.assert.equal(response.length, count);
+        for (const record of response) {
+            chai.assert.equal(record.dispatchPayload.channel, 'email');
+            chai.assert(staffEmails.includes(record.dispatchPayload.toEmail))
+
+        }
     });
 
     // it('throws if receives an email to create a service request comment from an invalid sender', async function () {
