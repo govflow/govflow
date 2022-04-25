@@ -24,7 +24,7 @@ export class StaffUserRepository implements IStaffUserRepository {
         return await StaffUser.create(params) as StaffUserInstance;
     }
 
-    async findOne(jurisdictionId: string, id: string): Promise<StaffUserAttributes> {
+    async findOne(jurisdictionId: string, id: string): Promise<StaffUserAttributes | null> {
         const { StaffUser } = this.models;
         const params = { where: { jurisdictionId, id } };
         return await StaffUser.findOne(params) as StaffUserInstance;

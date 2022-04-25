@@ -27,7 +27,7 @@ export interface IJurisdictionRepository extends RepositoryBase {
 
 export interface IStaffUserRepository extends RepositoryBase {
     create: (data: StaffUserAttributes) => Promise<StaffUserAttributes>;
-    findOne: (jurisdictionId: string, id: string) => Promise<StaffUserAttributes>;
+    findOne: (jurisdictionId: string, id: string) => Promise<StaffUserAttributes | null>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[StaffUserAttributes[], number]>;
     lookupTable: (jurisdictionId: string) => Promise<[StaffUserLookUpAttributes[], number]>;
 }
