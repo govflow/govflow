@@ -64,8 +64,7 @@ communicationsRouter.get('/status/email/:email',
         // our email delivery status is global, not by jurisdiction
         // So the jurisdiction is not used in the data query.
         const base64Email = req.params.email;
-        const email = Buffer.from(base64Email, 'base64url').toString('ascii');
-        const record = await EmailStatus.findOne(email);
+        const record = await EmailStatus.isAllowed(base64Email);
         res.status(200).send({ data: record });
     }))
 

@@ -12,7 +12,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapAttributes, ServiceRequestCommentCreateAttributes } from './data';
+import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapAttributes, ServiceRequestCommentCreateAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -97,7 +97,8 @@ export interface IEmailStatusRepository extends RepositoryBase {
         Promise<ChannelStatusInstance>;
     createFromEvent: (data: EmailEventAttributes) =>
         Promise<ChannelStatusInstance>;
-    findOne: (email: string) => Promise<ChannelStatusInstance>;
+    findOne: (email: string) => Promise<ChannelStatusInstance | null>;
+    isAllowed: (email: string) => Promise<ChannelIsAllowed>;
 }
 
 export interface Repositories {

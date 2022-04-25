@@ -173,7 +173,9 @@ export class CommunicationService implements ICommunicationService {
             inboundEmailDomain
         } = this.settings;
         const { StaffUser, Communication, EmailStatus } = this.repositories;
-        const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo) as StaffUserAttributes;
+        const staffUser = await StaffUser.findOne(
+            serviceRequest.jurisdictionId, serviceRequest.assignedTo
+        ) as StaffUserAttributes;
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const dispatchConfig = {
@@ -306,7 +308,9 @@ export class CommunicationService implements ICommunicationService {
         if (serviceRequestComment.addedBy === '__SUBMITTER__') {
             serviceRequestCommenterName = serviceRequest.displayName;
         } else {
-            const commenter = await StaffUser.findOne(jurisdiction.id, serviceRequestComment.addedBy as string) as StaffUserAttributes;
+            const commenter = await StaffUser.findOne(
+                jurisdiction.id, serviceRequestComment.addedBy as string
+            ) as StaffUserAttributes;
             serviceRequestCommenterName = commenter.displayName;
         }
         const dispatchConfig = {

@@ -297,3 +297,8 @@ export type ChannelStatusCreateAttributes = Partial<ChannelStatusAttributes>
 
 export interface ChannelStatusInstance
     extends Model<ChannelStatusAttributes, ChannelStatusCreateAttributes>, ChannelStatusAttributes { }
+
+export interface ChannelIsAllowed {
+    id: string;
+    isAllowed: boolean;
+}

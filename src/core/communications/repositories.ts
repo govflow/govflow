@@ -3,14 +3,12 @@ import _ from 'lodash';
 import logger from '../../logging';
 import { appIds } from '../../registry/service-identifiers';
 import type {
-    AppSettings, ChannelStatusCreateAttributes,
+    AppSettings, ChannelIsAllowed, ChannelStatusCreateAttributes,
     ChannelStatusInstance,
     CommunicationAttributes,
     CommunicationCreateAttributes,
     CommunicationInstance,
-    EmailEventAttributes, ICommunicationRepository,
-    IEmailStatusRepository,
-    IInboundEmailRepository,
+    EmailEventAttributes, ICommunicationRepository, IInboundEmailRepository,
     InboundEmailDataAttributes,
     InboundMapAttributes,
     InboundMapInstance, LogEntry, Models,
@@ -144,7 +142,7 @@ export class InboundEmailRepository implements IInboundEmailRepository {
 }
 
 @injectable()
-export class EmailStatusRepository implements IEmailStatusRepository {
+export class EmailStatusRepository implements EmailStatusRepository {
 
     models: Models;
     settings: AppSettings;
@@ -186,12 +184,24 @@ export class EmailStatusRepository implements IEmailStatusRepository {
         return record;
     }
 
-    async findOne(email: string): Promise<ChannelStatusInstance> {
+    async findOne(email: string): Promise<ChannelStatusInstance | null> {
         const { ChannelStatus } = this.models;
         const record = await ChannelStatus.findOne(
             { where: { id: email, channel: 'email' }, order: [['createdAt', 'DESC']] }
-        ) as ChannelStatusInstance;
+        ) as ChannelStatusInstance | null;
         return record;
+    }
+
+    async isAllowed(base64Email: string): Promise<ChannelIsAllowed> {
+        const email = Buffer.from(base64Email, 'base64url').toString('ascii');
+        const existingRecord = this.findOne(email);
+        let isAllowed = true;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (existingRecord && existingRecord.isAllowed === false) {
+            isAllowed = false;
+        }
+        return { id: base64Email, isAllowed };
     }
 
 }

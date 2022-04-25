@@ -548,7 +548,8 @@ describe('Hit all API endpoints', function () {
             );
             chai.assert.equal(res.status, 200);
             chai.assert(res.body.data);
-            chai.assert.equal(res.body.data.id, status.id)
+            chai.assert.equal(res.body.data.id, base64Email)
+            chai.assert.equal(res.body.data.isAllowed, true)
         }
     });
 
