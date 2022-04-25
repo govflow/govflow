@@ -313,6 +313,11 @@ export class CommunicationService implements ICommunicationService {
             ) as StaffUserAttributes;
             serviceRequestCommenterName = commenter.displayName;
         }
+        // not using serviceRequestCommentContext to submitters
+        let serviceRequestCommentContext = '';
+        if (serviceRequestComment.broadcastToStaff || serviceRequestComment.broadcastToAssignee) {
+            serviceRequestCommentContext = `<br /><br />Message sent to the request submitter:<br /><br />`;
+        }
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
@@ -372,6 +377,7 @@ export class CommunicationService implements ICommunicationService {
                     serviceRequestStatus: serviceRequest.status,
                     serviceRequestPublicId: serviceRequest.publicId,
                     serviceRequestCommenterName: serviceRequestCommenterName,
+                    serviceRequestCommentContext: serviceRequestCommentContext,
                     serviceRequestComment: serviceRequestComment.comment,
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,

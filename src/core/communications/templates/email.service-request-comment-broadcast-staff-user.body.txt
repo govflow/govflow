@@ -2,7 +2,9 @@ Hello ${context.recipientName},
 <br />
 <br />
 Service Request #${context.serviceRequestPublicId} has a new comment by ${context.serviceRequestCommenterName}
-<br />
+
+${context.serviceRequestCommentContext}
+
 <hr />
 <br />
 <span style="color:gray">${context.serviceRequestComment}</span>
