@@ -322,7 +322,7 @@ export class CommunicationService implements ICommunicationService {
         }
         // not using serviceRequestCommentContext to submitters
         let serviceRequestCommentContext = '';
-        if (serviceRequestComment.broadcastToStaff || serviceRequestComment.broadcastToAssignee) {
+        if (serviceRequestComment.broadcastToSubmitter) {
             serviceRequestCommentContext = `<br /><br />Message sent to the request submitter:<br /><br />`;
         }
         const dispatchConfig = {
