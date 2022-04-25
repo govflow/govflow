@@ -207,6 +207,7 @@ export interface TemplateConfigContextAttributes {
     serviceRequestPublicId: string;
     jurisdictionName: string;
     jurisdictionEmail: string;
+    jurisdictionReplyToServiceRequestEnabled: boolean;
     recipientName: string;
 }
 

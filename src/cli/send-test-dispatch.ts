@@ -36,6 +36,7 @@ import { DispatchConfigAttributes } from '../types';
             serviceRequestPublicId: '1234',
             jurisdictionName: 'Dummy Name',
             jurisdictionEmail: 'dummy@example.com',
+            jurisdictionReplyToServiceRequestEnabled: false,
             recipientName: 'Test Recipient Name'
         }
     }

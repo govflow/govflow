@@ -3,7 +3,7 @@ import chaiAsPromised from 'chai-as-promised';
 import { Application } from 'express';
 import faker from 'faker';
 import _ from 'lodash';
-import { getReplyToEmail } from '../src/core/communications/helpers';
+import { emailBodySanitizeLine, getReplyToEmail } from '../src/core/communications/helpers';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { StaffUserInstance, TestDataPayload } from '../src/types';
@@ -134,6 +134,54 @@ describe('Test two-way email communications.', function () {
             chai.assert(staffEmails.includes(record.dispatchPayload.toEmail))
 
         }
+    });
+
+    it('uses an email sanitize line for outgoing email when reply to service request is enabled', async function () {
+        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
+        const { Communication } = app.services;
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        // ensure it is the value we need for the test
+        jurisdiction.replyToServiceRequestEnabled = true;
+        const [staffUsers, _count] = await StaffUser.findAll(jurisdictionId);
+        const data = {
+            comment: "Comment by staff for submitter only",
+            addedBy: staffUsers[0].id,
+            broadcastToSubmitter: true,
+            broadcastToAssignee: false,
+            broadcastToStaff: false
+        }
+        const serviceRequestComment = await ServiceRequest.createComment(
+            jurisdictionId, serviceRequestId, data
+        );
+        const response = await Communication.dispatchServiceRequestCommentBroadcast(
+            jurisdiction, serviceRequestComment
+        );
+        const dispatchResponse = JSON.parse(response[0].dispatchResponse as unknown as string);
+        chai.assert(dispatchResponse.text.includes(emailBodySanitizeLine));
+    });
+
+    it('does not use sanitize line for outgoing email when reply to service request is disabled', async function () {
+        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
+        const { Communication } = app.services;
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        // ensure it is the value we need for the test
+        jurisdiction.replyToServiceRequestEnabled = false;
+        const [staffUsers, _count] = await StaffUser.findAll(jurisdictionId);
+        const data = {
+            comment: "Comment by staff for submitter only",
+            addedBy: staffUsers[0].id,
+            broadcastToSubmitter: true,
+            broadcastToAssignee: false,
+            broadcastToStaff: false
+        }
+        const serviceRequestComment = await ServiceRequest.createComment(
+            jurisdictionId, serviceRequestId, data
+        );
+        const response = await Communication.dispatchServiceRequestCommentBroadcast(
+            jurisdiction, serviceRequestComment
+        );
+        const dispatchResponse = JSON.parse(response[0].dispatchResponse as unknown as string);
+        chai.assert.equal(dispatchResponse.text.includes(emailBodySanitizeLine), false);
     });
 
     // it('throws if receives an email to create a service request comment from an invalid sender', async function () {

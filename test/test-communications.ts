@@ -65,6 +65,7 @@ describe('Verify Core Communications Functionality.', function () {
             serviceRequestPublicId: '1234',
             jurisdictionName: 'Dummy Name',
             jurisdictionEmail: 'dummy@example.com',
+            jurisdictionReplyToServiceRequestEnabled: false,
             recipientName: 'Dummy Name'
         }
         const response = await loadTemplate(templateName, templateContext);
@@ -110,6 +111,7 @@ describe('Verify Core Communications Functionality.', function () {
                 serviceRequestPublicId: '1234',
                 jurisdictionName: 'dummy-name',
                 jurisdictionEmail: 'dummy@example.com',
+                jurisdictionReplyToServiceRequestEnabled: false,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -164,6 +166,7 @@ describe('Verify Core Communications Functionality.', function () {
                 serviceRequestPublicId: '1234',
                 jurisdictionName: 'dummy-name',
                 jurisdictionEmail: 'dummy@example.com',
+                jurisdictionReplyToServiceRequestEnabled: false,
                 recipientName: admin.displayName as string
             }
         }

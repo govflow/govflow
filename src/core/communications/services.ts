@@ -67,6 +67,7 @@ export class CommunicationService implements ICommunicationService {
                 serviceRequestPublicId: serviceRequest.publicId,
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
+                jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -95,6 +96,7 @@ export class CommunicationService implements ICommunicationService {
                     serviceRequestPublicId: serviceRequest.publicId,
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
+                    jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
                     recipientName: admin.displayName as string
                 }
             }
@@ -147,6 +149,7 @@ export class CommunicationService implements ICommunicationService {
                 serviceRequestPublicId: serviceRequest.publicId,
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
+                jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
                 recipientName: staffUser.displayName as string
             }
         }
@@ -199,6 +202,7 @@ export class CommunicationService implements ICommunicationService {
                 serviceRequestPublicId: serviceRequest.publicId,
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
+                jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
                 recipientName: staffUser.displayName as string
             }
         }
@@ -246,6 +250,7 @@ export class CommunicationService implements ICommunicationService {
                 serviceRequestPublicId: serviceRequest.publicId,
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
+                jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
                 recipientName: serviceRequest.displayName as string
             }
         }
@@ -274,6 +279,7 @@ export class CommunicationService implements ICommunicationService {
                     serviceRequestPublicId: serviceRequest.publicId,
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
+                    jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
                     recipientName: admin.displayName as string
                 }
             }
@@ -383,6 +389,7 @@ export class CommunicationService implements ICommunicationService {
                     serviceRequestComment: serviceRequestComment.comment,
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
+                    jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
                     recipientName: recipient.displayName as string
                 }
             }

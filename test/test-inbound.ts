@@ -1,7 +1,13 @@
 import chai from 'chai';
 import { Application } from 'express';
 import _ from 'lodash';
-import { extractCreatedAtFromInboundEmail, extractPublicIdFromInboundEmail, extractServiceRequestfromInboundEmail } from '../src/core/communications/helpers';
+import {
+    emailBodySanitizeLine,
+    extractCreatedAtFromInboundEmail,
+    extractDescriptionFromInboundEmail,
+    extractPublicIdFromInboundEmail,
+    extractServiceRequestfromInboundEmail
+} from '../src/core/communications/helpers';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { TestDataPayload } from '../src/types';
@@ -50,6 +56,21 @@ describe('Parse inbound email data.', function () {
         inboundPayload.headers = 'Date: Hi How Are You';
         const extractedCreatedAt = extractCreatedAtFromInboundEmail(inboundPayload.headers);
         chai.assert.equal(extractedCreatedAt.toUTCString(), 'Invalid Date');
+    });
+
+    it('parse an email body text with a thread', async function () {
+        const subject = 'this';
+        const baseBody = 'that';
+        const body = `${baseBody}${emailBodySanitizeLine} other stuff that we do not want`;
+        const text = extractDescriptionFromInboundEmail(subject, body);
+        chai.assert.equal(text, `${subject}\n\n${baseBody}`);
+    });
+
+    it('parse an email body text without a thread', async function () {
+        const subject = 'this';
+        const body = 'that';
+        const text = extractDescriptionFromInboundEmail(subject, body);
+        chai.assert.equal(text, `${subject}\n\n${body}`);
     });
 
     it('parse service request data from an email without a public id', async function () {

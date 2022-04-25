@@ -13,6 +13,8 @@ import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export const publicIdSubjectLinePattern = /Request #(\d+):/;
 
+export const emailBodySanitizeLine = '####- Please type your reply above this line -####';
+
 export function makeRequestURL(appClientUrl: string, appClientRequestsPath: string, serviceRequestId: string): string {
     return `${appClientUrl}${appClientRequestsPath}/${serviceRequestId}`
 }
@@ -34,10 +36,10 @@ export async function loadTemplate(templateName: string, templateContext: Templa
         const poweredBy = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
         const poweredByBuffer = await fs.readFile(poweredBy);
         appendString = `<br />${poweredByBuffer.toString()}<br />`;
-
         const unsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
         const unsubscribeBuffer = await fs.readFile(unsubscribe);
-        appendString = `${appendString}<br />${unsubscribeBuffer.toString()}<br />`;
+        const replyAboveLine = templateContext.jurisdictionReplyToServiceRequestEnabled ? emailBodySanitizeLine : '';
+        appendString = `${appendString}<br />${replyAboveLine}<br />${unsubscribeBuffer.toString()}<br />`;
     }
 
     const fullTemplateString = `${templateString}${appendString}`;
@@ -195,8 +197,9 @@ export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: 
 }
 
 export function extractDescriptionFromInboundEmail(emailSubject: string, emailBody: string): string {
+    const [cleanText, ..._] = emailBody.split(emailBodySanitizeLine);
     const prefix = emailSubject.replace(publicIdSubjectLinePattern, '');
-    return `${prefix}\n\n${emailBody}`;
+    return `${prefix}\n\n${cleanText}`;
 }
 
 export function extractPublicIdFromInboundEmail(emailSubject: string): string | undefined {
@@ -289,6 +292,7 @@ export function getReplyToEmail(
     inboundEmailDomain: string,
     defaultReplyToEmail: string): string {
     let serviceRequestReplyTo = null;
+
     if (jurisdiction.replyToServiceRequestEnabled) {
         serviceRequestReplyTo = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain);
     }
