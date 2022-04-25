@@ -31,17 +31,21 @@ jurisdictionRouter.post('/verify-sender-request',
         const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
         const { sendFromEmail, replyToEmail, name, address, city, state, country, zip } = jurisdiction;
         const { sendGridApiKey } = res.app.config;
-        if (sendFromEmail) {
-            const response = await verifySenderRequest(
-                sendGridApiKey, sendFromEmail, replyToEmail, name, address, city, state, country, zip
-            );
-            if (response.statusCode != 200) {
-                res.status(response.statusCode).send({ data: { message: 'Something went wrong' } })
-            }
-        } else {
+        let response;
+        if (!jurisdiction.sendFromEmail) {
             res.status(400).send({
                 data: { message: 'This jurisdiction does not have a send from address configured' }
             })
+        } else if (sendFromEmail) {
+            response = await verifySenderRequest(
+                sendGridApiKey, sendFromEmail, replyToEmail, name, address, city, state, country, zip
+            );
+
         }
-        res.status(200).send({ data: { message: 'Verify sender request successfully sent' } });
+        if (!response || response.statusCode != 200) {
+            res.status(500).send({ data: { message: 'Something went wrong' } })
+        } else {
+            res.status(200).send({ data: { message: 'Verify sender request successfully sent' } });
+
+        }
     }))

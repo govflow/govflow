@@ -70,7 +70,7 @@ export class CommunicationService implements ICommunicationService {
             }
         }
         const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
-        records.push(record);
+        if (record) { records.push(record); }
         const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
         for (const admin of admins) {
@@ -100,7 +100,7 @@ export class CommunicationService implements ICommunicationService {
             const record = await dispatchMessage(
                 dispatchConfig, templateConfig, Communication, EmailStatus
             );
-            records.push(record);
+            if (record) { records.push(record); }
         }
         return records;
     }
@@ -108,7 +108,7 @@ export class CommunicationService implements ICommunicationService {
     async dispatchServiceRequestChangeStatus(
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
-    ): Promise<CommunicationAttributes> {
+    ): Promise<CommunicationAttributes | null> {
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -247,7 +247,7 @@ export class CommunicationService implements ICommunicationService {
             }
         }
         const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
-        records.push(record);
+        if (record) { records.push(record); }
         const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
         for (const admin of admins) {
@@ -277,7 +277,7 @@ export class CommunicationService implements ICommunicationService {
             const record = await dispatchMessage(
                 dispatchConfig, templateConfig, Communication, EmailStatus
             );
-            records.push(record);
+            if (record) { records.push(record); }
         }
         return records;
     }
@@ -375,7 +375,7 @@ export class CommunicationService implements ICommunicationService {
             const record = await dispatchMessage(
                 dispatchConfig, templateConfig, Communication, EmailStatus
             );
-            records.push(record);
+            if (record) { records.push(record); }
         }
         return records;
     }

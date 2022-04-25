@@ -14,7 +14,7 @@ export interface ICommunicationService extends ServiceBase {
     dispatchServiceRequestChangeStatus: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
-    ) => Promise<CommunicationAttributes>;
+    ) => Promise<CommunicationAttributes | null>;
     dispatchServiceRequestChangeAssignee: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes

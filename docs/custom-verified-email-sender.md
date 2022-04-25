@@ -10,7 +10,7 @@ Additionally, some jurisdictions prefer to have the email sender be an email add
 
 ## Example request
 
-```bash
+```http
 POST {{ host }}/communications/verify-sender-request?jurisdictionId={{ jurisdictionId }}
 content-type: application/json
 

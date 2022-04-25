@@ -55,8 +55,8 @@ export async function dispatchMessage(
     templateConfig: TemplateConfigAttributes,
     CommunicationRepository: ICommunicationRepository,
     EmailStatusRepository: IEmailStatusRepository):
-    Promise<CommunicationAttributes> {
-    let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown>;
+    Promise<CommunicationAttributes | null> {
+    let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown> | null = null;
     let dispatchPayload: DispatchPayloadAttributes;
     let subject: string;
     let textBody: string;
@@ -108,21 +108,30 @@ export async function dispatchMessage(
             dispatchPayload.textBody as string,
         );
     } else {
-        const errorMsg = `Unknown communication dispatch channel`;
-        logger.error(errorMsg);
-        throw new Error(errorMsg)
+        const errorMessage = `Unknown communication dispatch channel`;
+        const error = new Error(errorMessage);
+        const errorData = {
+            message: errorMessage,
+            dispatchConfig: dispatchConfig,
+            error: `${error}`
+        }
+        logger.warn(errorData);
     }
 
-    const record = await CommunicationRepository.create({
-        channel: dispatchConfig.channel,
-        dispatched: true,
-        dispatchPayload: dispatchConfig,
-        dispatchResponse: dispatchResponse as Record<string, string>,
-        // TODO: conditionally check
-        accepted: true,
-        delivered: true,
-    })
-    return record;
+    if (!dispatchResponse) {
+        return null;
+    } else {
+        const record = await CommunicationRepository.create({
+            channel: dispatchConfig.channel,
+            dispatched: true,
+            dispatchPayload: dispatchConfig,
+            dispatchResponse: dispatchResponse as Record<string, string>,
+            // TODO: conditionally check
+            accepted: true,
+            delivered: true,
+        })
+        return record;
+    }
 }
 
 export function extractFromEmail(fromEmail: string): addrs.ParsedMailbox | null {
