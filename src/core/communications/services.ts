@@ -123,7 +123,7 @@ export class CommunicationService implements ICommunicationService {
         const { StaffUser, Communication, EmailStatus } = this.repositories;
         const staffUser = await StaffUser.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
-        );
+        ) as StaffUserAttributes;
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const dispatchConfig = {
@@ -173,7 +173,7 @@ export class CommunicationService implements ICommunicationService {
             inboundEmailDomain
         } = this.settings;
         const { StaffUser, Communication, EmailStatus } = this.repositories;
-        const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo);
+        const staffUser = await StaffUser.findOne(serviceRequest.jurisdictionId, serviceRequest.assignedTo) as StaffUserAttributes;
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const dispatchConfig = {
@@ -306,7 +306,7 @@ export class CommunicationService implements ICommunicationService {
         if (serviceRequestComment.addedBy === '__SUBMITTER__') {
             serviceRequestCommenterName = serviceRequest.displayName;
         } else {
-            const commenter = await StaffUser.findOne(jurisdiction.id, serviceRequestComment.addedBy as string);
+            const commenter = await StaffUser.findOne(jurisdiction.id, serviceRequestComment.addedBy as string) as StaffUserAttributes;
             serviceRequestCommenterName = commenter.displayName;
         }
         const dispatchConfig = {
@@ -331,7 +331,7 @@ export class CommunicationService implements ICommunicationService {
         }
 
         if (serviceRequestComment.broadcastToAssignee) {
-            const assignee = await StaffUser.findOne(jurisdiction.id, serviceRequest.assignedTo);
+            const assignee = await StaffUser.findOne(jurisdiction.id, serviceRequest.assignedTo) as StaffUserAttributes;
             recipients.push({
                 email: assignee.email,
                 displayName: assignee.displayName,

@@ -6,7 +6,7 @@ import { SERVICE_REQUEST_CLOSED_STATES } from '../src/core/service-requests/mode
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
-import { TestDataPayload } from '../src/types';
+import { StaffUserAttributes, TestDataPayload } from '../src/types';
 import { emailEvent } from './fixtures/event-email';
 
 describe('Verify Core Repositories.', function () {
@@ -72,7 +72,7 @@ describe('Verify Core Repositories.', function () {
     it('should find one staff user by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id) as StaffUserAttributes;
             chai.assert(record);
             chai.assert.equal(record.jurisdictionId, staffUserData.jurisdictionId);
         }
@@ -81,7 +81,7 @@ describe('Verify Core Repositories.', function () {
     it('should find a displayName for a staff user', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id) as StaffUserAttributes;
             chai.assert(record);
             chai.assert.equal(record.displayName, `${record.firstName} ${record.lastName}`);
         }
@@ -90,7 +90,7 @@ describe('Verify Core Repositories.', function () {
     it('should find staff user permissions for a staff user', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id) as StaffUserAttributes;
             chai.assert(record);
             chai.assert.equal(record.permissions.length, 1)
             for (const permission of record.permissions) {
