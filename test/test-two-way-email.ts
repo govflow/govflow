@@ -72,7 +72,7 @@ describe('Test two-way email communications.', function () {
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = serviceRequestInboundEmailAddress;
         inboundPayload.from = serviceRequestSubmitterEmail;
-        inboundPayload.subject = '[Request #123456]: this is the subject';
+        inboundPayload.subject = '[Request #3456789]: this is the subject';
         inboundPayload.text = 'this is the message';
         await InboundEmail.createServiceRequest(inboundPayload);
         const updatedServiceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
@@ -98,13 +98,14 @@ describe('Test two-way email communications.', function () {
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = serviceRequestInboundEmailAddress;
         inboundPayload.from = staffUser.email;
-        inboundPayload.subject = '[Request #123456]: this is the subject';
-        inboundPayload.text = 'this is the message';
+        inboundPayload.subject = '[Request #98765432]: this is the subject';
+        // also testing here we clean up the body from some extra patterns
+        inboundPayload.text = 'On Mon, Apr 25, 2022 Some One <some.one@example.com> wrote: \n\nthis is the message';
         await InboundEmail.createServiceRequest(inboundPayload);
         const updatedServiceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
         chai.assert.equal(updatedServiceRequest.comments.length, 3);
-        chai.assert.equal(updatedServiceRequest.comments[1].comment, inboundPayload.text);
+        chai.assert.equal(updatedServiceRequest.comments[1].comment, 'this is the message');
     });
 
     it('broadcasts a service request comment to submitter', async function () {

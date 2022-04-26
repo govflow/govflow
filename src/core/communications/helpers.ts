@@ -13,6 +13,12 @@ import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export const publicIdSubjectLinePattern = /Request #(\d+)/;
 
+export const htmlTagPattern = /<\/?[^>]+>/gi;
+
+export const trailingNewLinesPattern = /\n+$/;
+
+export const replyFrontMatterPattern = /On.*?wrote:/g; // English only! And, probably not all mail clients?
+
 export const emailBodySanitizeLine = '####- Please type your reply above this line -####';
 
 export function makeRequestURL(appClientUrl: string, appClientRequestsPath: string, serviceRequestId: string): string {
@@ -198,13 +204,20 @@ export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: 
 }
 
 export function extractDescriptionFromInboundEmail(emailSubject: string, emailBody: string): string {
-    const [cleanText, ..._] = emailBody.split(emailBodySanitizeLine);
+    const [rawText, ..._] = emailBody.split(emailBodySanitizeLine);
+
+    // do some simple, additional clean. Will need to expand this in future .....
+    const noHtmlText = rawText.replace(htmlTagPattern, '');
+    const noTrailingNewLines = noHtmlText.replace(trailingNewLinesPattern, '');
+    // remove the front matter of a reply, which *should* be our last sequence of characters
+    const noReplyFrontMatter = noTrailingNewLines.replace(replyFrontMatterPattern, '');
+    const cleanText = noReplyFrontMatter.trim();
     // when we have a new inbound email request, we want to capture the subject line as people use subject lines
     // but, when we actually have a comment on an existing request the subject line is just noise.
     let prefix = '';
     if (publicIdSubjectLinePattern.test(emailSubject) === false) {
         const extracted = emailSubject.replace(publicIdSubjectLinePattern, '')
-        prefix = `${extracted}\n\n`
+        prefix = `${extracted}\n\n`;
     }
     return `${prefix}${cleanText}`;
 }
