@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { emailBodySanitizeLine, getReplyToEmail } from '../src/core/communications/helpers';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
-import { StaffUserInstance, TestDataPayload } from '../src/types';
+import { StaffUserAttributes, StaffUserInstance, TestDataPayload } from '../src/types';
 import { inboundEmail } from './fixtures/inbound';
 
 chai.use(chaiAsPromised);
@@ -57,7 +57,7 @@ describe('Test two-way email communications.', function () {
         chai.assert.equal(record.broadcastToStaff, false);
     });
 
-    it('receives an email to create a service request comment', async function () {
+    it('receives an email to create a service request comment when email is from submitter', async function () {
         const { ServiceRequest, InboundEmail, Jurisdiction } = app.repositories;
         const { inboundEmailDomain, sendGridFromEmail } = app.config;
         const serviceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
@@ -72,12 +72,39 @@ describe('Test two-way email communications.', function () {
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = serviceRequestInboundEmailAddress;
         inboundPayload.from = serviceRequestSubmitterEmail;
+        inboundPayload.subject = '[Request #123456]: this is the subject';
         inboundPayload.text = 'this is the message';
         await InboundEmail.createServiceRequest(inboundPayload);
         const updatedServiceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
         chai.assert.equal(updatedServiceRequest.comments.length, 2);
-        chai.assert.equal(updatedServiceRequest.comments[1].comment, 'This is the subject line\n\nthis is the message');
+        chai.assert.equal(updatedServiceRequest.comments[1].comment, inboundPayload.text);
+    });
+
+    it('receives an email to create a service request comment when email is from staff', async function () {
+        const { ServiceRequest, InboundEmail, Jurisdiction, StaffUser } = app.repositories;
+        const { inboundEmailDomain, sendGridFromEmail } = app.config;
+        const serviceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
+        // START need this for the logic of this test, to ensure we get an inbound email for the request
+        serviceRequest.status = 'todo';
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const [staffUsers, _count] = await StaffUser.findAll(jurisdictionId);
+        const staffUser = _.find(staffUsers, (u) => { return u.isAdmin === true }) as StaffUserAttributes;
+        jurisdiction.replyToServiceRequestEnabled = true;
+        // END need this for the logic of this test, to ensure we get an inbound email for the request
+        serviceRequestInboundEmailAddress = getReplyToEmail(
+            serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail
+        );
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.to = serviceRequestInboundEmailAddress;
+        inboundPayload.from = staffUser.email;
+        inboundPayload.subject = '[Request #123456]: this is the subject';
+        inboundPayload.text = 'this is the message';
+        await InboundEmail.createServiceRequest(inboundPayload);
+        const updatedServiceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
+        chai.assert(updatedServiceRequest);
+        chai.assert.equal(updatedServiceRequest.comments.length, 3);
+        chai.assert.equal(updatedServiceRequest.comments[1].comment, inboundPayload.text);
     });
 
     it('broadcasts a service request comment to submitter', async function () {
