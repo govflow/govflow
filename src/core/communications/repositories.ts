@@ -72,7 +72,9 @@ export class InboundEmailRepository implements IInboundEmailRepository {
             { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, InboundMap
         );
         if (publicId || cleanedData.serviceRequestId) {
-            const staffUsers = await StaffUser.findAll({ where: { jurisdictionId: cleanedData.jurisdictionId } });
+            const staffUsers = await StaffUser.findAll(
+                { where: { jurisdictionId: cleanedData.jurisdictionId, isAdmin: true } }
+            );
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email }) as string[];
@@ -80,7 +82,7 @@ export class InboundEmailRepository implements IInboundEmailRepository {
             if (staffEmails.includes(cleanedData.email)) {
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
-                addedBy = _.find(staffUsers, (u) => { return u.email === cleanedData.email })
+                addedBy = _.find(staffUsers, (u) => { return u.email === cleanedData.email }).id
             }
             let params = { jurisdictionId: cleanedData.jurisdictionId };
             if (cleanedData.serviceRequestId) {
@@ -98,7 +100,8 @@ export class InboundEmailRepository implements IInboundEmailRepository {
                 }
             ) as ServiceRequestInstance;
             recordCreated = false;
-            const canComment = canSubmitterComment(cleanedData.email, [...staffEmails, intermediateRecord.email]);
+            const validEmails = [...staffEmails, intermediateRecord.email];
+            const canComment = canSubmitterComment(cleanedData.email, validEmails);
             if (canComment && intermediateRecord) {
                 const comment = { comment: cleanedData.description, serviceRequestId: intermediateRecord.id, addedBy };
                 await ServiceRequestComment.create(comment) as ServiceRequestCommentInstance;
