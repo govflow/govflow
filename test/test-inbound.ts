@@ -59,11 +59,11 @@ describe('Parse inbound email data.', function () {
     });
 
     it('parse an email body text with a thread', async function () {
-        const subject = 'this';
+        const subject = '[Request #123456]: this';
         const baseBody = 'that';
         const body = `${baseBody}${emailBodySanitizeLine} other stuff that we do not want`;
         const text = extractDescriptionFromInboundEmail(subject, body);
-        chai.assert.equal(text, `${subject}\n\n${baseBody}`);
+        chai.assert.equal(text, `${baseBody}`);
     });
 
     it('parse an email body text without a thread', async function () {

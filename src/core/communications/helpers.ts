@@ -11,7 +11,7 @@ import { sendSms } from '../../sms';
 import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, JurisdictionAttributes, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
-export const publicIdSubjectLinePattern = /Request #(\d+):/;
+export const publicIdSubjectLinePattern = /Request #(\d+)/;
 
 export const emailBodySanitizeLine = '####- Please type your reply above this line -####';
 
@@ -31,6 +31,7 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     const templateBuffer = await fs.readFile(filepath);
     const templateString = templateBuffer.toString();
     let appendString = '';
+    let replyAboveLine = '';
 
     if (isBody) {
         const poweredBy = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
@@ -38,11 +39,11 @@ export async function loadTemplate(templateName: string, templateContext: Templa
         appendString = `<br />${poweredByBuffer.toString()}<br />`;
         const unsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
         const unsubscribeBuffer = await fs.readFile(unsubscribe);
-        const replyAboveLine = templateContext.jurisdictionReplyToServiceRequestEnabled ? emailBodySanitizeLine : '';
-        appendString = `${appendString}<br />${replyAboveLine}<br />${unsubscribeBuffer.toString()}<br />`;
+        replyAboveLine = templateContext.jurisdictionReplyToServiceRequestEnabled ? `${emailBodySanitizeLine}\n\n` : '';
+        appendString = `${appendString}<br />${unsubscribeBuffer.toString()}<br />`;
     }
 
-    const fullTemplateString = `${templateString}${appendString}`;
+    const fullTemplateString = `${replyAboveLine}${templateString}${appendString}`;
     const templateCompile = _.template(fullTemplateString);
     return templateCompile({ context: templateContext });
 }
@@ -198,8 +199,14 @@ export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: 
 
 export function extractDescriptionFromInboundEmail(emailSubject: string, emailBody: string): string {
     const [cleanText, ..._] = emailBody.split(emailBodySanitizeLine);
-    const prefix = emailSubject.replace(publicIdSubjectLinePattern, '');
-    return `${prefix}\n\n${cleanText}`;
+    // when we have a new inbound email request, we want to capture the subject line as people use subject lines
+    // but, when we actually have a comment on an existing request the subject line is just noise.
+    let prefix = '';
+    if (publicIdSubjectLinePattern.test(emailSubject) === false) {
+        const extracted = emailSubject.replace(publicIdSubjectLinePattern, '')
+        prefix = `${extracted}\n\n`
+    }
+    return `${prefix}${cleanText}`;
 }
 
 export function extractPublicIdFromInboundEmail(emailSubject: string): string | undefined {
