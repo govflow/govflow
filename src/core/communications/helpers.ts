@@ -45,7 +45,8 @@ export async function loadTemplate(templateName: string, templateContext: Templa
         appendString = `<br />${poweredByBuffer.toString()}<br />`;
         const unsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
         const unsubscribeBuffer = await fs.readFile(unsubscribe);
-        replyAboveLine = templateContext.jurisdictionReplyToServiceRequestEnabled ? `${emailBodySanitizeLine}\n\n` : '';
+        replyAboveLine = templateContext.jurisdictionReplyToServiceRequestEnabled
+            ? `${emailBodySanitizeLine}<br /><br />` : '';
         appendString = `${appendString}<br />${unsubscribeBuffer.toString()}<br />`;
     }
 
@@ -205,9 +206,8 @@ export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: 
 
 export function extractDescriptionFromInboundEmail(emailSubject: string, emailBody: string): string {
     const [rawText, ..._] = emailBody.split(emailBodySanitizeLine);
-
-    // do some simple, additional clean. Will need to expand this in future .....
-    const noHtmlText = rawText.replace(htmlTagPattern, '');
+    // do some simple cleanup steps. Will need to expand this in future .....
+    const noHtmlText = makePlainTextFromHtml(rawText);
     const noTrailingNewLines = noHtmlText.replace(trailingNewLinesPattern, '');
     // remove the front matter of a reply, which *should* be our last sequence of characters
     const noReplyFrontMatter = noTrailingNewLines.replace(replyFrontMatterPattern, '');
