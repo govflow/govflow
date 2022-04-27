@@ -430,7 +430,9 @@ export class InboundMessageService implements IInboundMessageService {
             { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, InboundMap
         );
         if (publicId || cleanedData.serviceRequestId) {
-            const [staffUsers, _count] = await StaffUser.findAll(cleanedData.jurisdictionId, { whereParams: { isAdmin: true } });
+            const [staffUsers, _count] = await StaffUser.findAll(
+                cleanedData.jurisdictionId, { whereParams: { isAdmin: true } }
+            );
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email }) as string[];
@@ -441,9 +443,13 @@ export class InboundMessageService implements IInboundMessageService {
                 addedBy = _.find(staffUsers, (u) => { return u.email === cleanedData.email }).id
             }
             if (cleanedData.serviceRequestId) {
-                intermediateRecord = await ServiceRequest.findOne(cleanedData.jurisdictionId, cleanedData.serviceRequestId);
+                intermediateRecord = await ServiceRequest.findOne(
+                    cleanedData.jurisdictionId, cleanedData.serviceRequestId
+                );
             } else {
-                intermediateRecord = await ServiceRequest.findOneByPublicId(cleanedData.jurisdictionId, publicId as unknown as string);
+                intermediateRecord = await ServiceRequest.findOneByPublicId(
+                    cleanedData.jurisdictionId, publicId as unknown as string
+                );
             }
             recordCreated = false;
             const validEmails = [...staffEmails, intermediateRecord.email];
