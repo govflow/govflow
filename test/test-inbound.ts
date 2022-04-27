@@ -74,7 +74,7 @@ describe('Parse inbound email data.', function () {
     });
 
     it('parse service request data from an email without a public id', async function () {
-        const { InboundMap } = app.database.models;
+        const { InboundMap } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
@@ -92,7 +92,7 @@ describe('Parse inbound email data.', function () {
     });
 
     it('parse service request data from an email with a public id', async function () {
-        const { InboundMap } = app.database.models;
+        const { InboundMap } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
@@ -111,7 +111,7 @@ describe('Parse inbound email data.', function () {
     });
 
     it('uses email date as creation date', async function () {
-        const { InboundMap } = app.database.models;
+        const { InboundMap } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
@@ -124,7 +124,7 @@ describe('Parse inbound email data.', function () {
     });
 
     it('cant use email date as creation date', async function () {
-        const { InboundMap } = app.database.models;
+        const { InboundMap } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.headers = 'Date: Who knows';

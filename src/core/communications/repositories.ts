@@ -1,6 +1,4 @@
 import { inject, injectable } from 'inversify';
-import _ from 'lodash';
-import logger from '../../logging';
 import { appIds } from '../../registry/service-identifiers';
 import type {
     AppSettings, ChannelIsAllowed, ChannelStatusCreateAttributes,
@@ -8,14 +6,15 @@ import type {
     CommunicationAttributes,
     CommunicationCreateAttributes,
     CommunicationInstance,
-    EmailEventAttributes, ICommunicationRepository, IInboundEmailRepository,
-    InboundEmailDataAttributes,
-    InboundMapAttributes,
-    InboundMapInstance, LogEntry, Models,
-    ServiceRequestAttributes, ServiceRequestCommentInstance,
-    ServiceRequestInstance, StaffUserInstance
+    EmailEventAttributes,
+    ICommunicationRepository,
+    IEmailStatusRepository,
+    IInboundMapRepository,
+    InboundMapCreateAttributes,
+    InboundMapInstance,
+    LogEntry,
+    Models
 } from '../../types';
-import { canSubmitterComment, extractServiceRequestfromInboundEmail } from './helpers';
 import { EMAIL_EVENT_MAP } from './models';
 
 @injectable()
@@ -47,105 +46,7 @@ export class CommunicationRepository implements ICommunicationRepository {
 }
 
 @injectable()
-export class InboundEmailRepository implements IInboundEmailRepository {
-
-    models: Models;
-    settings: AppSettings;
-
-    constructor(
-        @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
-    ) {
-        this.models = models;
-        this.settings = settings
-    }
-
-    async createServiceRequest(inboundEmailData: InboundEmailDataAttributes):
-        Promise<[ServiceRequestAttributes, boolean]> {
-        const { ServiceRequest, ServiceRequestComment, StaffUser } = this.models;
-        const { subject, to, cc, bcc, from, text, headers } = inboundEmailData;
-        const { inboundEmailDomain } = this.settings;
-        const { InboundMap } = this.models;
-        let intermediateRecord: ServiceRequestInstance;
-        let recordCreated = true;
-        const [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
-            { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, InboundMap
-        );
-        if (publicId || cleanedData.serviceRequestId) {
-            const staffUsers = await StaffUser.findAll(
-                { where: { jurisdictionId: cleanedData.jurisdictionId, isAdmin: true } }
-            );
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email }) as string[];
-            let addedBy = '__SUBMITTER__';
-            if (staffEmails.includes(cleanedData.email)) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                addedBy = _.find(staffUsers, (u) => { return u.email === cleanedData.email }).id
-            }
-            let params = { jurisdictionId: cleanedData.jurisdictionId };
-            if (cleanedData.serviceRequestId) {
-                params = Object.assign({}, params, { id: cleanedData.serviceRequestId });
-            } else {
-                params = Object.assign({}, params, { publicId });
-            }
-            intermediateRecord = await ServiceRequest.findOne(
-                {
-                    where: params,
-                    include: [
-                        { model: ServiceRequestComment, as: 'comments' },
-                        { model: InboundMap, as: 'inboundMaps' }
-                    ],
-                }
-            ) as ServiceRequestInstance;
-            recordCreated = false;
-            const validEmails = [...staffEmails, intermediateRecord.email];
-            const canComment = canSubmitterComment(cleanedData.email, validEmails);
-            if (canComment && intermediateRecord) {
-                const comment = { comment: cleanedData.description, serviceRequestId: intermediateRecord.id, addedBy };
-                await ServiceRequestComment.create(comment) as ServiceRequestCommentInstance;
-            } else {
-                const dataToLog = { message: 'Invalid Comment Submitter.' }
-                logger.error(dataToLog);
-                throw new Error(dataToLog.message);
-            }
-        } else {
-            // need to do this because sequelize cant return existing associations on a create,
-            // in the case where the associations are not being created
-            intermediateRecord = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
-            // ensure we have an inbound routing email
-            // wont need to do this when we use the repository here
-            // instead of using the model directly
-            await InboundMap.create({
-                id: intermediateRecord.id.replaceAll('-', ''),
-                jurisdictionId: intermediateRecord.jurisdictionId,
-                serviceRequestId: intermediateRecord.id
-            }) as InboundMapInstance;
-        }
-        // requery to ensure we have all relations
-        const record = await ServiceRequest.findByPk(
-            intermediateRecord.id,
-            {
-                include: [
-                    { model: ServiceRequestComment, as: 'comments' },
-                    { model: InboundMap, as: 'inboundMaps' }
-                ]
-            }
-        ) as ServiceRequestInstance;
-        return [record, recordCreated];
-    }
-
-    async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {
-        const { InboundMap } = this.models;
-        const record = await InboundMap.create(data) as InboundMapInstance;
-        return record;
-    }
-
-}
-
-@injectable()
-export class EmailStatusRepository implements EmailStatusRepository {
+export class EmailStatusRepository implements IEmailStatusRepository {
 
     models: Models;
     settings: AppSettings;
@@ -205,6 +106,35 @@ export class EmailStatusRepository implements EmailStatusRepository {
             isAllowed = false;
         }
         return { id: base64Email, isAllowed };
+    }
+
+}
+
+@injectable()
+export class InboundMapRepository implements IInboundMapRepository {
+
+    models: Models;
+    settings: AppSettings;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppSettings) settings: AppSettings,
+    ) {
+        this.models = models;
+        this.settings = settings
+    }
+
+    async create(data: InboundMapCreateAttributes): Promise<InboundMapInstance> {
+        const { InboundMap } = this.models;
+        return await InboundMap.create(data) as InboundMapInstance;
+    }
+
+    async findOne(id: string): Promise<InboundMapInstance | null> {
+        const { InboundMap } = this.models;
+        const record = await InboundMap.findOne(
+            { where: { id }, order: [['createdAt', 'DESC']] }
+        ) as InboundMapInstance | null;
+        return record;
     }
 
 }

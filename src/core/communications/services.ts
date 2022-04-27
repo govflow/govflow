@@ -1,20 +1,24 @@
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
+import logger from '../../logging';
 import { appIds } from '../../registry/service-identifiers';
 import type {
     AppSettings,
     CommunicationAttributes,
     DispatchConfigAttributes,
-    ICommunicationService,
+    IInboundMessageService,
+    InboundEmailDataAttributes,
+    InboundMapAttributes,
+    IOutboundMessageService,
     JurisdictionAttributes,
     RecipientAttributes,
     Repositories,
-    ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes
+    ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
-import { dispatchMessage, getReplyToEmail, getSendFromEmail, makeRequestURL } from './helpers';
+import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, getReplyToEmail, getSendFromEmail, makeRequestURL } from './helpers';
 
 @injectable()
-export class CommunicationService implements ICommunicationService {
+export class OutboundMessageService implements IOutboundMessageService {
 
     repositories: Repositories
     settings: AppSettings
@@ -291,7 +295,7 @@ export class CommunicationService implements ICommunicationService {
         return records;
     }
 
-    async dispatchServiceRequestCommentBroadcast(
+    async dispatchServiceRequestComment(
         jurisdiction: JurisdictionAttributes,
         serviceRequestComment: ServiceRequestCommentAttributes
     ): Promise<CommunicationAttributes[]> {
@@ -400,4 +404,70 @@ export class CommunicationService implements ICommunicationService {
         }
         return records;
     }
+}
+
+@injectable()
+export class InboundMessageService implements IInboundMessageService {
+
+    repositories: Repositories
+    settings: AppSettings
+
+    constructor(
+        @inject(appIds.Repositories) repositories: Repositories,
+        @inject(appIds.AppSettings) settings: AppSettings,) {
+        this.repositories = repositories;
+        this.settings = settings;
+    }
+
+    async createServiceRequest(inboundEmailData: InboundEmailDataAttributes):
+        Promise<[ServiceRequestAttributes, boolean]> {
+        const { ServiceRequest, StaffUser, InboundMap } = this.repositories;
+        const { subject, to, cc, bcc, from, text, headers } = inboundEmailData;
+        const { inboundEmailDomain } = this.settings;
+        let intermediateRecord: ServiceRequestAttributes;
+        let recordCreated = true;
+        const [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
+            { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, InboundMap
+        );
+        if (publicId || cleanedData.serviceRequestId) {
+            const [staffUsers, _count] = await StaffUser.findAll(cleanedData.jurisdictionId, { whereParams: { isAdmin: true } });
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email }) as string[];
+            let addedBy = '__SUBMITTER__';
+            if (staffEmails.includes(cleanedData.email)) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                addedBy = _.find(staffUsers, (u) => { return u.email === cleanedData.email }).id
+            }
+            if (cleanedData.serviceRequestId) {
+                intermediateRecord = await ServiceRequest.findOne(cleanedData.jurisdictionId, cleanedData.serviceRequestId);
+            } else {
+                intermediateRecord = await ServiceRequest.findOneByPublicId(cleanedData.jurisdictionId, publicId as unknown as string);
+            }
+            recordCreated = false;
+            const validEmails = [...staffEmails, intermediateRecord.email];
+            const canComment = canSubmitterComment(cleanedData.email, validEmails);
+            if (canComment && intermediateRecord) {
+                const comment = { comment: cleanedData.description, addedBy };
+                await ServiceRequest.createComment(cleanedData.jurisdictionId, intermediateRecord.id, comment);
+            } else {
+                const dataToLog = { message: 'Invalid Comment Submitter.' }
+                logger.error(dataToLog);
+                throw new Error(dataToLog.message);
+            }
+        } else {
+            intermediateRecord = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
+        }
+        // requery to ensure we have all relations
+        const record = await ServiceRequest.findOne(cleanedData.jurisdictionId, intermediateRecord.id);
+        return [record, recordCreated];
+    }
+
+    async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {
+        const { InboundMap } = this.repositories;
+        const record = await InboundMap.create(data) as InboundMapAttributes;
+        return record;
+    }
+
 }

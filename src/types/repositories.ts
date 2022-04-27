@@ -2,9 +2,7 @@ import type {
     AppSettings,
     CommunicationAttributes,
     CommunicationCreateAttributes,
-    DepartmentAttributes,
-    InboundEmailDataAttributes,
-    JurisdictionAttributes,
+    DepartmentAttributes, JurisdictionAttributes,
     Models, PluginBase, QueryParamsAll,
     ServiceAttributes,
     ServiceRequestAttributes,
@@ -12,7 +10,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapAttributes, ServiceRequestCommentCreateAttributes } from './data';
+import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, ServiceRequestCommentCreateAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -86,12 +84,6 @@ export interface IDepartmentRepository extends RepositoryBase {
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[DepartmentAttributes[], number]>;
 }
 
-export interface IInboundEmailRepository extends RepositoryBase {
-    createServiceRequest: (inboundEmailData: InboundEmailDataAttributes) =>
-        Promise<[ServiceRequestAttributes, boolean]>;
-    createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
-}
-
 export interface IEmailStatusRepository extends RepositoryBase {
     create: (data: ChannelStatusAttributes) =>
         Promise<ChannelStatusInstance>;
@@ -101,13 +93,19 @@ export interface IEmailStatusRepository extends RepositoryBase {
     isAllowed: (email: string) => Promise<ChannelIsAllowed>;
 }
 
+export interface IInboundMapRepository extends RepositoryBase {
+    create: (data: InboundMapCreateAttributes) =>
+        Promise<InboundMapInstance>;
+    findOne: (id: string) => Promise<InboundMapInstance | null>;
+}
+
 export interface Repositories {
     Jurisdiction: IJurisdictionRepository;
     StaffUser: IStaffUserRepository;
     Service: IServiceRepository;
     ServiceRequest: IServiceRequestRepository;
     Communication: ICommunicationRepository;
-    InboundEmail: IInboundEmailRepository;
     Department: IDepartmentRepository;
     EmailStatus: IEmailStatusRepository;
+    InboundMap: IInboundMapRepository;
 }

@@ -1,3 +1,4 @@
+
 export const repositoryIds = {
     IJurisdictionRepository: Symbol('IJurisdictionRepository'),
     IStaffUserRepository: Symbol('IStaffUserRepository'),
@@ -5,13 +6,14 @@ export const repositoryIds = {
     IServiceRepository: Symbol('IServiceRepository'),
     IEventRepository: Symbol('IEventRepository'),
     ICommunicationRepository: Symbol('ICommunicationRepository'),
-    IInboundEmailRepository: Symbol('IInboundEmailRepository'),
     IEmailStatusRepository: Symbol('IEmailStatusRepository'),
     IDepartmentRepository: Symbol('IDepartmentRepository'),
+    IInboundMapRepository: Symbol('IInboundMapRepository'),
 };
 
 export const serviceIds = {
-    ICommunicationService: Symbol('ICommunicationService'),
+    IOutboundMessageService: Symbol('IOutboundMessageService'),
+    IInboundMessageService: Symbol('IInboundMessageService'),
 };
 
 export const appIds = {

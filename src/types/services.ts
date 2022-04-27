@@ -1,12 +1,12 @@
 import { AppSettings, CommunicationAttributes, JurisdictionAttributes, PluginBase, Repositories, ServiceRequestAttributes } from ".";
-import { ServiceRequestCommentAttributes } from "./data";
+import { InboundEmailDataAttributes, InboundMapAttributes, ServiceRequestCommentAttributes } from "./data";
 
 export interface ServiceBase extends PluginBase {
     repositories: Repositories;
     settings: AppSettings;
 }
 
-export interface ICommunicationService extends ServiceBase {
+export interface IOutboundMessageService extends ServiceBase {
     dispatchServiceRequestCreate: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
@@ -23,12 +23,19 @@ export interface ICommunicationService extends ServiceBase {
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
     ) => Promise<CommunicationAttributes[]>;
-    dispatchServiceRequestCommentBroadcast: (
+    dispatchServiceRequestComment: (
         jurisdiction: JurisdictionAttributes,
         serviceRequestComment: ServiceRequestCommentAttributes
     ) => Promise<CommunicationAttributes[]>;
 }
 
+export interface IInboundMessageService extends ServiceBase {
+    createServiceRequest: (inboundEmailData: InboundEmailDataAttributes) =>
+        Promise<[ServiceRequestAttributes, boolean]>;
+    createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
+}
+
 export interface Services {
-    Communication: ICommunicationService;
+    OutboundMessage: IOutboundMessageService;
+    InboundMessage: IInboundMessageService;
 }

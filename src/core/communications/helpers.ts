@@ -8,8 +8,9 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, JurisdictionAttributes, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, JurisdictionAttributes, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
+import { InboundMapRepository } from './repositories';
 
 export const publicIdSubjectLinePattern = /Request #(\d+)/;
 
@@ -198,9 +199,9 @@ export function extractToEmail(inboundEmailDomain: string, headers: string, toEm
     return address as addrs.ParsedMailbox
 }
 
-export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: InboundMapModel): Promise<InboundMapInstance> {
+export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: InboundMapRepository): Promise<InboundMapInstance> {
     const { local } = toEmail;
-    const record = await InboundMap.findOne({ where: { id: local } }) as InboundMapInstance;
+    const record = await InboundMap.findOne(local) as InboundMapInstance;
     return record;
 }
 
@@ -234,7 +235,7 @@ export function extractCreatedAtFromInboundEmail(headers: string): Date {
     return new Date(dateStr);
 }
 
-export async function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string, InboundMap: InboundMapModel):
+export async function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string, InboundMap: InboundMapRepository):
     Promise<[ParsedServiceRequestAttributes, PublicId]> {
     let firstName = '',
         lastName = '',

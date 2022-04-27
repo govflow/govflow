@@ -11,17 +11,17 @@ export const communicationsRouter = Router();
 
 // public route for web hook integration
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
-    const { InboundEmail, Jurisdiction } = res.app.repositories;
-    const { Communication: dispatchHandler } = res.app.services;
-    const [record, recordCreated] = await InboundEmail.createServiceRequest(req.body);
+    const { Jurisdiction } = res.app.repositories;
+    const { OutboundMessage, InboundMessage } = res.app.services;
+    const [record, recordCreated] = await InboundMessage.createServiceRequest(req.body);
     const jurisdiction = await Jurisdiction.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';
     if (recordCreated) {
-        GovFlowEmitter.emit(eventName, jurisdiction, record, dispatchHandler);
+        GovFlowEmitter.emit(eventName, jurisdiction, record, OutboundMessage);
     } else {
         eventName = 'serviceRequestCommentBroadcast';
-        GovFlowEmitter.emit(eventName, jurisdiction, record, dispatchHandler);
+        GovFlowEmitter.emit(eventName, jurisdiction, record, OutboundMessage);
     }
     res.status(200).send({ data: { status: 200, message: "Received inbound email" } });
 }))
@@ -72,8 +72,8 @@ communicationsRouter.post('/create-map',
     wrapHandler(resolveJurisdiction()),
     enforceJurisdictionAccess,
     wrapHandler(async (req: Request, res: Response) => {
-        const { InboundEmail } = res.app.repositories;
+        const { InboundMessage } = res.app.services;
         const data = Object.assign({}, req.body, { jurisdictionId: req.jurisdiction.id });
-        const record = await InboundEmail.createMap(data);
+        const record = await InboundMessage.createMap(data);
         res.status(200).send({ data: record });
     }))
