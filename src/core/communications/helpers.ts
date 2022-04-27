@@ -20,6 +20,8 @@ export const trailingNewLinesPattern = /\n+$/;
 
 export const replyFrontMatterPattern = /On.*?wrote:/g; // English only! And, probably not all mail clients?
 
+export const quotedIndentsPattern = /[<>]/g;
+
 export const emailBodySanitizeLine = '####- Please type your reply above this line -####';
 
 export function makeRequestURL(appClientUrl: string, appClientRequestsPath: string, serviceRequestId: string): string {
@@ -209,8 +211,8 @@ export function extractDescriptionFromInboundEmail(emailSubject: string, emailBo
     const [rawText, ..._] = emailBody.split(emailBodySanitizeLine);
     // do some simple cleanup steps. Will need to expand this in future .....
     const noHtmlText = makePlainTextFromHtml(rawText);
-    const noTrailingNewLines = noHtmlText.replace(trailingNewLinesPattern, '');
-    // remove the front matter of a reply, which *should* be our last sequence of characters
+    const noQuotedIndents = noHtmlText.replace(quotedIndentsPattern, '');
+    const noTrailingNewLines = noQuotedIndents.replace(trailingNewLinesPattern, '');
     const noReplyFrontMatter = noTrailingNewLines.replace(replyFrontMatterPattern, '');
     const cleanText = noReplyFrontMatter.trim();
     // when we have a new inbound email request, we want to capture the subject line as people use subject lines

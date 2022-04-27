@@ -102,7 +102,7 @@ describe('Test two-way email communications.', function () {
         inboundPayload.from = staffUser.email;
         inboundPayload.subject = '[Request #98765432]: this is the subject';
         // also testing here we clean up the body from some extra patterns
-        inboundPayload.text = 'On Mon, Apr 25, 2022 Some One <some.one@example.com> wrote: \n\nthis is the message';
+        inboundPayload.text = '> > >\nOn Mon, Apr 25, 2022 Some One <some@example.com> wrote: \n\nthis is the message';
         await InboundMessage.createServiceRequest(inboundPayload);
         const updatedServiceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
