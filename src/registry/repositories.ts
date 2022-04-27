@@ -3,10 +3,10 @@ import { CommunicationRepository, EmailStatusRepository, InboundMapRepository } 
 import { InboundMessageService, OutboundMessageService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { JurisdictionRepository } from '../core/jurisdictions';
-import { ServiceRequestRepository } from '../core/service-requests';
+import { ServiceRequestRepository, ServiceRequestService } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
+import type { AppSettings, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, IStaffUserRepository, Plugin, Services } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -85,16 +85,19 @@ function bindServicesWithPlugins(
 
     serviceContainer.bind<IOutboundMessageService>(serviceIds.IOutboundMessageService).to(OutboundMessageService);
     serviceContainer.bind<IInboundMessageService>(serviceIds.IInboundMessageService).to(InboundMessageService);
+    serviceContainer.bind<IServiceRequestService>(serviceIds.IServiceRequestService).to(ServiceRequestService);
 
     // TODO: Bind custom services from plugins here
 
     // get our implementations and return them
     const OutboundMessage = serviceContainer.get<IOutboundMessageService>(serviceIds.IOutboundMessageService);
     const InboundMessage = serviceContainer.get<IInboundMessageService>(serviceIds.IInboundMessageService);
+    const ServiceRequest = serviceContainer.get<IServiceRequestService>(serviceIds.IServiceRequestService);
 
     const services = {
         OutboundMessage,
-        InboundMessage
+        InboundMessage,
+        ServiceRequest
     }
     return services;
 }

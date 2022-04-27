@@ -50,7 +50,9 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     async update(jurisdictionId: string, id: string, data: Partial<ServiceRequestAttributes>):
         Promise<ServiceRequestAttributes> {
         const { ServiceRequest } = this.models;
-        const allowUpdateFields = ['assignedTo', 'status', 'address', 'geometry', 'address_id']
+        const allowUpdateFields = [
+            'assignedTo', 'serviceId', 'departmentId', 'status', 'address', 'geometry', 'address_id'
+        ]
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;
         for (const [key, value] of Object.entries(safeData)) {
@@ -171,7 +173,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
                 ],
             }
         ) as ServiceRequestInstance;
-        const auditMessage = makeAuditMessage(user, '"status"', record.status, status);
+        const auditMessage = makeAuditMessage(user, 'status', record.status, status);
         record.status = status;
         record = await record.save();
         await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
@@ -191,7 +193,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
                 ],
             }
         ) as ServiceRequestInstance;
-        const auditMessage = makeAuditMessage(user, '"assigned to"', record.assignedTo, assignedTo);
+        const auditMessage = makeAuditMessage(user, 'assigned to', record.assignedTo, assignedTo);
         record.assignedTo = assignedTo;
         record = await record.save();
         await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
@@ -211,7 +213,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
                 ],
             }
         ) as ServiceRequestInstance;
-        const auditMessage = makeAuditMessage(user, '"department"', record.departmentId, department);
+        const auditMessage = makeAuditMessage(user, 'department', record.departmentId, department);
         record.departmentId = department;
         record = await record.save();
         await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
@@ -231,7 +233,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
                 ],
             }
         ) as ServiceRequestInstance;
-        const auditMessage = makeAuditMessage(user, '"service"', record.serviceId as string, service);
+        const auditMessage = makeAuditMessage(user, 'service', record.serviceId as string, service);
         record.serviceId = service;
         record = await record.save();
         await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });

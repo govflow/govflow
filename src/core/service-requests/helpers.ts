@@ -1,18 +1,10 @@
 import { Op } from "sequelize";
 import { ServiceRequestInstance, ServiceRequestModel, StaffUserAttributes } from "../../types";
 
-export function makeAuditMessage(user: StaffUserAttributes | undefined, fieldName: string, oldValue:string, newValue:string): string {
+export function makeAuditMessage(user: StaffUserAttributes | undefined, fieldName: string, oldValue: string, newValue: string): string {
     let displayName = 'System';
-    let message: string;
-    if (user) {
-        displayName = user.displayName;
-    }
-    if (fieldName == 'status') {
-        message = `${displayName} changed this request's ${fieldName} from ${oldValue} to ${newValue}.`
-    } else {
-        // TODO: we need to introduce queries to have display data that makes sense.
-        message = `${displayName} changed this request's ${fieldName}.`
-    }
+    if (user) { displayName = user.displayName; }
+    const message = `${displayName} changed this request's ${fieldName} from ${oldValue} to ${newValue}.`
     return message;
 }
 
@@ -28,7 +20,7 @@ export async function makePublicIdForRequest(instance: ServiceRequestInstance): 
         const year = instance.createdAt.getFullYear();
         const month = instance.createdAt.getMonth();
         const windowLower = new Date(year, month, 0);
-        const windowHigher =  (month != 11) ? new Date(year, month + 1, 0) : new Date(year + 1, 0, 0);
+        const windowHigher = (month != 11) ? new Date(year, month + 1, 0) : new Date(year + 1, 0, 0);
         const ServiceRequest = instance.constructor as ServiceRequestModel;
         const lookup = await ServiceRequest.findAll(
             {
@@ -42,7 +34,7 @@ export async function makePublicIdForRequest(instance: ServiceRequestInstance): 
         if (lookup.length > 0) {
             const lastRecord = lookup.reduce(
                 (last: ServiceRequestInstance, curr: ServiceRequestInstance) =>
-                (last.idCounter > curr.idCounter) ? last : curr
+                    (last.idCounter > curr.idCounter) ? last : curr
 
             );
             lastIncrement = lastRecord.idCounter;

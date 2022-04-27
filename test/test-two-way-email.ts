@@ -107,7 +107,7 @@ describe('Test two-way email communications.', function () {
         const updatedServiceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
         chai.assert.equal(updatedServiceRequest.comments.length, 3);
-        chai.assert.equal(updatedServiceRequest.comments[1].comment, 'this is the message');
+        chai.assert.equal(updatedServiceRequest.comments[2].comment, 'this is the message');
     });
 
     it('broadcasts a service request comment to submitter', async function () {

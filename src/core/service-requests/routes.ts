@@ -27,12 +27,11 @@ serviceRequestRouter.get('/stats', async (req: Request, res: Response) => {
 });
 
 serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest } = res.app.repositories;
-    const { OutboundMessage } = res.app.services;
+    const { OutboundMessage, ServiceRequest } = res.app.services;
     const { status, serviceRequestId } = req.body;
     let eventName = 'serviceRequestChangeStatus';
-    const record = await ServiceRequest.updateStatus(
-        req.jurisdiction.id, serviceRequestId, status, req.user as StaffUserAttributes | undefined
+    const record = await ServiceRequest.createAuditedStateChange(
+        req.jurisdiction.id, serviceRequestId, 'status', status, req.user as StaffUserAttributes | undefined
     );
     if (SERVICE_REQUEST_CLOSED_STATES.includes(status as string)) {
         eventName = 'serviceRequestClosed'
@@ -42,29 +41,29 @@ serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Respo
 }))
 
 serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest } = res.app.repositories;
-    const { OutboundMessage } = res.app.services;
+    const { OutboundMessage, ServiceRequest } = res.app.services;
     const { assignedTo, serviceRequestId } = req.body;
-    const record = await ServiceRequest.updateAssignedTo(
-        req.jurisdiction.id, serviceRequestId, assignedTo, req.user as StaffUserAttributes | undefined
+    const record = await ServiceRequest.createAuditedStateChange(
+        req.jurisdiction.id, serviceRequestId, 'assignedTo', assignedTo, req.user as StaffUserAttributes | undefined
     );
     GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, OutboundMessage);
     res.status(200).send({ data: record });
 }))
 
 serviceRequestRouter.post('/department', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest } = res.app.repositories;
+    const { ServiceRequest } = res.app.services;
     const { departmentId, serviceRequestId } = req.body;
-    const record = await ServiceRequest.updateDepartment(
-        req.jurisdiction.id, serviceRequestId, departmentId, req.user as StaffUserAttributes | undefined);
+    const record = await ServiceRequest.createAuditedStateChange(
+        req.jurisdiction.id, serviceRequestId, 'departmentId', departmentId, req.user as StaffUserAttributes | undefined
+    );
     res.status(200).send({ data: record });
 }))
 
 serviceRequestRouter.post('/service', wrapHandler(async (req: Request, res: Response) => {
-    const { ServiceRequest } = res.app.repositories;
+    const { ServiceRequest } = res.app.services;
     const { serviceId, serviceRequestId } = req.body;
-    const record = await ServiceRequest.updateService(
-        req.jurisdiction.id, serviceRequestId, serviceId, req.user as StaffUserAttributes | undefined
+    const record = await ServiceRequest.createAuditedStateChange(
+        req.jurisdiction.id, serviceRequestId, 'serviceId', serviceId, req.user as StaffUserAttributes | undefined
     );
     res.status(200).send({ data: record });
 }))

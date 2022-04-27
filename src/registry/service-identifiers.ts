@@ -14,6 +14,7 @@ export const repositoryIds = {
 export const serviceIds = {
     IOutboundMessageService: Symbol('IOutboundMessageService'),
     IInboundMessageService: Symbol('IInboundMessageService'),
+    IServiceRequestService: Symbol('IServiceRequestService'),
 };
 
 export const appIds = {
