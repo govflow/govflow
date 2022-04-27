@@ -51,7 +51,7 @@ export class ServiceRequestService implements IServiceRequestService {
                 const newAssignee = await StaffUser.findOne(jurisdictionId, value);
                 const oldAssignee = await StaffUser.findOne(jurisdictionId, oldValue);
                 if (newAssignee) { newDisplayValue = newAssignee.displayName }
-                if (oldAssignee) { oldDisplayValue = oldAssignee.displayName }
+                if (oldAssignee) { oldDisplayValue = oldAssignee.displayName } else { oldDisplayValue = 'No Assignee' }
             } else {
                 newDisplayValue = 'Unassigned';
             }
