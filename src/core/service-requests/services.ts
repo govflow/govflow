@@ -32,6 +32,7 @@ export class ServiceRequestService implements IServiceRequestService {
         // @ts-ignore
         data[key] = value;
         let newDisplayValue = value;
+        let fieldName = key;
 
         // save the change on the record
         record = await ServiceRequest.update(jurisdictionId, id, data);
@@ -44,6 +45,7 @@ export class ServiceRequestService implements IServiceRequestService {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             oldDisplayValue = REQUEST_STATUSES[oldValue];
+            fieldName = 'Status';
         } else if (key === 'assignedTo') {
             if (value) {
                 const newAssignee = await StaffUser.findOne(jurisdictionId, value);
@@ -53,6 +55,7 @@ export class ServiceRequestService implements IServiceRequestService {
             } else {
                 newDisplayValue = 'Unassigned';
             }
+            fieldName = 'Assignee';
         } else if (key === 'departmentId') {
             console.log("HERE")
             if (value) {
@@ -63,6 +66,7 @@ export class ServiceRequestService implements IServiceRequestService {
             } else {
                 newDisplayValue = 'No Department';
             }
+            fieldName = 'Department';
         } else if (key === 'serviceId') {
             if (value) {
                 const newService = await Service.findOne(jurisdictionId, value);
@@ -72,8 +76,9 @@ export class ServiceRequestService implements IServiceRequestService {
             } else {
                 newDisplayValue = 'No Service';
             }
+            fieldName = 'Service';
         }
-        const auditMessage = makeAuditMessage(user, key, oldDisplayValue, newDisplayValue);
+        const auditMessage = makeAuditMessage(user, fieldName, oldDisplayValue, newDisplayValue);
         await ServiceRequest.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
         return record;
 

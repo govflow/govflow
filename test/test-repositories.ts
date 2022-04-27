@@ -228,8 +228,8 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const status = 'doing';
         for (const serviceRequestData of testData.serviceRequests) {
-            const record = await ServiceRequest.updateStatus(
-                serviceRequestData.jurisdictionId, serviceRequestData.id, status
+            const record = await ServiceRequest.update(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, { status }
             );
             chai.assert(record);
             chai.assert(record.status = status);
@@ -240,8 +240,8 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const assignedTo = faker.datatype.uuid();
         for (const serviceRequestData of testData.serviceRequests) {
-            const record = await ServiceRequest.updateAssignedTo(
-                serviceRequestData.jurisdictionId, serviceRequestData.id, assignedTo
+            const record = await ServiceRequest.update(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, { assignedTo }
             );
             chai.assert(record);
             chai.assert(record.assignedTo = assignedTo);
@@ -364,11 +364,11 @@ describe('Verify Core Repositories.', function () {
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
         const departmentId = departments[10].id;
         for (const serviceRequestData of serviceRequests) {
-            const record = await ServiceRequest.updateDepartment(
-                serviceRequestData.jurisdictionId, serviceRequestData.id, departmentId
+            const record = await ServiceRequest.update(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, { departmentId }
             );
             chai.assert(record);
-            chai.assert(record.departmentId = departmentId);
+            chai.assert.equal(record.departmentId, departmentId);
         }
     });
 
@@ -379,11 +379,11 @@ describe('Verify Core Repositories.', function () {
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
         const serviceId = services[2].id;
         for (const serviceRequestData of serviceRequests) {
-            const record = await ServiceRequest.updateService(
-                serviceRequestData.jurisdictionId, serviceRequestData.id, serviceId
+            const record = await ServiceRequest.update(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, { serviceId }
             );
             chai.assert(record);
-            chai.assert(record.departmentId = serviceId);
+            chai.assert.equal(record.serviceId, serviceId);
         }
     });
 

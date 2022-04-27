@@ -4,8 +4,7 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
-import type { AppSettings, InboundMapInstance, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCommentInstance, ServiceRequestCreateAttributes, ServiceRequestInstance, ServiceRequestStatusAttributes, StaffUserAttributes } from '../../types';
-import { makeAuditMessage } from './helpers';
+import type { AppSettings, InboundMapInstance, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCommentInstance, ServiceRequestCreateAttributes, ServiceRequestInstance, ServiceRequestStatusAttributes } from '../../types';
 import { REQUEST_STATUSES } from './models';
 
 
@@ -160,83 +159,4 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         return await record.save();
     }
 
-    async updateStatus(
-        jurisdictionId: string, id: string, status: string, user?: StaffUserAttributes
-    ): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
-        let record = await ServiceRequest.findByPk(
-            id,
-            {
-                include: [
-                    { model: ServiceRequestComment, as: 'comments' },
-                    { model: InboundMap, as: 'inboundMaps' }
-                ],
-            }
-        ) as ServiceRequestInstance;
-        const auditMessage = makeAuditMessage(user, 'status', record.status, status);
-        record.status = status;
-        record = await record.save();
-        await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
-        return record;
-    }
-
-    async updateAssignedTo(
-        jurisdictionId: string, id: string, assignedTo: string, user?: StaffUserAttributes
-    ): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
-        let record = await ServiceRequest.findByPk(
-            id,
-            {
-                include: [
-                    { model: ServiceRequestComment, as: 'comments' },
-                    { model: InboundMap, as: 'inboundMaps' }
-                ],
-            }
-        ) as ServiceRequestInstance;
-        const auditMessage = makeAuditMessage(user, 'assigned to', record.assignedTo, assignedTo);
-        record.assignedTo = assignedTo;
-        record = await record.save();
-        await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
-        return record;
-    }
-
-    async updateDepartment(
-        jurisdictionId: string, id: string, department: string, user?: StaffUserAttributes
-    ): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
-        let record = await ServiceRequest.findByPk(
-            id,
-            {
-                include: [
-                    { model: ServiceRequestComment, as: 'comments' },
-                    { model: InboundMap, as: 'inboundMaps' }
-                ],
-            }
-        ) as ServiceRequestInstance;
-        const auditMessage = makeAuditMessage(user, 'department', record.departmentId, department);
-        record.departmentId = department;
-        record = await record.save();
-        await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
-        return record;
-    }
-
-    async updateService(
-        jurisdictionId: string, id: string, service: string, user?: StaffUserAttributes
-    ): Promise<ServiceRequestAttributes> {
-        const { ServiceRequest, ServiceRequestComment, InboundMap } = this.models;
-        let record = await ServiceRequest.findByPk(
-            id,
-            {
-                include: [
-                    { model: ServiceRequestComment, as: 'comments' },
-                    { model: InboundMap, as: 'inboundMaps' }
-                ],
-            }
-        ) as ServiceRequestInstance;
-        const auditMessage = makeAuditMessage(user, 'service', record.serviceId as string, service);
-        record.serviceId = service;
-        record = await record.save();
-        await this.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
-        return record;
-    }
 }

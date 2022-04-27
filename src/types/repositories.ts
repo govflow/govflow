@@ -58,18 +58,6 @@ export interface IServiceRequestRepository extends RepositoryBase {
         serviceRequestId: string,
         serviceRequestCommentId: string,
         data: Partial<ServiceRequestCommentAttributes>) => Promise<ServiceRequestCommentAttributes>;
-    updateStatus: (
-        jurisdictionId: string, id: string, status: string, user?: StaffUserAttributes
-    ) => Promise<ServiceRequestAttributes>;
-    updateAssignedTo: (
-        jurisdictionId: string, id: string, status: string, user?: StaffUserAttributes
-    ) => Promise<ServiceRequestAttributes>;
-    updateDepartment: (
-        jurisdictionId: string, id: string, department: string, user?: StaffUserAttributes
-    ) => Promise<ServiceRequestAttributes>;
-    updateService: (
-        jurisdictionId: string, id: string, service: string, user?: StaffUserAttributes
-    ) => Promise<ServiceRequestAttributes>;
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
