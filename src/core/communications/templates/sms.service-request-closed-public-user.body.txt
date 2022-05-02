@@ -1,6 +1,6 @@
 Hello ${context.recipientName},
 
-A service request you submitted for ${context.jurisdictionName} has been closed with the status of ${context.serviceRequestStatus}.
+Service Request #${context.serviceRequestPublicId}, which you submitted for ${context.jurisdictionName} has been closed with the status of ${context.serviceRequestStatus}.
 
 Thank you for notifying us of the issue.
 

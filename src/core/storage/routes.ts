@@ -16,20 +16,25 @@ storageRouter.post('/presign-put', wrapHandler(async (req: Request, res: Respons
         storagePort,
         storageSSL,
     } = req.app.config;
+    let uploadUrl: string | null = null;
 
-    const uploadUrl = await presignPut(
-        filename,
-        storageEndpoint as string,
-        storageBucket as string,
-        storageRegion as string,
-        storageAccessKey as string,
-        storageSecretKey as string,
-        storagePort as number,
-        storageSSL as boolean
-    )
+    if (filename) {
+        uploadUrl = await presignPut(
+            filename,
+            storageEndpoint as string,
+            storageBucket as string,
+            storageRegion as string,
+            storageAccessKey as string,
+            storageSecretKey as string,
+            storagePort as number,
+            storageSSL as boolean
+        )
+    }
 
-    if (_.isNil(uploadUrl)) {
-        res.status(400).send({ data: { uploadUrl } });
+    if (_.isNil(filename)) {
+        res.status(400).send({ data: { filename: null, message: 'Received an invalid file name.' } });
+    } else if (_.isNil(uploadUrl)) {
+        res.status(400).send({ data: { uploadUrl, message: 'Could not generate upload URL.' } });
     } else {
         res.status(200).send({ data: { uploadUrl } });
     }
@@ -47,21 +52,26 @@ storageRouter.post('/presign-get', wrapHandler(async (req: Request, res: Respons
         storageSSL,
         storageSignedGetExpiry,
     } = req.app.config;
+    let retrieveUrl: string | null = null;
 
-    const retrieveUrl = await presignGet(
-        filename,
-        storageEndpoint as string,
-        storageBucket as string,
-        storageRegion as string,
-        storageAccessKey as string,
-        storageSecretKey as string,
-        storagePort as number,
-        storageSSL as boolean,
-        storageSignedGetExpiry as number
-    )
+    if (filename) {
+        retrieveUrl = await presignGet(
+            filename,
+            storageEndpoint as string,
+            storageBucket as string,
+            storageRegion as string,
+            storageAccessKey as string,
+            storageSecretKey as string,
+            storagePort as number,
+            storageSSL as boolean,
+            storageSignedGetExpiry as number
+        )
+    }
 
-    if (_.isNil(retrieveUrl)) {
-        res.status(400).send({ data: { retrieveUrl } });
+    if (_.isNil(filename)) {
+        res.status(400).send({ data: { filename: null, message: 'Received an invalid file name.' } });
+    } else if (_.isNil(retrieveUrl)) {
+        res.status(400).send({ data: { retrieveUrl, message: 'Could not obtain a retrieve URL.' } });
     } else {
         res.status(200).send({ data: { retrieveUrl } });
     }

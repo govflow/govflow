@@ -24,6 +24,46 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        sendFromEmail: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            validate: { isEmail: true }
+        },
+        sendFromEmailVerified: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN,
+        },
+        replyToEmail: {
+            allowNull: true,
+            type: DataTypes.STRING,
+            validate: { isEmail: true }
+        },
+        replyToServiceRequestEnabled: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN,
+        },
+        address: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        city: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        state: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        country: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        zip: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
     },
     options: {
         freezeTableName: true

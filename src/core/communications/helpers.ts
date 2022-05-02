@@ -1,3 +1,4 @@
+import { EventWebhook } from '@sendgrid/eventwebhook';
 import type { ClientResponse } from '@sendgrid/mail';
 import addrs from 'email-addresses';
 import { constants as fsConstants, promises as fs } from 'fs';
@@ -7,16 +8,29 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, ICommunicationRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundMapModel, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, JurisdictionAttributes, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
+import { InboundMapRepository } from './repositories';
 
-export const publicIdSubjectLinePattern = /Request #(\d+):/;
+export const publicIdSubjectLinePattern = /Request #(\d+)/;
+
+export const htmlTagPattern = /<\/?[^>]+>/gi;
+
+export const trailingNewLinesPattern = /\n+$/;
+
+export const replyFrontMatterPattern = /On.*?wrote:/g; // English only! And, probably not all mail clients?
+
+export const quotedIndentsPattern = /[<>]/g;
+
+export const emailBodySanitizeLine = '####- Please type your reply above this line -####';
 
 export function makeRequestURL(appClientUrl: string, appClientRequestsPath: string, serviceRequestId: string): string {
     return `${appClientUrl}${appClientRequestsPath}/${serviceRequestId}`
 }
 
-export async function loadTemplate(templateName: string, templateContext: TemplateConfigContextAttributes, withUnsubscribe = false): Promise<string> {
+export async function loadTemplate(templateName: string, templateContext: TemplateConfigContextAttributes, isBody = true): Promise<string> {
     const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
+    const [templateType, ..._rest] = templateName.split('.');
     try {
         await fs.access(filepath, fsConstants.R_OK | fsConstants.W_OK);
     } catch (error) {
@@ -25,18 +39,21 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     }
     const templateBuffer = await fs.readFile(filepath);
     const templateString = templateBuffer.toString();
-    let appendString: string;
+    let appendString = '';
+    let replyAboveLine = '';
 
-    if (withUnsubscribe) {
-        const [templateType, ..._rest] = templateName.split('.');
-        const appendUnsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
-        const unsubscribeBuffer = await fs.readFile(appendUnsubscribe);
-        appendString = `<br />${unsubscribeBuffer.toString()}`;
-    } else {
-        appendString = '';
+    if (isBody) {
+        const poweredBy = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
+        const poweredByBuffer = await fs.readFile(poweredBy);
+        appendString = `<br />${poweredByBuffer.toString()}<br />`;
+        const unsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
+        const unsubscribeBuffer = await fs.readFile(unsubscribe);
+        replyAboveLine = templateContext.jurisdictionReplyToServiceRequestEnabled
+            ? `${emailBodySanitizeLine}<br /><br />` : '';
+        appendString = `${appendString}<br />${unsubscribeBuffer.toString()}<br />`;
     }
 
-    const fullTemplateString = `${templateString}${appendString}`;
+    const fullTemplateString = `${replyAboveLine}${templateString}${appendString}`;
     const templateCompile = _.template(fullTemplateString);
     return templateCompile({ context: templateContext });
 }
@@ -46,53 +63,33 @@ function makePlainTextFromHtml(html: string) {
     return striptags(_tmp, [], '\n');
 }
 
-
-export async function dispatchMessageForPublicUser(
-    serviceRequest: ServiceRequestAttributes,
-    dispatchConfig: DispatchConfigAttributes,
-    templateConfig: TemplateConfigAttributes,
-    CommunicationRepository: ICommunicationRepository):
-    Promise<CommunicationAttributes> {
-    if (serviceRequest.communicationChannel === null) {
-        logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address was supplied.`);
-        return {} as CommunicationAttributes;
-    } else if (serviceRequest.communicationValid === false) {
-        logger.warn(`Cannot send message for ${serviceRequest.id} as no communication address is valid.`);
-        return {} as CommunicationAttributes;
-    } else {
-        const record = await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository);
-        if (record.accepted === true) {
-            serviceRequest.communicationValid = true
-        } else {
-            logger.warn(`Cannot send message for ${serviceRequest.id} as backend rejected the payload.`);
-            serviceRequest.communicationValid = false
-        }
-        return record;
-    }
-}
-
-export async function dispatchMessageForStaffUser(
-    dispatchConfig: DispatchConfigAttributes,
-    templateConfig: TemplateConfigAttributes,
-    CommunicationRepository: ICommunicationRepository):
-    Promise<CommunicationAttributes> {
-    return await dispatchMessage(dispatchConfig, templateConfig, CommunicationRepository);
-}
-
 export async function dispatchMessage(
     dispatchConfig: DispatchConfigAttributes,
     templateConfig: TemplateConfigAttributes,
-    CommunicationRepository: ICommunicationRepository):
-    Promise<CommunicationAttributes> {
-    let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown>;
+    CommunicationRepository: ICommunicationRepository,
+    EmailStatusRepository: IEmailStatusRepository):
+    Promise<CommunicationAttributes | null> {
+    let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown> | null = null;
     let dispatchPayload: DispatchPayloadAttributes;
     let subject: string;
     let textBody: string;
     let htmlBody: string;
     if (dispatchConfig.channel === 'email') {
+        // first, check we can send to this email address
+        // and we exit early if we cannot.
+        // Ideally we'd never get an invalid address here but
+        // Because we cant control how the various APIs are used and interact,
+        // We are doing a check here at the last step before actually sending
+        const emailStatus = await EmailStatusRepository.findOne(dispatchConfig.toEmail);
+        if (emailStatus && emailStatus.isAllowed === false) {
+            const errorMsg = `${dispatchConfig.toEmail} is not allowed for communications.`;
+            logger.error(errorMsg);
+            throw new Error(errorMsg);
+        }
         subject = await loadTemplate(
             `email.${templateConfig.name}.subject`,
-            templateConfig.context
+            templateConfig.context,
+            false
         );
         htmlBody = await loadTemplate(
             `email.${templateConfig.name}.body`,
@@ -104,6 +101,7 @@ export async function dispatchMessage(
             dispatchPayload.sendGridApiKey,
             dispatchPayload.toEmail,
             dispatchPayload.fromEmail,
+            dispatchPayload.replyToEmail,
             dispatchPayload.subject as string,
             dispatchPayload.htmlBody as string,
             dispatchPayload.textBody as string,
@@ -123,21 +121,30 @@ export async function dispatchMessage(
             dispatchPayload.textBody as string,
         );
     } else {
-        const errorMsg = `Unknown communication dispatch channel`;
-        logger.error(errorMsg);
-        throw new Error(errorMsg)
+        const errorMessage = `Unknown communication dispatch channel`;
+        const error = new Error(errorMessage);
+        const errorData = {
+            message: errorMessage,
+            dispatchConfig: dispatchConfig,
+            error: `${error}`
+        }
+        logger.warn(errorData);
     }
 
-    const record = await CommunicationRepository.create({
-        channel: dispatchConfig.channel,
-        dispatched: true,
-        dispatchPayload: dispatchConfig,
-        dispatchResponse: dispatchResponse as Record<string, string>,
-        // TODO: conditionally check
-        accepted: true,
-        delivered: true,
-    })
-    return record;
+    if (!dispatchResponse) {
+        return null;
+    } else {
+        const record = await CommunicationRepository.create({
+            channel: dispatchConfig.channel,
+            dispatched: true,
+            dispatchPayload: dispatchConfig,
+            dispatchResponse: dispatchResponse as Record<string, string>,
+            // TODO: conditionally check
+            accepted: true,
+            delivered: true,
+        })
+        return record;
+    }
 }
 
 export function extractFromEmail(fromEmail: string): addrs.ParsedMailbox | null {
@@ -169,6 +176,20 @@ export function extractForwardEmail(headers: string): string {
     return cleanForwards.join(', ');
 }
 
+export function extractDate(headers: string): string {
+    const targetHeader = 'Date:'
+    let dateStr = '';
+    const headerLines = headers.split('\n');
+    for (const line of headerLines) {
+        if (line.includes(targetHeader)) {
+            dateStr = line.replace(targetHeader, '').trim();
+            break;
+        }
+    }
+    return dateStr;
+}
+
+
 export function extractToEmail(inboundEmailDomain: string, headers: string, toEmail: string, ccEmail?: string, bccEmail?: string): addrs.ParsedMailbox {
     let rawAddresses = `${toEmail}`;
     const forwardEmail = extractForwardEmail(headers);
@@ -180,15 +201,28 @@ export function extractToEmail(inboundEmailDomain: string, headers: string, toEm
     return address as addrs.ParsedMailbox
 }
 
-export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: InboundMapModel): Promise<InboundMapInstance> {
+export async function findIdentifiers(toEmail: addrs.ParsedMailbox, InboundMap: InboundMapRepository): Promise<InboundMapInstance> {
     const { local } = toEmail;
-    const record = await InboundMap.findOne({ where: { id: local } }) as InboundMapInstance;
+    const record = await InboundMap.findOne(local) as InboundMapInstance;
     return record;
 }
 
 export function extractDescriptionFromInboundEmail(emailSubject: string, emailBody: string): string {
-    const prefix = emailSubject.replace(publicIdSubjectLinePattern, '');
-    return `${prefix}\n\n${emailBody}`;
+    const [rawText, ..._] = emailBody.split(emailBodySanitizeLine);
+    // do some simple cleanup steps. Will need to expand this in future .....
+    const noHtmlText = makePlainTextFromHtml(rawText);
+    const noQuotedIndents = noHtmlText.replace(quotedIndentsPattern, '');
+    const noTrailingNewLines = noQuotedIndents.replace(trailingNewLinesPattern, '');
+    const noReplyFrontMatter = noTrailingNewLines.replace(replyFrontMatterPattern, '');
+    const cleanText = noReplyFrontMatter.trim();
+    // when we have a new inbound email request, we want to capture the subject line as people use subject lines
+    // but, when we actually have a comment on an existing request the subject line is just noise.
+    let prefix = '';
+    if (publicIdSubjectLinePattern.test(emailSubject) === false) {
+        const extracted = emailSubject.replace(publicIdSubjectLinePattern, '')
+        prefix = `${extracted}\n\n`;
+    }
+    return `${prefix}${cleanText}`;
 }
 
 export function extractPublicIdFromInboundEmail(emailSubject: string): string | undefined {
@@ -198,7 +232,12 @@ export function extractPublicIdFromInboundEmail(emailSubject: string): string | 
     return publicId;
 }
 
-export async function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string, InboundMap: InboundMapModel):
+export function extractCreatedAtFromInboundEmail(headers: string): Date {
+    const dateStr = extractDate(headers);
+    return new Date(dateStr);
+}
+
+export async function extractServiceRequestfromInboundEmail(data: InboundEmailDataToRequestAttributes, inboundEmailDomain: string, InboundMap: InboundMapRepository):
     Promise<[ParsedServiceRequestAttributes, PublicId]> {
     let firstName = '',
         lastName = '',
@@ -207,15 +246,35 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
     const { subject, to, cc, bcc, from, text, headers } = data;
     const toEmail = extractToEmail(inboundEmailDomain, headers, to, cc, bcc);
     const fromEmail = extractFromEmail(from);
-    const { jurisdictionId, departmentId } = await findIdentifiers(toEmail, InboundMap);
+    const { jurisdictionId, departmentId, staffUserId, serviceRequestId, serviceId } = await findIdentifiers(
+        toEmail, InboundMap
+    );
     const description = extractDescriptionFromInboundEmail(subject, text);
     const publicId = extractPublicIdFromInboundEmail(subject);
+    const extractCreatedAt = extractCreatedAtFromInboundEmail(headers);
+    let createdAt;
+    if (extractCreatedAt.toUTCString() != "Invalid Date") { createdAt = extractCreatedAt; }
     if (fromEmail) {
         firstName = fromEmail.name || ''
         lastName = ''
         email = fromEmail.address || ''
     }
-    return [{ jurisdictionId, departmentId, firstName, lastName, email, description, inputChannel }, publicId];
+    return [
+        {
+            jurisdictionId,
+            departmentId,
+            assignedTo: staffUserId,
+            serviceRequestId,
+            serviceId,
+            firstName,
+            lastName,
+            email,
+            description,
+            inputChannel,
+            createdAt
+        },
+        publicId
+    ];
 }
 
 export function canSubmitterComment(submitterEmail: string, validEmails: string[]): boolean {
@@ -224,4 +283,45 @@ export function canSubmitterComment(submitterEmail: string, validEmails: string[
     } else {
         return false;
     }
+}
+
+export function verifySendGridWebhook(
+    publicKey: string, payload: EmailEventAttributes, signature: string | undefined, timestamp: string | undefined
+): boolean {
+    const ew = new EventWebhook();
+    const key = ew.convertPublicKeyToECDSA(publicKey);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return ew.verifySignature(key, payload, signature, timestamp);
+}
+
+export function getServiceRequestCommentReplyTo(
+    serviceRequest: ServiceRequestAttributes | null,
+    inboundEmailDomain: string
+): string | null {
+    let returnValue = null;
+    if (serviceRequest && serviceRequest.inboundMaps && serviceRequest.inboundMaps.length > 0) {
+        if (!SERVICE_REQUEST_CLOSED_STATES.includes(serviceRequest.status)) {
+            const map = serviceRequest.inboundMaps[0];
+            returnValue = `${map.id}@${inboundEmailDomain}`;
+        }
+    }
+    return returnValue;
+}
+
+export function getReplyToEmail(
+    serviceRequest: ServiceRequestAttributes | null,
+    jurisdiction: JurisdictionAttributes,
+    inboundEmailDomain: string,
+    defaultReplyToEmail: string): string {
+    let serviceRequestReplyTo = null;
+
+    if (jurisdiction.replyToServiceRequestEnabled) {
+        serviceRequestReplyTo = getServiceRequestCommentReplyTo(serviceRequest, inboundEmailDomain);
+    }
+    return serviceRequestReplyTo || jurisdiction.replyToEmail || defaultReplyToEmail;
+}
+
+export function getSendFromEmail(jurisdiction: JurisdictionAttributes, defaultSendFromEmail: string) {
+    return jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : defaultSendFromEmail;
 }

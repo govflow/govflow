@@ -6,7 +6,7 @@ import {
     IJurisdictionRepository,
     JurisdictionAttributes,
     JurisdictionInstance,
-    Models,
+    Models
 } from '../../types';
 
 @injectable()
@@ -37,7 +37,19 @@ export class JurisdictionRepository implements IJurisdictionRepository {
 
     async update(id: string, data: Partial<JurisdictionAttributes>): Promise<JurisdictionAttributes> {
         const { Jurisdiction } = this.models;
-        const allowUpdateFields = ['name', 'email'];
+        const allowUpdateFields = [
+            'name',
+            'email',
+            'sendFromEmail',
+            'sendFromEmailVerified',
+            'replyToEmail',
+            'replyToServiceRequestEnabled',
+            'address',
+            'city',
+            'state',
+            'country',
+            'zip'
+        ];
         const safeData = _.pick(data, allowUpdateFields);
         const record = await Jurisdiction.findByPk(id) as JurisdictionInstance;
         for (const [key, value] of Object.entries(safeData)) {

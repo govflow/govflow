@@ -7,6 +7,7 @@ import { createApp } from '../src';
 import { Open311ServiceRequestCreatePayload } from '../src/core/open311/types';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { TestDataPayload } from '../src/types';
+import { emailEvent } from './fixtures/event-email';
 import { validServiceRequestData } from './fixtures/open311';
 
 chai.use(chaiHttp);
@@ -29,7 +30,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.41-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.70-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -247,6 +248,31 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should GET all service requests filtered by existing service for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const services = _.filter(testData.services, { jurisdictionId });
+        const serviceId = services[0].id;
+        const res = await chai.request(app).get(
+            `/service-requests/?jurisdictionId=${jurisdictionId}&service=${serviceId}`
+        );
+        chai.assert.equal(res.status, 200);
+        for (const serviceRequest of res.body.data) {
+            chai.assert.equal(serviceRequest.serviceId, serviceId);
+        }
+    });
+
+    it('should GET all service requests filtered by no service for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceId = 'none';
+        const res = await chai.request(app).get(
+            `/service-requests/?jurisdictionId=${jurisdictionId}&service=${serviceId}`
+        );
+        chai.assert.equal(res.status, 200);
+        for (const serviceRequest of res.body.data) {
+            chai.assert.equal(serviceRequest.serviceId, null);
+        }
+    });
+
     it('should GET stats for service requests for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/service-requests/stats?jurisdictionId=${jurisdictionId}`);
@@ -266,6 +292,8 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.comments.length, 2);
         chai.assert(res.body.data.comments[0].addedBy);
         chai.assert(res.body.data.comments[0].images);
+        chai.assert.equal(res.body.data.inboundMaps.length, 1);
+        chai.assert.equal(res.body.data.inboundMaps[0].id, serviceRequestId.replaceAll('-', ''));
         chai.assert.equal(res.body.data.comments[0].serviceRequestId, res.body.data.id);
     });
 
@@ -292,6 +320,107 @@ describe('Hit all API endpoints', function () {
         ).send(commentData);
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.id, commentData.id);
+    });
+
+    it('should POST a service request comment for broadcasting to a submitter for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const commentData = {
+            id: faker.datatype.uuid(),
+            comment: 'This is my comment.',
+            broadcastToSubmitter: true
+        };
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/comments/${serviceRequestId}?jurisdictionId=${jurisdictionId}`
+        ).send(commentData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, commentData.id);
+        chai.assert.equal(res.body.data.isBroadcast, true);
+        chai.assert.equal(res.body.data.broadcastToSubmitter, true);
+        chai.assert.equal(res.body.data.broadcastToAssignee, false);
+        chai.assert.equal(res.body.data.broadcastToStaff, false);
+    });
+
+    it('should POST a service request comment for broadcasting to an assignee for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const commentData = {
+            id: faker.datatype.uuid(),
+            comment: 'This is my comment.',
+            broadcastToAssignee: true
+        };
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/comments/${serviceRequestId}?jurisdictionId=${jurisdictionId}`
+        ).send(commentData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, commentData.id);
+        chai.assert.equal(res.body.data.isBroadcast, true);
+        chai.assert.equal(res.body.data.broadcastToSubmitter, false);
+        chai.assert.equal(res.body.data.broadcastToAssignee, true);
+        chai.assert.equal(res.body.data.broadcastToStaff, false);
+    });
+
+    it('should POST a service request comment for broadcasting to staff for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const commentData = {
+            id: faker.datatype.uuid(),
+            comment: 'This is my comment.',
+            broadcastToStaff: true
+        };
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/comments/${serviceRequestId}?jurisdictionId=${jurisdictionId}`
+        ).send(commentData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, commentData.id);
+        chai.assert.equal(res.body.data.isBroadcast, true);
+        chai.assert.equal(res.body.data.broadcastToSubmitter, false);
+        chai.assert.equal(res.body.data.broadcastToAssignee, false);
+        chai.assert.equal(res.body.data.broadcastToStaff, true);
+    });
+
+    it('should POST a service request comment for broadcasting to everyone for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const commentData = {
+            id: faker.datatype.uuid(),
+            comment: 'This is my comment.',
+            broadcastToAssignee: true,
+            broadcastToStaff: true,
+            broadcastToSubmitter: true,
+        };
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/comments/${serviceRequestId}?jurisdictionId=${jurisdictionId}`
+        ).send(commentData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, commentData.id);
+        chai.assert.equal(res.body.data.isBroadcast, true);
+        chai.assert.equal(res.body.data.broadcastToSubmitter, true);
+        chai.assert.equal(res.body.data.broadcastToAssignee, true);
+        chai.assert.equal(res.body.data.broadcastToStaff, true);
+    });
+
+    it('should POST a service request comment not for broadcasting for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const commentData = {
+            id: faker.datatype.uuid(),
+            comment: 'This is my comment.',
+        };
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/comments/${serviceRequestId}?jurisdictionId=${jurisdictionId}`
+        ).send(commentData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, commentData.id);
+        chai.assert.equal(res.body.data.isBroadcast, false);
+        chai.assert.equal(res.body.data.broadcastToSubmitter, false);
+        chai.assert.equal(res.body.data.broadcastToAssignee, false);
+        chai.assert.equal(res.body.data.broadcastToStaff, false);
     });
 
     it('should POST an update to a service request comment for a jurisdiction', async function () {
@@ -421,6 +550,32 @@ describe('Hit all API endpoints', function () {
         ).send(inboundMapData);
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.id, inboundMapData.id);
+    });
+
+    it('should POST an email event payload', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const payload = _.cloneDeep(emailEvent);
+        const res = await chai.request(app).post(
+            `/communications/events/email?jurisdictionId=${jurisdictionId}`
+        ).send(payload);
+        chai.assert.equal(res.status, 200);
+        chai.assert(res.body.data);
+        chai.assert.equal(res.body.data.message, "Received email event")
+    });
+
+    it('should GET a comms status for an email', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const emailStatuses = _.filter(testData.channelStatuses, { channel: 'email' });
+        for (const status of emailStatuses) {
+            const base64Email = Buffer.from(status.id).toString('base64url');
+            const res = await chai.request(app).get(
+                `/communications/status/email/${base64Email}?jurisdictionId=${jurisdictionId}`
+            );
+            chai.assert.equal(res.status, 200);
+            chai.assert(res.body.data);
+            chai.assert.equal(res.body.data.id, base64Email)
+            chai.assert.equal(res.body.data.isAllowed, true)
+        }
     });
 
     it('should return 501 not implemented error for Open311 service discovery', async function () {

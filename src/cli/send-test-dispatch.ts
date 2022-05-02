@@ -2,6 +2,7 @@
 import 'reflect-metadata';
 import { dispatchMessage } from '../core/communications/helpers';
 import { createApp } from '../index';
+import { DispatchConfigAttributes } from '../types';
 
 (async () => {
     // Ensure you unset process.env.COMMUNICATIONS_TO_CONSOLE to use the real backend.
@@ -15,7 +16,7 @@ import { createApp } from '../index';
         testToEmail,
         testToPhone
     } = app.config;
-    const { Communication } = app.repositories;
+    const { Communication, EmailStatus } = app.repositories;
     const dispatchConfig = {
         channel: 'email', // can manually change to sms to test that
         sendGridApiKey: sendGridApiKey as string,
@@ -25,22 +26,25 @@ import { createApp } from '../index';
         twilioAuthToken: twilioAuthToken as string,
         fromPhone: twilioFromPhone as string,
         toPhone: testToPhone as string
-    }
+    } as DispatchConfigAttributes;
     const templateConfig = {
         name: 'service-request-new-public-user',
         context: {
             appName: 'Test Gov Flow Message Dispatch',
             appRequestUrl: `https://example.com/`,
             serviceRequestStatus: 'inbox',
+            serviceRequestPublicId: '1234',
             jurisdictionName: 'Dummy Name',
             jurisdictionEmail: 'dummy@example.com',
+            jurisdictionReplyToServiceRequestEnabled: false,
             recipientName: 'Test Recipient Name'
         }
     }
     const record = await dispatchMessage(
         dispatchConfig,
         templateConfig,
-        Communication
+        Communication,
+        EmailStatus
     );
     console.log(record);
 })();

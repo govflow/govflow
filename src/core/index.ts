@@ -4,7 +4,7 @@ import { json, Router, urlencoded } from 'express';
 import { wrapHandler } from '../helpers';
 import { internalServerError, notFound } from '../middlewares';
 import type { ModelDefinition, PluginBase } from '../types';
-import { CommunicationModel, CommunicationRepository, communicationsRouter, InboundMapModel } from './communications';
+import { ChannelStatusModel, CommunicationModel, CommunicationRepository, communicationsRouter, EmailStatusRepository, InboundMapModel } from './communications';
 import { DepartmentModel, DepartmentRepository, departmentRouter } from './departments';
 import { JurisdictionModel, JurisdictionRepository, jurisdictionRouter } from './jurisdictions';
 import { open311Router } from './open311';
@@ -16,7 +16,7 @@ import { storageRouter } from './storage';
 const coreRoutes = Router();
 
 coreRoutes.get('/', wrapHandler(async (req: Request, res: Response) => {
-    res.status(200).send({ data: { name: 'govflow', version: '0.0.41-alpha' } });
+    res.status(200).send({ data: { name: 'govflow', version: '0.0.70-alpha' } });
 }))
 coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
@@ -38,6 +38,7 @@ const coreModels: ModelDefinition[] = [
     CommunicationModel,
     DepartmentModel,
     InboundMapModel,
+    ChannelStatusModel
 ]
 
 const coreRepositories: PluginBase[] = [
@@ -46,7 +47,8 @@ const coreRepositories: PluginBase[] = [
     ServiceRepository,
     StaffUserRepository,
     CommunicationRepository,
-    DepartmentRepository
+    DepartmentRepository,
+    EmailStatusRepository,
 ]
 
 const coreMiddlewares: RequestHandler[] = [

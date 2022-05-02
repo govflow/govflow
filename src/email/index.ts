@@ -1,12 +1,16 @@
+import sendGridClient from '@sendgrid/client';
+import { ClientRequest } from '@sendgrid/client/src/request';
 import type { ClientResponse, MailDataRequired } from '@sendgrid/mail';
-import sendGridClient from '@sendgrid/mail';
+import sendGridMailClient from '@sendgrid/mail';
 import nodemailer from 'nodemailer';
 import validator from 'validator';
 import logger from '../logging';
 
 export async function sendEmail(
     sendGridApiKey: string,
-    toEmail: string, fromEmail: string,
+    toEmail: string,
+    fromEmail: string,
+    replyToEmail: string,
     subject: string,
     htmlBody: string,
     textBody: string
@@ -19,6 +23,7 @@ export async function sendEmail(
     const message = {
         to: toEmail,
         from: fromEmail,
+        replyTo: replyToEmail,
         subject: subject,
         text: textBody,
         html: htmlBody,
@@ -31,9 +36,9 @@ export async function sendEmail(
 }
 
 async function sendEmailToSendGrid(message: MailDataRequired, sendGridApiKey: string): Promise<ClientResponse> {
-    sendGridClient.setApiKey(sendGridApiKey);
+    sendGridMailClient.setApiKey(sendGridApiKey);
     try {
-        const response = await sendGridClient.send(message);
+        const response = await sendGridMailClient.send(message);
         return response[0];
     } catch (error) {
         const errorMessage = `Error from email transport: ${error}.`;
@@ -55,4 +60,45 @@ async function sendEmailToConsole(message: Record<string, string>): Promise<Reco
     const jsonResponse = await jsonTransporter.sendMail(message);
     console.log(streamResponse.message.toString());
     return jsonResponse.message as unknown as Record<string, string>;
+}
+
+export async function verifySenderRequest(
+    sendGridApiKey: string,
+    sendFromEmail: string,
+    sendReplyToEmail: string | undefined,
+    name: string,
+    address: string | undefined,
+    city: string | undefined,
+    state: string | undefined,
+    country: string | undefined,
+    zip: string | undefined): Promise<ClientResponse> {
+    sendGridClient.setApiKey(sendGridApiKey);
+    const data = {
+        "nickname": name,
+        "from_email": sendFromEmail,
+        "from_name": name,
+        "reply_to": sendReplyToEmail || sendFromEmail,
+        "reply_to_name": name,
+        "address": address,
+        "address2": "",
+        "state": state,
+        "city": city,
+        "country": country,
+        "zip": zip
+    };
+
+    const request = {
+        url: `/v3/verified_senders`,
+        method: 'POST',
+        body: data
+    } as ClientRequest
+
+    try {
+        const response = await sendGridClient.request(request);
+        return response[0];
+    } catch (error) {
+        const errorMessage = `Error from email transport: ${error}.`;
+        logger.error(errorMessage);
+        throw error;
+    }
 }

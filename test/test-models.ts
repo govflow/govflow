@@ -88,8 +88,16 @@ describe('Verify Core Models.', function () {
 
     it('should write inbound maps to database', async function () {
         const { InboundMap } = app.database.models;
-        for (const InboundMapData of testData.inboundMaps) {
-            const record = await InboundMap.create(InboundMapData);
+        for (const inboundMapData of testData.inboundMaps) {
+            const record = await InboundMap.create(inboundMapData);
+            chai.assert(record);
+        }
+    });
+
+    it('should write channel statuses to database', async function () {
+        const { ChannelStatus } = app.database.models;
+        for (const channelStatusData of testData.channelStatuses) {
+            const record = await ChannelStatus.create(channelStatusData);
             chai.assert(record);
         }
     });

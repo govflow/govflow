@@ -6,7 +6,8 @@ import { SERVICE_REQUEST_CLOSED_STATES } from '../src/core/service-requests/mode
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
-import { TestDataPayload } from '../src/types';
+import { ChannelStatusAttributes, StaffUserAttributes, TestDataPayload } from '../src/types';
+import { emailEvent } from './fixtures/event-email';
 
 describe('Verify Core Repositories.', function () {
 
@@ -71,7 +72,9 @@ describe('Verify Core Repositories.', function () {
     it('should find one staff user by jurisdiction via repository', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(
+                staffUserData.jurisdictionId, staffUserData.id
+            ) as StaffUserAttributes;
             chai.assert(record);
             chai.assert.equal(record.jurisdictionId, staffUserData.jurisdictionId);
         }
@@ -80,7 +83,9 @@ describe('Verify Core Repositories.', function () {
     it('should find a displayName for a staff user', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(
+                staffUserData.jurisdictionId, staffUserData.id
+            ) as StaffUserAttributes;
             chai.assert(record);
             chai.assert.equal(record.displayName, `${record.firstName} ${record.lastName}`);
         }
@@ -89,7 +94,9 @@ describe('Verify Core Repositories.', function () {
     it('should find staff user permissions for a staff user', async function () {
         const { StaffUser } = app.repositories;
         for (const staffUserData of testData.staffUsers) {
-            const record = await StaffUser.findOne(staffUserData.jurisdictionId, staffUserData.id);
+            const record = await StaffUser.findOne(
+                staffUserData.jurisdictionId, staffUserData.id
+            ) as StaffUserAttributes;
             chai.assert(record);
             chai.assert.equal(record.permissions.length, 1)
             for (const permission of record.permissions) {
@@ -221,8 +228,8 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const status = 'doing';
         for (const serviceRequestData of testData.serviceRequests) {
-            const record = await ServiceRequest.updateStatus(
-                serviceRequestData.jurisdictionId, serviceRequestData.id, status
+            const record = await ServiceRequest.update(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, { status }
             );
             chai.assert(record);
             chai.assert(record.status = status);
@@ -233,8 +240,8 @@ describe('Verify Core Repositories.', function () {
         const { ServiceRequest } = app.repositories;
         const assignedTo = faker.datatype.uuid();
         for (const serviceRequestData of testData.serviceRequests) {
-            const record = await ServiceRequest.updateAssignedTo(
-                serviceRequestData.jurisdictionId, serviceRequestData.id, assignedTo
+            const record = await ServiceRequest.update(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, { assignedTo }
             );
             chai.assert(record);
             chai.assert(record.assignedTo = assignedTo);
@@ -357,11 +364,11 @@ describe('Verify Core Repositories.', function () {
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
         const departmentId = departments[10].id;
         for (const serviceRequestData of serviceRequests) {
-            const record = await ServiceRequest.updateDepartment(
-                serviceRequestData.jurisdictionId, serviceRequestData.id, departmentId
+            const record = await ServiceRequest.update(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, { departmentId }
             );
             chai.assert(record);
-            chai.assert(record.departmentId = departmentId);
+            chai.assert.equal(record.departmentId, departmentId);
         }
     });
 
@@ -372,20 +379,47 @@ describe('Verify Core Repositories.', function () {
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId });
         const serviceId = services[2].id;
         for (const serviceRequestData of serviceRequests) {
-            const record = await ServiceRequest.updateService(
-                serviceRequestData.jurisdictionId, serviceRequestData.id, serviceId
+            const record = await ServiceRequest.update(
+                serviceRequestData.jurisdictionId, serviceRequestData.id, { serviceId }
             );
             chai.assert(record);
-            chai.assert(record.departmentId = serviceId);
+            chai.assert.equal(record.serviceId, serviceId);
         }
     });
 
     it('should write an inbound map record via repository', async function () {
-        const { InboundEmail } = app.repositories;
+        const { InboundMessage } = app.services;
         for (const inboundMapData of testData.inboundMaps) {
-            const record = await InboundEmail.createMap(inboundMapData);
+            const record = await InboundMessage.createMap(inboundMapData);
             chai.assert(record);
         }
     });
 
+    it('should write email channel statuses from email events via repository', async function () {
+        const { EmailStatus } = app.repositories;
+        for (const event of emailEvent) {
+            const record = await EmailStatus.createFromEvent(event);
+            chai.assert(record);
+        }
+    });
+
+    it('should write email channel statuses via repository', async function () {
+        const { EmailStatus } = app.repositories;
+        for (const status of testData.channelStatuses) {
+            const record = await EmailStatus.create(status);
+            chai.assert(record);
+        }
+    });
+
+    it('should get an email channel status via repository', async function () {
+        const { EmailStatus } = app.repositories;
+        const emailStatuses = _.filter(testData.channelStatuses, { channel: 'email' });
+        for (const status of emailStatuses) {
+            const record = await EmailStatus.findOne(status.id) as ChannelStatusAttributes;
+            chai.assert(record);
+            chai.assert.equal(record.id, status.id);
+            chai.assert.equal(record.isAllowed, status.isAllowed);
+            chai.assert.equal(record.log[0][0], status.log[0][0]);
+        }
+    });
 });

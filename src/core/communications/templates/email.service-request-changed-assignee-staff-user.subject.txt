@@ -1,1 +1,1 @@
-[${context.appName}]: You Have Been Assigned a Service Request
+[${context.jurisdictionName} - Request #${context.serviceRequestPublicId}]: You Have Been Assigned a Service Request

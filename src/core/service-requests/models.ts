@@ -10,9 +10,10 @@ export const REQUEST_STATUSES = {
     'done': 'Done',
     'invalid': 'Invalid',
     'moved': 'Moved',
+    'junk': 'Junk'
 };
 
-export const SERVICE_REQUEST_CLOSED_STATES = ['done', 'invalid', 'moved']
+export const SERVICE_REQUEST_CLOSED_STATES = ['done', 'invalid', 'moved', 'junk']
 
 export const REQUEST_STATUS_KEYS = Object.keys(REQUEST_STATUSES);
 
@@ -149,14 +150,6 @@ export const ServiceRequestModel: ModelDefinition = {
                 }
             }
         },
-        // if, when communicating, we find out that the email/phone is not valid
-        // then we set to false, if is valid set to true, and, if value is null
-        // then we dont know yet.
-        communicationChannelValid: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: null,
-            allowNull: true,
-        },
         closeDate: {
             allowNull: true,
             type: DataTypes.DATE,
@@ -250,6 +243,32 @@ export const ServiceRequestCommentModel: ModelDefinition = {
                     })
                     return value;
                 }
+            }
+        },
+        broadcastToSubmitter: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        },
+        broadcastToAssignee: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        },
+        broadcastToStaff: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        },
+        isBroadcast: {
+            type: DataTypes.VIRTUAL,
+            get() {
+                return this.getDataValue('broadcastToSubmitter')
+                    || this.getDataValue('broadcastToAssignee')
+                    || this.getDataValue('broadcastToStaff');
+            },
+            set(value) {
+                throw new Error(`The 'isBroadcast' attribute is not allowed to be directly set: ${value}`);
             }
         },
     },

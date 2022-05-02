@@ -73,13 +73,13 @@ open311Router.post(
     wrapHandler(maybeCaptcha),
     wrapHandler(async (req: Request, res: Response) => {
         const { ServiceRequest, Jurisdiction } = res.app.repositories;
-        const { Communication: dispatchHandler } = res.app.services;
+        const { OutboundMessage } = res.app.services;
         const dataAsGovFlow = toGovflowServiceRequest(
             req.body as unknown as Open311ServiceRequestCreatePayload
         );
         const record = await ServiceRequest.create(dataAsGovFlow);
         const jurisdiction = await Jurisdiction.findOne(record.jurisdictionId);
-        GovFlowEmitter.emit('serviceRequestCreate', jurisdiction, record, dispatchHandler);
+        GovFlowEmitter.emit('serviceRequestCreate', jurisdiction, record, OutboundMessage);
         res.status(200).send({ data: toOpen311ServiceRequest(record), success: true });
     }))
 

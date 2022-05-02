@@ -3,7 +3,7 @@ import type { Application } from 'express';
 import _ from 'lodash';
 import { createApp } from '../src';
 import { initConfig } from '../src/config';
-import { dispatchMessageForPublicUser, dispatchMessageForStaffUser, loadTemplate, makeRequestURL } from '../src/core/communications/helpers';
+import { dispatchMessage, getReplyToEmail, getSendFromEmail, loadTemplate, makeRequestURL } from '../src/core/communications/helpers';
 import { sendEmail } from '../src/email';
 import { sendSms } from '../src/sms';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
@@ -34,6 +34,7 @@ describe('Verify Core Communications Functionality.', function () {
             sendGridApiKey as string,
             'example@example.com',
             'example@example.com',
+            'example@example.com', // replyTo
             'Test subject line',
             'Test <strong>html</strong> body',
             'Test text body'
@@ -55,14 +56,16 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('loads a template', async function () {
-        const expectedOutput = '[Gov Flow]: A New Service Request Has Been Submitted\n'
+        const expectedOutput = '[Dummy Name - Request #1234]: A New Service Request Has Been Submitted\n'
         const templateName = 'email.service-request-new-staff-user.subject'
         const templateContext = {
             appName: 'Gov Flow',
             appRequestUrl: 'https://dummy.url',
             serviceRequestStatus: 'dummy-status',
-            jurisdictionName: 'dummy-name',
+            serviceRequestPublicId: '1234',
+            jurisdictionName: 'Dummy Name',
             jurisdictionEmail: 'dummy@example.com',
+            jurisdictionReplyToServiceRequestEnabled: false,
             recipientName: 'Dummy Name'
         }
         const response = await loadTemplate(templateName, templateContext);
@@ -70,7 +73,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatch a message for a public user', async function () {
-        const { ServiceRequest, Communication } = app.repositories;
+        const { ServiceRequest, Communication, EmailStatus, Jurisdiction } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -79,17 +82,21 @@ describe('Verify Core Communications Functionality.', function () {
             appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
-            twilioFromPhone
+            twilioFromPhone,
+            inboundEmailDomain
         } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [serviceRequests, count] = await ServiceRequest.findAll(jurisdictionId);
+        const [serviceRequests, _count] = await ServiceRequest.findAll(jurisdictionId);
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const replyToEmail = getReplyToEmail(null, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const serviceRequest = serviceRequests[0];
         const dispatchConfig = {
             channel: serviceRequest.communicationChannel as string,
             sendGridApiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
-            fromEmail: sendGridFromEmail as string,
+            fromEmail: sendFromEmail as string,
+            replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,
@@ -101,19 +108,26 @@ describe('Verify Core Communications Functionality.', function () {
                 appName,
                 appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
                 serviceRequestStatus: serviceRequest.status,
+                serviceRequestPublicId: '1234',
                 jurisdictionName: 'dummy-name',
                 jurisdictionEmail: 'dummy@example.com',
+                jurisdictionReplyToServiceRequestEnabled: false,
                 recipientName: serviceRequest.displayName as string
             }
         }
-        const record = await dispatchMessageForPublicUser(
-            serviceRequest, dispatchConfig, templateConfig, Communication
-        );
-        chai.assert(record);
+        if (serviceRequest.communicationChannel) {
+            const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
+            chai.assert(record);
+        } else {
+            // TODO: Need to do this check correctly
+            // chai.expect(
+            //     async () => await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus)
+            // ).to.throw();
+        }
     });
 
     it('dispatch a message for a staff user', async function () {
-        const { StaffUser, Communication } = app.repositories;
+        const { StaffUser, Communication, EmailStatus, Jurisdiction } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -122,18 +136,22 @@ describe('Verify Core Communications Functionality.', function () {
             appClientRequestsPath,
             twilioAccountSid,
             twilioAuthToken,
-            twilioFromPhone
+            twilioFromPhone,
+            inboundEmailDomain
         } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [staffUsers, staffUsersCount] = await StaffUser.findAll(jurisdictionId);
+        const [staffUsers, _staffUsersCount] = await StaffUser.findAll(jurisdictionId);
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const replyToEmail = getReplyToEmail(null, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const admins = _.filter(staffUsers, { isAdmin: true });
         const admin = admins[0] as StaffUserAttributes;
         const dispatchConfig = {
             channel: 'email',
             sendGridApiKey: sendGridApiKey as string,
             toEmail: admin.email as string,
-            fromEmail: sendGridFromEmail as string,
+            fromEmail: sendFromEmail as string,
+            replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
             fromPhone: twilioFromPhone as string,
@@ -145,13 +163,15 @@ describe('Verify Core Communications Functionality.', function () {
                 appName,
                 appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, ''),
                 serviceRequestStatus: 'dummy',
+                serviceRequestPublicId: '1234',
                 jurisdictionName: 'dummy-name',
                 jurisdictionEmail: 'dummy@example.com',
+                jurisdictionReplyToServiceRequestEnabled: false,
                 recipientName: admin.displayName as string
             }
         }
-        const record = await dispatchMessageForStaffUser(
-            dispatchConfig, templateConfig, Communication
+        const record = await dispatchMessage(
+            dispatchConfig, templateConfig, Communication, EmailStatus
         );
         chai.assert(record);
     });

@@ -2,9 +2,7 @@ import type {
     AppSettings,
     CommunicationAttributes,
     CommunicationCreateAttributes,
-    DepartmentAttributes,
-    InboundEmailDataAttributes,
-    JurisdictionAttributes,
+    DepartmentAttributes, JurisdictionAttributes,
     Models, PluginBase, QueryParamsAll,
     ServiceAttributes,
     ServiceRequestAttributes,
@@ -12,11 +10,11 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { InboundMapAttributes } from './data';
+import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, ServiceRequestCommentCreateAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
-    models: Models
-    settings: AppSettings
+    models: Models;
+    settings: AppSettings;
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {
@@ -27,7 +25,7 @@ export interface IJurisdictionRepository extends RepositoryBase {
 
 export interface IStaffUserRepository extends RepositoryBase {
     create: (data: StaffUserAttributes) => Promise<StaffUserAttributes>;
-    findOne: (jurisdictionId: string, id: string) => Promise<StaffUserAttributes>;
+    findOne: (jurisdictionId: string, id: string) => Promise<StaffUserAttributes | null>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[StaffUserAttributes[], number]>;
     lookupTable: (jurisdictionId: string) => Promise<[StaffUserLookUpAttributes[], number]>;
 }
@@ -52,7 +50,7 @@ export interface IServiceRequestRepository extends RepositoryBase {
     createComment: (
         jurisdictionId: string,
         serviceRequestId: string,
-        data: ServiceRequestCommentAttributes,
+        data: ServiceRequestCommentCreateAttributes,
         user?: StaffUserAttributes
     ) => Promise<ServiceRequestCommentAttributes>;
     updateComment: (
@@ -60,18 +58,6 @@ export interface IServiceRequestRepository extends RepositoryBase {
         serviceRequestId: string,
         serviceRequestCommentId: string,
         data: Partial<ServiceRequestCommentAttributes>) => Promise<ServiceRequestCommentAttributes>;
-    updateStatus: (
-        jurisdictionId: string, id: string, status: string, user?: StaffUserAttributes
-    ) => Promise<ServiceRequestAttributes>;
-    updateAssignedTo: (
-        jurisdictionId: string, id: string, status: string, user?: StaffUserAttributes
-    ) => Promise<ServiceRequestAttributes>;
-    updateDepartment: (
-        jurisdictionId: string, id: string, department: string, user?: StaffUserAttributes
-    ) => Promise<ServiceRequestAttributes>;
-    updateService: (
-        jurisdictionId: string, id: string, service: string, user?: StaffUserAttributes
-    ) => Promise<ServiceRequestAttributes>;
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
@@ -86,18 +72,28 @@ export interface IDepartmentRepository extends RepositoryBase {
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[DepartmentAttributes[], number]>;
 }
 
-export interface IInboundEmailRepository extends RepositoryBase {
-    createServiceRequest: (inboundEmailData: InboundEmailDataAttributes) =>
-        Promise<ServiceRequestAttributes | ServiceRequestCommentAttributes>;
-    createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
+export interface IEmailStatusRepository extends RepositoryBase {
+    create: (data: ChannelStatusAttributes) =>
+        Promise<ChannelStatusInstance>;
+    createFromEvent: (data: EmailEventAttributes) =>
+        Promise<ChannelStatusInstance>;
+    findOne: (email: string) => Promise<ChannelStatusInstance | null>;
+    isAllowed: (email: string) => Promise<ChannelIsAllowed>;
+}
+
+export interface IInboundMapRepository extends RepositoryBase {
+    create: (data: InboundMapCreateAttributes) =>
+        Promise<InboundMapInstance>;
+    findOne: (id: string) => Promise<InboundMapInstance | null>;
 }
 
 export interface Repositories {
-    Jurisdiction: IJurisdictionRepository,
-    StaffUser: IStaffUserRepository,
-    Service: IServiceRepository,
-    ServiceRequest: IServiceRequestRepository,
-    Communication: ICommunicationRepository,
-    InboundEmail: IInboundEmailRepository,
-    Department: IDepartmentRepository,
+    Jurisdiction: IJurisdictionRepository;
+    StaffUser: IStaffUserRepository;
+    Service: IServiceRepository;
+    ServiceRequest: IServiceRequestRepository;
+    Communication: ICommunicationRepository;
+    Department: IDepartmentRepository;
+    EmailStatus: IEmailStatusRepository;
+    InboundMap: IInboundMapRepository;
 }

@@ -1,12 +1,12 @@
 import { Container } from 'inversify';
-import { CommunicationRepository, InboundEmailRepository } from '../core/communications';
-import { CommunicationService } from '../core/communications/services';
+import { CommunicationRepository, EmailStatusRepository, InboundMapRepository } from '../core/communications';
+import { InboundMessageService, OutboundMessageService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { JurisdictionRepository } from '../core/jurisdictions';
-import { ServiceRequestRepository } from '../core/service-requests';
+import { ServiceRequestRepository, ServiceRequestService } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, ICommunicationService, IDepartmentRepository, IInboundEmailRepository, IJurisdictionRepository, IServiceRepository, IServiceRequestRepository, IStaffUserRepository, Plugin, Services } from '../types';
+import type { AppSettings, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, IStaffUserRepository, Plugin, Services } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -32,11 +32,14 @@ function bindRepositoriesWithPlugins(
     repositoryContainer.bind<ICommunicationRepository>(repositoryIds.ICommunicationRepository).to(
         CommunicationRepository
     );
-    repositoryContainer.bind<IInboundEmailRepository>(repositoryIds.IInboundEmailRepository).to(
-        InboundEmailRepository
+    repositoryContainer.bind<IEmailStatusRepository>(repositoryIds.IEmailStatusRepository).to(
+        EmailStatusRepository
     );
     repositoryContainer.bind<IDepartmentRepository>(repositoryIds.IDepartmentRepository).to(
         DepartmentRepository
+    );
+    repositoryContainer.bind<IInboundMapRepository>(repositoryIds.IInboundMapRepository).to(
+        InboundMapRepository
     );
 
     // bind from plugins
@@ -52,8 +55,9 @@ function bindRepositoriesWithPlugins(
         repositoryIds.IServiceRequestRepository
     );
     const Communication = repositoryContainer.get<ICommunicationRepository>(repositoryIds.ICommunicationRepository);
-    const InboundEmail = repositoryContainer.get<IInboundEmailRepository>(repositoryIds.IInboundEmailRepository);
+    const EmailStatus = repositoryContainer.get<IEmailStatusRepository>(repositoryIds.IEmailStatusRepository);
     const Department = repositoryContainer.get<IDepartmentRepository>(repositoryIds.IDepartmentRepository);
+    const InboundMap = repositoryContainer.get<IInboundMapRepository>(repositoryIds.IInboundMapRepository);
 
     const repositories = {
         Jurisdiction,
@@ -61,8 +65,9 @@ function bindRepositoriesWithPlugins(
         Service,
         ServiceRequest,
         Communication,
-        InboundEmail,
-        Department
+        EmailStatus,
+        Department,
+        InboundMap
     }
     return repositories;
 }
@@ -78,15 +83,21 @@ function bindServicesWithPlugins(
     serviceContainer.bind<AppSettings>(appIds.AppSettings).toConstantValue(settings);
     serviceContainer.bind<Repositories>(appIds.Repositories).toConstantValue(repositories);
 
-    serviceContainer.bind<ICommunicationService>(serviceIds.ICommunicationService).to(CommunicationService);
+    serviceContainer.bind<IOutboundMessageService>(serviceIds.IOutboundMessageService).to(OutboundMessageService);
+    serviceContainer.bind<IInboundMessageService>(serviceIds.IInboundMessageService).to(InboundMessageService);
+    serviceContainer.bind<IServiceRequestService>(serviceIds.IServiceRequestService).to(ServiceRequestService);
 
     // TODO: Bind custom services from plugins here
 
     // get our implementations and return them
-    const Communication = serviceContainer.get<ICommunicationService>(serviceIds.ICommunicationService);
+    const OutboundMessage = serviceContainer.get<IOutboundMessageService>(serviceIds.IOutboundMessageService);
+    const InboundMessage = serviceContainer.get<IInboundMessageService>(serviceIds.IInboundMessageService);
+    const ServiceRequest = serviceContainer.get<IServiceRequestService>(serviceIds.IServiceRequestService);
 
     const services = {
-        Communication
+        OutboundMessage,
+        InboundMessage,
+        ServiceRequest
     }
     return services;
 }

@@ -1,6 +1,6 @@
 {
   "name": "@govflow/govflow",
-  "version": "0.0.41-alpha",
+  "version": "0.0.70-alpha",
   "description": "An open, modular work order and workflow management system for local governments and resident satisfaction.",
   "homepage": "https://github.com/govflow/govflow",
   "main": "./index.js",
@@ -14,7 +14,8 @@
     "send-test-email": "ts-node ./src/cli/send-test-email",
     "send-test-sms": "ts-node ./src/cli/send-test-sms",
     "send-test-dispatch": "ts-node ./src/cli/send-test-dispatch",
-    "ensure-public-ids": "ts-node ./src/cli/ensure-public-ids"
+    "ensure-public-ids": "ts-node ./src/cli/ensure-public-ids",
+    "ensure-service-request-inbound-map": "ts-node ./src/cli/ensure-service-request-inbound-map"
   },
   "bin": {
     "govflow-start": "./cli/default-server.js",
@@ -23,14 +24,18 @@
     "govflow-send-test-email": "./cli/send-test-email.js",
     "govflow-send-test-sms": "./cli/send-test-sms.js",
     "govflow-send-test-dispatch": "./cli/send-test-dispatch.js",
-    "govflow-ensure-public-ids": "./cli/ensure-public-ids.js"
+    "govflow-ensure-public-ids": "./cli/ensure-public-ids.js",
+    "govflow-service-request-inbound-map": "./cli/ensure-service-request-inbound-map.js"
   },
   "license": "MIT",
   "dependencies": {
+    "@sendgrid/client": "^7.6.2",
+    "@sendgrid/eventwebhook": "^7.4.5",
     "@sendgrid/mail": "^7.6.0",
     "@types/nodemailer": "^6.4.4",
     "axios": "^0.24.0",
     "bcrypt": "^5.0.1",
+    "chai-as-promised": "^7.1.1",
     "cors": "^2.8.5",
     "deepmerge": "^4.2.2",
     "dotenv": "^10.0.0",
@@ -47,7 +52,7 @@
     "passport-http": "^0.3.0",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
-    "sequelize": "^6.7.0",
+    "sequelize": "6.7.0",
     "striptags": "^3.2.0",
     "twilio": "^3.71.2",
     "umzug": "^3.0.0-beta.16",
@@ -58,6 +63,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/chai": "^4.2.22",
+    "@types/chai-as-promised": "^7.1.5",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
     "@types/express-xml-bodyparser": "^0.3.2",
@@ -73,8 +79,8 @@
     "@types/passport-http": "^0.3.9",
     "@types/validator": "^13.6.5",
     "@types/xml2js": "^0.4.9",
-    "@typescript-eslint/eslint-plugin": "^4.31.2",
-    "@typescript-eslint/parser": "^4.31.2",
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
     "chai": "^4.3.4",
     "chai-http": "^4.3.0",
     "eslint": "^7.32.0",
@@ -82,8 +88,8 @@
     "faker": "^5.5.3",
     "mocha": "^9.1.2",
     "nyc": "^15.1.0",
-    "ts-node": "^10.2.1",
-    "typescript": "^4.4.3"
+    "ts-node": "^10.7.0",
+    "typescript": "^4.5.0"
   },
   "nyc": {
     "branches": "&gt;80",

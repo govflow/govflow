@@ -66,6 +66,14 @@ export function serviceRequestFiltersToSequelize(filterParams: ServiceRequestFil
         whereParams = merge(whereParams, { departmentId: cleaned.department });
     }
 
+    if (!_.isNil(cleaned.service)) {
+
+        if (cleaned.service === 'none') {
+            cleaned.service = null;
+        }
+        whereParams = merge(whereParams, { serviceId: cleaned.service });
+    }
+
     if (Object.getOwnPropertySymbols(createdAtParams).length > 0) {
         whereParams = merge(whereParams, { createdAt: createdAtParams });
     }

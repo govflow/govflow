@@ -47,8 +47,8 @@ describe('Interact with storage and files', function () {
         const { storageEndpoint, storageBucket, storagePort } = app.config;
         const filename = 'test.jpg';
         try {
-        await axios.get(`http://${storageEndpoint}:${storagePort}/${storageBucket}/${filename}`);
-        } catch(error) {
+            await axios.get(`http://${storageEndpoint}:${storagePort}/${storageBucket}/${filename}`);
+        } catch (error) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             chai.assert.equal(error.response.status, 403);
@@ -69,6 +69,29 @@ describe('Interact with storage and files', function () {
         chai.assert.include(res.body.data.retrieveUrl, 'X-Amz-Signature');
         // this will fail if not status 200
         await axios.get(res.body.data.retrieveUrl)
+    });
+
+    it('should fail presign put when no filename', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const filename = undefined;
+        const { storageEndpoint, storageBucket } = app.config;
+        const res = await chai.request(app).post(
+            `/storage/presign-put?jurisdictionId=${jurisdictionId}`
+        ).send({ filename });
+        chai.assert.equal(res.status, 400);
+        chai.assert.equal(res.body.data.message, 'Received an invalid file name.');
+        chai.assert.equal(res.body.data.filename, null);
+    });
+
+    it('should fail presign get when no filename', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const filename = undefined;
+        const res = await chai.request(app).post(
+            `/storage/presign-get?jurisdictionId=${jurisdictionId}`
+        ).send({ filename });
+        chai.assert.equal(res.status, 400);
+        chai.assert.equal(res.body.data.message, 'Received an invalid file name.');
+        chai.assert.equal(res.body.data.filename, null);
     });
 
 });

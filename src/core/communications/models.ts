@@ -1,5 +1,25 @@
 import { DataTypes } from 'sequelize';
+import validator from 'validator';
 import type { ModelDefinition } from '../../types';
+
+export const EMAIL_EVENT_MAP = {
+    'processed': null, // Message has been received and is ready to be delivered.
+    'deferred': null, // Receiving server temporarily rejected the message.
+    'delivered': true, // Message has been successfully delivered to the receiving server.
+    'bounce': false, // Receiving server could not or would not accept mail to this recipient permanently. If a recipient has previously unsubscribed from your emails, the message is dropped.
+    'blocked': false, // Receiving server could not or would not accept the message temporarily. If a recipient has previously unsubscribed from your emails, the message is dropped.
+    'dropped': false, // You may see the following drop reasons: Invalid SMTPAPI header, Spam Content (if Spam Checker app is enabled), Unsubscribed Address, Bounced Address, Spam Reporting Address, Invalid, Recipient List over Package Quota
+    'spamreport': false, // Recipient marked message as spam.
+    'unsubscribe': false, // Recipient clicked on the 'Opt Out of All Emails' link (available after clicking the message's subscription management link). Subscription Tracking needs to be enabled for this type of event.
+    'group_unsubscribe': false, // Recipient unsubscribed from a specific group either by clicking the link directly or updating their preferences. Subscription Tracking needs to be enabled for this type of event.
+    'group_resubscribe': true, // Recipient resubscribed to a specific group by updating their preferences. Subscription Tracking needs to be enabled for this type of event.
+    'open': null, // Recipient has opened the HTML message. Open Tracking needs to be enabled for this type of event.
+    'click': null, // Recipient clicked on a link within the message. Click Tracking needs to be enabled for this type of event.
+} as Record<string, boolean | null>;
+
+export const EMAIL_EVENT_IGNORE = ['processed', 'deferred', 'open', 'clicked']
+
+export const EMAIL_EVENT_MAP_KEYS = Object.keys(EMAIL_EVENT_MAP);
 
 export const CommunicationModel: ModelDefinition = {
     name: 'Communication',
@@ -86,6 +106,10 @@ export const InboundMapModel: ModelDefinition = {
             allowNull: false,
             primaryKey: true,
         },
+        staffUserId: { // is not a foreignKey as commonly customised
+            type: DataTypes.STRING,
+            allowNull: true,
+        }
     },
     options: {
         freezeTableName: true,
@@ -93,7 +117,75 @@ export const InboundMapModel: ModelDefinition = {
             {
                 unique: true,
                 fields: ['id', 'jurisdictionId', 'departmentId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'departmentId', 'staffUserId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'departmentId', 'serviceId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'staffUserId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'serviceId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'jurisdictionId', 'serviceRequestId']
             }
         ]
+    }
+}
+
+export const ChannelStatusModel: ModelDefinition = {
+    name: 'ChannelStatus',
+    attributes: {
+        id: { // email or phone
+            type: DataTypes.STRING,
+            primaryKey: true,
+        },
+        channel: {
+            allowNull: false,
+            type: DataTypes.ENUM('email', 'phone'),
+        },
+        isAllowed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+        },
+        log: { // an array of [event, status] ordered new to old
+            type: DataTypes.JSONB,
+            allowNull: false,
+        },
+    },
+    options: {
+        freezeTableName: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['id', 'channel']
+            },
+            {
+                unique: false,
+                fields: ['channel']
+            }
+        ],
+        validate: {
+            oneOfEmailOrPhone() {
+                if (this.channel === 'email') {
+                    try {
+                        validator.isEmail(this.id as string);
+                    } catch {
+                        throw new Error(`${this.id} is not a validate email.`);
+                    }
+                } else if (this.channel === 'phone') {
+                    // TODO: validate phone when we can
+                }
+            }
+        }
     }
 }

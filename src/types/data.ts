@@ -2,9 +2,18 @@ import type { Model } from 'sequelize';
 
 export interface JurisdictionAttributes {
     id: string;
-    name: string,
-    email: string,
+    name: string;
+    email: string;
     enforceAssignmentThroughDepartment: boolean;
+    sendFromEmail?: string;
+    sendFromEmailVerified: boolean,
+    replyToEmail?: string;
+    replyToServiceRequestEnabled: boolean;
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    zip?: string;
 }
 
 export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>
@@ -38,7 +47,7 @@ export interface StaffUserDepartmentAttributes {
 export type StaffUserDepartmentCreateAttributes = Partial<StaffUserDepartmentAttributes>
 
 export interface StaffUserDepartmentInstance
-    extends Model<StaffUserDepartmentAttributes, StaffUserDepartmentCreateAttributes>, StaffUserDepartmentAttributes {}
+    extends Model<StaffUserDepartmentAttributes, StaffUserDepartmentCreateAttributes>, StaffUserDepartmentAttributes { }
 
 export interface StaffUserLookUpAttributes {
     id: string;
@@ -61,8 +70,8 @@ export interface ServiceInstance
 
 export interface ServiceRequestAttributes {
     id: string;
-    publicId: string,
-    idCounter: number,
+    publicId: string;
+    idCounter: number;
     serviceId?: string;
     jurisdictionId: string;
     description: string;
@@ -80,11 +89,11 @@ export interface ServiceRequestAttributes {
     lon: number;
     inputChannel: string;
     communicationChannel: string;
-    communicationValid: boolean;
     closeDate: Date;
     displayName: string;
     departmentId: string;
-    comments: ServiceRequestCommentAttributes[],
+    comments: ServiceRequestCommentAttributes[];
+    inboundMaps: InboundMapAttributes[];
 }
 
 export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
@@ -95,8 +104,12 @@ export interface ParsedServiceRequestAttributes {
     firstName: string;
     lastName: string;
     email: string;
-    description: string,
-    departmentId?: string,
+    description: string;
+    createdAt: Date | undefined;
+    departmentId?: string;
+    assignedTo?: string;
+    serviceRequestId?: string;
+    serviceId?: string;
 }
 
 export interface ServiceRequestInstance
@@ -104,10 +117,14 @@ export interface ServiceRequestInstance
 
 export interface ServiceRequestCommentAttributes {
     id: string;
-    serviceRequestId: string,
+    serviceRequestId: string;
     comment?: string;
-    addedBy?: string,
-    images?: string[]
+    addedBy?: string;
+    images?: string[];
+    isBroadcast: boolean;
+    broadcastToSubmitter: boolean;
+    broadcastToAssignee: boolean;
+    broadcastToStaff: boolean;
 }
 
 export type ServiceRequestCommentCreateAttributes = Partial<ServiceRequestCommentAttributes>
@@ -118,7 +135,7 @@ export interface ServiceRequestCommentInstance
 
 export interface ServiceRequestStatusAttributes {
     id: string;
-    label: string
+    label: string;
 }
 
 export interface CommunicationAttributes {
@@ -140,8 +157,8 @@ export interface CommunicationInstance
 export interface DepartmentAttributes {
     id: string;
     name: string;
-    primaryContactName: string,
-    primaryContactEmail: string,
+    primaryContactName: string;
+    primaryContactEmail: string;
     jurisdictionId: string;
 }
 
@@ -154,6 +171,9 @@ export interface InboundMapAttributes {
     id: string;
     jurisdictionId: string;
     departmentId?: string;
+    staffUserId?: string;
+    serviceRequestId?: string;
+    serviceId?: string;
 }
 
 export type InboundMapCreateAttributes = Partial<InboundMapAttributes>
@@ -162,47 +182,50 @@ export interface InboundMapInstance
     extends Model<InboundMapAttributes, InboundMapCreateAttributes>, InboundMapAttributes { }
 
 export interface SmsAttributes {
-    to: string,
-    from: string,
-    body: string,
+    to: string;
+    from: string;
+    body: string;
 }
 
 export interface EmailAttributes {
-    to: string,
-    form: string,
-    subject: string,
-    body: string,
+    to: string;
+    form: string;
+    subject: string;
+    body: string;
 }
 
 export interface DispatchConfigAttributes {
-    channel: string,
-    sendGridApiKey: string,
-    toEmail: string,
-    fromEmail: string,
-    twilioAccountSid: string,
-    twilioAuthToken: string,
-    fromPhone: string,
-    toPhone: string,
+    channel: string;
+    sendGridApiKey: string;
+    toEmail: string;
+    fromEmail: string;
+    replyToEmail: string;
+    twilioAccountSid: string;
+    twilioAuthToken: string;
+    fromPhone: string;
+    toPhone: string;
 }
 
 export interface DispatchPayloadAttributes extends DispatchConfigAttributes {
-    subject?: string,
-    textBody: string,
-    htmlBody?: string
+    subject?: string;
+    textBody: string;
+    htmlBody?: string;
 }
 
 export interface TemplateConfigContextAttributes {
-    appName: string,
-    appRequestUrl: string,
-    serviceRequestStatus: string,
-    jurisdictionName: string,
-    jurisdictionEmail: string,
-    recipientName: string,
+    appName: string;
+    appRequestUrl: string;
+    serviceRequestStatus: string;
+    serviceRequestPublicId: string;
+    jurisdictionName: string;
+    jurisdictionEmail: string;
+    jurisdictionReplyToServiceRequestEnabled: boolean;
+    recipientName: string;
 }
 
 export interface TemplateConfigAttributes {
-    name: string,
-    context: TemplateConfigContextAttributes,
+    name: string;
+    context: TemplateConfigContextAttributes;
 }
 
 export interface TestDataPayload {
@@ -214,46 +237,82 @@ export interface TestDataPayload {
     communications: CommunicationAttributes[],
     departments: DepartmentAttributes[],
     inboundMaps: InboundMapAttributes[],
+    channelStatuses: ChannelStatusAttributes[];
 }
 
 export interface TestDataMakerOptions {
-    jurisdiction: JurisdictionAttributes,
-    serviceRequest: ServiceRequestAttributes,
-    jurisdictions: JurisdictionAttributes[],
-    staffUsers: StaffUserAttributes[],
-    services: ServiceAttributes[],
-    serviceRequests: ServiceRequestAttributes[],
-    departments: DepartmentAttributes[],
-    inboundMaps: InboundMapAttributes[],
+    jurisdiction: JurisdictionAttributes;
+    serviceRequest: ServiceRequestAttributes;
+    jurisdictions: JurisdictionAttributes[];
+    staffUsers: StaffUserAttributes[];
+    services: ServiceAttributes[];
+    serviceRequests: ServiceRequestAttributes[];
+    departments: DepartmentAttributes[];
+    inboundMaps: InboundMapAttributes[];
 }
 
 export interface InboundEmailDataAttributes {
-    headers: string,
-    attachments: string,
-    dkim: string,
-    subject: string,
-    to: string,
-    cc?: string,
-    bcc?: string,
-    spam_score: string,
-    from: string,
-    text: string,
-    sender_ip: string,
-    spam_report: string,
-    envelope: string,
-    charsets: string,
-    SPF: string,
-
+    headers: string;
+    attachments: string;
+    dkim: string;
+    subject: string;
+    to: string;
+    cc?: string;
+    bcc?: string;
+    spam_score: string;
+    from: string;
+    text: string;
+    sender_ip: string;
+    spam_report: string;
+    envelope: string;
+    charsets: string;
+    SPF: string;
 }
 
 export interface InboundEmailDataToRequestAttributes {
-    headers: string,
-    to: string,
-    cc?: string,
-    bcc?: string,
-    from: string,
-    subject: string,
-    text: string,
+    headers: string;
+    to: string;
+    cc?: string;
+    bcc?: string;
+    from: string;
+    subject: string;
+    text: string;
 }
 
 export type PublicId = string | undefined;
+
+export interface EmailEventAttributes {
+    email: string;
+    event: string;
+    timestamp: number;
+    'smtp-id': string;
+    category: string | [];
+    sg_event_id?: string;
+    sg_message_id?: string;
+    type?: string;
+}
+
+export interface RecipientAttributes {
+    email: string;
+    displayName: string;
+    isStaff: boolean;
+}
+
+export type LogEntry = [string, boolean | null | undefined];
+
+export interface ChannelStatusAttributes {
+    id: string;
+    channel: string;
+    isAllowed: boolean | null;
+    log: LogEntry[];
+}
+
+export type ChannelStatusCreateAttributes = Partial<ChannelStatusAttributes>
+
+export interface ChannelStatusInstance
+    extends Model<ChannelStatusAttributes, ChannelStatusCreateAttributes>, ChannelStatusAttributes { }
+
+export interface ChannelIsAllowed {
+    id: string;
+    isAllowed: boolean;
+}
