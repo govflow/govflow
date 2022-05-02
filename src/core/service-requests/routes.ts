@@ -89,9 +89,9 @@ serviceRequestRouter.post('/comments/:serviceRequestId/:id', wrapHandler(async (
 
 serviceRequestRouter.get('/', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.repositories;
-    const { dateFrom, dateTo, status, assignedTo, department } = req.query;
+    const { dateFrom, dateTo, status, assignedTo, department, service } = req.query;
     const queryParams = serviceRequestFiltersToSequelize(
-        { dateFrom, dateTo, status, assignedTo, department } as Record<string, string>,
+        { dateFrom, dateTo, status, assignedTo, department, service } as Record<string, string>,
     );
     const [records, count] = await ServiceRequest.findAll(req.jurisdiction.id, queryParams);
     res.status(200).send({ data: records, count: count });

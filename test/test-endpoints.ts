@@ -30,7 +30,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.69-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.70-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -245,6 +245,31 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.status, 200);
         for (const serviceRequest of res.body.data) {
             chai.assert.equal(serviceRequest.departmentId, null);
+        }
+    });
+
+    it('should GET all service requests filtered by existing service for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const services = _.filter(testData.services, { jurisdictionId });
+        const serviceId = services[0].id;
+        const res = await chai.request(app).get(
+            `/service-requests/?jurisdictionId=${jurisdictionId}&service=${serviceId}`
+        );
+        chai.assert.equal(res.status, 200);
+        for (const serviceRequest of res.body.data) {
+            chai.assert.equal(serviceRequest.serviceId, serviceId);
+        }
+    });
+
+    it('should GET all service requests filtered by no service for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceId = 'none';
+        const res = await chai.request(app).get(
+            `/service-requests/?jurisdictionId=${jurisdictionId}&service=${serviceId}`
+        );
+        chai.assert.equal(res.status, 200);
+        for (const serviceRequest of res.body.data) {
+            chai.assert.equal(serviceRequest.serviceId, null);
         }
     });
 
