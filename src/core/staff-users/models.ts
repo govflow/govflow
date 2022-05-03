@@ -84,12 +84,6 @@ export const StaffUserModel: ModelDefinition = {
 export const StaffUserDepartmentModel: ModelDefinition = {
     name: 'StaffUserDepartment',
     attributes: {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-            allowNull: false
-        },
         isLead: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,

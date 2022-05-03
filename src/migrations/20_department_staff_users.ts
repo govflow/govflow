@@ -9,14 +9,9 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
     await queryInterface.sequelize.query('ALTER TABLE "StaffUser" ADD PRIMARY KEY (id)');
 
     await queryInterface.createTable('StaffUserDepartment', {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-            allowNull: false
-        },
         staffUserId: {
             type: DataTypes.STRING,
+            primaryKey: true,
             allowNull: false,
             onDelete: 'SET NULL',
             references: {
@@ -26,7 +21,7 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
         },
         departmentId: {
             type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
+            primaryKey: true,
             allowNull: false,
             onDelete: 'SET NULL',
             references: {
@@ -39,6 +34,14 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             defaultValue: false,
             allowNull: false,
         },
+        createdAt: {
+            allowNull: false,
+            type: DataTypes.DATE
+        },
+        updatedAt: {
+            allowNull: false,
+            type: DataTypes.DATE
+        },
     });
 
     await queryInterface.addColumn(
@@ -49,9 +52,19 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             defaultValue: false,
         }
     );
+
+    await queryInterface.addColumn(
+        'Jurisdiction',
+        'filterBroadcastsByDepartment',
+        {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        }
+    );
 }
 
 export async function down({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
     await queryInterface.removeColumn('Jurisdiction', 'enforceAssignmentThroughDepartment');
+    await queryInterface.removeColumn('Jurisdiction', 'filterBroadcastsByDepartment');
     await queryInterface.dropTable('StaffUserDepartment');
 }

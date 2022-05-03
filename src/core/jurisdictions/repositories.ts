@@ -6,7 +6,7 @@ import {
     IJurisdictionRepository,
     JurisdictionAttributes,
     JurisdictionInstance,
-    Models
+    Models, StaffUserInstance
 } from '../../types';
 
 @injectable()
@@ -58,6 +58,12 @@ export class JurisdictionRepository implements IJurisdictionRepository {
             record[key] = value;
         }
         return await record.save();
+    }
+
+    async hasStaffUser(id: string, staffUserId: string): Promise<boolean> {
+        const { StaffUser } = this.models;
+        const params = { where: { id: staffUserId, jurisdictionId: id } };
+        return Boolean(await StaffUser.findOne(params) as StaffUserInstance);
     }
 
 }

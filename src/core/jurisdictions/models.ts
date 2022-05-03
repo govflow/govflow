@@ -24,6 +24,10 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        filterBroadcastsByDepartment: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
         sendFromEmail: {
             allowNull: true,
             type: DataTypes.STRING,

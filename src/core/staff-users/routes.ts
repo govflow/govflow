@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { wrapHandler } from '../../helpers';
-import { resolveJurisdiction, enforceJurisdictionAccess } from '../../middlewares';
+import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
 
 export const accountRouter = Router();
 
@@ -23,5 +23,27 @@ accountRouter.get('/staff/:id', wrapHandler(async (req: Request, res: Response) 
     const { StaffUser } = res.app.repositories;
     const { id } = req.params;
     const record = await StaffUser.findOne(req.jurisdiction.id, id);
+    res.status(200).send({ data: record });
+}))
+
+accountRouter.get('/staff/departments/', wrapHandler(async (req: Request, res: Response) => {
+    const { StaffUser } = res.app.services;
+    const record = await StaffUser.getDepartmentMap(req.jurisdiction.id);
+    res.status(200).send({ data: record });
+}))
+
+accountRouter.post('/staff/departments/assign/:id', wrapHandler(async (req: Request, res: Response) => {
+    const { StaffUser } = res.app.services;
+    const { id } = req.params;
+    const { departmentId, isLead } = req.body;
+    const record = await StaffUser.assignDepartment(req.jurisdiction.id, id, departmentId, isLead);
+    res.status(200).send({ data: record });
+}))
+
+accountRouter.post('/staff/departments/remove/:id', wrapHandler(async (req: Request, res: Response) => {
+    const { StaffUser } = res.app.services;
+    const { id } = req.params;
+    const { departmentId } = req.body;
+    const record = await StaffUser.removeDepartment(req.jurisdiction.id, id, departmentId);
     res.status(200).send({ data: record });
 }))

@@ -456,7 +456,9 @@ describe('Hit all API endpoints', function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
         const serviceRequestId = serviceRequestData.id;
-        const assignedTo = faker.datatype.uuid();
+        const staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
+        const staffUserId = staffUsers[0].id;
+        const assignedTo = staffUserId;
         const res = await chai.request(app).post(
             `/service-requests/assign/?jurisdictionId=${jurisdictionId}`
         ).send({ assignedTo, serviceRequestId });

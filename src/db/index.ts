@@ -52,8 +52,16 @@ function applyCoreModelRelations(models: Models) {
     Jurisdiction.hasMany(Department, { as: 'departments', foreignKey: 'jurisdictionId' });
     Department.belongsTo(Jurisdiction, { as: 'jurisdiction' })
 
-    Department.belongsToMany(StaffUser, { through: StaffUserDepartment });
-    StaffUser.belongsToMany(Department, { through: StaffUserDepartment });
+    Department.belongsToMany(StaffUser, {
+        as: 'staffUsers',
+        foreignKey: 'staffUserId',
+        through: StaffUserDepartment
+    });
+    StaffUser.belongsToMany(Department, {
+        as: 'departments',
+        foreignKey: 'departmentId',
+        through: StaffUserDepartment
+    });
 
     Department.hasMany(
         ServiceRequest, {

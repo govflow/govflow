@@ -5,6 +5,7 @@ export interface JurisdictionAttributes {
     name: string;
     email: string;
     enforceAssignmentThroughDepartment: boolean;
+    filterBroadcastsByDepartment: boolean;
     sendFromEmail?: string;
     sendFromEmailVerified: boolean,
     replyToEmail?: string;
@@ -21,7 +22,6 @@ export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>
 export interface JurisdictionInstance
     extends Model<JurisdictionAttributes, JurisdictionCreateAttributes>, JurisdictionAttributes { }
 
-
 export interface StaffUserAttributes {
     id: string;
     firstName: string;
@@ -31,6 +31,7 @@ export interface StaffUserAttributes {
     email: string;
     isAdmin: boolean;
     permissions: string[];
+    departments: StaffUserDepartmentInlineAttributes[];
 }
 
 export type StaffUserCreateAttributes = Partial<StaffUserAttributes>
@@ -40,6 +41,11 @@ export interface StaffUserInstance
 
 export interface StaffUserDepartmentAttributes {
     staffUserId: string;
+    departmentId: string;
+    isLead: boolean;
+}
+
+export interface StaffUserDepartmentInlineAttributes {
     departmentId: string;
     isLead: boolean;
 }

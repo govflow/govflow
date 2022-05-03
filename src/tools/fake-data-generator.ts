@@ -2,7 +2,7 @@ import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { ChannelStatusAttributes, CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserModel, TestDataMakerOptions, TestDataPayload } from '../types';
+import { ChannelStatusAttributes, CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserDepartmentModel, StaffUserModel, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -27,6 +27,8 @@ function makeJurisdiction() {
 function makeStaffUser(options: Partial<TestDataMakerOptions>) {
     const firstName = faker.name.firstName()
     const lastName = faker.name.lastName()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return {
         id: faker.datatype.uuid(),
         firstName: firstName,
@@ -133,7 +135,7 @@ function makeInboundMap(options: Partial<TestDataMakerOptions>) {
 }
 function makeStaffUserDepartments(staffUsers: StaffUserAttributes[], departments: DepartmentAttributes[]) {
     const staffUserDepartments: StaffUserDepartmentAttributes[] = [];
-    for (const staffUser of staffUsers.slice(5)) {
+    for (const staffUser of staffUsers) {
         staffUserDepartments.push({
             staffUserId: staffUser.id,
             departmentId: faker.helpers.randomize(departments.map((d) => { return d.id })),
@@ -176,6 +178,7 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     const {
         Jurisdiction,
         StaffUser,
+        StaffUserDepartment,
         Service,
         ServiceRequest,
         ServiceRequestComment,
@@ -189,17 +192,16 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         await Jurisdiction.create(jurisdictionData);
     }
 
+    for (const departmentData of testData.departments) {
+        await Department.create(departmentData);
+    }
+
     for (const staffUserData of testData.staffUsers) {
-        const staffUser = await StaffUser.create(staffUserData) as unknown as StaffUserModel;
-        const departments = testData.staffUserDepartments.filter(sud => sud.staffUserId === staffUserData.id);
-        for (const staffUserData of departments) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const dept = await Department.findOne(staffUserData.id);
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            await staffUser.addDepartment(dept, { through: { isLead: staffUserData.isLead } });
+        await StaffUser.create(staffUserData) as unknown as StaffUserModel;
         }
+
+    for (const staffUserDepartmentData of testData.staffUserDepartments) {
+        await StaffUserDepartment.create(staffUserDepartmentData) as unknown as StaffUserDepartmentModel;
     }
 
     for (const serviceData of testData.services) {
@@ -220,10 +222,6 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
 
     for (const communicationData of testData.communications) {
         await Communication.create(communicationData);
-    }
-
-    for (const departmentData of testData.departments) {
-        await Department.create(departmentData);
     }
 
     for (const inboundMapData of testData.inboundMaps) {
@@ -248,7 +246,7 @@ export default function makeTestData(): TestDataPayload {
     let channelStatuses: ChannelStatusAttributes[] = [];
 
     // we want some jurisdictions to enforce assignment through department
-    jurisdictions[0].enforceAssignmentThroughDepartment = true
+    jurisdictions[2].enforceAssignmentThroughDepartment = true
 
     for (const jurisdiction of jurisdictions) {
         staffUsers = staffUsers.concat(
@@ -256,13 +254,13 @@ export default function makeTestData(): TestDataPayload {
                 makeStaffUser, 20, { jurisdiction }
             ) as unknown as StaffUserAttributes[])
         services = services.concat(factory(makeService, 5, { jurisdiction }) as unknown as ServiceAttributes[])
-        serviceRequests = serviceRequests.concat(
-            factory(
-                makeServiceRequest, 20, { staffUsers, services, jurisdiction }
-            ) as unknown as ServiceRequestAttributes[]
-        )
         departments = departments.concat(
             factory(makeDepartment, 20, { jurisdiction }) as unknown as DepartmentAttributes[]
+        )
+        serviceRequests = serviceRequests.concat(
+            factory(
+                makeServiceRequest, 20, { staffUsers, services, jurisdiction, departments }
+            ) as unknown as ServiceRequestAttributes[]
         )
         inboundMaps = inboundMaps.concat(
             factory(makeInboundMap, 3, { jurisdiction, departments }) as unknown as InboundMapAttributes[]

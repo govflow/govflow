@@ -6,7 +6,8 @@ import { JurisdictionRepository } from '../core/jurisdictions';
 import { ServiceRequestRepository, ServiceRequestService } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
-import type { AppSettings, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, IStaffUserRepository, Plugin, Services } from '../types';
+import { StaffUserService } from '../core/staff-users/services';
+import type { AppSettings, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, IStaffUserRepository, IStaffUserService, Plugin, Services } from '../types';
 import { DatabaseEngine, Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -86,6 +87,7 @@ function bindServicesWithPlugins(
     serviceContainer.bind<IOutboundMessageService>(serviceIds.IOutboundMessageService).to(OutboundMessageService);
     serviceContainer.bind<IInboundMessageService>(serviceIds.IInboundMessageService).to(InboundMessageService);
     serviceContainer.bind<IServiceRequestService>(serviceIds.IServiceRequestService).to(ServiceRequestService);
+    serviceContainer.bind<IStaffUserService>(serviceIds.IStaffUserService).to(StaffUserService);
 
     // TODO: Bind custom services from plugins here
 
@@ -93,11 +95,13 @@ function bindServicesWithPlugins(
     const OutboundMessage = serviceContainer.get<IOutboundMessageService>(serviceIds.IOutboundMessageService);
     const InboundMessage = serviceContainer.get<IInboundMessageService>(serviceIds.IInboundMessageService);
     const ServiceRequest = serviceContainer.get<IServiceRequestService>(serviceIds.IServiceRequestService);
+    const StaffUser = serviceContainer.get<IStaffUserService>(serviceIds.IStaffUserService);
 
     const services = {
         OutboundMessage,
         InboundMessage,
-        ServiceRequest
+        ServiceRequest,
+        StaffUser
     }
     return services;
 }

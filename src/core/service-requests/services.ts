@@ -18,10 +18,16 @@ export class ServiceRequestService implements IServiceRequestService {
     }
 
     async createAuditedStateChange(
-        jurisdictionId: string, id: string, key: string, value: string, user?: StaffUserAttributes
+        jurisdictionId: string,
+        id: string,
+        key: string,
+        value: string,
+        user?: StaffUserAttributes,
+        departmentId?: string
     ):
         Promise<ServiceRequestAttributes> {
-        const { ServiceRequest, StaffUser, Department, Service } = this.repositories;
+        const { Jurisdiction, ServiceRequest, StaffUser, Department, Service } = this.repositories;
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
         let record = await ServiceRequest.findOne(jurisdictionId, id);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore

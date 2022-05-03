@@ -322,7 +322,11 @@ export class OutboundMessageService implements IOutboundMessageService {
             const commenter = await StaffUser.findOne(
                 jurisdiction.id, serviceRequestComment.addedBy as string
             ) as StaffUserAttributes;
-            serviceRequestCommenterName = commenter.displayName;
+            if (commenter) {
+                serviceRequestCommenterName = commenter.displayName;
+            } else {
+                serviceRequestCommenterName = 'System';
+            }
         }
         // not using serviceRequestCommentContext to submitters
         let serviceRequestCommentContext = '';
@@ -362,20 +366,21 @@ export class OutboundMessageService implements IOutboundMessageService {
         }
 
         if (serviceRequestComment.broadcastToStaff) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (jurisdiction.enforceAssignmentThroughDepartment) {
-                // if department leads enabled
-                // The feature does not exist yet,
-                // it is in another pull request
-            } else {
-                const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
-                const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
-                recipients.push(...admins.map(
-                    (u) => { return { email: u.email, displayName: u.displayName, isStaff: true } },
-                    admins
-                ))
+            const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
+            let staffRecipients = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
+
+            if (jurisdiction.filterBroadcastsByDepartment && serviceRequest.departmentId) {
+                const departmentMap = await StaffUser.getDepartmentMap(jurisdiction.id);
+                const _lookup = _.map(
+                    _.filter(departmentMap, { departmentId: serviceRequest.departmentId, isLead: true }),
+                    m => m.staffUserId
+                );
+                staffRecipients = _.filter(staffUsers, s => _lookup.includes(s.id));
             }
+
+            recipients.push(...staffRecipients.map(
+                s => { return { email: s.email, displayName: s.displayName, isStaff: true } }
+            ))
         }
 
         for (const recipient of recipients) {
