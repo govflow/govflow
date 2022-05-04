@@ -332,3 +332,8 @@ export interface ServiceRequestStateChangeErrorResponse {
     isError: boolean;
     message: string;
 }
+
+export interface StaffUserStateChangeErrorResponse {
+    isError: boolean;
+    message: string;
+}

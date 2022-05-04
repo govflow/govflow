@@ -1,5 +1,5 @@
 import { AppSettings, CommunicationAttributes, JurisdictionAttributes, PluginBase, Repositories, ServiceRequestAttributes } from ".";
-import { AuditedStateChangeExtraData, InboundEmailDataAttributes, InboundMapAttributes, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes } from "./data";
+import { AuditedStateChangeExtraData, InboundEmailDataAttributes, InboundMapAttributes, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from "./data";
 
 export interface ServiceBase extends PluginBase {
     repositories: Repositories;
@@ -48,7 +48,7 @@ export interface IStaffUserService extends ServiceBase {
     ) => Promise<StaffUserAttributes | null>;
     removeDepartment: (
         jurisdictionId: string, staffUserId: string, departmentId: string
-    ) => Promise<StaffUserAttributes | null>;
+    ) => Promise<StaffUserAttributes | StaffUserStateChangeErrorResponse | null>;
 }
 
 export interface Services {

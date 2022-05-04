@@ -78,11 +78,12 @@ export class StaffUserRepository implements IStaffUserRepository {
         jurisdictionId: string, staffUserId: string, departmentId: string, isLead: boolean
     ): Promise<StaffUserAttributes | null> {
         const { StaffUserDepartment } = this.models;
+        const existingLead = await StaffUserDepartment.findOne({ where: { isLead: true, departmentId } });
         const existingRecord = await StaffUserDepartment.findOne({ where: { staffUserId, departmentId } });
         if (existingRecord) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            existingRecord.isLead = isLead;
+            existingRecord.isLead = existingLead ? isLead : true; // we always need at least one lead
             await existingRecord.save();
         } else {
             await StaffUserDepartment.create({ staffUserId, departmentId, isLead });
@@ -94,8 +95,13 @@ export class StaffUserRepository implements IStaffUserRepository {
         jurisdictionId: string, staffUserId: string, departmentId: string)
         : Promise<StaffUserAttributes | null> {
         const { StaffUserDepartment } = this.models;
-        await StaffUserDepartment.destroy({ where: { staffUserId, departmentId } });
-        return await this.findOne(jurisdictionId, staffUserId);
+        const remainingLead = await StaffUserDepartment.findOne({ where: { isLead: true, departmentId } });
+        if (!remainingLead) {
+            return null;
+        } else {
+            await StaffUserDepartment.destroy({ where: { staffUserId, departmentId } });
+            return await this.findOne(jurisdictionId, staffUserId);
+        }
     }
 
 }

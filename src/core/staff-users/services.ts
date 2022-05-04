@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, IStaffUserService, Repositories, StaffUserAttributes, StaffUserDepartmentAttributes } from '../../types';
+import { AppSettings, IStaffUserService, Repositories, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from '../../types';
 
 @injectable()
 export class StaffUserService implements IStaffUserService {
@@ -29,13 +29,20 @@ export class StaffUserService implements IStaffUserService {
 
     async removeDepartment(
         jurisdictionId: string, staffUserId: string, departmentId: string
-    ): Promise<StaffUserAttributes | null> {
+    ): Promise<StaffUserAttributes | StaffUserStateChangeErrorResponse | null> {
         const { Jurisdiction, StaffUser } = this.repositories;
         const verified = await Jurisdiction.hasStaffUser(jurisdictionId, staffUserId);
         let record = null;
         if (verified) {
-            record = await StaffUser.removeDepartment(jurisdictionId, staffUserId, departmentId)
+            record = await StaffUser.removeDepartment(jurisdictionId, staffUserId, departmentId);
+            if (!record) {
+                return {
+                    isError: true,
+                    message: 'Invalid action. Ensure another Staff User is Department lead first.'
+                } as StaffUserStateChangeErrorResponse
+            }
         }
+
         return record;
     }
 
