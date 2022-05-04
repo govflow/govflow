@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { serviceRequestFiltersToSequelize, wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
-import { ServiceRequestAttributes, StaffUserAttributes } from '../../types';
+import { AuditedStateChangeExtraData, ServiceRequestAttributes } from '../../types';
 import { GovFlowEmitter } from '../event-listeners';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
@@ -29,9 +29,10 @@ serviceRequestRouter.get('/stats', async (req: Request, res: Response) => {
 serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Response) => {
     const { OutboundMessage, ServiceRequest } = res.app.services;
     const { status, serviceRequestId } = req.body;
+    const extraData = { user: req.user };
     let eventName = 'serviceRequestChangeStatus';
     const record = await ServiceRequest.createAuditedStateChange(
-        req.jurisdiction.id, serviceRequestId, 'status', status, req.user as StaffUserAttributes | undefined
+        req.jurisdiction.id, serviceRequestId, 'status', status, extraData
     );
     if (SERVICE_REQUEST_CLOSED_STATES.includes(status as string)) {
         eventName = 'serviceRequestClosed'
@@ -42,19 +43,34 @@ serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Respo
 
 serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Response) => {
     const { OutboundMessage, ServiceRequest } = res.app.services;
-    const { assignedTo, serviceRequestId } = req.body;
+    const { assignedTo, departmentId, serviceRequestId } = req.body;
+    const extraData = {
+        user: req.user,
+        departmentId
+    }
     const record = await ServiceRequest.createAuditedStateChange(
-        req.jurisdiction.id, serviceRequestId, 'assignedTo', assignedTo, req.user as StaffUserAttributes | undefined
+        req.jurisdiction.id,
+        serviceRequestId,
+        'assignedTo',
+        assignedTo,
+        extraData as AuditedStateChangeExtraData,
     );
-    GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, OutboundMessage);
-    res.status(200).send({ data: record });
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (record.isError) {
+        res.status(400).send({ data: record });
+    } else {
+        GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, OutboundMessage);
+        res.status(200).send({ data: record });
+    }
 }))
 
 serviceRequestRouter.post('/department', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.services;
     const { departmentId, serviceRequestId } = req.body;
+    const extraData = { user: req.user };
     const record = await ServiceRequest.createAuditedStateChange(
-        req.jurisdiction.id, serviceRequestId, 'departmentId', departmentId, req.user as StaffUserAttributes | undefined
+        req.jurisdiction.id, serviceRequestId, 'departmentId', departmentId, extraData
     );
     res.status(200).send({ data: record });
 }))
@@ -62,8 +78,9 @@ serviceRequestRouter.post('/department', wrapHandler(async (req: Request, res: R
 serviceRequestRouter.post('/service', wrapHandler(async (req: Request, res: Response) => {
     const { ServiceRequest } = res.app.services;
     const { serviceId, serviceRequestId } = req.body;
+    const extraData = { user: req.user };
     const record = await ServiceRequest.createAuditedStateChange(
-        req.jurisdiction.id, serviceRequestId, 'serviceId', serviceId, req.user as StaffUserAttributes | undefined
+        req.jurisdiction.id, serviceRequestId, 'serviceId', serviceId, extraData
     );
     res.status(200).send({ data: record });
 }))

@@ -4,6 +4,8 @@ export interface JurisdictionAttributes {
     id: string;
     name: string;
     email: string;
+    enforceAssignmentThroughDepartment: boolean;
+    filterBroadcastsByDepartment: boolean;
     sendFromEmail?: string;
     sendFromEmailVerified: boolean,
     replyToEmail?: string;
@@ -20,7 +22,6 @@ export type JurisdictionCreateAttributes = Partial<JurisdictionAttributes>
 export interface JurisdictionInstance
     extends Model<JurisdictionAttributes, JurisdictionCreateAttributes>, JurisdictionAttributes { }
 
-
 export interface StaffUserAttributes {
     id: string;
     firstName: string;
@@ -30,12 +31,29 @@ export interface StaffUserAttributes {
     email: string;
     isAdmin: boolean;
     permissions: string[];
+    departments: StaffUserDepartmentInlineAttributes[];
 }
 
 export type StaffUserCreateAttributes = Partial<StaffUserAttributes>
 
 export interface StaffUserInstance
     extends Model<StaffUserAttributes, StaffUserCreateAttributes>, StaffUserAttributes { }
+
+export interface StaffUserDepartmentAttributes {
+    staffUserId: string;
+    departmentId: string;
+    isLead: boolean;
+}
+
+export interface StaffUserDepartmentInlineAttributes {
+    departmentId: string;
+    isLead: boolean;
+}
+
+export type StaffUserDepartmentCreateAttributes = Partial<StaffUserDepartmentAttributes>
+
+export interface StaffUserDepartmentInstance
+    extends Model<StaffUserDepartmentAttributes, StaffUserDepartmentCreateAttributes>, StaffUserDepartmentAttributes { }
 
 export interface StaffUserLookUpAttributes {
     id: string;
@@ -217,13 +235,14 @@ export interface TemplateConfigAttributes {
 }
 
 export interface TestDataPayload {
-    jurisdictions: JurisdictionAttributes[];
-    staffUsers: StaffUserAttributes[];
-    services: ServiceAttributes[];
-    serviceRequests: ServiceRequestAttributes[];
-    communications: CommunicationAttributes[];
-    departments: DepartmentAttributes[];
-    inboundMaps: InboundMapAttributes[];
+    jurisdictions: JurisdictionAttributes[],
+    staffUsers: StaffUserAttributes[],
+    staffUserDepartments: StaffUserDepartmentAttributes[],
+    services: ServiceAttributes[],
+    serviceRequests: ServiceRequestAttributes[],
+    communications: CommunicationAttributes[],
+    departments: DepartmentAttributes[],
+    inboundMaps: InboundMapAttributes[],
     channelStatuses: ChannelStatusAttributes[];
 }
 
@@ -302,4 +321,19 @@ export interface ChannelStatusInstance
 export interface ChannelIsAllowed {
     id: string;
     isAllowed: boolean;
+}
+
+export interface AuditedStateChangeExtraData {
+    user?: StaffUserAttributes;
+    departmentId?: string;
+}
+
+export interface ServiceRequestStateChangeErrorResponse {
+    isError: boolean;
+    message: string;
+}
+
+export interface StaffUserStateChangeErrorResponse {
+    isError: boolean;
+    message: string;
 }

@@ -20,6 +20,14 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: { isEmail: true }
         },
+        enforceAssignmentThroughDepartment: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        filterBroadcastsByDepartment: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
         sendFromEmail: {
             allowNull: true,
             type: DataTypes.STRING,

@@ -28,7 +28,7 @@ export const StaffUserModel: ModelDefinition = {
             type: DataTypes.ARRAY(DataTypes.STRING),
             defaultValue: STAFF_USER_PERMISSIONS,
             allowNull: false,
-            primaryKey: true,
+            primaryKey: false,
         },
         firstName: {
             allowNull: false,
@@ -78,5 +78,20 @@ export const StaffUserModel: ModelDefinition = {
                 fields: ['id', 'jurisdictionId']
             }
         ]
+    }
+}
+
+export const StaffUserDepartmentModel: ModelDefinition = {
+    name: 'StaffUserDepartment',
+    attributes: {
+        isLead: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false,
+        },
+    },
+    options: {
+        freezeTableName: true,
+        indexes: []
     }
 }

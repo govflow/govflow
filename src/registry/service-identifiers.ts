@@ -15,6 +15,7 @@ export const serviceIds = {
     IOutboundMessageService: Symbol('IOutboundMessageService'),
     IInboundMessageService: Symbol('IInboundMessageService'),
     IServiceRequestService: Symbol('IServiceRequestService'),
+    IStaffUserService: Symbol('IStaffUserService'),
 };
 
 export const appIds = {

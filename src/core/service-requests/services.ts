@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
+import _ from 'lodash';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, IServiceRequestService, Repositories, ServiceRequestAttributes, StaffUserAttributes } from '../../types';
+import { AppSettings, AuditedStateChangeExtraData, IServiceRequestService, Repositories, ServiceRequestAttributes, ServiceRequestStateChangeErrorResponse } from '../../types';
 import { makeAuditMessage } from './helpers';
 import { REQUEST_STATUSES } from './models';
 
@@ -18,11 +19,49 @@ export class ServiceRequestService implements IServiceRequestService {
     }
 
     async createAuditedStateChange(
-        jurisdictionId: string, id: string, key: string, value: string, user?: StaffUserAttributes
+        jurisdictionId: string,
+        id: string,
+        key: string,
+        value: string,
+        extraData?: AuditedStateChangeExtraData
     ):
-        Promise<ServiceRequestAttributes> {
-        const { ServiceRequest, StaffUser, Department, Service } = this.repositories;
+        Promise<ServiceRequestAttributes | ServiceRequestStateChangeErrorResponse> {
+        const { Jurisdiction, ServiceRequest, StaffUser, Department, Service } = this.repositories;
+        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
         let record = await ServiceRequest.findOne(jurisdictionId, id);
+
+        // TODO: this if statement is the first occurance we have of customized business
+        // logic around a request state change, therefore I just inlined it.
+        // However, as we get more cases, we probably want to extract this into
+        // a function that runs a series of tests, based on the current config for the jurisdiction,
+        // and returns true or false
+        if (key === 'assignedTo' && jurisdiction.enforceAssignmentThroughDepartment) {
+            const departmentId = extraData?.departmentId;
+            let allowedAction = false;
+
+            if (departmentId) {
+                const proposedAssignee = await StaffUser.findOne(jurisdictionId, value);
+                if (proposedAssignee) {
+                    const proposedAssigneeDepartments = _.map(
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        proposedAssignee.dataValues.departments,
+                        (sud) => { return sud.departmentId }
+                    );
+                    allowedAction = proposedAssigneeDepartments.includes(departmentId);
+                }
+            }
+
+            if (!allowedAction) {
+                return {
+                    isError: true,
+                    message: 'Cannot update Service Request assignee without a valid Department'
+                } as ServiceRequestStateChangeErrorResponse
+            }
+
+        }
+
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const oldValue = record[key];
@@ -78,8 +117,10 @@ export class ServiceRequestService implements IServiceRequestService {
             }
             fieldName = 'Service';
         }
-        const auditMessage = makeAuditMessage(user, fieldName, oldDisplayValue, newDisplayValue);
-        await ServiceRequest.createComment(jurisdictionId, record.id, { comment: auditMessage, addedBy: user?.id });
+        const auditMessage = makeAuditMessage(extraData?.user, fieldName, oldDisplayValue, newDisplayValue);
+        await ServiceRequest.createComment(
+            jurisdictionId, record.id, { comment: auditMessage, addedBy: extraData?.user?.id }
+        );
         return record;
 
     }

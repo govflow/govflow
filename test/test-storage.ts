@@ -74,7 +74,7 @@ describe('Interact with storage and files', function () {
     it('should fail presign put when no filename', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const filename = undefined;
-        const { storageEndpoint, storageBucket } = app.config;
+        // const { storageEndpoint, storageBucket } = app.config;
         const res = await chai.request(app).post(
             `/storage/presign-put?jurisdictionId=${jurisdictionId}`
         ).send({ filename });

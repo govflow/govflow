@@ -10,7 +10,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, ServiceRequestCommentCreateAttributes } from './data';
+import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, ServiceRequestCommentCreateAttributes, StaffUserDepartmentAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -21,6 +21,7 @@ export interface IJurisdictionRepository extends RepositoryBase {
     create: (data: Partial<JurisdictionAttributes>) => Promise<JurisdictionAttributes>;
     findOne: (id: string) => Promise<JurisdictionAttributes>;
     update: (id: string, data: Partial<JurisdictionAttributes>) => Promise<JurisdictionAttributes>;
+    hasStaffUser: (id: string, staffUserId: string) => Promise<boolean>;
 }
 
 export interface IStaffUserRepository extends RepositoryBase {
@@ -28,6 +29,13 @@ export interface IStaffUserRepository extends RepositoryBase {
     findOne: (jurisdictionId: string, id: string) => Promise<StaffUserAttributes | null>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[StaffUserAttributes[], number]>;
     lookupTable: (jurisdictionId: string) => Promise<[StaffUserLookUpAttributes[], number]>;
+    getDepartmentMap: (jurisdictionId: string) => Promise<StaffUserDepartmentAttributes[] | null>;
+    assignDepartment: (
+        jurisdictionId: string, staffUserId: string, departmentId: string, isLead: boolean
+    ) => Promise<StaffUserAttributes | null>;
+    removeDepartment: (
+        jurisdictionId: string, staffUserId: string, departmentId: string
+    ) => Promise<StaffUserAttributes | null>;
 }
 
 export interface IServiceRepository extends RepositoryBase {

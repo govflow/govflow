@@ -1,5 +1,5 @@
 import { AppSettings, CommunicationAttributes, JurisdictionAttributes, PluginBase, Repositories, ServiceRequestAttributes } from ".";
-import { InboundEmailDataAttributes, InboundMapAttributes, ServiceRequestCommentAttributes, StaffUserAttributes } from "./data";
+import { AuditedStateChangeExtraData, InboundEmailDataAttributes, InboundMapAttributes, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from "./data";
 
 export interface ServiceBase extends PluginBase {
     repositories: Repositories;
@@ -37,13 +37,23 @@ export interface IInboundMessageService extends ServiceBase {
 
 export interface IServiceRequestService extends ServiceBase {
     createAuditedStateChange: (
-        jurisdictionId: string, id: string, key: string, value: string, user?: StaffUserAttributes
-    ) =>
-        Promise<ServiceRequestAttributes>;
+        jurisdictionId: string, id: string, key: string, value: string, extraData?: AuditedStateChangeExtraData
+    ) => Promise<ServiceRequestAttributes | ServiceRequestStateChangeErrorResponse>;
+}
+
+export interface IStaffUserService extends ServiceBase {
+    getDepartmentMap: (jurisdictionId: string) => Promise<StaffUserDepartmentAttributes[] | null>;
+    assignDepartment: (
+        jurisdictionId: string, staffUserId: string, departmentId: string, isLead: boolean
+    ) => Promise<StaffUserAttributes | null>;
+    removeDepartment: (
+        jurisdictionId: string, staffUserId: string, departmentId: string
+    ) => Promise<StaffUserAttributes | StaffUserStateChangeErrorResponse | null>;
 }
 
 export interface Services {
     OutboundMessage: IOutboundMessageService;
     InboundMessage: IInboundMessageService;
     ServiceRequest: IServiceRequestService;
+    StaffUser: IStaffUserService;
 }

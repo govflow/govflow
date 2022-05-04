@@ -2,7 +2,7 @@ import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { ChannelStatusAttributes, CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
+import { ChannelStatusAttributes, CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserDepartmentModel, StaffUserModel, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -20,12 +20,15 @@ function makeJurisdiction() {
         id: faker.datatype.uuid(),
         name: faker.company.companyName(),
         email: faker.internet.email(),
+        enforceAssignmentThroughDepartment: false
     } as JurisdictionAttributes;
 }
 
 function makeStaffUser(options: Partial<TestDataMakerOptions>) {
     const firstName = faker.name.firstName()
     const lastName = faker.name.lastName()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return {
         id: faker.datatype.uuid(),
         firstName: firstName,
@@ -130,6 +133,21 @@ function makeInboundMap(options: Partial<TestDataMakerOptions>) {
         staffUserId: faker.helpers.randomize(options.staffUsers as StaffUserAttributes[]).id,
     } as InboundMapAttributes
 }
+function makeStaffUserDepartments(staffUsers: StaffUserAttributes[], departments: DepartmentAttributes[]) {
+    const staffUserDepartments: StaffUserDepartmentAttributes[] = [];
+    for (const staffUser of staffUsers) {
+        staffUserDepartments.push({
+            staffUserId: staffUser.id,
+            departmentId: faker.helpers.randomize(departments.map((d) => { return d.id })),
+            isLead: true
+        })
+    }
+    // make sure some are not leads
+    for (const sud of staffUserDepartments.slice(5)) { // TODO - not just slice
+        sud.isLead = false
+    }
+    return staffUserDepartments;
+}
 
 function makeChannelStatus() {
     const statuses = [
@@ -160,6 +178,7 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     const {
         Jurisdiction,
         StaffUser,
+        StaffUserDepartment,
         Service,
         ServiceRequest,
         ServiceRequestComment,
@@ -173,8 +192,16 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         await Jurisdiction.create(jurisdictionData);
     }
 
+    for (const departmentData of testData.departments) {
+        await Department.create(departmentData);
+    }
+
     for (const staffUserData of testData.staffUsers) {
-        await StaffUser.create(staffUserData);
+        await StaffUser.create(staffUserData) as unknown as StaffUserModel;
+    }
+
+    for (const staffUserDepartmentData of testData.staffUserDepartments) {
+        await StaffUserDepartment.create(staffUserDepartmentData) as unknown as StaffUserDepartmentModel;
     }
 
     for (const serviceData of testData.services) {
@@ -197,10 +224,6 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
         await Communication.create(communicationData);
     }
 
-    for (const departmentData of testData.departments) {
-        await Department.create(departmentData);
-    }
-
     for (const inboundMapData of testData.inboundMaps) {
         await InboundMap.create(inboundMapData);
     }
@@ -214,6 +237,7 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
 export default function makeTestData(): TestDataPayload {
     const jurisdictions = factory(makeJurisdiction, 3, {}) as unknown as JurisdictionAttributes[];
     let staffUsers: StaffUserAttributes[] = [];
+    let staffUserDepartments: StaffUserDepartmentAttributes[] = [];
     let services: ServiceAttributes[] = [];
     let serviceRequests: ServiceRequestAttributes[] = [];
     let communications: CommunicationAttributes[] = [];
@@ -221,23 +245,27 @@ export default function makeTestData(): TestDataPayload {
     let inboundMaps: InboundMapAttributes[] = [];
     let channelStatuses: ChannelStatusAttributes[] = [];
 
+    // we want some jurisdictions to enforce assignment through department
+    jurisdictions[2].enforceAssignmentThroughDepartment = true
+
     for (const jurisdiction of jurisdictions) {
         staffUsers = staffUsers.concat(
             factory(
-                makeStaffUser, 3, { jurisdiction }
+                makeStaffUser, 20, { jurisdiction }
             ) as unknown as StaffUserAttributes[])
         services = services.concat(factory(makeService, 5, { jurisdiction }) as unknown as ServiceAttributes[])
-        serviceRequests = serviceRequests.concat(
-            factory(
-                makeServiceRequest, 20, { staffUsers, services, jurisdiction }
-            ) as unknown as ServiceRequestAttributes[]
-        )
         departments = departments.concat(
             factory(makeDepartment, 20, { jurisdiction }) as unknown as DepartmentAttributes[]
+        )
+        serviceRequests = serviceRequests.concat(
+            factory(
+                makeServiceRequest, 20, { staffUsers, services, jurisdiction, departments }
+            ) as unknown as ServiceRequestAttributes[]
         )
         inboundMaps = inboundMaps.concat(
             factory(makeInboundMap, 3, { jurisdiction, departments }) as unknown as InboundMapAttributes[]
         )
+        staffUserDepartments = makeStaffUserDepartments(staffUsers, departments);
 
     }
 
@@ -252,6 +280,7 @@ export default function makeTestData(): TestDataPayload {
     return {
         jurisdictions,
         staffUsers,
+        staffUserDepartments,
         services,
         serviceRequests,
         communications,
