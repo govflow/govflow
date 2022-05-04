@@ -460,7 +460,15 @@ export class InboundMessageService implements IInboundMessageService {
             const validEmails = [...staffEmails, intermediateRecord.email];
             const canComment = canSubmitterComment(cleanedData.email, validEmails);
             if (canComment && intermediateRecord) {
-                const comment = { comment: cleanedData.description, addedBy };
+                const comment = {
+                    comment: cleanedData.description,
+                    addedBy,
+                    // TODO: These are hard coded for now, but should really be made configurable via the InboundMap
+                    // or some other means. The hardcoded assumption here is that inbound messages
+                    // will be broadcast to staff and assignees
+                    broadcastToStaff: true,
+                    broadcastToAssignee: true,
+                };
                 await ServiceRequest.createComment(cleanedData.jurisdictionId, intermediateRecord.id, comment);
             } else {
                 const dataToLog = { message: 'Invalid Comment Submitter.' }
