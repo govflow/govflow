@@ -322,3 +322,13 @@ export interface ChannelIsAllowed {
     id: string;
     isAllowed: boolean;
 }
+
+export interface AuditedStateChangeExtraData {
+    user?: StaffUserAttributes;
+    departmentId?: string;
+}
+
+export interface ServiceRequestStateChangeErrorResponse {
+    isError: boolean;
+    message: string;
+}

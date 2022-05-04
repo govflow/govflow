@@ -198,7 +198,7 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
 
     for (const staffUserData of testData.staffUsers) {
         await StaffUser.create(staffUserData) as unknown as StaffUserModel;
-        }
+    }
 
     for (const staffUserDepartmentData of testData.staffUserDepartments) {
         await StaffUserDepartment.create(staffUserDepartmentData) as unknown as StaffUserDepartmentModel;

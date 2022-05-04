@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { createApp } from '../src';
 import { Open311ServiceRequestCreatePayload } from '../src/core/open311/types';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
-import { TestDataPayload } from '../src/types';
+import { StaffUserDepartmentAttributes, TestDataPayload } from '../src/types';
 import { emailEvent } from './fixtures/event-email';
 import { validServiceRequestData } from './fixtures/open311';
 
@@ -480,6 +480,57 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.assignedTo, assignedTo);
     });
 
+    it('should not update assignedTo when no departmentId passed and enforceAssignmentThroughDepartment enabled',
+        async function () {
+            const jurisdictionId = testData.jurisdictions[2].id;
+            const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+            const serviceRequestId = serviceRequestData.id;
+            const staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
+            const staffUserId = staffUsers[0].id;
+            const assignedTo = staffUserId;
+            const res = await chai.request(app).post(
+                `/service-requests/assign/?jurisdictionId=${jurisdictionId}`
+            ).send({ assignedTo, serviceRequestId });
+            chai.assert.equal(res.status, 400);
+            chai.assert.equal(res.body.data.isError, true);
+        });
+
+    it(`should not update assignedTo when invalid staffUserId/departmentId passed
+        and enforceAssignmentThroughDepartment enabled`,
+        async function () {
+            const jurisdictionId = testData.jurisdictions[2].id;
+            const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+            const serviceRequestId = serviceRequestData.id;
+            const staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
+            const staffUserId = staffUsers[0].id;
+            const assignedTo = staffUserId;
+            const res = await chai.request(app).post(
+                `/service-requests/assign/?jurisdictionId=${jurisdictionId}`
+            ).send({ assignedTo, serviceRequestId });
+            chai.assert.equal(res.status, 400);
+            chai.assert.equal(res.body.data.isError, true);
+        });
+
+    it('should do update assignedTo when a valid departmentId passed and enforceAssignmentThroughDepartment enabled',
+        async function () {
+            const jurisdictionId = testData.jurisdictions[2].id;
+            const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId })
+            const serviceRequestData = _.cloneDeep(serviceRequests[0]);
+            const serviceRequestId = serviceRequestData.id;
+            const departmentMaps = await app.repositories.StaffUser.getDepartmentMap(
+                jurisdictionId
+            ) as StaffUserDepartmentAttributes[];
+            const staffUserId = departmentMaps[0].staffUserId;
+            const departmentId = departmentMaps[0].departmentId;
+            const assignedTo = staffUserId;
+            const res = await chai.request(app).post(
+                `/service-requests/assign/?jurisdictionId=${jurisdictionId}`
+            ).send({ assignedTo, serviceRequestId, departmentId });
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.assignedTo, assignedTo);
+            chai.assert.equal(res.body.data.assignedTo, assignedTo);
+        });
+
     it('should POST an update to department for a service request for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const departments = _.filter(testData.departments, { jurisdictionId });
@@ -506,6 +557,54 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.id, serviceRequestId);
         chai.assert.equal(res.body.data.serviceId, serviceId);
+    });
+
+    it('should POST a new department assignment for a staff user', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const staffUserId = staffUsers[0].id;
+        const departmentId = departments[0].id;
+        const isLead = false;
+        const data = { departmentId, isLead };
+        const res = await chai.request(app).post(
+            `/accounts/staff/departments/assign/${staffUserId}?jurisdictionId=${jurisdictionId}`
+        ).send(data);
+        const thisAssignment = _.find(res.body.data.departments, { departmentId })
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.departments.length, 2);
+        chai.assert.equal(thisAssignment.isLead, isLead);
+    });
+
+    it('should POST an updated department assignment for a staff user', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const staffUserId = staffUsers[0].id;
+        const departmentId = departments[0].id;
+        const isLead = true;
+        const data = { departmentId, isLead };
+        const res = await chai.request(app).post(
+            `/accounts/staff/departments/assign/${staffUserId}?jurisdictionId=${jurisdictionId}`
+        ).send(data);
+        const thisAssignment = _.find(res.body.data.departments, { departmentId })
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.departments.length, 2);
+        chai.assert.equal(thisAssignment.isLead, isLead);
+    });
+
+    it('should POST a removal of a department assignment for a staff user', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const staffUsers = _.filter(testData.staffUsers, { jurisdictionId });
+        const departments = _.filter(testData.departments, { jurisdictionId });
+        const staffUserId = staffUsers[0].id;
+        const departmentId = departments[0].id;
+        const data = { departmentId };
+        const res = await chai.request(app).post(
+            `/accounts/staff/departments/remove/${staffUserId}?jurisdictionId=${jurisdictionId}`
+        ).send(data);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.departments.length, 1);
     });
 
     it('should GET all service request statuses for a jurisdiction', async function () {
