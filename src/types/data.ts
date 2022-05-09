@@ -337,3 +337,9 @@ export interface StaffUserStateChangeErrorResponse {
     isError: boolean;
     message: string;
 }
+
+export interface auditMessageFields {
+    fieldName: string;
+    oldValue: string;
+    newValue: string;
+}

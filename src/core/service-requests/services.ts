@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, AuditedStateChangeExtraData, IServiceRequestService, Repositories, ServiceRequestAttributes, ServiceRequestStateChangeErrorResponse } from '../../types';
+import { AppSettings, AuditedStateChangeExtraData, auditMessageFields, IServiceRequestService, Repositories, ServiceRequestAttributes, ServiceRequestStateChangeErrorResponse } from '../../types';
 import { makeAuditMessage } from './helpers';
 import { REQUEST_STATUSES } from './models';
 
@@ -29,6 +29,7 @@ export class ServiceRequestService implements IServiceRequestService {
         const { Jurisdiction, ServiceRequest, StaffUser, Department, Service } = this.repositories;
         const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
         let record = await ServiceRequest.findOne(jurisdictionId, id);
+
 
         // TODO: this if statement is the first occurance we have of customized business
         // logic around a request state change, therefore I just inlined it.
@@ -61,12 +62,12 @@ export class ServiceRequestService implements IServiceRequestService {
 
         }
 
-
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const oldValue = record[key];
         let oldDisplayValue = oldValue;
-        const data = {}
+        const data = {};
+        const auditMessageFields: auditMessageFields[] = [];
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         data[key] = value;
@@ -85,6 +86,7 @@ export class ServiceRequestService implements IServiceRequestService {
             // @ts-ignore
             oldDisplayValue = REQUEST_STATUSES[oldValue];
             fieldName = 'Status';
+            auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
         } else if (key === 'assignedTo') {
             if (value) {
                 const newAssignee = await StaffUser.findOne(jurisdictionId, value);
@@ -95,8 +97,32 @@ export class ServiceRequestService implements IServiceRequestService {
                 newDisplayValue = 'Unassigned';
             }
             fieldName = 'Assignee';
+            auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
+            if (extraData?.departmentId) {
+                const departmentFieldName = 'Department';
+                let newDepartmentDisplayValue = '';
+                let oldDepartmentDisplayValue = '';
+                const newDepartment = await Department.findOne(jurisdictionId, value);
+                const oldDepartment = await Department.findOne(jurisdictionId, oldValue);
+                if (newDepartment) {
+                    newDepartmentDisplayValue = newDepartment.name
+                } else {
+                    newDepartmentDisplayValue = 'No Department'
+                }
+                if (oldDepartment) {
+                    oldDepartmentDisplayValue = oldDepartment.name
+                } else {
+                    oldDepartmentDisplayValue = 'No Department'
+                }
+                if (newDepartment && oldDepartment) {
+                    auditMessageFields.push({
+                        fieldName: departmentFieldName,
+                        oldValue: oldDepartmentDisplayValue,
+                        newValue: newDepartmentDisplayValue
+                    });
+                }
+            }
         } else if (key === 'departmentId') {
-            console.log("HERE")
             if (value) {
                 const newDepartment = await Department.findOne(jurisdictionId, value);
                 const oldDepartment = await Department.findOne(jurisdictionId, oldValue);
@@ -117,7 +143,7 @@ export class ServiceRequestService implements IServiceRequestService {
             }
             fieldName = 'Service';
         }
-        const auditMessage = makeAuditMessage(extraData?.user, fieldName, oldDisplayValue, newDisplayValue);
+        const auditMessage = makeAuditMessage(extraData?.user, auditMessageFields);
         await ServiceRequest.createComment(
             jurisdictionId, record.id, { comment: auditMessage, addedBy: extraData?.user?.id }
         );

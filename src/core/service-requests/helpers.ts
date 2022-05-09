@@ -1,11 +1,19 @@
 import { Op } from "sequelize";
-import { ServiceRequestInstance, ServiceRequestModel, StaffUserAttributes } from "../../types";
+import { auditMessageFields, ServiceRequestInstance, ServiceRequestModel, StaffUserAttributes } from "../../types";
 
-export function makeAuditMessage(user: StaffUserAttributes | undefined, fieldName: string, oldValue: string, newValue: string): string {
+export function makeAuditMessage(user: StaffUserAttributes | undefined, fields: auditMessageFields[]): string {
     let displayName = 'System';
     if (user) { displayName = user.displayName; }
-    const message = `${displayName} changed this request's ${fieldName} from ${oldValue} to ${newValue}.`
-    return message;
+    const messages = [];
+    for (const field of fields) {
+        messages.push(`${field.fieldName} from ${field.oldValue} to ${field.newValue}`);
+    }
+    const messagePrefix = `${displayName} changed this request's`;
+    if (messages.length > 1) {
+        return `${messagePrefix} ${messages.join(', and ')}.`;
+    } else {
+        return `${messagePrefix} ${messages[0]}.`;
+    }
 }
 
 export function makePublicIdString(year: number, month: number, counter: number): string {
