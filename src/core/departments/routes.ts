@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { wrapHandler } from '../../helpers';
-import { resolveJurisdiction, enforceJurisdictionAccess } from '../../middlewares';
+import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
 
 export const departmentRouter = Router();
 
@@ -22,5 +22,12 @@ departmentRouter.get('/:id', wrapHandler(async (req: Request, res: Response) => 
 departmentRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
     const { Department } = res.app.repositories;
     const record = await Department.create(req.body);
+    res.status(200).send({ data: record });
+}))
+
+departmentRouter.put('/:id', wrapHandler(async (req: Request, res: Response) => {
+    const { Department } = res.app.repositories;
+    const { id } = req.params;
+    const record = await Department.update(req.jurisdiction.id, id, req.body);
     res.status(200).send({ data: record });
 }))

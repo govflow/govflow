@@ -30,7 +30,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.74-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.75-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -641,6 +641,15 @@ describe('Hit all API endpoints', function () {
         ).send(departmentData);
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.id, departmentData.id);
+    });
+
+    it('should PUT a department', async function () {
+        const departmentData = _.cloneDeep(testData.departments[0]);
+        const res = await chai.request(app).put(
+            `/departments/${departmentData.id}?jurisdictionId=${departmentData.jurisdictionId}`
+        ).send({ name: 'New Name' });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.name, 'New Name');
     });
 
     it('should POST an inbound email map', async function () {
