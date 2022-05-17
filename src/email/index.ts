@@ -2,9 +2,14 @@ import sendGridClient from '@sendgrid/client';
 import { ClientRequest } from '@sendgrid/client/src/request';
 import type { ClientResponse, MailDataRequired } from '@sendgrid/mail';
 import sendGridMailClient from '@sendgrid/mail';
+import { simpleParser } from 'mailparser';
 import nodemailer from 'nodemailer';
 import validator from 'validator';
 import logger from '../logging';
+
+export async function parseRawMail(source: string) {
+    return await simpleParser(source);
+}
 
 export async function sendEmail(
     sendGridApiKey: string,

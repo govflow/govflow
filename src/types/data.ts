@@ -343,3 +343,21 @@ export interface auditMessageFields {
     oldValue: string;
     newValue: string;
 }
+
+export interface ParsedForwardEmailAddress {
+    address: string;
+    name: string;
+}
+
+export interface ParsedForwardEmail {
+    from: ParsedForwardEmailAddress;
+    to: ParsedForwardEmailAddress;
+    subject: string;
+    body: string;
+}
+
+export interface ParsedForwardedData {
+    forwarded: boolean;
+    message: string;
+    email: ParsedForwardEmail;
+}

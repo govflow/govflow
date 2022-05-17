@@ -5,13 +5,16 @@ import {
     emailBodySanitizeLine,
     extractCreatedAtFromInboundEmail,
     extractDescriptionFromInboundEmail,
+    extractForwardDataFromEmail,
+    extractForwardedForEmailFromHeaders,
     extractPublicIdFromInboundEmail,
     extractServiceRequestfromInboundEmail
 } from '../src/core/communications/helpers';
+import { parseRawMail } from '../src/email';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { TestDataPayload } from '../src/types';
-import { inboundEmail } from './fixtures/inbound';
+import { inboundEmail, rawEmailOne, rawEmailTwo } from './fixtures/inbound';
 
 describe('Parse inbound email data.', function () {
 
@@ -133,6 +136,56 @@ describe('Parse inbound email data.', function () {
             { createdAt }, _publicId
         ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
         chai.assert.equal(createdAt, undefined);
+    });
+
+    it('extract forwarded for email from headers with X-Forwarded-For header', async function () {
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        const headers = inboundPayload.headers + 'X-Forwarded-For: therealssender@example.com\n';
+        const sender = extractForwardedForEmailFromHeaders(headers);
+        chai.assert.equal(sender, 'therealssender@example.com');
+    });
+
+    it('cant extract forwarded for email from headers as none exist', async function () {
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        const headers = inboundPayload.headers;
+        const sender = extractForwardedForEmailFromHeaders(headers);
+        chai.assert.equal(sender, null);
+    });
+
+    it('can extract correct data from manually forwarded email', async function () {
+        const parse1 = await parseRawMail(rawEmailOne);
+        const parse2 = await parseRawMail(rawEmailTwo);
+        const sample1 = extractForwardDataFromEmail(parse1.text as string, parse1.subject as string);
+        const sample2 = extractForwardDataFromEmail(parse2.text as string, parse2.subject as string);
+
+        chai.assert.equal(sample1.forwarded, true);
+        chai.assert.equal(sample1.email.from.address, 'actual-submitter@example.com');
+        chai.assert.equal(sample1.email.from.name, 'Actual Submitter');
+        chai.assert.equal(sample1.email.subject, 'The actual subject line');
+        chai.assert.equal(sample1.email.body, 'The actual message');
+
+        chai.assert.equal(sample2.forwarded, true);
+        chai.assert.equal(sample2.email.from.address, 'actual-submitter@example.com');
+        chai.assert.equal(sample2.email.from.name, 'Actual Submitter');
+        chai.assert.equal(sample2.email.subject, 'The actual subject line');
+        chai.assert.equal(sample2.email.body, 'The actual message');
+
+    });
+
+    it('extract correct data for forwarded email', async function () {
+        const { InboundMap } = app.repositories;
+        const { inboundEmailDomain } = app.config;
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        const parse1 = await parseRawMail(rawEmailOne);
+        inboundPayload.subject = _.cloneDeep(parse1.subject as string)
+        inboundPayload.text = _.cloneDeep(parse1.text as string)
+        inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
+        const [
+            { email, firstName, description }, _publicId
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
+        chai.assert.equal(email, 'actual-submitter@example.com');
+        chai.assert.equal(firstName, 'Actual Submitter');
+        chai.assert.equal(description, 'The actual subject line\n\nThe actual message');
     });
 
 });

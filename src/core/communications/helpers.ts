@@ -1,6 +1,7 @@
 import { EventWebhook } from '@sendgrid/eventwebhook';
 import type { ClientResponse } from '@sendgrid/mail';
 import addrs from 'email-addresses';
+import EmailForwardParser from 'email-forward-parser';
 import { constants as fsConstants, promises as fs } from 'fs';
 import _ from 'lodash';
 import path from 'path';
@@ -8,7 +9,7 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, JurisdictionAttributes, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, JurisdictionAttributes, ParsedForwardedData, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 import { InboundMapRepository } from './repositories';
 
@@ -147,12 +148,16 @@ export async function dispatchMessage(
     }
 }
 
+export function extractForwardDataFromEmail(body: string, subject: string): ParsedForwardedData {
+    return new EmailForwardParser().read(body, subject);
+}
+
 export function extractFromEmail(fromEmail: string): addrs.ParsedMailbox | null {
     // TODO: in more complex scenarios we may need to extract this from the mail body
     return addrs.parseOneAddress(fromEmail) as addrs.ParsedMailbox | null
 }
 
-export function extractForwardEmail(headers: string): string {
+export function extractForwardedForEmailFromHeaders(headers: string): string | null {
     const targetHeader = 'X-Forwarded-For:'
     let forwardStr = '';
     const headerLines = headers.split('\n');
@@ -168,12 +173,23 @@ export function extractForwardEmail(headers: string): string {
     for (const part of _parts) {
         if (part.includes(' ')) {
             const subparts = part.split(' ');
-            cleanForwards.push(...subparts);
+            for (const subpart of subparts) {
+                if (subpart) {
+                    cleanForwards.push(subpart);
+                }
+            }
         } else {
-            cleanForwards.push(part)
+            if (part) {
+                cleanForwards.push(part)
+            }
         }
     }
-    return cleanForwards.join(', ');
+
+    if (cleanForwards.length > 0) {
+        return cleanForwards.join(', ')
+    } else {
+        return null
+    }
 }
 
 export function extractDate(headers: string): string {
@@ -192,7 +208,7 @@ export function extractDate(headers: string): string {
 
 export function extractToEmail(inboundEmailDomain: string, headers: string, toEmail: string, ccEmail?: string, bccEmail?: string): addrs.ParsedMailbox {
     let rawAddresses = `${toEmail}`;
-    const forwardEmail = extractForwardEmail(headers);
+    const forwardEmail = extractForwardedForEmailFromHeaders(headers);
     if (ccEmail) { rawAddresses = rawAddresses.concat(",", ccEmail) }
     if (bccEmail) { rawAddresses = rawAddresses.concat(",", bccEmail) }
     if (forwardEmail) { rawAddresses = rawAddresses.concat(",", forwardEmail) }
@@ -243,12 +259,21 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
         lastName = '',
         email = '';
     const inputChannel = 'email';
-    const { subject, to, cc, bcc, from, text, headers } = data;
+    const { to, cc, bcc, from, headers } = data;
+    let { subject, text } = data;
+    let fromEmail = extractFromEmail(from);
     const toEmail = extractToEmail(inboundEmailDomain, headers, to, cc, bcc);
-    const fromEmail = extractFromEmail(from);
     const { jurisdictionId, departmentId, staffUserId, serviceRequestId, serviceId } = await findIdentifiers(
         toEmail, InboundMap
     );
+
+    const maybeForwarded = extractForwardDataFromEmail(text, subject);
+    if (maybeForwarded.forwarded) {
+        fromEmail = extractFromEmail(`${maybeForwarded.email.from.name} <${maybeForwarded.email.from.address}>`);
+        subject = maybeForwarded.email.subject;
+        text = maybeForwarded.email.body;
+    }
+
     const description = extractDescriptionFromInboundEmail(subject, text);
     const publicId = extractPublicIdFromInboundEmail(subject);
     const extractCreatedAt = extractCreatedAtFromInboundEmail(headers);
