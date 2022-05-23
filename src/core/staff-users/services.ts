@@ -18,8 +18,9 @@ export class StaffUserService implements IStaffUserService {
     async assignDepartment(
         jurisdictionId: string, staffUserId: string, departmentId: string, isLead: boolean
     ): Promise<StaffUserAttributes | null> {
-        const { Jurisdiction, StaffUser } = this.repositories;
-        const verified = await Jurisdiction.hasStaffUser(jurisdictionId, staffUserId);
+        const { StaffUser } = this.repositories;
+        const staffUser = await StaffUser.findOne(jurisdictionId, staffUserId);
+        const verified = staffUser?.jurisdictionId === jurisdictionId;
         let record = null;
         if (verified) {
             record = await StaffUser.assignDepartment(jurisdictionId, staffUserId, departmentId, isLead);
