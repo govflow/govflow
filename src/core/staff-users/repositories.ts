@@ -44,7 +44,7 @@ export class StaffUserRepository implements IStaffUserRepository {
         for (const record of records) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            record.dataValues.departments = getDepartmentsForStaffUser(record, StaffUserDepartment);
+            record.dataValues.departments = await getDepartmentsForStaffUser(record, StaffUserDepartment);
         }
         return [records as StaffUserInstance[], records.length];
     }
