@@ -89,6 +89,16 @@ export const StaffUserDepartmentModel: ModelDefinition = {
             defaultValue: false,
             allowNull: false,
         },
+        staffUserId: {
+            allowNull: false,
+            type: DataTypes.STRING,
+            primaryKey: true,
+        },
+        departmentId: {
+            allowNull: false,
+            type: DataTypes.STRING,
+            primaryKey: true,
+        },
     },
     options: {
         freezeTableName: true,
