@@ -21,14 +21,14 @@ import { EMAIL_EVENT_MAP } from './models';
 export class CommunicationRepository implements ICommunicationRepository {
 
     models: Models;
-    settings: AppConfig;
+    config: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppConfig) settings: AppConfig,
+        @inject(appIds.AppConfig) config: AppConfig,
     ) {
         this.models = models;
-        this.settings = settings
+        this.config = config
     }
 
     async create(data: CommunicationCreateAttributes): Promise<CommunicationAttributes> {
@@ -49,14 +49,14 @@ export class CommunicationRepository implements ICommunicationRepository {
 export class EmailStatusRepository implements IEmailStatusRepository {
 
     models: Models;
-    settings: AppConfig;
+    config: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppConfig) settings: AppConfig,
+        @inject(appIds.AppConfig) config: AppConfig,
     ) {
         this.models = models;
-        this.settings = settings
+        this.config = config
     }
 
     async create(data: ChannelStatusCreateAttributes): Promise<ChannelStatusInstance> {
@@ -114,14 +114,14 @@ export class EmailStatusRepository implements IEmailStatusRepository {
 export class InboundMapRepository implements IInboundMapRepository {
 
     models: Models;
-    settings: AppConfig;
+    config: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppConfig) settings: AppConfig,
+        @inject(appIds.AppConfig) config: AppConfig,
     ) {
         this.models = models;
-        this.settings = settings
+        this.config = config
     }
 
     async create(data: InboundMapCreateAttributes): Promise<InboundMapInstance> {

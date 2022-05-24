@@ -7,14 +7,14 @@ import { AppConfig, IServiceRepository, Models, QueryParamsAll, ServiceAttribute
 export class ServiceRepository implements IServiceRepository {
 
     models: Models;
-    settings: AppConfig;
+    config: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppConfig) settings: AppConfig,
+        @inject(appIds.AppConfig) config: AppConfig,
     ) {
         this.models = models;
-        this.settings = settings
+        this.config = config
     }
 
     async create(data: ServiceAttributes): Promise<ServiceAttributes> {

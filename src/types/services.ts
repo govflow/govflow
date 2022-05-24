@@ -3,7 +3,7 @@ import { AuditedStateChangeExtraData, InboundEmailDataAttributes, InboundMapAttr
 
 export interface ServiceBase extends PluginBase {
     repositories: Repositories;
-    settings: AppConfig;
+    config: AppConfig;
 }
 
 export interface IOutboundMessageService extends ServiceBase {

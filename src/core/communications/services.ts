@@ -21,13 +21,13 @@ import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundE
 export class OutboundMessageService implements IOutboundMessageService {
 
     repositories: Repositories
-    settings: AppConfig
+    config: AppConfig
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppConfig) settings: AppConfig,) {
+        @inject(appIds.AppConfig) config: AppConfig,) {
         this.repositories = repositories;
-        this.settings = settings;
+        this.config = config;
     }
 
     async dispatchServiceRequestCreate(
@@ -44,7 +44,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAuthToken,
             twilioFromPhone,
             inboundEmailDomain
-        } = this.settings;
+        } = this.config;
 
         const { communicationRepository, staffUserRepository, emailStatusRepository } = this.repositories;
         const records: CommunicationAttributes[] = [];
@@ -128,7 +128,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAuthToken,
             twilioFromPhone,
             inboundEmailDomain
-        } = this.settings;
+        } = this.config;
         const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
         const staffUser = await staffUserRepository.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
@@ -183,7 +183,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAuthToken,
             twilioFromPhone,
             inboundEmailDomain
-        } = this.settings;
+        } = this.config;
         const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
         const staffUser = await staffUserRepository.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
@@ -235,7 +235,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAuthToken,
             twilioFromPhone,
             inboundEmailDomain
-        } = this.settings;
+        } = this.config;
         const { communicationRepository, staffUserRepository, emailStatusRepository } = this.repositories;
         const records: CommunicationAttributes[] = [];
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
@@ -317,7 +317,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAuthToken,
             twilioFromPhone,
             inboundEmailDomain
-        } = this.settings;
+        } = this.config;
         const {
             communicationRepository,
             staffUserRepository,
@@ -432,20 +432,20 @@ export class OutboundMessageService implements IOutboundMessageService {
 export class InboundMessageService implements IInboundMessageService {
 
     repositories: Repositories
-    settings: AppConfig
+    config: AppConfig
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppConfig) settings: AppConfig,) {
+        @inject(appIds.AppConfig) config: AppConfig,) {
         this.repositories = repositories;
-        this.settings = settings;
+        this.config = config;
     }
 
     async createServiceRequest(inboundEmailData: InboundEmailDataAttributes):
         Promise<[ServiceRequestAttributes, boolean]> {
         const { serviceRequestRepository, staffUserRepository, inboundMapRepository } = this.repositories;
         const { subject, to, cc, bcc, from, text, headers } = inboundEmailData;
-        const { inboundEmailDomain } = this.settings;
+        const { inboundEmailDomain } = this.config;
         let intermediateRecord: ServiceRequestAttributes;
         let recordCreated = true;
         const [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(

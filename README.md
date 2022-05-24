@@ -98,7 +98,7 @@ If you plan to modify Gov Flow with plugins or any custom configuration or integ
 import { MyServiceRepositoryPlugin } from './repositories';
 
 export const plugins = []; // your plugins here.
-export const settings = {}; // your settings here.
+export const config = {}; // your config here.
 
 // my-govflow-extension/index.ts
 import type { Server } from 'http';
@@ -200,7 +200,7 @@ This is a short overview of the modules under `src` in the codebase to help you 
 
 ## config
 
-Provides a configuration object to store various settings for the system. The configuration object is backed by [nconf](https://github.com/indexzero/nconf).
+Provides a configuration object to store various config for the system. The configuration object is backed by [nconf](https://github.com/indexzero/nconf).
 
 ## core
 

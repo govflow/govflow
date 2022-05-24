@@ -6,14 +6,14 @@ import type { AppConfig, IServiceRepository, Models, RepositoryPlugin, ServiceAt
 class MyServiceRepository implements IServiceRepository {
 
     models: Models;
-    settings: AppConfig;
+    config: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppConfig) settings: AppConfig,
+        @inject(appIds.AppConfig) config: AppConfig,
     ) {
         this.models = models;
-        this.settings = settings
+        this.config = config
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<ServiceAttributes> {
@@ -75,14 +75,14 @@ class MyServiceRepository implements IServiceRepository {
 class MyBrokenJurisdictionRepository implements IServiceRepository {
 
     models: Models;
-    settings: AppConfig;
+    config: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppConfig) settings: AppConfig,
+        @inject(appIds.AppConfig) config: AppConfig,
     ) {
         this.models = models;
-        this.settings = settings
+        this.config = config
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

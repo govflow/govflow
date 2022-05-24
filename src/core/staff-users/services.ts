@@ -6,13 +6,13 @@ import { AppConfig, IStaffUserService, Repositories, StaffUserAttributes, StaffU
 export class StaffUserService implements IStaffUserService {
 
     repositories: Repositories
-    settings: AppConfig
+    config: AppConfig
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppConfig) settings: AppConfig,) {
+        @inject(appIds.AppConfig) config: AppConfig,) {
         this.repositories = repositories;
-        this.settings = settings;
+        this.config = config;
     }
 
     async assignDepartment(

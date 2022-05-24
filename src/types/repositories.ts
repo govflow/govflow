@@ -14,7 +14,7 @@ import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, Email
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
-    settings: AppConfig;
+    config: AppConfig;
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {

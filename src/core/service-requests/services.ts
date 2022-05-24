@@ -9,13 +9,13 @@ import { REQUEST_STATUSES } from './models';
 export class ServiceRequestService implements IServiceRequestService {
 
     repositories: Repositories
-    settings: AppConfig
+    config: AppConfig
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppConfig) settings: AppConfig,) {
+        @inject(appIds.AppConfig) config: AppConfig,) {
         this.repositories = repositories;
-        this.settings = settings;
+        this.config = config;
     }
 
     async createAuditedStateChange(

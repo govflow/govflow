@@ -4,7 +4,7 @@ import { createApp } from '../src/index';
 
 chai.use(chaiHttp);
 
-describe('Try to interact with server with different captcha settings.', function () {
+describe('Try to interact with server with different captcha config.', function () {
 
     it('should have captcha enabled', async function () {
         const app = await createApp();

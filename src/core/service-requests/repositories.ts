@@ -12,14 +12,14 @@ import { REQUEST_STATUSES } from './models';
 export class ServiceRequestRepository implements IServiceRequestRepository {
 
     models: Models;
-    settings: AppConfig;
+    config: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppConfig) settings: AppConfig,
+        @inject(appIds.AppConfig) config: AppConfig,
     ) {
         this.models = models;
-        this.settings = settings
+        this.config = config
     }
 
     async create(data: ServiceRequestCreateAttributes): Promise<ServiceRequestAttributes> {
