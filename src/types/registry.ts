@@ -15,8 +15,8 @@ export interface ServicePlugin {
 
 export interface MiddlewarePlugin {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    factory: { (...args: any[]): RequestHandler };
-    factoryArgs: [];
+    makeMiddleware: { (...args: any[]): RequestHandler };
+    makeMiddlewareArgs: [];
 }
 
 export type ModelPlugin = ModelDefinition;

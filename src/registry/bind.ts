@@ -121,7 +121,13 @@ function bindMiddlewaresWithPlugins(middlewarePlugins: MiddlewarePlugin[] | unde
     const middlewares = [];
     if (middlewarePlugins) {
         for (const middlewarePlugin of middlewarePlugins) {
-            middlewares.push(middlewarePlugin.factory(...middlewarePlugin.factoryArgs))
+            let middleware: RequestHandler;
+            if (middlewarePlugin.makeMiddlewareArgs && middlewarePlugin.makeMiddlewareArgs.length > 0) {
+                middleware = middlewarePlugin.makeMiddleware(...middlewarePlugin.makeMiddlewareArgs)
+            } else {
+                middleware = middlewarePlugin.makeMiddleware()
+            }
+            middlewares.push(middleware)
         }
     }
     return middlewares;
