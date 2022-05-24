@@ -1,9 +1,9 @@
-import { AppSettings, CommunicationAttributes, JurisdictionAttributes, PluginBase, Repositories, ServiceRequestAttributes } from ".";
+import { AppConfig, CommunicationAttributes, JurisdictionAttributes, PluginBase, Repositories, ServiceRequestAttributes } from ".";
 import { AuditedStateChangeExtraData, InboundEmailDataAttributes, InboundMapAttributes, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from "./data";
 
 export interface ServiceBase extends PluginBase {
     repositories: Repositories;
-    settings: AppSettings;
+    settings: AppConfig;
 }
 
 export interface IOutboundMessageService extends ServiceBase {
@@ -52,8 +52,8 @@ export interface IStaffUserService extends ServiceBase {
 }
 
 export interface Services {
-    OutboundMessage: IOutboundMessageService;
-    InboundMessage: IInboundMessageService;
-    ServiceRequest: IServiceRequestService;
-    StaffUser: IStaffUserService;
+    outboundMessageService: IOutboundMessageService;
+    inboundMessageService: IInboundMessageService;
+    serviceRequestService: IServiceRequestService;
+    staffUserService: IStaffUserService;
 }

@@ -1,17 +1,17 @@
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, IServiceRepository, Models, QueryParamsAll, ServiceAttributes, ServiceInstance } from '../../types';
+import { AppConfig, IServiceRepository, Models, QueryParamsAll, ServiceAttributes, ServiceInstance } from '../../types';
 
 @injectable()
 export class ServiceRepository implements IServiceRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings

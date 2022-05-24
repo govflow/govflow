@@ -2,11 +2,11 @@
 import 'reflect-metadata';
 import { initConfig } from '../config';
 import { sendEmail } from '../email';
-import { AppSettings } from '../types';
+import { AppConfig } from '../types';
 
 (async () => {
     const config = await initConfig();
-    const { sendGridApiKey, sendGridFromEmail, testToEmail } = config.settings as AppSettings;
+    const { sendGridApiKey, sendGridFromEmail, testToEmail } = config as AppConfig;
     const response = await sendEmail(
         sendGridApiKey as string,
         testToEmail as string,

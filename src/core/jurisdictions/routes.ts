@@ -5,36 +5,36 @@ import { wrapHandler } from '../../helpers';
 export const jurisdictionRouter = Router();
 
 jurisdictionRouter.get('/:id', wrapHandler(async (req: Request, res: Response) => {
-    const { Jurisdiction } = res.app.repositories;
-    const record = await Jurisdiction.findOne(req.params.id);
+    const { jurisdictionRepository } = res.app.repositories;
+    const record = await jurisdictionRepository.findOne(req.params.id);
     res.status(200).send({ data: record });
 }))
 
 jurisdictionRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
-    const { Jurisdiction } = res.app.repositories;
+    const { jurisdictionRepository } = res.app.repositories;
     const { id, name, email } = req.body;
-    const record = await Jurisdiction.create({ id, name, email });
+    const record = await jurisdictionRepository.create({ id, name, email });
     res.status(200).send({ data: record });
 }))
 
 jurisdictionRouter.put('/:id', wrapHandler(async (req: Request, res: Response) => {
-    const { Jurisdiction } = res.app.repositories;
+    const { jurisdictionRepository } = res.app.repositories;
     const { id } = req.params;
-    const record = await Jurisdiction.update(id, req.body);
+    const record = await jurisdictionRepository.update(id, req.body);
     res.status(200).send({ data: record });
 }))
 
 jurisdictionRouter.post('/verify-sender-request',
     wrapHandler(async (req: Request, res: Response) => {
-        const { Jurisdiction } = res.app.repositories;
-        const { jurisdictionId } = req.body;
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const { jurisdictionRepository } = res.app.repositories;
+        const { jurisdictionRepositoryId } = req.body;
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionRepositoryId);
         const { sendFromEmail, replyToEmail, name, address, city, state, country, zip } = jurisdiction;
         const { sendGridApiKey } = res.app.config;
         let response;
         if (!jurisdiction.sendFromEmail) {
             res.status(400).send({
-                data: { message: 'This jurisdiction does not have a send from address configured' }
+                data: { message: 'This jurisdictionRepository does not have a send from address configured' }
             })
         } else if (sendFromEmail) {
             response = await verifySenderRequest(

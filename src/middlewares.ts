@@ -21,7 +21,7 @@ export function internalServerError(err: ErrorRequestHandler, req: Request, res:
 
 export function resolveJurisdiction(paramKey = 'jurisdictionId', excludedRoutes: string[] = []) {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const { Jurisdiction } = res.app.repositories;
+        const { jurisdictionRepository } = res.app.repositories;
         const jurisdictionId = req.query[paramKey];
         const errorStatus = 403;
         const isExcluded = excludedRoutes.includes(req.path)
@@ -42,7 +42,7 @@ export function resolveJurisdiction(paramKey = 'jurisdictionId', excludedRoutes:
             res.status(errorStatus).send({ errorData });
         }
 
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId as string);
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId as string);
 
         if (_.isNil(jurisdiction)) {
             const errorMessage = 'A jurisdiction query parameter was present but is invalid.';

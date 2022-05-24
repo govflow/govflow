@@ -4,7 +4,7 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
-import type { AppSettings, InboundMapInstance, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCommentInstance, ServiceRequestCreateAttributes, ServiceRequestInstance, ServiceRequestStatusAttributes } from '../../types';
+import type { AppConfig, InboundMapInstance, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCommentInstance, ServiceRequestCreateAttributes, ServiceRequestInstance, ServiceRequestStatusAttributes } from '../../types';
 import { REQUEST_STATUSES } from './models';
 
 
@@ -12,11 +12,11 @@ import { REQUEST_STATUSES } from './models';
 export class ServiceRequestRepository implements IServiceRequestRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings

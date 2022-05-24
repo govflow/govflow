@@ -3,19 +3,18 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { initEngine, initMigrator } from '../db/engine';
 import logger from '../logging';
-import type { AppSettings, Config } from '../types';
+import type { AppConfig } from '../types';
 
 declare global {
     // eslint-disable-next-line no-var
-    var config: Config
+    var appCustomConfig: Partial<AppConfig>
 }
 
 dotenv.config();
 
-const defaultSettings: AppSettings = {
+const defaultConfig: Partial<AppConfig> = {
     'env': process.env.NODE_ENV || 'development',
     'databaseUrl': process.env.DATABASE_URL || '',
-    'databaseExtraMigrationPaths': '',
     'sendGridApiKey': process.env.SENDGRID_API_KEY || '',
     'sendGridFromEmail': process.env.SENDGRID_FROM_EMAIL || '',
     'sendGridSignedWebhookVerificationKey': process.env.SENDGRID_SIGNED_WEBHOOK_VERIFICATION_KEY || '',
@@ -42,48 +41,26 @@ const defaultSettings: AppSettings = {
     'inboundEmailDomain': process.env.INBOUND_EMAIL_DOMAIN || 'inbound.example.com',
 }
 
-async function resolveCustomConfig(): Promise<Config> {
-    if (global.config) {
-        return global.config;
+async function resolveCustomConfig(): Promise<AppConfig> {
+    if (global.appCustomConfig) {
+        return global.appCustomConfig as AppConfig;
     }
-
     const customConfigModule = process.env.CONFIG_MODULE_PATH || '';
     try {
         const resolvedPath = path.resolve(customConfigModule);
-        const config = await import(resolvedPath);
+        const { config } = await import(resolvedPath);
         return config;
     } catch (error) {
         logger.warn(`No custom config found at '${customConfigModule}'.`)
     }
-    return {};
+    return {} as AppConfig;
 }
 
-export async function initConfig(): Promise<Config> {
+export async function initConfig(): Promise<AppConfig> {
     const customConfig = await resolveCustomConfig();
-    const config = {} as Config;
-
-    if (Object.hasOwnProperty.call(customConfig, 'models')) {
-        config.models = customConfig.models;
-    }
-
-    if (Object.hasOwnProperty.call(customConfig, 'plugins')) {
-        config.plugins = customConfig.plugins;
-    }
-
-    if (Object.hasOwnProperty.call(customConfig, 'middlewares')) {
-        config.middlewares = customConfig.middlewares;
-    }
-
-    if (Object.hasOwnProperty.call(customConfig, 'settings')) {
-        config.settings = merge(defaultSettings, customConfig.settings as AppSettings);
-    } else {
-        config.settings = { ...defaultSettings };
-    }
-
-    config.database = initEngine(config.settings.databaseUrl as string);
-    config.migrator = initMigrator(config.database, config.settings.databaseExtraMigrationPaths as string);
-
+    const config = merge(defaultConfig, customConfig) as AppConfig;
+    config.database = initEngine(config.databaseUrl as string);
+    config.migrator = initMigrator(config.database, config.plugins?.migrations);
     Object.freeze(config);
-
     return config;
 }

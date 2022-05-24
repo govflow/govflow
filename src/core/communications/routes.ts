@@ -11,17 +11,17 @@ export const communicationsRouter = Router();
 
 // public route for web hook integration
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
-    const { Jurisdiction } = res.app.repositories;
-    const { OutboundMessage, InboundMessage } = res.app.services;
-    const [record, recordCreated] = await InboundMessage.createServiceRequest(req.body);
-    const jurisdiction = await Jurisdiction.findOne(record.jurisdictionId) as JurisdictionAttributes;
+    const { jurisdictionRepository } = res.app.repositories;
+    const { outboundMessageService, inboundMessageService } = res.app.services;
+    const [record, recordCreated] = await inboundMessageService.createServiceRequest(req.body);
+    const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';
     if (recordCreated) {
-        GovFlowEmitter.emit(eventName, jurisdiction, record, OutboundMessage);
+        GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
     } else {
         eventName = 'serviceRequestCommentBroadcast';
-        GovFlowEmitter.emit(eventName, jurisdiction, record, OutboundMessage);
+        GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
     }
     res.status(200).send({ data: { status: 200, message: "Received inbound email" } });
 }))
@@ -47,10 +47,10 @@ communicationsRouter.post('/events/email', wrapHandler(async (req: Request, res:
         res.status(403).send({ data: { status: 403, message: "Unverified POST" } });
     }
 
-    const { EmailStatus } = res.app.repositories;
+    const { emailStatusRepository } = res.app.repositories;
     const emailEvents = req.body as unknown as EmailEventAttributes[];
     for (const event of emailEvents) {
-        if (!EMAIL_EVENT_IGNORE.includes(event.event)) { await EmailStatus.createFromEvent(event); }
+        if (!EMAIL_EVENT_IGNORE.includes(event.event)) { await emailStatusRepository.createFromEvent(event); }
     }
     res.status(200).send({ data: { status: 200, message: "Received email event" } });
 }))
@@ -59,12 +59,12 @@ communicationsRouter.get('/status/email/:email',
     wrapHandler(resolveJurisdiction()),
     enforceJurisdictionAccess,
     wrapHandler(async (req: Request, res: Response) => {
-        const { EmailStatus } = res.app.repositories;
+        const { emailStatusRepository } = res.app.repositories;
         // We enforce jurisdiction access for security, but actually
         // our email delivery status is global, not by jurisdiction
         // So the jurisdiction is not used in the data query.
         const base64Email = req.params.email;
-        const record = await EmailStatus.isAllowed(base64Email);
+        const record = await emailStatusRepository.isAllowed(base64Email);
         res.status(200).send({ data: record });
     }))
 
@@ -72,8 +72,8 @@ communicationsRouter.post('/create-map',
     wrapHandler(resolveJurisdiction()),
     enforceJurisdictionAccess,
     wrapHandler(async (req: Request, res: Response) => {
-        const { InboundMessage } = res.app.services;
+        const { inboundMessageService } = res.app.services;
         const data = Object.assign({}, req.body, { jurisdictionId: req.jurisdiction.id });
-        const record = await InboundMessage.createMap(data);
+        const record = await inboundMessageService.createMap(data);
         res.status(200).send({ data: record });
     }))

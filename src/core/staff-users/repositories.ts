@@ -2,18 +2,18 @@ import merge from 'deepmerge';
 import { inject, injectable } from 'inversify';
 import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, IStaffUserRepository, Models, QueryParamsAll, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserDepartmentInstance, StaffUserInstance, StaffUserLookUpAttributes } from '../../types';
+import { AppConfig, IStaffUserRepository, Models, QueryParamsAll, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserDepartmentInstance, StaffUserInstance, StaffUserLookUpAttributes } from '../../types';
 import { getDepartmentsForStaffUser } from './helpers';
 
 @injectable()
 export class StaffUserRepository implements IStaffUserRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings

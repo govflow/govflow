@@ -87,10 +87,12 @@ function registerModels(
         databaseEngine.define(name, attributes, options);
     });
 
-    customModels.forEach((model) => {
-        const { name, attributes, options } = model;
-        databaseEngine.define<Model>(name, attributes, options);
-    });
+    if (customModels) {
+        customModels.forEach((model) => {
+            const { name, attributes, options } = model;
+            databaseEngine.define<Model>(name, attributes, options);
+        });
+    }
 
     applyCoreModelRelations(databaseEngine.models as unknown as Models);
 

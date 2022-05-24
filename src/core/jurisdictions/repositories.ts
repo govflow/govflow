@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import _ from 'lodash';
 import { appIds } from '../../registry/service-identifiers';
 import {
-    AppSettings,
+    AppConfig,
     IJurisdictionRepository,
     JurisdictionAttributes,
     JurisdictionInstance,
@@ -13,11 +13,11 @@ import {
 export class JurisdictionRepository implements IJurisdictionRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings

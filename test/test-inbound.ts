@@ -77,14 +77,14 @@ describe('Parse inbound email data.', function () {
     });
 
     it('parse service request data from an email without a public id', async function () {
-        const { InboundMap } = app.repositories;
+        const { inboundMapRepository } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
         const [
             { jurisdictionId, departmentId, firstName, lastName, email, description },
             publicId
-        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, inboundMapRepository);
         chai.assert.equal(publicId, null);
         chai.assert(jurisdictionId);
         chai.assert(departmentId);
@@ -95,7 +95,7 @@ describe('Parse inbound email data.', function () {
     });
 
     it('parse service request data from an email with a public id', async function () {
-        const { InboundMap } = app.repositories;
+        const { inboundMapRepository } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
@@ -103,7 +103,7 @@ describe('Parse inbound email data.', function () {
         const [
             { jurisdictionId, departmentId, firstName, lastName, email, description },
             publicId
-        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, inboundMapRepository);
         chai.assert.equal(publicId, '123456');
         chai.assert(jurisdictionId);
         chai.assert(departmentId);
@@ -114,27 +114,27 @@ describe('Parse inbound email data.', function () {
     });
 
     it('uses email date as creation date', async function () {
-        const { InboundMap } = app.repositories;
+        const { inboundMapRepository } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
         const [
             { createdAt }, _publicId
-        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, inboundMapRepository);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         chai.assert.equal(createdAt.toUTCString(), 'Tue, 01 Mar 2022 13:31:54 GMT');
     });
 
     it('cant use email date as creation date', async function () {
-        const { InboundMap } = app.repositories;
+        const { inboundMapRepository } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         inboundPayload.headers = 'Date: Who knows';
         inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
         const [
             { createdAt }, _publicId
-        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, inboundMapRepository);
         chai.assert.equal(createdAt, undefined);
     });
 
@@ -173,7 +173,7 @@ describe('Parse inbound email data.', function () {
     });
 
     it('extract correct data for forwarded email', async function () {
-        const { InboundMap } = app.repositories;
+        const { inboundMapRepository } = app.repositories;
         const { inboundEmailDomain } = app.config;
         const inboundPayload = _.cloneDeep(inboundEmail);
         const parse1 = await parseRawMail(rawEmailOne);
@@ -182,7 +182,7 @@ describe('Parse inbound email data.', function () {
         inboundPayload.to = `${testData.inboundMaps[0].id}@${inboundEmailDomain}`;
         const [
             { email, firstName, description }, _publicId
-        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, InboundMap);
+        ] = await extractServiceRequestfromInboundEmail(inboundPayload, inboundEmailDomain, inboundMapRepository);
         chai.assert.equal(email, 'actual-submitter@example.com');
         chai.assert.equal(firstName, 'Actual Submitter');
         chai.assert.equal(description, 'The actual subject line\n\nThe actual message');

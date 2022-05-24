@@ -1,13 +1,18 @@
 import { QueryInterface, Sequelize } from 'sequelize';
 import { SequelizeStorage, Umzug } from 'umzug';
 import logger from '../logging';
+import { MigrationPlugin } from '../types';
 
 export function initEngine(database_url: string): Sequelize {
     return new Sequelize(database_url, { logging: msg => logger.info(msg), })
 }
 
-export function initMigrator(databaseEngine: Sequelize, extraMigrationPaths = ''): Umzug<QueryInterface> {
-    const globPattern = `{src/migrations/*.ts,${extraMigrationPaths}}`
+export function initMigrator(databaseEngine: Sequelize, extraMigrationPaths: MigrationPlugin[] | undefined): Umzug<QueryInterface> {
+    let extraPaths = '';
+    if (extraMigrationPaths) {
+        extraPaths = extraMigrationPaths.join(',');
+    }
+    const globPattern = `{src/migrations/*.ts,${extraPaths}}`
     return new Umzug({
         migrations: { glob: globPattern },
         context: databaseEngine.getQueryInterface(),

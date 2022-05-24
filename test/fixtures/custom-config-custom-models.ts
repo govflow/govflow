@@ -1,7 +1,9 @@
+import { AppConfig } from '../../src/types';
 import { MyBlogPostModel, MyServiceModel } from '../fixtures/models';
 
-export const models = [MyServiceModel, MyBlogPostModel];
-
-export const settings = {
-    'databaseExtraMigrationPaths': 'test/fixtures/test-migrations/*.ts'
-};
+export const config = {
+    'plugins': {
+        'models': [MyServiceModel, MyBlogPostModel],
+        'migrations': [{ pathPattern: 'test/fixtures/test-migrations/*.ts' }]
+    }
+} as Partial<AppConfig>;

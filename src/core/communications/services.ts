@@ -3,7 +3,7 @@ import _ from 'lodash';
 import logger from '../../logging';
 import { appIds } from '../../registry/service-identifiers';
 import type {
-    AppSettings,
+    AppConfig,
     CommunicationAttributes,
     DispatchConfigAttributes,
     IInboundMessageService,
@@ -21,11 +21,11 @@ import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundE
 export class OutboundMessageService implements IOutboundMessageService {
 
     repositories: Repositories
-    settings: AppSettings
+    settings: AppConfig
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppSettings) settings: AppSettings,) {
+        @inject(appIds.AppConfig) settings: AppConfig,) {
         this.repositories = repositories;
         this.settings = settings;
     }
@@ -46,7 +46,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             inboundEmailDomain
         } = this.settings;
 
-        const { Communication, StaffUser, EmailStatus } = this.repositories;
+        const { communicationRepository, staffUserRepository, emailStatusRepository } = this.repositories;
         const records: CommunicationAttributes[] = [];
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
@@ -75,9 +75,11 @@ export class OutboundMessageService implements IOutboundMessageService {
                 recipientName: serviceRequest.displayName as string
             }
         }
-        const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
+        const record = await dispatchMessage(
+            dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        );
         if (record) { records.push(record); }
-        const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
+        const [staffUsers, _count] = await staffUserRepository.findAll(serviceRequest.jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
         for (const admin of admins) {
             const dispatchConfig = {
@@ -105,7 +107,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 }
             }
             const record = await dispatchMessage(
-                dispatchConfig, templateConfig, Communication, EmailStatus
+                dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
             );
             if (record) { records.push(record); }
         }
@@ -127,8 +129,8 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioFromPhone,
             inboundEmailDomain
         } = this.settings;
-        const { StaffUser, Communication, EmailStatus } = this.repositories;
-        const staffUser = await StaffUser.findOne(
+        const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
+        const staffUser = await staffUserRepository.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
         ) as StaffUserAttributes;
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
@@ -157,7 +159,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                 recipientName: staffUser.displayName as string
             }
         }
-        const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
+        const record = await dispatchMessage(
+            dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        );
         return record;
     }
 
@@ -180,8 +184,8 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioFromPhone,
             inboundEmailDomain
         } = this.settings;
-        const { StaffUser, Communication, EmailStatus } = this.repositories;
-        const staffUser = await StaffUser.findOne(
+        const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
+        const staffUser = await staffUserRepository.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
         ) as StaffUserAttributes;
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
@@ -210,7 +214,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                 recipientName: staffUser.displayName as string
             }
         }
-        const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
+        const record = await dispatchMessage(
+            dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        );
         return record;
     }
 
@@ -230,7 +236,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioFromPhone,
             inboundEmailDomain
         } = this.settings;
-        const { Communication, StaffUser, EmailStatus } = this.repositories;
+        const { communicationRepository, staffUserRepository, emailStatusRepository } = this.repositories;
         const records: CommunicationAttributes[] = [];
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
@@ -258,9 +264,11 @@ export class OutboundMessageService implements IOutboundMessageService {
                 recipientName: serviceRequest.displayName as string
             }
         }
-        const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
+        const record = await dispatchMessage(
+            dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        );
         if (record) { records.push(record); }
-        const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
+        const [staffUsers, _count] = await staffUserRepository.findAll(serviceRequest.jurisdictionId);
         const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
         for (const admin of admins) {
             const dispatchConfig = {
@@ -288,7 +296,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 }
             }
             const record = await dispatchMessage(
-                dispatchConfig, templateConfig, Communication, EmailStatus
+                dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
             );
             if (record) { records.push(record); }
         }
@@ -310,16 +318,25 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioFromPhone,
             inboundEmailDomain
         } = this.settings;
-        const { Communication, StaffUser, ServiceRequest, EmailStatus } = this.repositories;
-        const serviceRequest = await ServiceRequest.findOne(jurisdiction.id, serviceRequestComment.serviceRequestId);
+        const {
+            communicationRepository,
+            staffUserRepository,
+            emailStatusRepository,
+            serviceRequestRepository
+        } = this.repositories;
+        const serviceRequest = await serviceRequestRepository.findOne(
+            jurisdiction.id, serviceRequestComment.serviceRequestId
+        );
         const records: CommunicationAttributes[] = [];
-        const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const replyToEmail = getReplyToEmail(
+            serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail
+        );
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         let serviceRequestCommenterName = '';
         if (serviceRequestComment.addedBy === '__SUBMITTER__') {
             serviceRequestCommenterName = serviceRequest.displayName;
         } else {
-            const commenter = await StaffUser.findOne(
+            const commenter = await staffUserRepository.findOne(
                 jurisdiction.id, serviceRequestComment.addedBy as string
             ) as StaffUserAttributes;
             if (commenter) {
@@ -355,7 +372,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         }
 
         if (serviceRequestComment.broadcastToAssignee) {
-            const assignee = await StaffUser.findOne(jurisdiction.id, serviceRequest.assignedTo);
+            const assignee = await staffUserRepository.findOne(jurisdiction.id, serviceRequest.assignedTo);
             if (assignee) {
                 recipients.push({
                     email: assignee.email,
@@ -366,11 +383,11 @@ export class OutboundMessageService implements IOutboundMessageService {
         }
 
         if (serviceRequestComment.broadcastToStaff) {
-            const [staffUsers, _count] = await StaffUser.findAll(serviceRequest.jurisdictionId);
+            const [staffUsers, _count] = await staffUserRepository.findAll(serviceRequest.jurisdictionId);
             let staffRecipients = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
 
             if (jurisdiction.filterBroadcastsByDepartment && serviceRequest.departmentId) {
-                const departmentMap = await StaffUser.getDepartmentMap(jurisdiction.id);
+                const departmentMap = await staffUserRepository.getDepartmentMap(jurisdiction.id);
                 const _lookup = _.map(
                     _.filter(departmentMap, { departmentId: serviceRequest.departmentId, isLead: true }),
                     m => m.staffUserId
@@ -403,7 +420,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 }
             }
             const record = await dispatchMessage(
-                dispatchConfig, templateConfig, Communication, EmailStatus
+                dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
             );
             if (record) { records.push(record); }
         }
@@ -415,27 +432,27 @@ export class OutboundMessageService implements IOutboundMessageService {
 export class InboundMessageService implements IInboundMessageService {
 
     repositories: Repositories
-    settings: AppSettings
+    settings: AppConfig
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppSettings) settings: AppSettings,) {
+        @inject(appIds.AppConfig) settings: AppConfig,) {
         this.repositories = repositories;
         this.settings = settings;
     }
 
     async createServiceRequest(inboundEmailData: InboundEmailDataAttributes):
         Promise<[ServiceRequestAttributes, boolean]> {
-        const { ServiceRequest, StaffUser, InboundMap } = this.repositories;
+        const { serviceRequestRepository, staffUserRepository, inboundMapRepository } = this.repositories;
         const { subject, to, cc, bcc, from, text, headers } = inboundEmailData;
         const { inboundEmailDomain } = this.settings;
         let intermediateRecord: ServiceRequestAttributes;
         let recordCreated = true;
         const [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
-            { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, InboundMap
+            { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, inboundMapRepository
         );
         if (publicId || cleanedData.serviceRequestId) {
-            const [staffUsers, _count] = await StaffUser.findAll(
+            const [staffUsers, _count] = await staffUserRepository.findAll(
                 cleanedData.jurisdictionId, { whereParams: { isAdmin: true } }
             );
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -448,11 +465,11 @@ export class InboundMessageService implements IInboundMessageService {
                 addedBy = _.find(staffUsers, (u) => { return u.email === cleanedData.email }).id
             }
             if (cleanedData.serviceRequestId) {
-                intermediateRecord = await ServiceRequest.findOne(
+                intermediateRecord = await serviceRequestRepository.findOne(
                     cleanedData.jurisdictionId, cleanedData.serviceRequestId
                 );
             } else {
-                intermediateRecord = await ServiceRequest.findOneByPublicId(
+                intermediateRecord = await serviceRequestRepository.findOneByPublicId(
                     cleanedData.jurisdictionId, publicId as unknown as string
                 );
             }
@@ -469,23 +486,29 @@ export class InboundMessageService implements IInboundMessageService {
                     broadcastToStaff: true,
                     broadcastToAssignee: true,
                 };
-                await ServiceRequest.createComment(cleanedData.jurisdictionId, intermediateRecord.id, comment);
+                await serviceRequestRepository.createComment(
+                    cleanedData.jurisdictionId, intermediateRecord.id, comment
+                );
             } else {
                 const dataToLog = { message: 'Invalid Comment Submitter.' }
                 logger.error(dataToLog);
                 throw new Error(dataToLog.message);
             }
         } else {
-            intermediateRecord = await ServiceRequest.create(cleanedData) as ServiceRequestInstance;
+            intermediateRecord = await serviceRequestRepository.create(
+                cleanedData
+            ) as ServiceRequestInstance;
         }
         // requery to ensure we have all relations
-        const record = await ServiceRequest.findOne(cleanedData.jurisdictionId, intermediateRecord.id);
+        const record = await serviceRequestRepository.findOne(
+            cleanedData.jurisdictionId, intermediateRecord.id
+        );
         return [record, recordCreated];
     }
 
     async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {
-        const { InboundMap } = this.repositories;
-        const record = await InboundMap.create(data) as InboundMapAttributes;
+        const { inboundMapRepository } = this.repositories;
+        const record = await inboundMapRepository.create(data) as InboundMapAttributes;
         return record;
     }
 

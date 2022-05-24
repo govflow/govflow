@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, AuditedStateChangeExtraData, auditMessageFields, IServiceRequestService, Repositories, ServiceRequestAttributes, ServiceRequestStateChangeErrorResponse } from '../../types';
+import { AppConfig, AuditedStateChangeExtraData, auditMessageFields, IServiceRequestService, Repositories, ServiceRequestAttributes, ServiceRequestStateChangeErrorResponse } from '../../types';
 import { makeAuditMessage } from './helpers';
 import { REQUEST_STATUSES } from './models';
 
@@ -9,11 +9,11 @@ import { REQUEST_STATUSES } from './models';
 export class ServiceRequestService implements IServiceRequestService {
 
     repositories: Repositories
-    settings: AppSettings
+    settings: AppConfig
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppSettings) settings: AppSettings,) {
+        @inject(appIds.AppConfig) settings: AppConfig,) {
         this.repositories = repositories;
         this.settings = settings;
     }
@@ -26,9 +26,15 @@ export class ServiceRequestService implements IServiceRequestService {
         extraData?: AuditedStateChangeExtraData
     ):
         Promise<ServiceRequestAttributes | ServiceRequestStateChangeErrorResponse> {
-        const { Jurisdiction, ServiceRequest, StaffUser, Department, Service } = this.repositories;
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
-        let record = await ServiceRequest.findOne(jurisdictionId, id);
+        const {
+            jurisdictionRepository,
+            serviceRequestRepository,
+            staffUserRepository,
+            departmentRepository,
+            serviceRepository
+        } = this.repositories;
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
+        let record = await serviceRequestRepository.findOne(jurisdictionId, id);
 
 
         // TODO: this if statement is the first occurance we have of customized business
@@ -41,7 +47,7 @@ export class ServiceRequestService implements IServiceRequestService {
             let allowedAction = false;
 
             if (departmentId) {
-                const proposedAssignee = await StaffUser.findOne(jurisdictionId, value);
+                const proposedAssignee = await staffUserRepository.findOne(jurisdictionId, value);
                 if (proposedAssignee) {
                     const proposedAssigneeDepartments = _.map(
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -75,7 +81,7 @@ export class ServiceRequestService implements IServiceRequestService {
         let fieldName = key;
 
         // save the change on the record
-        record = await ServiceRequest.update(jurisdictionId, id, data);
+        record = await serviceRequestRepository.update(jurisdictionId, id, data);
 
         // create the audit record / message
         if (key === 'status') {
@@ -89,8 +95,8 @@ export class ServiceRequestService implements IServiceRequestService {
             auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
         } else if (key === 'assignedTo') {
             if (value) {
-                const newAssignee = await StaffUser.findOne(jurisdictionId, value);
-                const oldAssignee = await StaffUser.findOne(jurisdictionId, oldValue);
+                const newAssignee = await staffUserRepository.findOne(jurisdictionId, value);
+                const oldAssignee = await staffUserRepository.findOne(jurisdictionId, oldValue);
                 if (newAssignee) { newDisplayValue = newAssignee.displayName }
                 if (oldAssignee) { oldDisplayValue = oldAssignee.displayName } else { oldDisplayValue = 'No Assignee' }
             } else {
@@ -102,8 +108,8 @@ export class ServiceRequestService implements IServiceRequestService {
                 const departmentFieldName = 'Department';
                 let newDepartmentDisplayValue = '';
                 let oldDepartmentDisplayValue = '';
-                const newDepartment = await Department.findOne(jurisdictionId, value);
-                const oldDepartment = await Department.findOne(jurisdictionId, oldValue);
+                const newDepartment = await departmentRepository.findOne(jurisdictionId, value);
+                const oldDepartment = await departmentRepository.findOne(jurisdictionId, oldValue);
                 if (newDepartment) {
                     newDepartmentDisplayValue = newDepartment.name
                 } else {
@@ -124,8 +130,8 @@ export class ServiceRequestService implements IServiceRequestService {
             }
         } else if (key === 'departmentId') {
             if (value) {
-                const newDepartment = await Department.findOne(jurisdictionId, value);
-                const oldDepartment = await Department.findOne(jurisdictionId, oldValue);
+                const newDepartment = await departmentRepository.findOne(jurisdictionId, value);
+                const oldDepartment = await departmentRepository.findOne(jurisdictionId, oldValue);
                 if (newDepartment) { newDisplayValue = newDepartment.name }
                 if (oldDepartment) { oldDisplayValue = oldDepartment.name } else { oldDisplayValue = 'No Department' }
             } else {
@@ -134,8 +140,8 @@ export class ServiceRequestService implements IServiceRequestService {
             fieldName = 'Department';
         } else if (key === 'serviceId') {
             if (value) {
-                const newService = await Service.findOne(jurisdictionId, value);
-                const oldService = await Service.findOne(jurisdictionId, oldValue);
+                const newService = await serviceRepository.findOne(jurisdictionId, value);
+                const oldService = await serviceRepository.findOne(jurisdictionId, oldValue);
                 if (newService) { newDisplayValue = newService.name }
                 if (oldService) { oldDisplayValue = oldService.name } else { oldDisplayValue = 'No Service' }
             } else {
@@ -144,7 +150,7 @@ export class ServiceRequestService implements IServiceRequestService {
             fieldName = 'Service';
         }
         const auditMessage = makeAuditMessage(extraData?.user, auditMessageFields);
-        await ServiceRequest.createComment(
+        await serviceRequestRepository.createComment(
             jurisdictionId, record.id, { comment: auditMessage, addedBy: extraData?.user?.id }
         );
         return record;

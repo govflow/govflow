@@ -1,16 +1,16 @@
 import { inject, injectable } from 'inversify';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, IStaffUserService, Repositories, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from '../../types';
+import { AppConfig, IStaffUserService, Repositories, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from '../../types';
 
 @injectable()
 export class StaffUserService implements IStaffUserService {
 
     repositories: Repositories
-    settings: AppSettings
+    settings: AppConfig
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppSettings) settings: AppSettings,) {
+        @inject(appIds.AppConfig) settings: AppConfig,) {
         this.repositories = repositories;
         this.settings = settings;
     }
@@ -18,12 +18,12 @@ export class StaffUserService implements IStaffUserService {
     async assignDepartment(
         jurisdictionId: string, staffUserId: string, departmentId: string, isLead: boolean
     ): Promise<StaffUserAttributes | null> {
-        const { StaffUser } = this.repositories;
-        const staffUser = await StaffUser.findOne(jurisdictionId, staffUserId);
+        const { staffUserRepository } = this.repositories;
+        const staffUser = await staffUserRepository.findOne(jurisdictionId, staffUserId);
         const verified = staffUser?.jurisdictionId === jurisdictionId;
         let record = null;
         if (verified) {
-            record = await StaffUser.assignDepartment(jurisdictionId, staffUserId, departmentId, isLead);
+            record = await staffUserRepository.assignDepartment(jurisdictionId, staffUserId, departmentId, isLead);
         }
         return record;
     }
@@ -31,12 +31,12 @@ export class StaffUserService implements IStaffUserService {
     async removeDepartment(
         jurisdictionId: string, staffUserId: string, departmentId: string
     ): Promise<StaffUserAttributes | StaffUserStateChangeErrorResponse | null> {
-        const { StaffUser } = this.repositories;
-        const staffUser = await StaffUser.findOne(jurisdictionId, staffUserId);
+        const { staffUserRepository } = this.repositories;
+        const staffUser = await staffUserRepository.findOne(jurisdictionId, staffUserId);
         const verified = staffUser?.jurisdictionId === jurisdictionId;
         let record = null;
         if (verified) {
-            record = await StaffUser.removeDepartment(jurisdictionId, staffUserId, departmentId);
+            record = await staffUserRepository.removeDepartment(jurisdictionId, staffUserId, departmentId);
             if (!record) {
                 return {
                     isError: true,
@@ -50,8 +50,8 @@ export class StaffUserService implements IStaffUserService {
 
     async getDepartmentMap(jurisdictionId: string):
         Promise<StaffUserDepartmentAttributes[] | null> {
-        const { StaffUser } = this.repositories;
-        return await StaffUser.getDepartmentMap(jurisdictionId);
+        const { staffUserRepository } = this.repositories;
+        return await staffUserRepository.getDepartmentMap(jurisdictionId);
     }
 
 }

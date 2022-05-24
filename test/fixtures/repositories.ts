@@ -1,16 +1,16 @@
 import { inject, injectable } from 'inversify';
 import { appIds, repositoryIds } from '../../src/registry/service-identifiers';
-import type { AppSettings, IServiceRepository, Models, Plugin, ServiceAttributes } from '../../src/types';
+import type { AppConfig, IServiceRepository, Models, RepositoryPlugin, ServiceAttributes } from '../../src/types';
 
 @injectable()
 class MyServiceRepository implements IServiceRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings
@@ -75,11 +75,11 @@ class MyServiceRepository implements IServiceRepository {
 class MyBrokenJurisdictionRepository implements IServiceRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings
@@ -108,12 +108,12 @@ class MyBrokenJurisdictionRepository implements IServiceRepository {
 
 }
 
-export const MyServiceRepositoryPlugin: Plugin = {
+export const MyServiceRepositoryPlugin: RepositoryPlugin = {
     serviceIdentifier: repositoryIds.IServiceRepository,
     implementation: MyServiceRepository
 }
 
-export const MyBrokenJurisdictionRepositoryPlugin: Plugin = {
+export const MyBrokenJurisdictionRepositoryPlugin: RepositoryPlugin = {
     serviceIdentifier: repositoryIds.IJurisdictionRepository,
     implementation: MyBrokenJurisdictionRepository
 }

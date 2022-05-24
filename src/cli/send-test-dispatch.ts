@@ -16,7 +16,7 @@ import { DispatchConfigAttributes } from '../types';
         testToEmail,
         testToPhone
     } = app.config;
-    const { Communication, EmailStatus } = app.repositories;
+    const { communicationRepository, emailStatusRepository } = app.repositories;
     const dispatchConfig = {
         channel: 'email', // can manually change to sms to test that
         sendGridApiKey: sendGridApiKey as string,
@@ -43,8 +43,8 @@ import { DispatchConfigAttributes } from '../types';
     const record = await dispatchMessage(
         dispatchConfig,
         templateConfig,
-        Communication,
-        EmailStatus
+        communicationRepository,
+        emailStatusRepository
     );
     console.log(record);
 })();

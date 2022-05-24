@@ -1,17 +1,17 @@
 import { inject, injectable } from 'inversify';
 import { Where } from 'sequelize/types/lib/utils';
 import { appIds } from '../../registry/service-identifiers';
-import { AppSettings, DepartmentAttributes, DepartmentInstance, IDepartmentRepository, Models, QueryParamsAll } from '../../types';
+import { AppConfig, DepartmentAttributes, DepartmentInstance, IDepartmentRepository, Models, QueryParamsAll } from '../../types';
 
 @injectable()
 export class DepartmentRepository implements IDepartmentRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings

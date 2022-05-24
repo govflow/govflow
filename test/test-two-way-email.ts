@@ -32,24 +32,24 @@ describe('Test two-way email communications.', function () {
     })
 
     it('creates a service request with an inbound map', async function () {
-        const { ServiceRequest } = app.repositories;
+        const { serviceRequestRepository } = app.repositories;
         const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
         serviceRequestId = faker.datatype.uuid();
         jurisdictionId = serviceRequestData.jurisdictionId;
         serviceRequestData.id = serviceRequestId;
         serviceRequestData.email = serviceRequestSubmitterEmail;
-        const record = await ServiceRequest.create(serviceRequestData);
+        const record = await serviceRequestRepository.create(serviceRequestData);
         chai.assert.equal(record.inboundMaps.length, 1);
         chai.assert.equal(record.inboundMaps[0].id, serviceRequestData.id.replaceAll('-', ''));
     });
 
     it('creates a service request comment for broadcast', async function () {
-        const { ServiceRequest } = app.repositories;
+        const { serviceRequestRepository } = app.repositories;
         const data = {
             comment: "Hey is this correct?",
             broadcastToSubmitter: true
         }
-        const record = await ServiceRequest.createComment(jurisdictionId, serviceRequestId, data);
+        const record = await serviceRequestRepository.createComment(jurisdictionId, serviceRequestId, data);
         chai.assert(record);
         chai.assert.equal(record.isBroadcast, true);
         chai.assert.equal(record.broadcastToSubmitter, true);
@@ -58,13 +58,13 @@ describe('Test two-way email communications.', function () {
     });
 
     it('receives an email to create a service request comment when email is from submitter', async function () {
-        const { ServiceRequest, Jurisdiction } = app.repositories;
-        const { InboundMessage } = app.services;
+        const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
+        const { inboundMessageService } = app.services;
         const { inboundEmailDomain, sendGridFromEmail } = app.config;
-        const serviceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
+        const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         // START need this for the logic of this test, to ensure we get an inbound email for the request
         serviceRequest.status = 'todo';
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         jurisdiction.replyToServiceRequestEnabled = true
         // END need this for the logic of this test, to ensure we get an inbound email for the request
         serviceRequestInboundEmailAddress = getReplyToEmail(
@@ -75,22 +75,22 @@ describe('Test two-way email communications.', function () {
         inboundPayload.from = serviceRequestSubmitterEmail;
         inboundPayload.subject = '[Request #3456789]: this is the subject';
         inboundPayload.text = 'this is the message';
-        await InboundMessage.createServiceRequest(inboundPayload);
-        const updatedServiceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
+        await inboundMessageService.createServiceRequest(inboundPayload);
+        const updatedServiceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
         chai.assert.equal(updatedServiceRequest.comments.length, 2);
         chai.assert.equal(updatedServiceRequest.comments[1].comment, inboundPayload.text);
     });
 
     it('receives an email to create a service request comment when email is from staff', async function () {
-        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
-        const { InboundMessage } = app.services;
+        const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
+        const { inboundMessageService } = app.services;
         const { inboundEmailDomain, sendGridFromEmail } = app.config;
-        const serviceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
+        const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         // START need this for the logic of this test, to ensure we get an inbound email for the request
         serviceRequest.status = 'todo';
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
-        const [staffUsers, _count] = await StaffUser.findAll(jurisdictionId);
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
+        const [staffUsers, _count] = await staffUserRepository.findAll(jurisdictionId);
         const staffUser = _.find(staffUsers, (u) => { return u.isAdmin === true }) as StaffUserAttributes;
         jurisdiction.replyToServiceRequestEnabled = true;
         // END need this for the logic of this test, to ensure we get an inbound email for the request
@@ -103,18 +103,18 @@ describe('Test two-way email communications.', function () {
         inboundPayload.subject = '[Request #98765432]: this is the subject';
         // also testing here we clean up the body from some extra patterns
         inboundPayload.text = '> > >\nOn Mon, Apr 25, 2022 Some One <some@example.com> wrote: \n\nthis is the message';
-        await InboundMessage.createServiceRequest(inboundPayload);
-        const updatedServiceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
+        await inboundMessageService.createServiceRequest(inboundPayload);
+        const updatedServiceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
         chai.assert.equal(updatedServiceRequest.comments.length, 3);
         chai.assert.equal(updatedServiceRequest.comments[2].comment, 'this is the message');
     });
 
     it('broadcasts a service request comment to submitter', async function () {
-        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
-        const { OutboundMessage } = app.services;
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
-        const [staffUsers, _count] = await StaffUser.findAll(jurisdictionId);
+        const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
+        const { outboundMessageService } = app.services;
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
+        const [staffUsers, _count] = await staffUserRepository.findAll(jurisdictionId);
         const data = {
             comment: "Comment by staff for submitter only",
             addedBy: staffUsers[0].id,
@@ -122,11 +122,11 @@ describe('Test two-way email communications.', function () {
             broadcastToAssignee: false,
             broadcastToStaff: false
         }
-        const serviceRequest = await ServiceRequest.findOne(jurisdictionId, serviceRequestId);
-        const serviceRequestComment = await ServiceRequest.createComment(
+        const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
+        const serviceRequestComment = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
-        const response = await OutboundMessage.dispatchServiceRequestComment(
+        const response = await outboundMessageService.dispatchServiceRequestComment(
             jurisdiction, serviceRequestComment
         );
         const dispatchPayload = response[0].dispatchPayload;
@@ -137,10 +137,10 @@ describe('Test two-way email communications.', function () {
     });
 
     it('broadcasts a service request comment to staff only', async function () {
-        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
-        const { OutboundMessage } = app.services;
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
-        const [staffUsers, count] = await StaffUser.findAll(jurisdictionId);
+        const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
+        const { outboundMessageService } = app.services;
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
+        const [staffUsers, count] = await staffUserRepository.findAll(jurisdictionId);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email }) as string[];
@@ -151,10 +151,10 @@ describe('Test two-way email communications.', function () {
             broadcastToAssignee: false,
             broadcastToStaff: true
         }
-        const serviceRequestComment = await ServiceRequest.createComment(
+        const serviceRequestComment = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
-        const response = await OutboundMessage.dispatchServiceRequestComment(
+        const response = await outboundMessageService.dispatchServiceRequestComment(
             jurisdiction, serviceRequestComment
         );
         // we should have a communication record per staff user
@@ -167,12 +167,12 @@ describe('Test two-way email communications.', function () {
     });
 
     it('uses an email sanitize line for outgoing email when reply to service request is enabled', async function () {
-        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
-        const { OutboundMessage } = app.services;
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
+        const { outboundMessageService } = app.services;
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         // ensure it is the value we need for the test
         jurisdiction.replyToServiceRequestEnabled = true;
-        const [staffUsers, _count] = await StaffUser.findAll(jurisdictionId);
+        const [staffUsers, _count] = await staffUserRepository.findAll(jurisdictionId);
         const data = {
             comment: "Comment by staff for submitter only",
             addedBy: staffUsers[0].id,
@@ -180,10 +180,10 @@ describe('Test two-way email communications.', function () {
             broadcastToAssignee: false,
             broadcastToStaff: false
         }
-        const serviceRequestComment = await ServiceRequest.createComment(
+        const serviceRequestComment = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
-        const response = await OutboundMessage.dispatchServiceRequestComment(
+        const response = await outboundMessageService.dispatchServiceRequestComment(
             jurisdiction, serviceRequestComment
         );
         const dispatchResponse = JSON.parse(response[0].dispatchResponse as unknown as string);
@@ -191,12 +191,12 @@ describe('Test two-way email communications.', function () {
     });
 
     it('does not use sanitize line for outgoing email when reply to service request is disabled', async function () {
-        const { ServiceRequest, Jurisdiction, StaffUser } = app.repositories;
-        const { OutboundMessage } = app.services;
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
+        const { outboundMessageService } = app.services;
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         // ensure it is the value we need for the test
         jurisdiction.replyToServiceRequestEnabled = false;
-        const [staffUsers, _count] = await StaffUser.findAll(jurisdictionId);
+        const [staffUsers, _count] = await staffUserRepository.findAll(jurisdictionId);
         const data = {
             comment: "Comment by staff for submitter only",
             addedBy: staffUsers[0].id,
@@ -204,10 +204,10 @@ describe('Test two-way email communications.', function () {
             broadcastToAssignee: false,
             broadcastToStaff: false
         }
-        const serviceRequestComment = await ServiceRequest.createComment(
+        const serviceRequestComment = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
-        const response = await OutboundMessage.dispatchServiceRequestComment(
+        const response = await outboundMessageService.dispatchServiceRequestComment(
             jurisdiction, serviceRequestComment
         );
         const dispatchResponse = JSON.parse(response[0].dispatchResponse as unknown as string);

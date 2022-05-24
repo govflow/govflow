@@ -1,13 +1,13 @@
-import type { RequestHandler } from 'express';
-import type { DatabaseEngine, MigrationEngine, ModelDefinition, Plugin } from '.';
+import type { DatabaseEngine, MigrationEngine } from '.';
+import { PluginRegistry } from './registry';
 
-export interface AppSettings {
-    [key: string]: boolean | string | number | Record<string, string | number>;
+export interface AppConfig {
+    [x: string]: unknown;
     env: string;
     databaseUrl: string;
-    databaseExtraMigrationPaths: string;
     sendGridApiKey: string;
     sendGridFromEmail: string;
+    sendGridSignedWebhookVerificationKey: string;
     twilioAccountSid: string;
     twilioAuthToken: string;
     twilioFromPhone: string;
@@ -17,18 +17,19 @@ export interface AppSettings {
     appName: string;
     appClientUrl: string;
     appClientRequestsPath: string;
+    storageBucket: string;
+    storageRegion: string;
+    storageSSL: boolean;
+    storagePort: number;
+    storageEndpoint: string;
+    storageAccessKey: string;
+    storageSecretKey: string;
+    storageSignedGetExpiry: number;
+    inboundEmailDomain: string;
     communicationsToConsole: string;
     captchaEnabled: boolean;
     reCaptchaSecretKey: string;
-    inboundEmailDomain: string;
-}
-
-export interface Config {
-    plugins?: Plugin[];
-    // TODO: models as plugins
-    models?: ModelDefinition[];
-    middlewares?: RequestHandler[];
-    settings?: AppSettings;
+    plugins?: PluginRegistry;
     database?: DatabaseEngine;
     migrator?: MigrationEngine;
 }

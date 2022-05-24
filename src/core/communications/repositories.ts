@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { appIds } from '../../registry/service-identifiers';
 import type {
-    AppSettings, ChannelIsAllowed, ChannelStatusCreateAttributes,
+    AppConfig, ChannelIsAllowed, ChannelStatusCreateAttributes,
     ChannelStatusInstance,
     CommunicationAttributes,
     CommunicationCreateAttributes,
@@ -21,11 +21,11 @@ import { EMAIL_EVENT_MAP } from './models';
 export class CommunicationRepository implements ICommunicationRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings
@@ -49,11 +49,11 @@ export class CommunicationRepository implements ICommunicationRepository {
 export class EmailStatusRepository implements IEmailStatusRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings
@@ -114,11 +114,11 @@ export class EmailStatusRepository implements IEmailStatusRepository {
 export class InboundMapRepository implements IInboundMapRepository {
 
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 
     constructor(
         @inject(appIds.Models) models: Models,
-        @inject(appIds.AppSettings) settings: AppSettings,
+        @inject(appIds.AppConfig) settings: AppConfig,
     ) {
         this.models = models;
         this.settings = settings

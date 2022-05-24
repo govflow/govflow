@@ -1,5 +1,5 @@
 import type {
-    AppSettings,
+    AppConfig,
     CommunicationAttributes,
     CommunicationCreateAttributes,
     DepartmentAttributes, JurisdictionAttributes,
@@ -14,7 +14,7 @@ import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, Email
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
-    settings: AppSettings;
+    settings: AppConfig;
 }
 
 export interface IJurisdictionRepository extends RepositoryBase {
@@ -96,12 +96,12 @@ export interface IInboundMapRepository extends RepositoryBase {
 }
 
 export interface Repositories {
-    Jurisdiction: IJurisdictionRepository;
-    StaffUser: IStaffUserRepository;
-    Service: IServiceRepository;
-    ServiceRequest: IServiceRequestRepository;
-    Communication: ICommunicationRepository;
-    Department: IDepartmentRepository;
-    EmailStatus: IEmailStatusRepository;
-    InboundMap: IInboundMapRepository;
+    jurisdictionRepository: IJurisdictionRepository;
+    staffUserRepository: IStaffUserRepository;
+    serviceRepository: IServiceRepository;
+    serviceRequestRepository: IServiceRequestRepository;
+    communicationRepository: ICommunicationRepository;
+    departmentRepository: IDepartmentRepository;
+    emailStatusRepository: IEmailStatusRepository;
+    inboundMapRepository: IInboundMapRepository;
 }

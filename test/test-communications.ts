@@ -7,7 +7,7 @@ import { dispatchMessage, getReplyToEmail, getSendFromEmail, loadTemplate, makeR
 import { sendEmail } from '../src/email';
 import { sendSms } from '../src/sms';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
-import type { AppSettings, StaffUserAttributes, TestDataPayload } from '../src/types';
+import type { AppConfig, StaffUserAttributes, TestDataPayload } from '../src/types';
 
 describe('Verify Core Communications Functionality.', function () {
     let app: Application;
@@ -29,7 +29,7 @@ describe('Verify Core Communications Functionality.', function () {
 
     it('should send email', async function () {
         const config = await initConfig();
-        const { sendGridApiKey } = config.settings as AppSettings;
+        const { sendGridApiKey } = config as AppConfig;
         const response = await sendEmail(
             sendGridApiKey as string,
             'example@example.com',
@@ -44,7 +44,7 @@ describe('Verify Core Communications Functionality.', function () {
 
     it('should send sms', async function () {
         const config = await initConfig();
-        const { twilioAccountSid, twilioAuthToken, twilioFromPhone, testToPhone } = config.settings as AppSettings;
+        const { twilioAccountSid, twilioAuthToken, twilioFromPhone, testToPhone } = config as AppConfig;
         const response = await sendSms(
             twilioAccountSid as string,
             twilioAuthToken as string,
@@ -73,7 +73,12 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatch a message for a public user', async function () {
-        const { ServiceRequest, Communication, EmailStatus, Jurisdiction } = app.repositories;
+        const {
+            serviceRequestRepository,
+            communicationRepository,
+            emailStatusRepository,
+            jurisdictionRepository
+        } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -86,8 +91,8 @@ describe('Verify Core Communications Functionality.', function () {
             inboundEmailDomain
         } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
-        const [serviceRequests, _count] = await ServiceRequest.findAll(jurisdictionId);
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const [serviceRequests, _count] = await serviceRequestRepository.findAll(jurisdictionId);
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         const replyToEmail = getReplyToEmail(null, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const serviceRequest = serviceRequests[0];
@@ -116,7 +121,9 @@ describe('Verify Core Communications Functionality.', function () {
             }
         }
         if (serviceRequest.communicationChannel) {
-            const record = await dispatchMessage(dispatchConfig, templateConfig, Communication, EmailStatus);
+            const record = await dispatchMessage(
+                dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+            );
             chai.assert(record);
         } else {
             // TODO: Need to do this check correctly
@@ -127,7 +134,12 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatch a message for a staff user', async function () {
-        const { StaffUser, Communication, EmailStatus, Jurisdiction } = app.repositories;
+        const {
+            staffUserRepository,
+            communicationRepository,
+            emailStatusRepository,
+            jurisdictionRepository
+        } = app.repositories;
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -140,8 +152,8 @@ describe('Verify Core Communications Functionality.', function () {
             inboundEmailDomain
         } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
-        const [staffUsers, _staffUsersCount] = await StaffUser.findAll(jurisdictionId);
-        const jurisdiction = await Jurisdiction.findOne(jurisdictionId);
+        const [staffUsers, _staffUsersCount] = await staffUserRepository.findAll(jurisdictionId);
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         const replyToEmail = getReplyToEmail(null, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const admins = _.filter(staffUsers, { isAdmin: true });
@@ -171,7 +183,7 @@ describe('Verify Core Communications Functionality.', function () {
             }
         }
         const record = await dispatchMessage(
-            dispatchConfig, templateConfig, Communication, EmailStatus
+            dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
         );
         chai.assert(record);
     });

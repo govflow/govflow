@@ -517,7 +517,7 @@ describe('Hit all API endpoints', function () {
             const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId })
             const serviceRequestData = _.cloneDeep(serviceRequests[0]);
             const serviceRequestId = serviceRequestData.id;
-            const departmentMaps = await app.repositories.StaffUser.getDepartmentMap(
+            const departmentMaps = await app.repositories.staffUserRepository.getDepartmentMap(
                 jurisdictionId
             ) as StaffUserDepartmentAttributes[];
             const staffUserId = departmentMaps[0].staffUserId;

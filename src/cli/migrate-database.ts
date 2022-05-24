@@ -5,7 +5,7 @@ import type { DatabaseEngine } from '../types';
 
 (async () => {
     const config = await initConfig();
-    const { database, settings } = config;
-    const migrator = initMigrator(database as DatabaseEngine, settings?.databaseExtraMigrationPaths as string);
+    const { database } = config;
+    const migrator = initMigrator(database as DatabaseEngine, config.plugins?.migrations);
     migrator.runAsCLI();
 })();
