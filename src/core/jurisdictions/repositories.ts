@@ -44,6 +44,7 @@ export class JurisdictionRepository implements IJurisdictionRepository {
             'sendFromEmailVerified',
             'replyToEmail',
             'replyToServiceRequestEnabled',
+            'enforceAssignmentThroughDepartment',
             'address',
             'city',
             'state',
