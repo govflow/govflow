@@ -28,11 +28,13 @@ export class StaffUserRepository implements IStaffUserRepository {
     async findOne(jurisdictionId: string, id: string): Promise<StaffUserAttributes | null> {
         const { StaffUser, StaffUserDepartment } = this.models;
         const params = { where: { jurisdictionId, id } };
-        const record = await StaffUser.findOne(params) as unknown as StaffUserInstance;
+        let record = null;
+        const instance = await StaffUser.findOne(params) as StaffUserInstance;
+        if (instance) {
+            record = instance.get({ plain: true });
+        }
         if (record) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            record.dataValues.departments = await getDepartmentsForStaffUser(record, StaffUserDepartment);
+            record.departments = await getDepartmentsForStaffUser(record, StaffUserDepartment);
         }
         return record;
     }
@@ -40,13 +42,12 @@ export class StaffUserRepository implements IStaffUserRepository {
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[StaffUserAttributes[], number]> {
         const { StaffUser, StaffUserDepartment } = this.models;
         const params = merge(queryParamsToSequelize(queryParams), { where: { jurisdictionId } });
-        const records = await StaffUser.findAll(params);
+        const instances = await StaffUser.findAll(params) as StaffUserInstance[];
+        const records = instances.map(instance => instance.get({ plain: true }));
         for (const record of records) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            record.dataValues.departments = await getDepartmentsForStaffUser(record, StaffUserDepartment);
+            record.departments = await getDepartmentsForStaffUser(record, StaffUserDepartment);
         }
-        return [records as StaffUserInstance[], records.length];
+        return [records, records.length];
     }
 
     async lookupTable(jurisdictionId: string): Promise<[StaffUserLookUpAttributes[], number]> {

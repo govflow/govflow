@@ -528,7 +528,7 @@ describe('Hit all API endpoints', function () {
             ).send({ assignedTo, serviceRequestId, departmentId });
             chai.assert.equal(res.status, 200);
             chai.assert.equal(res.body.data.assignedTo, assignedTo);
-            chai.assert.equal(res.body.data.assignedTo, assignedTo);
+            chai.assert.equal(res.body.data.departmentId, departmentId);
         });
 
     it('should POST an update to department for a service request for a jurisdiction', async function () {

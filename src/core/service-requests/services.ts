@@ -35,7 +35,11 @@ export class ServiceRequestService implements IServiceRequestService {
         } = this.repositories;
         const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         let record = await serviceRequestRepository.findOne(jurisdictionId, id);
-
+        let oldDepartmentValue = null;
+        const updateData = {} as Partial<ServiceRequestAttributes>;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        updateData[key] = value;
 
         // TODO: this if statement is the first occurance we have of customized business
         // logic around a request state change, therefore I just inlined it.
@@ -52,11 +56,13 @@ export class ServiceRequestService implements IServiceRequestService {
                     const proposedAssigneeDepartments = _.map(
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
-                        proposedAssignee.dataValues.departments,
+                        proposedAssignee.departments,
                         (sud) => { return sud.departmentId }
                     );
                     allowedAction = proposedAssigneeDepartments.includes(departmentId);
                 }
+                updateData.departmentId = extraData.departmentId;
+                oldDepartmentValue = record.departmentId;
             }
 
             if (!allowedAction) {
@@ -72,16 +78,12 @@ export class ServiceRequestService implements IServiceRequestService {
         // @ts-ignore
         const oldValue = record[key];
         let oldDisplayValue = oldValue;
-        const data = {};
         const auditMessageFields: auditMessageFields[] = [];
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        data[key] = value;
         let newDisplayValue = value;
         let fieldName = key;
 
         // save the change on the record
-        record = await serviceRequestRepository.update(jurisdictionId, id, data);
+        record = await serviceRequestRepository.update(jurisdictionId, id, updateData);
 
         // create the audit record / message
         if (key === 'status') {
@@ -108,8 +110,11 @@ export class ServiceRequestService implements IServiceRequestService {
                 const departmentFieldName = 'Department';
                 let newDepartmentDisplayValue = '';
                 let oldDepartmentDisplayValue = '';
-                const newDepartment = await departmentRepository.findOne(jurisdictionId, value);
-                const oldDepartment = await departmentRepository.findOne(jurisdictionId, oldValue);
+                let oldDepartment;
+                const newDepartment = await departmentRepository.findOne(jurisdictionId, extraData.departmentId);
+                if (oldDepartmentValue) {
+                    oldDepartment = await departmentRepository.findOne(jurisdictionId, oldDepartmentValue as string);
+                }
                 if (newDepartment) {
                     newDepartmentDisplayValue = newDepartment.name
                 } else {
@@ -120,7 +125,7 @@ export class ServiceRequestService implements IServiceRequestService {
                 } else {
                     oldDepartmentDisplayValue = 'No Department'
                 }
-                if (newDepartment && oldDepartment) {
+                if (newDepartment) {
                     auditMessageFields.push({
                         fieldName: departmentFieldName,
                         oldValue: oldDepartmentDisplayValue,
@@ -154,7 +159,6 @@ export class ServiceRequestService implements IServiceRequestService {
             jurisdictionId, record.id, { comment: auditMessage, addedBy: extraData?.user?.id }
         );
         return record;
-
     }
 
 }
