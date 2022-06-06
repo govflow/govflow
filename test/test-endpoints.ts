@@ -592,7 +592,7 @@ describe('Hit all API endpoints', function () {
         const thisAssignment = _.find(res.body.data.departments, { departmentId })
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.departments.length, 2);
-        chai.assert.equal(thisAssignment.isLead, isLead);
+        chai.assert.equal(thisAssignment.isLead, true); // because the first staff user in the department
     });
 
     it('should POST an updated department assignment for a staff user', async function () {

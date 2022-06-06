@@ -81,13 +81,14 @@ export class StaffUserRepository implements IStaffUserRepository {
         const { StaffUserDepartment } = this.models;
         const existingLead = await StaffUserDepartment.findOne({ where: { isLead: true, departmentId } });
         const existingRecord = await StaffUserDepartment.findOne({ where: { staffUserId, departmentId } });
+        const reallyIsLead = existingLead ? isLead : true;
         if (existingRecord) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            existingRecord.isLead = existingLead ? isLead : true; // we always need at least one lead
-            await existingRecord.save();
+            existingRecord.isLead = reallyIsLead;
+            await existingRecord.save()
         } else {
-            await StaffUserDepartment.create({ staffUserId, departmentId, isLead });
+            await StaffUserDepartment.create({ staffUserId, departmentId, isLead: reallyIsLead });
         }
         return await this.findOne(jurisdictionId, staffUserId);
     }
