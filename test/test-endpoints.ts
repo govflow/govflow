@@ -531,6 +531,25 @@ describe('Hit all API endpoints', function () {
             chai.assert.equal(res.body.data.departmentId, departmentId);
         });
 
+    it('should do update empty assignedTo when a valid departmentId passed and enforceAssignmentThroughDepartment enabled',
+        async function () {
+            const jurisdictionId = testData.jurisdictions[2].id;
+            const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId })
+            const serviceRequestData = _.cloneDeep(serviceRequests[0]);
+            const serviceRequestId = serviceRequestData.id;
+            const departmentMaps = await app.repositories.staffUserRepository.getDepartmentMap(
+                jurisdictionId
+            ) as StaffUserDepartmentAttributes[];
+            const departmentId = departmentMaps[0].departmentId;
+            const assignedTo = '';
+            const res = await chai.request(app).post(
+                `/service-requests/assign/?jurisdictionId=${jurisdictionId}`
+            ).send({ assignedTo, serviceRequestId, departmentId });
+            chai.assert.equal(res.status, 200);
+            chai.assert.equal(res.body.data.assignedTo, assignedTo);
+            chai.assert.equal(res.body.data.departmentId, departmentId);
+        });
+
     it('should POST an update to department for a service request for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const departments = _.filter(testData.departments, { jurisdictionId });

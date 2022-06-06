@@ -51,17 +51,22 @@ export class ServiceRequestService implements IServiceRequestService {
             let allowedAction = false;
 
             if (departmentId) {
-                const proposedAssignee = await staffUserRepository.findOne(jurisdictionId, value);
-                if (proposedAssignee) {
-                    const proposedAssigneeDepartments = _.map(
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        proposedAssignee.departments,
-                        (sud) => { return sud.departmentId }
-                    );
-                    allowedAction = proposedAssigneeDepartments.includes(departmentId);
+                if (!value) {
+                    // we have no assignee so we do not need to check dept / assigneee relationship
+                    allowedAction = true;
+                } else {
+                    const proposedAssignee = await staffUserRepository.findOne(jurisdictionId, value);
+                    if (proposedAssignee) {
+                        const proposedAssigneeDepartments = _.map(
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
+                            proposedAssignee.departments,
+                            (sud) => { return sud.departmentId }
+                        );
+                        allowedAction = proposedAssigneeDepartments.includes(departmentId);
+                    }
                 }
-                updateData.departmentId = extraData.departmentId;
+                updateData.departmentId = departmentId;
                 oldDepartmentValue = record.departmentId;
             }
 
