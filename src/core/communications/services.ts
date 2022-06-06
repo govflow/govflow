@@ -170,9 +170,6 @@ export class OutboundMessageService implements IOutboundMessageService {
         serviceRequest: ServiceRequestAttributes
     ): Promise<CommunicationAttributes | null> {
 
-        // early return if the service request has been unassigned
-        if (_.isNil(serviceRequest.assignedTo)) { return null; }
-
         const {
             sendGridApiKey,
             sendGridFromEmail,
@@ -185,9 +182,17 @@ export class OutboundMessageService implements IOutboundMessageService {
             inboundEmailDomain
         } = this.config;
         const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
+
+        // early return if the service request has been unassigned
+        if (!serviceRequest.assignedTo) { return null; }
+
         const staffUser = await staffUserRepository.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
-        ) as StaffUserAttributes;
+        );
+
+        // early return if no matching staff user
+        if (!staffUser) { return null; }
+
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const dispatchConfig = {
