@@ -48,6 +48,11 @@ export const JurisdictionModel: ModelDefinition = {
             defaultValue: false,
             type: DataTypes.BOOLEAN,
         },
+        broadcastToSubmitterOnRequestClosed: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN,
+        },
         address: {
             allowNull: true,
             type: DataTypes.STRING,

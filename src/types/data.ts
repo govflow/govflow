@@ -6,6 +6,7 @@ export interface JurisdictionAttributes {
     email: string;
     enforceAssignmentThroughDepartment: boolean;
     filterBroadcastsByDepartment: boolean;
+    broadcastToSubmitterOnRequestClosed: boolean;
     sendFromEmail?: string;
     sendFromEmailVerified: boolean,
     replyToEmail?: string;

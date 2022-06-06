@@ -30,6 +30,25 @@ export class OutboundMessageService implements IOutboundMessageService {
         this.config = config;
     }
 
+    async getStaffRecipients(jurisdiction: JurisdictionAttributes, departmentId: string | null) {
+        const { staffUserRepository } = this.repositories;
+        const [staffUsers, _count] = await staffUserRepository.findAll(jurisdiction.id);
+        let staffRecipients = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
+
+        if (jurisdiction.filterBroadcastsByDepartment && departmentId) {
+            const departmentMap = await staffUserRepository.getDepartmentMap(jurisdiction.id);
+            const _lookup = _.map(
+                _.filter(departmentMap, { departmentId: departmentId, isLead: true }),
+                m => m.staffUserId
+            );
+            staffRecipients = _.filter(staffUsers, s => _lookup.includes(s.id));
+        }
+
+        return staffRecipients.map(
+            s => { return { email: s.email, displayName: s.displayName, isStaff: true } }
+        )
+    }
+
     async dispatchServiceRequestCreate(
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
@@ -79,13 +98,13 @@ export class OutboundMessageService implements IOutboundMessageService {
             dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
         );
         if (record) { records.push(record); }
-        const [staffUsers, _count] = await staffUserRepository.findAll(serviceRequest.jurisdictionId);
-        const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
-        for (const admin of admins) {
+
+        const staffRecipients = await this.getStaffRecipients(jurisdiction, serviceRequest.departmentId);
+        for (const staff of staffRecipients) {
             const dispatchConfig = {
                 channel: 'email',
                 sendGridApiKey: sendGridApiKey as string,
-                toEmail: admin.email as string,
+                toEmail: staff.email as string,
                 fromEmail: sendGridFromEmail as string,
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
@@ -103,7 +122,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
                     jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                    recipientName: admin.displayName as string
+                    recipientName: staff.displayName as string
                 }
             }
             const record = await dispatchMessage(
@@ -130,9 +149,13 @@ export class OutboundMessageService implements IOutboundMessageService {
             inboundEmailDomain
         } = this.config;
         const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
+
         const staffUser = await staffUserRepository.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
-        ) as StaffUserAttributes;
+        );
+        // early return if no matching staff user
+        if (!staffUser) { return null; }
+
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
         const dispatchConfig = {
@@ -189,7 +212,6 @@ export class OutboundMessageService implements IOutboundMessageService {
         const staffUser = await staffUserRepository.findOne(
             serviceRequest.jurisdictionId, serviceRequest.assignedTo
         );
-
         // early return if no matching staff user
         if (!staffUser) { return null; }
 
@@ -241,45 +263,48 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioFromPhone,
             inboundEmailDomain
         } = this.config;
-        const { communicationRepository, staffUserRepository, emailStatusRepository } = this.repositories;
+        const { communicationRepository, emailStatusRepository } = this.repositories;
         const records: CommunicationAttributes[] = [];
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
-        const dispatchConfig = {
-            channel: serviceRequest.communicationChannel as string,
-            sendGridApiKey: sendGridApiKey as string,
-            toEmail: serviceRequest.email as string,
-            fromEmail: sendFromEmail as string,
-            replyToEmail: replyToEmail as string,
-            twilioAccountSid: twilioAccountSid as string,
-            twilioAuthToken: twilioAuthToken as string,
-            fromPhone: twilioFromPhone as string,
-            toPhone: serviceRequest.phone as string
-        }
-        const templateConfig = {
-            name: 'service-request-closed-public-user',
-            context: {
-                appName,
-                appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
-                serviceRequestStatus: serviceRequest.status,
-                serviceRequestPublicId: serviceRequest.publicId,
-                jurisdictionName: jurisdiction.name,
-                jurisdictionEmail: jurisdiction.email,
-                jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                recipientName: serviceRequest.displayName as string
+
+        if (jurisdiction.broadcastToSubmitterOnRequestClosed) {
+            const dispatchConfig = {
+                channel: serviceRequest.communicationChannel as string,
+                sendGridApiKey: sendGridApiKey as string,
+                toEmail: serviceRequest.email as string,
+                fromEmail: sendFromEmail as string,
+                replyToEmail: replyToEmail as string,
+                twilioAccountSid: twilioAccountSid as string,
+                twilioAuthToken: twilioAuthToken as string,
+                fromPhone: twilioFromPhone as string,
+                toPhone: serviceRequest.phone as string
             }
+            const templateConfig = {
+                name: 'service-request-closed-public-user',
+                context: {
+                    appName,
+                    appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
+                    serviceRequestStatus: serviceRequest.status,
+                    serviceRequestPublicId: serviceRequest.publicId,
+                    jurisdictionName: jurisdiction.name,
+                    jurisdictionEmail: jurisdiction.email,
+                    jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
+                    recipientName: serviceRequest.displayName as string
+                }
+            }
+            const record = await dispatchMessage(
+                dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+            );
+            if (record) { records.push(record); }
         }
-        const record = await dispatchMessage(
-            dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
-        );
-        if (record) { records.push(record); }
-        const [staffUsers, _count] = await staffUserRepository.findAll(serviceRequest.jurisdictionId);
-        const admins = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
-        for (const admin of admins) {
+
+        const staffRecipients = await this.getStaffRecipients(jurisdiction, serviceRequest.departmentId);
+        for (const staff of staffRecipients) {
             const dispatchConfig = {
                 channel: 'email',
                 sendGridApiKey: sendGridApiKey as string,
-                toEmail: admin.email as string,
+                toEmail: staff.email as string,
                 fromEmail: sendGridFromEmail as string,
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
@@ -297,7 +322,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
                     jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                    recipientName: admin.displayName as string
+                    recipientName: staff.displayName as string
                 }
             }
             const record = await dispatchMessage(
@@ -388,18 +413,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         }
 
         if (serviceRequestComment.broadcastToStaff) {
-            const [staffUsers, _count] = await staffUserRepository.findAll(serviceRequest.jurisdictionId);
-            let staffRecipients = _.filter(staffUsers, { isAdmin: true }) as StaffUserAttributes[];
-
-            if (jurisdiction.filterBroadcastsByDepartment && serviceRequest.departmentId) {
-                const departmentMap = await staffUserRepository.getDepartmentMap(jurisdiction.id);
-                const _lookup = _.map(
-                    _.filter(departmentMap, { departmentId: serviceRequest.departmentId, isLead: true }),
-                    m => m.staffUserId
-                );
-                staffRecipients = _.filter(staffUsers, s => _lookup.includes(s.id));
-            }
-
+            const staffRecipients = await this.getStaffRecipients(jurisdiction, serviceRequest.departmentId);
             recipients.push(...staffRecipients.map(
                 s => { return { email: s.email, displayName: s.displayName, isStaff: true } }
             ))
