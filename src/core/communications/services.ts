@@ -65,7 +65,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             inboundEmailDomain
         } = this.config;
 
-        const { communicationRepository, staffUserRepository, emailStatusRepository } = this.repositories;
+        const { communicationRepository, emailStatusRepository } = this.repositories;
         const records: CommunicationAttributes[] = [];
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);

@@ -531,7 +531,7 @@ describe('Hit all API endpoints', function () {
             chai.assert.equal(res.body.data.departmentId, departmentId);
         });
 
-    it('should do update empty assignedTo when a valid departmentId passed and enforceAssignmentThroughDepartment enabled',
+    it('should do update empty assignedTo when a valid departmentId and enforceAssignmentThroughDepartment enabled',
         async function () {
             const jurisdictionId = testData.jurisdictions[2].id;
             const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId })
