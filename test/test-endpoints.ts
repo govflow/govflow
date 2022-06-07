@@ -30,7 +30,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.84-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.85-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -125,13 +125,22 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.id, serviceData.id);
     });
 
-    it('should PUT a service for a jurisdiction', async function () {
+    it('should PUT a service with updated name for a jurisdiction', async function () {
         const serviceData = _.cloneDeep(testData.services[0]);
         const { jurisdictionId, id } = serviceData;
         const name = 'Updated name';
         const res = await chai.request(app).put(`/services/${id}/?jurisdictionId=${jurisdictionId}`).send({ name });
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.name, name);
+    });
+
+    it('should PUT a service with updated group for a jurisdiction', async function () {
+        const serviceData = _.cloneDeep(testData.services[0]);
+        const { jurisdictionId, id } = serviceData;
+        const group = 'Updated group';
+        const res = await chai.request(app).put(`/services/${id}/?jurisdictionId=${jurisdictionId}`).send({ group });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.group, group);
     });
 
     it('should GET all service requests for a jurisdiction', async function () {
