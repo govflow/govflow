@@ -30,7 +30,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.86-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.87-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -559,7 +559,7 @@ describe('Hit all API endpoints', function () {
             chai.assert.equal(res.body.data.departmentId, departmentId);
         });
 
-    it('should POST an update to department as new department for a service request for a jurisdiction', async function () {
+    it('should POST an update to department as new department for a service request', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const departments = _.filter(testData.departments, { jurisdictionId });
         const departmentId = departments[0].id;
@@ -586,7 +586,7 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.departmentId, departmentId);
     });
 
-    it('should POST an update to department as empty string for a service request for a jurisdiction', async function () {
+    it('should POST an update to department as empty string for a service request', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const departmentId = '';
         const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
