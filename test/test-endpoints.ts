@@ -30,7 +30,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.85-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.86-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -559,7 +559,7 @@ describe('Hit all API endpoints', function () {
             chai.assert.equal(res.body.data.departmentId, departmentId);
         });
 
-    it('should POST an update to department for a service request for a jurisdiction', async function () {
+    it('should POST an update to department as new department for a service request for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const departments = _.filter(testData.departments, { jurisdictionId });
         const departmentId = departments[0].id;
@@ -571,6 +571,32 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.id, serviceRequestId);
         chai.assert.equal(res.body.data.departmentId, departmentId);
+    });
+
+    it('should POST an update to department as null for a service request for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const departmentId = null;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/department/?jurisdictionId=${jurisdictionId}`
+        ).send({ departmentId, serviceRequestId });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, serviceRequestId);
+        chai.assert.equal(res.body.data.departmentId, departmentId);
+    });
+
+    it('should POST an update to department as empty string for a service request for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const departmentId = '';
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/department/?jurisdictionId=${jurisdictionId}`
+        ).send({ departmentId, serviceRequestId });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, serviceRequestId);
+        chai.assert.equal(res.body.data.departmentId, null);
     });
 
     it('should POST an update to service for a service request for a jurisdiction', async function () {
@@ -585,6 +611,32 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.id, serviceRequestId);
         chai.assert.equal(res.body.data.serviceId, serviceId);
+    });
+
+    it('should POST an update to service as null for a service request for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceId = null;
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/service/?jurisdictionId=${jurisdictionId}`
+        ).send({ serviceId, serviceRequestId });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, serviceRequestId);
+        chai.assert.equal(res.body.data.serviceId, serviceId);
+    });
+
+    it('should POST an update to service as empty string for a service request for a jurisdiction', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const serviceId = '';
+        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const serviceRequestId = serviceRequestData.id;
+        const res = await chai.request(app).post(
+            `/service-requests/service/?jurisdictionId=${jurisdictionId}`
+        ).send({ serviceId, serviceRequestId });
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, serviceRequestId);
+        chai.assert.equal(res.body.data.serviceId, null);
     });
 
     it('should POST a new department assignment for a staff user', async function () {

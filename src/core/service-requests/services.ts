@@ -37,9 +37,17 @@ export class ServiceRequestService implements IServiceRequestService {
         let record = await serviceRequestRepository.findOne(jurisdictionId, id);
         let oldDepartmentValue = null;
         const updateData = {} as Partial<ServiceRequestAttributes>;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        updateData[key] = value;
+
+        // handle empty strings from client
+        if (value == "" && ["departmentId", "serviceId"].includes(key)) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            updateData[key] = null;
+        } else {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            updateData[key] = value;
+        }
 
         // TODO: this if statement is the first occurance we have of customized business
         // logic around a request state change, therefore I just inlined it.
