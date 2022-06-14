@@ -290,6 +290,7 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
     let firstName = '',
         lastName = '',
         email = '';
+    const phone = '';
     const inputChannel = 'email';
     const { to, cc, bcc, from, headers } = data;
     let { subject, text } = data;
