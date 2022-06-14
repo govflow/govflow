@@ -3,6 +3,7 @@ import { appIds } from '../../registry/service-identifiers';
 import type {
     AppConfig, ChannelIsAllowed, ChannelStatusCreateAttributes,
     ChannelStatusInstance,
+    ChannelType,
     CommunicationAttributes,
     CommunicationCreateAttributes,
     CommunicationInstance,
@@ -129,10 +130,10 @@ export class InboundMapRepository implements IInboundMapRepository {
         return await InboundMap.create(data) as InboundMapInstance;
     }
 
-    async findOne(id: string): Promise<InboundMapInstance | null> {
+    async findOne(id: string, channel: ChannelType): Promise<InboundMapInstance | null> {
         const { InboundMap } = this.models;
         const record = await InboundMap.findOne(
-            { where: { id }, order: [['createdAt', 'DESC']] }
+            { where: { id, channel }, order: [['createdAt', 'DESC']] }
         ) as InboundMapInstance | null;
         return record;
     }

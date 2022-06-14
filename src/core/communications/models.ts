@@ -106,6 +106,11 @@ export const InboundMapModel: ModelDefinition = {
             allowNull: false,
             primaryKey: true,
         },
+        channel: {
+            type: DataTypes.ENUM('email', 'sms'),
+            allowNull: false,
+            defaultValue: 'email',
+        },
         staffUserId: { // is not a foreignKey as commonly customised
             type: DataTypes.STRING,
             allowNull: true,
@@ -137,6 +142,10 @@ export const InboundMapModel: ModelDefinition = {
             {
                 unique: true,
                 fields: ['id', 'jurisdictionId', 'serviceRequestId']
+            },
+            {
+                unique: true,
+                fields: ['id', 'channel', 'jurisdictionId']
             }
         ]
     }
