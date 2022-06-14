@@ -289,8 +289,7 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
     Promise<[ParsedServiceRequestAttributes, PublicId]> {
     let firstName = '',
         lastName = '',
-        email = '',
-        phone = '';
+        email = '';
     const inputChannel = 'email';
     const { to, cc, bcc, from, headers } = data;
     let { subject, text } = data;

@@ -269,10 +269,10 @@ export default function makeTestData(): TestDataPayload {
                 makeServiceRequest, 20, { staffUsers, services, jurisdiction, departments }
             ) as unknown as ServiceRequestAttributes[]
         )
-        let _inboundEmailMaps = factory(
+        const _inboundEmailMaps = factory(
             makeInboundMap, 3, { jurisdiction, departments, opts: { channel: 'email' } }
         ) as unknown as InboundMapAttributes[]
-        let _inboundSmsMaps = factory(
+        const _inboundSmsMaps = factory(
             makeInboundMap, 3, { jurisdiction, departments, opts: { channel: 'sms' } }
         ) as unknown as InboundMapAttributes[]
         inboundMaps = [..._inboundEmailMaps, ..._inboundSmsMaps];
