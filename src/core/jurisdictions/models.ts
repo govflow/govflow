@@ -28,6 +28,10 @@ export const JurisdictionModel: ModelDefinition = {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        sendFromPhone: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
         sendFromEmail: {
             allowNull: true,
             type: DataTypes.STRING,
