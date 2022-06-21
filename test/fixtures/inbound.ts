@@ -330,3 +330,27 @@ The actual subject line</div>
 </blockquote></div>
 </div></blockquote></div><br class=3D""></body></html>
 --Apple-Mail=_5603F30B-A0D6-49C4-B110-A42BF5A2B249--`
+
+export const inboundSms = {
+        ToCountry: 'US',
+        ToState: 'MI',
+        SmsMessageSid: 'SM0114713014e12aa16c77e2abb585c853',
+        NumMedia: '0',
+        ToCity: '',
+        FromZip: '',
+        SmsSid: 'SM0114713014e12aa16c77e2abb585c853',
+        FromState: '',
+        SmsStatus: 'received',
+        FromCity: '',
+        Body: 'This is an inbound SMS.',
+        FromCountry: 'US',
+        To: '+10111111111',
+        MessagingServiceSid: 'MG0bb29669c674b484c7784c08c1fbdd15',
+        ToZip: '',
+        NumSegments: '1',
+        ReferralNumMedia: '0',
+        MessageSid: 'SM0114713014e12aa16c77e2abb585c853',
+        AccountSid: 'ACcfb57b3ba9c7a19da1ee03f29352e291',
+        From: '+12111111111',
+        ApiVersion: '2010-04-01'
+}

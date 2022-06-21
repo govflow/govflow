@@ -42,6 +42,7 @@ export class JurisdictionRepository implements IJurisdictionRepository {
             'email',
             'sendFromEmail',
             'sendFromEmailVerified',
+            'sendFromPhone',
             'replyToEmail',
             'replyToServiceRequestEnabled',
             'broadcastToSubmitterOnRequestClosed',

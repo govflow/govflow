@@ -10,7 +10,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, ServiceRequestCommentCreateAttributes, StaffUserDepartmentAttributes } from './data';
+import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, ChannelType, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, ServiceRequestCommentCreateAttributes, StaffUserDepartmentAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -92,7 +92,7 @@ export interface IEmailStatusRepository extends RepositoryBase {
 export interface IInboundMapRepository extends RepositoryBase {
     create: (data: InboundMapCreateAttributes) =>
         Promise<InboundMapInstance>;
-    findOne: (id: string) => Promise<InboundMapInstance | null>;
+    findOne: (id: string, channel: ChannelType) => Promise<InboundMapInstance | null>;
 }
 
 export interface Repositories {

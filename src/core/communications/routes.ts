@@ -10,6 +10,23 @@ import { EMAIL_EVENT_IGNORE } from './models';
 export const communicationsRouter = Router();
 
 // public route for web hook integration
+communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (req: Request, res: Response) => {
+    const { jurisdictionRepository } = res.app.repositories;
+    const { outboundMessageService, inboundMessageService } = res.app.services;
+    const [record, recordCreated] = await inboundMessageService.createServiceRequest(req.body);
+    const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
+
+    let eventName = 'serviceRequestCreate';
+    if (recordCreated) {
+        GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
+    } else {
+        eventName = 'serviceRequestCommentBroadcast';
+        GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
+    }
+    res.status(200).send({ data: { status: 200, message: "Received inbound SMS" } });
+}))
+
+// public route for web hook integration
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
     const { outboundMessageService, inboundMessageService } = res.app.services;

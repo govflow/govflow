@@ -124,8 +124,15 @@ function makeDepartment(options: Partial<TestDataMakerOptions>) {
 }
 
 function makeInboundMap(options: Partial<TestDataMakerOptions>) {
+    let id = faker.datatype.uuid();
+    let channel = 'email';
+    if (options.opts?.channel === 'sms') {
+        id = faker.phone.phoneNumber();
+        channel = 'sms';
+    }
     return {
-        id: faker.datatype.uuid(),
+        id: id,
+        channel: channel,
         jurisdictionId: options.jurisdiction?.id,
         departmentId: faker.helpers.randomize(options.departments as DepartmentAttributes[]).id,
         serviceRequestId: faker.helpers.randomize(options.serviceRequests as ServiceRequestAttributes[]).id,
@@ -262,11 +269,14 @@ export default function makeTestData(): TestDataPayload {
                 makeServiceRequest, 20, { staffUsers, services, jurisdiction, departments }
             ) as unknown as ServiceRequestAttributes[]
         )
-        inboundMaps = inboundMaps.concat(
-            factory(makeInboundMap, 3, { jurisdiction, departments }) as unknown as InboundMapAttributes[]
-        )
+        const _inboundEmailMaps = factory(
+            makeInboundMap, 3, { jurisdiction, departments, opts: { channel: 'email' } }
+        ) as unknown as InboundMapAttributes[]
+        const _inboundSmsMaps = factory(
+            makeInboundMap, 3, { jurisdiction, departments, opts: { channel: 'sms' } }
+        ) as unknown as InboundMapAttributes[]
+        inboundMaps = [..._inboundEmailMaps, ..._inboundSmsMaps];
         staffUserDepartments = makeStaffUserDepartments(staffUsers, departments);
-
     }
 
     for (const serviceRequest of serviceRequests) {

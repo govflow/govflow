@@ -9,13 +9,16 @@ import type {
     IInboundMessageService,
     InboundEmailDataAttributes,
     InboundMapAttributes,
+    InboundSmsDataAttributes,
     IOutboundMessageService,
     JurisdictionAttributes,
+    ParsedServiceRequestAttributes,
+    PublicId,
     RecipientAttributes,
     Repositories,
     ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
-import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, getReplyToEmail, getSendFromEmail, makeRequestURL } from './helpers';
+import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, getReplyToEmail, getSendFromEmail, makeRequestURL } from './helpers';
 
 @injectable()
 export class OutboundMessageService implements IOutboundMessageService {
@@ -460,28 +463,55 @@ export class InboundMessageService implements IInboundMessageService {
         this.config = config;
     }
 
-    async createServiceRequest(inboundEmailData: InboundEmailDataAttributes):
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    inboundIsEmail(data: any): data is InboundEmailDataAttributes {
+        const valids = ['to', 'from', 'subject', 'text', 'envelope', 'dkim', 'SPF'];
+        const properties = Object.keys(data)
+        return valids.every(value => properties.includes(value))
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    inboundIsSms(data: any): data is InboundSmsDataAttributes {
+        const valids = ['To', 'From', 'Body', 'MessageSid', 'AccountSid', 'SmsMessageSid', 'MessagingServiceSid'];
+        const properties = Object.keys(data)
+        return valids.every(value => properties.includes(value))
+    }
+
+    async createServiceRequest(inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes):
         Promise<[ServiceRequestAttributes, boolean]> {
         const { serviceRequestRepository, staffUserRepository, inboundMapRepository } = this.repositories;
-        const { subject, to, cc, bcc, from, text, headers } = inboundEmailData;
+
         const { inboundEmailDomain } = this.config;
         let intermediateRecord: ServiceRequestAttributes;
         let recordCreated = true;
-        const [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
-            { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, inboundMapRepository
-        );
+        let cleanedData: ParsedServiceRequestAttributes;
+        let publicId: PublicId;
+
+        if (this.inboundIsEmail(inboundData)) {
+            const { subject, to, cc, bcc, from, text, headers } = inboundData;
+            [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
+                { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, inboundMapRepository
+            );
+        } else if (this.inboundIsSms(inboundData)) {
+            const { To, From, Body } = inboundData;
+            [cleanedData, publicId] = await extractServiceRequestfromInboundSms(
+                { To, From, Body }, inboundMapRepository
+            );
+        } else {
+            throw Error("Received an invalid inbound data payload");
+        }
+
         if (publicId || cleanedData.serviceRequestId) {
             const [staffUsers, _count] = await staffUserRepository.findAll(
                 cleanedData.jurisdictionId, { whereParams: { isAdmin: true } }
             );
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const staffEmails = staffUsers.map((user: StaffUserInstance) => { return user.email }) as string[];
+            const staffEmails = staffUsers.map((user: StaffUserAttributes) => { return user.email }) as string[];
             let addedBy = '__SUBMITTER__';
             if (staffEmails.includes(cleanedData.email)) {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                addedBy = _.find(staffUsers, (u) => { return u.email === cleanedData.email }).id
+                const staffUserMatch = _.find(
+                    staffUsers, (u) => { return u.email === cleanedData.email }
+                ) as StaffUserAttributes;
+                addedBy = staffUserMatch.id;
             }
             if (cleanedData.serviceRequestId) {
                 intermediateRecord = await serviceRequestRepository.findOne(

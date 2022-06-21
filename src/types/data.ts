@@ -111,6 +111,7 @@ export interface ParsedServiceRequestAttributes {
     firstName: string;
     lastName: string;
     email: string;
+    phone: string;
     description: string;
     createdAt: Date | undefined;
     departmentId?: string;
@@ -176,6 +177,7 @@ export interface DepartmentInstance
 
 export interface InboundMapAttributes {
     id: string;
+    channel: string;
     jurisdictionId: string;
     departmentId?: string;
     staffUserId?: string;
@@ -256,6 +258,37 @@ export interface TestDataMakerOptions {
     serviceRequests: ServiceRequestAttributes[];
     departments: DepartmentAttributes[];
     inboundMaps: InboundMapAttributes[];
+    opts: Record<string, string>;
+}
+
+export interface InboundSmsDataAttributes {
+    ToCountry: string;
+    ToState: string;
+    SmsMessageSid: string;
+    NumMedia: string;
+    ToCity: string;
+    FromZip: string;
+    SmsSid: string;
+    FromState: string;
+    SmsStatus: string;
+    FromCity: string;
+    Body: string;
+    FromCountry: string;
+    To: string;
+    MessagingServiceSid: string;
+    ToZip: string;
+    NumSegments: string;
+    ReferralNumMedia: string;
+    MessageSid: string;
+    AccountSid: string;
+    From: string;
+    ApiVersion: string;
+}
+
+export interface InboundSmsDataToRequestAttributes {
+    To: string;
+    From: string;
+    Body: string;
 }
 
 export interface InboundEmailDataAttributes {
@@ -287,6 +320,8 @@ export interface InboundEmailDataToRequestAttributes {
 }
 
 export type PublicId = string | undefined;
+
+export type ChannelType = "email" | "sms";
 
 export interface EmailEventAttributes {
     email: string;
