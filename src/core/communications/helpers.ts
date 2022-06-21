@@ -32,6 +32,10 @@ export function makeRequestURL(appClientUrl: string, appClientRequestsPath: stri
 export async function loadTemplate(templateName: string, templateContext: TemplateConfigContextAttributes, isBody = true): Promise<string> {
     const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
     const [templateType, ..._rest] = templateName.split('.');
+    let lineBreak = "\n";
+    if (templateType === "email") {
+        lineBreak = '<br />';
+    }
     try {
         await fs.access(filepath, fsConstants.R_OK | fsConstants.W_OK);
     } catch (error) {
@@ -46,12 +50,12 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     if (isBody) {
         const poweredBy = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
         const poweredByBuffer = await fs.readFile(poweredBy);
-        appendString = `<br />${poweredByBuffer.toString()}<br />`;
+        appendString = `${lineBreak}${poweredByBuffer.toString()}${lineBreak}`;
         const unsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
         const unsubscribeBuffer = await fs.readFile(unsubscribe);
         replyAboveLine = templateContext.jurisdictionReplyToServiceRequestEnabled
-            ? `${emailBodySanitizeLine}<br /><br />` : '';
-        appendString = `${appendString}<br />${unsubscribeBuffer.toString()}<br />`;
+            ? `${emailBodySanitizeLine}${lineBreak}${lineBreak}` : '';
+        appendString = `${appendString}${lineBreak}${unsubscribeBuffer.toString()}${lineBreak}`;
     }
 
     const fullTemplateString = `${replyAboveLine}${templateString}${appendString}`;
