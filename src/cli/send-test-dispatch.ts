@@ -18,7 +18,7 @@ import { DispatchConfigAttributes } from '../types';
     } = app.config;
     const { communicationRepository, emailStatusRepository } = app.repositories;
     const dispatchConfig = {
-        channel: 'email', // can manually change to sms to test that
+        channel: 'sms', // can manually change to sms to test that
         sendGridApiKey: sendGridApiKey as string,
         toEmail: testToEmail as string,
         fromEmail: sendGridFromEmail as string,
