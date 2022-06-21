@@ -51,9 +51,13 @@ send-email:
 send-sms:
 	npm run send-test-sms
 
-.PHONY: send-dispatch ## Send an email or sms with the higher-level dispatch function (for testing).
-send-dispatch:
-	npm run send-test-dispatch
+.PHONY: send-dispatch-email ## Send an email with the higher-level dispatch function (for testing).
+send-dispatch-email:
+	TEST_DISPATCH_CHANNEL='email' npm run send-test-dispatch
+
+.PHONY: send-dispatch-sms ## Send an sms with the higher-level dispatch function (for testing).
+send-dispatch-sms:
+	TEST_DISPATCH_CHANNEL='sms' npm run send-test-dispatch
 
 ####
 
