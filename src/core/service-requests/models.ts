@@ -119,7 +119,10 @@ export const ServiceRequestModel: ModelDefinition = {
         email: {
             allowNull: true,
             type: DataTypes.STRING,
-            validate: { isEmail: true }
+            validate: { isEmail: true },
+            set(value) {
+                if (!value) { return null; };
+            }
         },
         phone: {
             allowNull: true,
