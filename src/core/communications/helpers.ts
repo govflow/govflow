@@ -50,26 +50,33 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     let lineBreak = "\n";
     if (isEmail) { lineBreak = '<br />'; }
 
-    let appendString = '';
     let replyAboveLine = '';
-    if (isEmail && replyEnabled) {
-        replyAboveLine = `${emailBodySanitizeLine}${lineBreak}${lineBreak}`;
-    }
-
-    const doNotReplyMsg = isEmail ? emailBodyDoNotReplyLine : smsBodyDoNotReplyLine;
-    let doNotReplyLine = `${lineBreak}${lineBreak}${doNotReplyMsg}${lineBreak}`
-    if (replyEnabled) { doNotReplyLine = ''; }
+    let appendString = '';
 
     if (isBody) {
-        const poweredBy = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
-        const poweredByBuffer = await fs.readFile(poweredBy);
-        appendString = `${lineBreak}${poweredByBuffer.toString()}${lineBreak}`;
-        const unsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
-        const unsubscribeBuffer = await fs.readFile(unsubscribe);
-        appendString = `${appendString}${lineBreak}${unsubscribeBuffer.toString()}${lineBreak}`;
+
+        let doNotReplyLine = '';
+        if (!replyEnabled) {
+            const doNotReplyMsg = isEmail ? emailBodyDoNotReplyLine : smsBodyDoNotReplyLine;
+            doNotReplyLine = `${lineBreak}${lineBreak}${doNotReplyMsg}${lineBreak}`;
+        }
+
+        if (isEmail && replyEnabled) {
+            replyAboveLine = `${emailBodySanitizeLine}${lineBreak}${lineBreak}`;
+        }
+
+        const poweredByTmpl = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
+        const poweredByBuffer = await fs.readFile(poweredByTmpl);
+        const poweredByLine = `${lineBreak}${poweredByBuffer.toString()}${lineBreak}`;
+
+        const unsubscribeTmpl = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
+        const unsubscribeBuffer = await fs.readFile(unsubscribeTmpl);
+        const unsubscribeLine = `${lineBreak}${unsubscribeBuffer.toString()}${lineBreak}`;
+
+        appendString = `${doNotReplyLine}${poweredByLine}${lineBreak}${unsubscribeLine}${lineBreak}`;
     }
 
-    const fullTemplateString = `${replyAboveLine}${templateString}${doNotReplyLine}${appendString}`;
+    const fullTemplateString = `${replyAboveLine}${templateString}${appendString}`;
     const templateCompile = _.template(fullTemplateString);
     return templateCompile({ context: templateContext });
 }
