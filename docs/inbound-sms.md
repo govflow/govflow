@@ -29,19 +29,26 @@ The core configuration for Twilio is to set `TWILIO_ACCOUNT_SID ` and `TWILIO_AU
 
 Ok, so now with the basics of what the GovFlow server needs done, we can move onto Jurisdiction-level Twilio Number configuration for inbound SMS.
 
-The core configuration for Twilio is to set `TWILIO_ACCOUNT_SID ` and `TWILIO_AUTH_TOKEN` with valid credentials from a Twilio account.
+As a reminder, rhe core configuration for Twilio is to set `TWILIO_ACCOUNT_SID ` and `TWILIO_AUTH_TOKEN` with valid credentials from a Twilio account.
+
+### Create a general number for the Jursidiction
 
 The Twilio setup steps are:
 
 - Create a new number, and give it a friendly name (e.g.: "GovFlow Demo")
-- As with the instance-level number, create an auto response (as this is one-way communication, we want it to be clear to submitters).
-  - It is recommended to create a generic "jursidiction no reply" response. You can do that by duplicating the "GovFlow Instance Auto Response" we created above, call it "GovFlow Jurisdiction No Reply" and write your message.
-  - We will attach all Jurisdiction Numbers to this by default, and only change that if (i) a Jurisdiction wants a custom message, or (ii), the **common case**, if two-way communication via SMS is enabled.
+- **Optional**: If this number will never be used for incoming service requests, you can also set this number up with a "no reply" auto response as we did with the instance-level number.
+  - In this case, it is recommended to create a generic "jursidiction no reply" response. You can do that by duplicating the "GovFlow Instance Auto Response" we created above, call it "GovFlow Jurisdiction No Reply" and write your message. You can then attach all Jurisdiction Numbers that are not used for Inbound Requests to this by default, and, only change that if (i) a Jurisdiction wants a custom message, or (ii), the **common case**, the Number will **also** be used for inbound requests (next step), and (iii) the **common case**, `Jurisdiction.replyToServiceRequestEnabled` is true, meaning that two-way communication will be managed via this Number.
 
-Next, we need to configure the use of this Number for the Jurisdiction in two places:
+Configure this number in GovFlow:
 
-1. `Jurisdiction.sendFromPhone` - This needs to be set with the new number. When this is set, outgoing messages for the jurisdiction will be sent from this number rather than `TWILIO_FROM_PHONE`. This also includes the sending of messages when `Jursidcition.replyToServiceRequestEnabled` is enabled for two-way communication.
-2. Creating a new `InboundMap` record to route incoming SMS from this number to the correct Jurisdiction (this is the equivalent of how InboundMap is used for [Inbound Email](./inbound-email.md)).
+- `Jurisdiction.sendFromPhone` - This needs to be set with the new number. When this is set, outgoing messages for the jurisdiction will be sent from this number rather than `TWILIO_FROM_PHONE`.
+
+### Create an Inbound Map record to receive inbound SMS
+
+Next, we need to configure the use of a Number for inbound requests:
+
+- Follow the same steps as "Create a general number for the Jursidiction" without the auto reply, or **recommended** use that same number without the auto reply.
+- Creating a new `InboundMap` record to route incoming SMS from this number to the correct Jurisdiction (this is the equivalent of how InboundMap is used for [Inbound Email](./inbound-email.md)).
   - Note that we **don't** simply use `Jurisdiction.sendFromPhone` because it is possible to create any number of InboundMap records with different Twilio Numbers and/or with different rules. However, the happy path for small Jurisdictions will be to simply create a single InboundMap record associating the Twilio Number and the Jurisdiction, and have all inbound requests come via it.
 
 ```http
