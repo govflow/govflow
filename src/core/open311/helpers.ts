@@ -17,6 +17,7 @@ interface ServiceRequestAttributes {
     lastName: string;
     email: string;
     phone: string;
+    channel: string;
     status: string;
     assignedTo: string;
     createdAt: Date;
@@ -57,8 +58,9 @@ export const toGovflowServiceRequest = (payload: Open311ServiceRequestCreatePayl
     address: payload.address_string || '',
     firstName: payload.first_name,
     lastName: payload.last_name,
-    phone: payload.phone,
-    email: payload.email,
+    phone: payload.phone || '',
+    email: payload.email || '',
+    channel: '',
     lat: payload.lat as number,
     lon: payload.long as number,
     images: [payload.media_url as string]

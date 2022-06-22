@@ -25,6 +25,9 @@ export const quotedIndentsPattern = /[<>]/g;
 
 export const emailBodySanitizeLine = '####- Please type your reply above this line -####';
 
+export const emailBodyDoNotReplyLine = '--- Do not reply to this email ---';
+export const smsBodyDoNotReplyLine = '--- Do not reply to this message ---';
+
 export function makeRequestURL(appClientUrl: string, appClientRequestsPath: string, serviceRequestId: string): string {
     return `${appClientUrl}${appClientRequestsPath}/${serviceRequestId}`
 }
@@ -32,10 +35,7 @@ export function makeRequestURL(appClientUrl: string, appClientRequestsPath: stri
 export async function loadTemplate(templateName: string, templateContext: TemplateConfigContextAttributes, isBody = true): Promise<string> {
     const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
     const [templateType, ..._rest] = templateName.split('.');
-    let lineBreak = "\n";
-    if (templateType === "email") {
-        lineBreak = '<br />';
-    }
+
     try {
         await fs.access(filepath, fsConstants.R_OK | fsConstants.W_OK);
     } catch (error) {
@@ -44,8 +44,21 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     }
     const templateBuffer = await fs.readFile(filepath);
     const templateString = templateBuffer.toString();
+    const isEmail = templateType === "email" ? true : false;
+    const replyEnabled = templateContext.jurisdictionReplyToServiceRequestEnabled;
+
+    let lineBreak = "\n";
+    if (isEmail) { lineBreak = '<br />'; }
+
     let appendString = '';
     let replyAboveLine = '';
+    if (isEmail && replyEnabled) {
+        replyAboveLine = `${emailBodySanitizeLine}${lineBreak}${lineBreak}`;
+    }
+
+    const doNotReplyMsg = isEmail ? emailBodyDoNotReplyLine : smsBodyDoNotReplyLine;
+    let doNotReplyLine = `${lineBreak}${lineBreak}${doNotReplyMsg}${lineBreak}`
+    if (replyEnabled) { doNotReplyLine = ''; }
 
     if (isBody) {
         const poweredBy = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
@@ -53,12 +66,10 @@ export async function loadTemplate(templateName: string, templateContext: Templa
         appendString = `${lineBreak}${poweredByBuffer.toString()}${lineBreak}`;
         const unsubscribe = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
         const unsubscribeBuffer = await fs.readFile(unsubscribe);
-        replyAboveLine = templateContext.jurisdictionReplyToServiceRequestEnabled
-            ? `${emailBodySanitizeLine}${lineBreak}${lineBreak}` : '';
         appendString = `${appendString}${lineBreak}${unsubscribeBuffer.toString()}${lineBreak}`;
     }
 
-    const fullTemplateString = `${replyAboveLine}${templateString}${appendString}`;
+    const fullTemplateString = `${replyAboveLine}${templateString}${doNotReplyLine}${appendString}`;
     const templateCompile = _.template(fullTemplateString);
     return templateCompile({ context: templateContext });
 }

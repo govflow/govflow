@@ -9,6 +9,3 @@ Service Request #${context.serviceRequestPublicId} has a new comment by ${contex
 <br />
 <hr />
 <br />
-Reply to this email to respond.
-<br />
-<br />
