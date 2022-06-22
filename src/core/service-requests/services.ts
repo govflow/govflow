@@ -111,12 +111,12 @@ export class ServiceRequestService implements IServiceRequestService {
         } else if (key === 'assignedTo') {
             if (value) {
                 const newAssignee = await staffUserRepository.findOne(jurisdictionId, value);
-                const oldAssignee = await staffUserRepository.findOne(jurisdictionId, oldValue);
                 if (newAssignee) { newDisplayValue = newAssignee.displayName }
-                if (oldAssignee) { oldDisplayValue = oldAssignee.displayName } else { oldDisplayValue = 'No Assignee' }
             } else {
                 newDisplayValue = 'Unassigned';
             }
+            const oldAssignee = await staffUserRepository.findOne(jurisdictionId, oldValue);
+            if (oldAssignee) { oldDisplayValue = oldAssignee.displayName } else { oldDisplayValue = 'No Assignee' }
             fieldName = 'Assignee';
             auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
             if (extraData?.departmentId) {
@@ -149,23 +149,25 @@ export class ServiceRequestService implements IServiceRequestService {
         } else if (key === 'departmentId') {
             if (value) {
                 const newDepartment = await departmentRepository.findOne(jurisdictionId, value);
-                const oldDepartment = await departmentRepository.findOne(jurisdictionId, oldValue);
                 if (newDepartment) { newDisplayValue = newDepartment.name }
-                if (oldDepartment) { oldDisplayValue = oldDepartment.name } else { oldDisplayValue = 'No Department' }
             } else {
                 newDisplayValue = 'No Department';
             }
+            const oldDepartment = await departmentRepository.findOne(jurisdictionId, oldValue);
+            if (oldDepartment) { oldDisplayValue = oldDepartment.name } else { oldDisplayValue = 'No Department'; }
             fieldName = 'Department';
+            auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
         } else if (key === 'serviceId') {
             if (value) {
                 const newService = await serviceRepository.findOne(jurisdictionId, value);
-                const oldService = await serviceRepository.findOne(jurisdictionId, oldValue);
                 if (newService) { newDisplayValue = newService.name }
-                if (oldService) { oldDisplayValue = oldService.name } else { oldDisplayValue = 'No Service' }
             } else {
                 newDisplayValue = 'No Service';
             }
+            const oldService = await serviceRepository.findOne(jurisdictionId, oldValue);
+            if (oldService) { oldDisplayValue = oldService.name } else { oldDisplayValue = 'No Service' }
             fieldName = 'Service';
+            auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
         }
         const auditMessage = makeAuditMessage(extraData?.user, auditMessageFields);
         await serviceRequestRepository.createComment(
