@@ -145,6 +145,18 @@ export const ServiceRequestModel: ModelDefinition = {
             allowNull: false,
             type: DataTypes.ENUM('email', 'sms'),
             defaultValue: 'email',
+            set(value) {
+                if (!value) {
+                    const email = this.getDataValue('email');
+                    const phone = this.getDataValue('phone');
+                    if (email) {
+                        value = 'email';
+                    } else if (phone) {
+                        value = 'sms';
+                    }
+                }
+                this.setDataValue('channel', value);
+            }
         },
         closeDate: {
             allowNull: true,
