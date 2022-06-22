@@ -121,7 +121,7 @@ export const ServiceRequestModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: { isEmail: true },
             set(value) {
-                if (!value) { return null; };
+                if (!value) { return null; }
             }
         },
         phone: {
