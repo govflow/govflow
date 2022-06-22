@@ -3,7 +3,7 @@ import type { Application } from 'express';
 import _ from 'lodash';
 import { createApp } from '../src';
 import { initConfig } from '../src/config';
-import { dispatchMessage, getReplyToEmail, getSendFromEmail, loadTemplate, makeRequestURL } from '../src/core/communications/helpers';
+import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, loadTemplate, makeRequestURL } from '../src/core/communications/helpers';
 import { sendEmail } from '../src/email';
 import { sendSms } from '../src/sms';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
@@ -95,16 +95,17 @@ describe('Verify Core Communications Functionality.', function () {
         const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         const replyToEmail = getReplyToEmail(null, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
+        const sendFromPhone = getSendFromPhone(jurisdiction, twilioFromPhone);
         const serviceRequest = serviceRequests[0];
         const dispatchConfig = {
-            channel: serviceRequest.communicationChannel as string,
+            channel: serviceRequest.channel as string,
             sendGridApiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
             fromEmail: sendFromEmail as string,
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
-            fromPhone: twilioFromPhone as string,
+            fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
         const templateConfig = {
@@ -120,7 +121,7 @@ describe('Verify Core Communications Functionality.', function () {
                 recipientName: serviceRequest.displayName as string
             }
         }
-        if (serviceRequest.communicationChannel) {
+        if (serviceRequest.channel) {
             const record = await dispatchMessage(
                 dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
             );
@@ -156,6 +157,7 @@ describe('Verify Core Communications Functionality.', function () {
         const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         const replyToEmail = getReplyToEmail(null, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
+        const sendFromPhone = getSendFromPhone(jurisdiction, twilioFromPhone);
         const admins = _.filter(staffUsers, { isAdmin: true });
         const admin = admins[0] as StaffUserAttributes;
         const dispatchConfig = {
@@ -166,7 +168,7 @@ describe('Verify Core Communications Functionality.', function () {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
-            fromPhone: twilioFromPhone as string,
+            fromPhone: sendFromPhone as string,
             toPhone: ''
         }
         const templateConfig = {

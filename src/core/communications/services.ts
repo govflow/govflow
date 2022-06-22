@@ -18,7 +18,7 @@ import type {
     Repositories,
     ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
-import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, getReplyToEmail, getSendFromEmail, makeRequestURL } from './helpers';
+import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeRequestURL } from './helpers';
 
 @injectable()
 export class OutboundMessageService implements IOutboundMessageService {
@@ -72,16 +72,17 @@ export class OutboundMessageService implements IOutboundMessageService {
         const records: CommunicationAttributes[] = [];
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
+        const sendFromPhone = getSendFromPhone(jurisdiction, twilioFromPhone);
 
         const dispatchConfig = {
-            channel: serviceRequest.communicationChannel as string,
+            channel: serviceRequest.channel as string,
             sendGridApiKey: sendGridApiKey as string,
             toEmail: serviceRequest.email as string,
             fromEmail: sendFromEmail as string,
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
-            fromPhone: twilioFromPhone as string,
+            fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
         const templateConfig = {
@@ -105,14 +106,14 @@ export class OutboundMessageService implements IOutboundMessageService {
         const staffRecipients = await this.getStaffRecipients(jurisdiction, serviceRequest.departmentId);
         for (const staff of staffRecipients) {
             const dispatchConfig = {
-                channel: 'email',
+                channel: 'email', // we only use email for staff
                 sendGridApiKey: sendGridApiKey as string,
                 toEmail: staff.email as string,
                 fromEmail: sendGridFromEmail as string,
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
-                fromPhone: twilioFromPhone as string,
+                fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
             const templateConfig = {
@@ -161,15 +162,16 @@ export class OutboundMessageService implements IOutboundMessageService {
 
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
+        const sendFromPhone = getSendFromPhone(jurisdiction, twilioFromPhone);
         const dispatchConfig = {
-            channel: 'email',
+            channel: 'email', // we only use email for staff
             sendGridApiKey: sendGridApiKey as string,
             toEmail: staffUser.email as string,
             fromEmail: sendFromEmail as string,
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
-            fromPhone: twilioFromPhone as string,
+            fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
         const templateConfig = {
@@ -220,15 +222,16 @@ export class OutboundMessageService implements IOutboundMessageService {
 
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
+        const sendFromPhone = getSendFromPhone(jurisdiction, twilioFromPhone);
         const dispatchConfig = {
-            channel: 'email',
+            channel: 'email', // we only use email for staff
             sendGridApiKey: sendGridApiKey as string,
             toEmail: staffUser.email as string,
             fromEmail: sendFromEmail as string,
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
-            fromPhone: twilioFromPhone as string,
+            fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
         const templateConfig = {
@@ -270,17 +273,18 @@ export class OutboundMessageService implements IOutboundMessageService {
         const records: CommunicationAttributes[] = [];
         const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
+        const sendFromPhone = getSendFromPhone(jurisdiction, twilioFromPhone);
 
         if (jurisdiction.broadcastToSubmitterOnRequestClosed) {
             const dispatchConfig = {
-                channel: serviceRequest.communicationChannel as string,
+                channel: serviceRequest.channel as string,
                 sendGridApiKey: sendGridApiKey as string,
                 toEmail: serviceRequest.email as string,
                 fromEmail: sendFromEmail as string,
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
-                fromPhone: twilioFromPhone as string,
+                fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
             const templateConfig = {
@@ -305,14 +309,14 @@ export class OutboundMessageService implements IOutboundMessageService {
         const staffRecipients = await this.getStaffRecipients(jurisdiction, serviceRequest.departmentId);
         for (const staff of staffRecipients) {
             const dispatchConfig = {
-                channel: 'email',
+                channel: 'email', // we only use email for staff
                 sendGridApiKey: sendGridApiKey as string,
                 toEmail: staff.email as string,
                 fromEmail: sendGridFromEmail as string,
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
-                fromPhone: twilioFromPhone as string,
+                fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
             const templateConfig = {
@@ -365,6 +369,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail
         );
         const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
+        const sendFromPhone = getSendFromPhone(jurisdiction, twilioFromPhone);
         let serviceRequestCommenterName = '';
         if (serviceRequestComment.addedBy === '__SUBMITTER__') {
             serviceRequestCommenterName = serviceRequest.displayName;
@@ -384,14 +389,14 @@ export class OutboundMessageService implements IOutboundMessageService {
             serviceRequestCommentContext = `<br /><br />Message sent to the request submitter:<br /><br />`;
         }
         const dispatchConfig = {
-            channel: serviceRequest.communicationChannel as string,
+            channel: serviceRequest.channel as string,
             sendGridApiKey: sendGridApiKey as string,
             toEmail: '', // populated per recipient
             fromEmail: sendFromEmail as string,
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
-            fromPhone: twilioFromPhone as string,
+            fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         } as DispatchConfigAttributes
 
@@ -425,6 +430,9 @@ export class OutboundMessageService implements IOutboundMessageService {
         for (const recipient of recipients) {
             dispatchConfig.toEmail = recipient.email;
             const _userType = recipient.isStaff ? 'staff-user' : 'public-user';
+            if (_userType === 'staff-user') {
+                dispatchConfig.channel = 'email'; // we only use email for staff
+            }
             const templateConfig = {
                 name: `service-request-comment-broadcast-${_userType}`,
                 context: {

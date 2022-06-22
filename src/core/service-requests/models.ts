@@ -121,7 +121,8 @@ export const ServiceRequestModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: { isEmail: true },
             set(value) {
-                if (!value) { return null; }
+                if (value === '') { value = null; }
+                this.setDataValue('email', value);
             }
         },
         phone: {
@@ -140,18 +141,10 @@ export const ServiceRequestModel: ModelDefinition = {
             allowNull: true,
             type: DataTypes.STRING,
         },
-        // Fields for communication capabilities with the public submitter of this request.
-        communicationChannel: {
-            type: DataTypes.VIRTUAL,
-            get() {
-                if (this.getDataValue('email')) {
-                    return 'email';
-                } else if (this.getDataValue('phone')) {
-                    return 'sms';
-                } else {
-                    return null;
-                }
-            }
+        channel: {
+            allowNull: false,
+            type: DataTypes.ENUM('email', 'sms'),
+            defaultValue: 'email',
         },
         closeDate: {
             allowNull: true,

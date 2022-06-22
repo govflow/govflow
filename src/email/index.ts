@@ -20,10 +20,9 @@ export async function sendEmail(
     htmlBody: string,
     textBody: string
 ): Promise<ClientResponse | Record<string, string>> {
-    if (!validator.isEmail(toEmail)) {
+    if (toEmail === null || !validator.isEmail(toEmail)) {
         const errorMessage = `Cant send email to invalid address '${toEmail}'.`;
         logger.error(errorMessage);
-        throw new Error(errorMessage);
     }
     const message = {
         to: toEmail,

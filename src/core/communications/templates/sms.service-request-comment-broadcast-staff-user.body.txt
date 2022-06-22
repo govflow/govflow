@@ -1,0 +1,11 @@
+Hello ${context.recipientName},
+
+Service Request #${context.serviceRequestPublicId} has a new comment by ${context.serviceRequestCommenterName}
+
+${context.serviceRequestCommentContext}
+
+"${context.serviceRequestComment}"
+
+Further information is available in ${context.appName}, Request #${context.serviceRequestPublicId}:
+
+${context.appRequestUrl}

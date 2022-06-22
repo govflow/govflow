@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { emailBodySanitizeLine, getReplyToEmail } from '../src/core/communications/helpers';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
-import { StaffUserAttributes, StaffUserInstance, TestDataPayload } from '../src/types';
+import { ServiceRequestAttributes, StaffUserAttributes, StaffUserInstance, TestDataPayload } from '../src/types';
 import { inboundEmail } from './fixtures/inbound';
 
 chai.use(chaiAsPromised);
@@ -33,11 +33,15 @@ describe('Test two-way email communications.', function () {
 
     it('creates a service request with an inbound map', async function () {
         const { serviceRequestRepository } = app.repositories;
-        const serviceRequestData = _.cloneDeep(testData.serviceRequests[0]);
+        const baseData = _.find(
+            testData.serviceRequests, data => data.channel == 'email'
+        ) as ServiceRequestAttributes;
+        const serviceRequestData = _.cloneDeep(baseData);
         serviceRequestId = faker.datatype.uuid();
         jurisdictionId = serviceRequestData.jurisdictionId;
         serviceRequestData.id = serviceRequestId;
         serviceRequestData.email = serviceRequestSubmitterEmail;
+        serviceRequestData.inputChannel = 'email';
         const record = await serviceRequestRepository.create(serviceRequestData);
         chai.assert.equal(record.inboundMaps.length, 1);
         chai.assert.equal(record.inboundMaps[0].id, serviceRequestData.id.replaceAll('-', ''));
@@ -132,7 +136,7 @@ describe('Test two-way email communications.', function () {
         const dispatchPayload = response[0].dispatchPayload;
         // we only broadcast to submitter so we should only have a single communication record
         chai.assert.equal(response.length, 1);
-        chai.assert.equal(dispatchPayload.channel, 'email');
+        chai.assert.equal(dispatchPayload.channel, serviceRequest.channel);
         chai.assert.equal(dispatchPayload.toEmail, serviceRequest.email);
     });
 
@@ -151,6 +155,7 @@ describe('Test two-way email communications.', function () {
             broadcastToAssignee: false,
             broadcastToStaff: true
         }
+        const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         const serviceRequestComment = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
@@ -160,9 +165,8 @@ describe('Test two-way email communications.', function () {
         // we should have a communication record per staff user
         chai.assert.equal(response.length, count);
         for (const record of response) {
-            chai.assert.equal(record.dispatchPayload.channel, 'email');
+            chai.assert.equal(record.dispatchPayload.channel, serviceRequest.channel);
             chai.assert(staffEmails.includes(record.dispatchPayload.toEmail))
-
         }
     });
 
@@ -180,6 +184,9 @@ describe('Test two-way email communications.', function () {
             broadcastToAssignee: false,
             broadcastToStaff: false
         }
+        // const serviceRequest = await serviceRequestRepository.findOne(
+        //     jurisdictionId, serviceRequestId
+        // );
         const serviceRequestComment = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );

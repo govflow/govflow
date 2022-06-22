@@ -1,0 +1,7 @@
+Hello ${context.recipientName},
+
+Service Request #${context.serviceRequestPublicId} has a new comment by ${context.serviceRequestCommenterName}
+
+"${context.serviceRequestComment}"
+
+Reply to this message to respond.

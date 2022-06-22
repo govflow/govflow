@@ -7,6 +7,7 @@ export interface JurisdictionAttributes {
     enforceAssignmentThroughDepartment: boolean;
     filterBroadcastsByDepartment: boolean;
     broadcastToSubmitterOnRequestClosed: boolean;
+    sendFromPhone?: string;
     sendFromEmail?: string;
     sendFromEmailVerified: boolean,
     replyToEmail?: string;
@@ -95,7 +96,7 @@ export interface ServiceRequestAttributes {
     lat: number;
     lon: number;
     inputChannel: string;
-    communicationChannel: string;
+    channel: string;
     closeDate: Date;
     displayName: string;
     departmentId: string;
@@ -108,6 +109,7 @@ export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
 export interface ParsedServiceRequestAttributes {
     jurisdictionId: string;
     inputChannel: string;
+    channel: string;
     firstName: string;
     lastName: string;
     email: string;

@@ -268,6 +268,7 @@ export async function extractServiceRequestfromInboundSms(data: InboundSmsDataTo
     Promise<[ParsedServiceRequestAttributes, PublicId]> {
     const { To, From, Body } = data;
     const inputChannel = 'sms';
+    const channel = 'sms';
 
     const publicId = extractPublicIdFromInboundSms(Body);
     const { jurisdictionId, departmentId, staffUserId, serviceRequestId, serviceId } = await findIdentifiers(
@@ -285,6 +286,7 @@ export async function extractServiceRequestfromInboundSms(data: InboundSmsDataTo
         phone: From,
         description: Body,
         inputChannel,
+        channel,
         createdAt: new Date(),
     }, publicId];
 }
@@ -296,6 +298,7 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
         email = '';
     const phone = '';
     const inputChannel = 'email';
+    const channel = 'email';
     const { to, cc, bcc, from, headers } = data;
     let { subject, text } = data;
     let fromEmail = extractFromEmail(from);
@@ -334,6 +337,7 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
             phone,
             description,
             inputChannel,
+            channel,
             createdAt
         },
         publicId
@@ -387,4 +391,8 @@ export function getReplyToEmail(
 
 export function getSendFromEmail(jurisdiction: JurisdictionAttributes, defaultSendFromEmail: string) {
     return jurisdiction.sendFromEmailVerified ? jurisdiction.sendFromEmail : defaultSendFromEmail;
+}
+
+export function getSendFromPhone(jurisdiction: JurisdictionAttributes, defaultSendFromPhone: string) {
+    return jurisdiction.sendFromPhone ? jurisdiction.sendFromPhone : defaultSendFromPhone;
 }

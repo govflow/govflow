@@ -69,6 +69,30 @@ function makeServiceRequest(options: Partial<TestDataMakerOptions>) {
         new Date('2021-02-01T00:00:00.000Z'),
         new Date('2021-01-01T00:00:00.000Z'),
     ]
+    const phones = [
+        null,
+        faker.phone.phoneNumber(),
+        faker.phone.phoneNumber(),
+        faker.phone.phoneNumber()
+    ]
+    let phone = faker.helpers.randomize(phones)
+
+    const emails = [
+        null,
+        faker.internet.email(),
+        faker.internet.email(),
+        faker.internet.email()
+    ]
+    let email = faker.helpers.randomize(emails)
+    if (!email || !phone) {
+        if (!email) { phone = faker.phone.phoneNumber() }
+        if (!phone) { email = faker.internet.email() }
+    }
+
+    let channel = 'email';
+    if (!email) {
+        channel = 'sms';
+    }
 
     return {
         id: faker.datatype.uuid(),
@@ -80,8 +104,9 @@ function makeServiceRequest(options: Partial<TestDataMakerOptions>) {
         status: faker.helpers.randomize(REQUEST_STATUS_KEYS),
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
-        email: faker.helpers.randomize([null, faker.internet.email()]),
-        phone: faker.helpers.randomize([null, faker.phone.phoneNumber()]),
+        email: email,
+        phone: phone,
+        channel: channel,
         createdAt: faker.helpers.randomize(dates),
         updatedAt: faker.helpers.randomize(dates),
         inputChannel: 'webform',
@@ -216,6 +241,7 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     }
 
     for (const serviceRequestData of testData.serviceRequests) {
+
         const record = await ServiceRequest.create(serviceRequestData) as ServiceRequestInstance;
         for (const comment of serviceRequestData.comments) {
             await ServiceRequestComment.create(Object.assign({}, comment, { serviceRequestId: record.id }))
