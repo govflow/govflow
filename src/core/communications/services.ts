@@ -472,7 +472,7 @@ export class InboundMessageService implements IInboundMessageService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inboundIsSms(data: any): data is InboundSmsDataAttributes {
-        const valids = ['To', 'From', 'Body', 'MessageSid', 'AccountSid', 'SmsMessageSid', 'MessagingServiceSid'];
+        const valids = ['To', 'From', 'Body', 'MessageSid', 'AccountSid', 'SmsMessageSid'];
         const properties = Object.keys(data)
         return valids.every(value => properties.includes(value))
     }
