@@ -1,7 +1,16 @@
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
 import { appIds } from '../../registry/service-identifiers';
-import { AppConfig, AuditedStateChangeExtraData, auditMessageFields, IServiceRequestService, Repositories, ServiceRequestAttributes, ServiceRequestStateChangeErrorResponse } from '../../types';
+import {
+    AppConfig,
+    AuditedStateChangeExtraData,
+    auditMessageFields,
+    IServiceRequestService,
+    Repositories,
+    ServiceRequestAttributes,
+    ServiceRequestCreateAttributes,
+    ServiceRequestStateChangeErrorResponse
+} from '../../types';
 import { makeAuditMessage } from './helpers';
 import { REQUEST_STATUSES } from './models';
 
@@ -16,6 +25,25 @@ export class ServiceRequestService implements IServiceRequestService {
         @inject(appIds.AppConfig) config: AppConfig,) {
         this.repositories = repositories;
         this.config = config;
+    }
+
+    async create(data: ServiceRequestCreateAttributes): Promise<ServiceRequestAttributes> {
+        const { serviceRequestRepository, serviceRepository } = this.repositories;
+
+        const processedServiceRequest = { ...data };
+
+        // Auto-assign to department by Service
+        if (processedServiceRequest.serviceId && processedServiceRequest.jurisdictionId) {
+            const service = await serviceRepository.findOne(
+              processedServiceRequest.jurisdictionId,
+              processedServiceRequest.serviceId,
+            );
+            if (service?.defaultDepartmentId) {
+                processedServiceRequest.departmentId = service.defaultDepartmentId;
+            }
+        }
+
+        return serviceRequestRepository.create(processedServiceRequest);
     }
 
     async createAuditedStateChange(

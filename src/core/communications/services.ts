@@ -19,6 +19,7 @@ import type {
     ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
 import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeRequestURL } from './helpers';
+import { ServiceRequestService } from '../service-requests';
 
 @injectable()
 export class OutboundMessageService implements IOutboundMessageService {
@@ -552,6 +553,8 @@ export class InboundMessageService implements IInboundMessageService {
                 throw new Error(dataToLog.message);
             }
         } else {
+            // TODO use proper IoC
+            const serviceRequestRepository = new ServiceRequestService(this.repositories, this.config);
             intermediateRecord = await serviceRequestRepository.create(
                 cleanedData
             ) as ServiceRequestInstance;

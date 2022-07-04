@@ -123,9 +123,8 @@ serviceRequestRouter.get('/:id', wrapHandler(async (req: Request, res: Response)
 }))
 
 serviceRequestRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
-    const { serviceRequestRepository } = res.app.repositories;
-    const { outboundMessageService } = res.app.services;
-    const record = await serviceRequestRepository.create(req.body as ServiceRequestAttributes);
+    const { outboundMessageService, serviceRequestService } = res.app.services;
+    const record = await serviceRequestService.create(req.body as ServiceRequestAttributes);
     GovFlowEmitter.emit('serviceRequestCreate', req.jurisdiction, record, outboundMessageService);
     res.status(200).send({ data: record });
 }))

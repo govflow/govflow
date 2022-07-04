@@ -4,7 +4,20 @@ import _ from 'lodash';
 import sequelize from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
-import type { AppConfig, InboundMapInstance, IServiceRequestRepository, Models, QueryParamsAll, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCommentInstance, ServiceRequestCreateAttributes, ServiceRequestInstance, ServiceRequestStatusAttributes } from '../../types';
+import type {
+    AppConfig,
+    InboundMapInstance,
+    IServiceRequestRepository,
+    Models,
+    QueryParamsAll,
+    ServiceRequestAttributes,
+    ServiceRequestCommentAttributes,
+    ServiceRequestCommentCreateAttributes,
+    ServiceRequestCommentInstance,
+    ServiceRequestCreateAttributes,
+    ServiceRequestInstance,
+    ServiceRequestStatusAttributes
+} from '../../types';
 import { REQUEST_STATUSES } from './models';
 
 
@@ -19,7 +32,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         @inject(appIds.AppConfig) config: AppConfig,
     ) {
         this.models = models;
-        this.config = config
+        this.config = config;
     }
 
     async create(data: ServiceRequestCreateAttributes): Promise<ServiceRequestAttributes> {
