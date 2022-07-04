@@ -31,6 +31,10 @@ export const ServiceModel: ModelDefinition = {
             type: DataTypes.ARRAY(DataTypes.STRING),
             allowNull: true,
         },
+        defaultDepartmentId: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         type: { // Comes from Open311 spec but generally useful
             type: DataTypes.ENUM('realtime', 'batch', 'blackbox'),
             defaultValue: 'realtime',

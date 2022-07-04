@@ -69,6 +69,7 @@ export interface ServiceAttributes {
     name: string;
     group: string;
     jurisdictionId: string;
+    defaultDepartmentId: string;
 }
 
 export type ServiceCreateAttributes = Partial<ServiceAttributes>

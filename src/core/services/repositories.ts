@@ -24,7 +24,7 @@ export class ServiceRepository implements IServiceRepository {
 
     async update(jurisdictionId: string, id: string, data: Partial<ServiceAttributes>): Promise<ServiceAttributes> {
         const { Service } = this.models;
-        const allowUpdateFields = ['group','name', 'description', 'type'];
+        const allowUpdateFields = ['group','name', 'description', 'type', 'defaultDepartmentId'];
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         const record = await Service.findByPk(id) as ServiceInstance;
         for (const [key, value] of Object.entries(safeData)) {
