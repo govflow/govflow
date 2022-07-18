@@ -18,7 +18,7 @@ import type {
     ServiceRequestInstance,
     ServiceRequestStatusAttributes
 } from '../../types';
-import { REQUEST_STATUSES } from './models';
+import { REQUEST_STATUSES, SERVICE_REQUEST_CLOSED_STATES } from './models';
 
 
 @injectable()
@@ -138,7 +138,10 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     async findStatusList(jurisdictionId: string): Promise<ServiceRequestStatusAttributes[]> {
         const serviceRequestStatusList: ServiceRequestStatusAttributes[] = [];
         for (const [key, value] of Object.entries(REQUEST_STATUSES)) {
-            serviceRequestStatusList.push({ id: key, label: value })
+            const isClosed = SERVICE_REQUEST_CLOSED_STATES.includes(key);
+            let label = value;
+            if (isClosed) { label = `${value} [Closed]` }
+            serviceRequestStatusList.push({ id: key, label, isClosed })
         }
         return Promise.resolve(serviceRequestStatusList);
     }

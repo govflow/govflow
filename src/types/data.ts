@@ -147,6 +147,7 @@ export interface ServiceRequestCommentInstance
 export interface ServiceRequestStatusAttributes {
     id: string;
     label: string;
+    isClosed: boolean;
 }
 
 export interface CommunicationAttributes {

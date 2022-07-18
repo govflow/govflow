@@ -693,6 +693,8 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data[0].id, 'inbox');
         chai.assert.equal(res.body.data[0].label, 'Inbox');
+        chai.assert.equal(res.body.data.at(-1).id, 'junk');
+        chai.assert.equal(res.body.data.at(-1).label, 'Junk [Closed]');
     });
 
     it('should GET all departments for a jurisdiction', async function () {
