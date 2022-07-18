@@ -218,7 +218,7 @@ export const MessageDisambiguationModel: ModelDefinition = {
             allowNull: false,
             primaryKey: true,
         },
-        submitter_id: {
+        submitterId: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -232,13 +232,13 @@ export const MessageDisambiguationModel: ModelDefinition = {
             type: DataTypes.ENUM(...MESSAGE_DISAMBIGUATION_RESULT_KEYS),
             defaultValue: MESSAGE_DISAMBIGUATION_RESULT_KEYS[0],
         },
-        original_message: {
+        originalMessage: {
             type: DataTypes.TEXT,
             allowNull: false,
         },
         // TODO - maybe this is a json object with more state stored,
         // like mapping the number options we present to service request ids
-        disambiguation_messages: {
+        disambiguationMessages: {
             type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,
         }
@@ -248,11 +248,11 @@ export const MessageDisambiguationModel: ModelDefinition = {
         indexes: [
             {
                 unique: true,
-                fields: ['submitter_id']
+                fields: ['submitterId']
             },
             {
                 unique: true,
-                fields: ['submitter_id', 'status']
+                fields: ['submitterId', 'status']
             },
         ]
     }

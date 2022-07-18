@@ -163,9 +163,9 @@ export class MessageDisambiguationRepository implements IMessageDisambiguationRe
         return await MessageDisambiguation.create(data) as MessageDisambiguationInstance;
     }
 
-    async findOne(submitterId: string): Promise<MessageDisambiguationAttributes> {
+    async findOne(jurisdictionId: string, submitterId: string): Promise<MessageDisambiguationAttributes> {
         const { MessageDisambiguation } = this.models;
-        const params = { where: { submitterId, status: 'open' } }
+        const params = { where: { jurisdictionId, submitterId, status: 'open' } }
         const record = await MessageDisambiguation.findOne(params) as MessageDisambiguationInstance;
         return record;
     }

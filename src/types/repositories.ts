@@ -101,7 +101,7 @@ export interface IInboundMapRepository extends RepositoryBase {
 export interface IMessageDisambiguationRepository extends RepositoryBase {
     create: (data: MessageDisambiguationCreateAttributes) =>
         Promise<MessageDisambiguationAttributes>;
-    findOne: (submitterId: string) => Promise<MessageDisambiguationAttributes | null>;
+    findOne: (jurisdictionId: string, submitterId: string) => Promise<MessageDisambiguationAttributes | null>;
 }
 
 export interface Repositories {

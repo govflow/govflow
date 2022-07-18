@@ -9,7 +9,7 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             allowNull: false,
             primaryKey: true,
         },
-        submitter_id: {
+        submitterId: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -40,12 +40,10 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             type: DataTypes.DATE
         },
     });
-    // await queryInterface.addIndex('MessageDisambiguation', ['submitter_id']);
-    // await queryInterface.addIndex('MessageDisambiguation', ['submitter_id', 'status']);
+    await queryInterface.addIndex('MessageDisambiguation', ['submitterId']);
+    await queryInterface.addIndex('MessageDisambiguation', ['submitterId', 'status']);
 }
 
 export async function down({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
     await queryInterface.dropTable('MessageDisambiguation');
-    //await queryInterface.removeIndex('MessageDisambiguation', ['submitter_id']);
-    //await queryInterface.removeIndex('MessageDisambiguation', ['submitter_id', 'status']);
 }

@@ -196,11 +196,12 @@ export interface InboundMapInstance
 
 export interface MessageDisambiguationAttributes {
     id: string;
-    submitter_id: string;
+    jurisdictionId: string;
+    submitterId: string;
     status: string;
     result: string;
-    original_message: string;
-    disambiguation_messages: string[];
+    originalMessage: string;
+    disambiguationMessages: string[];
 }
 
 export type MessageDisambiguationCreateAttributes = Partial<MessageDisambiguationAttributes>

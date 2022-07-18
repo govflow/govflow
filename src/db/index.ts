@@ -28,6 +28,7 @@ function applyCoreModelRelations(models: Models) {
         Communication,
         Department,
         InboundMap,
+        MessageDisambiguation
     } = models;
 
     Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
@@ -63,6 +64,9 @@ function applyCoreModelRelations(models: Models) {
 
     Jurisdiction.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'jurisdictionId' });
     InboundMap.belongsTo(Jurisdiction, { as: 'jurisdiction' });
+
+    Jurisdiction.hasMany(MessageDisambiguation, { as: 'messageDisambiguations', foreignKey: 'jurisdictionId' });
+    MessageDisambiguation.belongsTo(Jurisdiction, { as: 'jurisdiction' });
 
     Department.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'departmentId' });
     InboundMap.belongsTo(Department, { as: 'department' });
