@@ -9,6 +9,7 @@ export const repositoryIds = {
     IEmailStatusRepository: Symbol('IEmailStatusRepository'),
     IDepartmentRepository: Symbol('IDepartmentRepository'),
     IInboundMapRepository: Symbol('IInboundMapRepository'),
+    IMessageDisambiguationRepository: Symbol('IMessageDisambiguationRepository'),
 };
 
 export const serviceIds = {

@@ -10,7 +10,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, ChannelType, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, ServiceRequestCommentCreateAttributes, StaffUserDepartmentAttributes } from './data';
+import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, ChannelType, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes, ServiceRequestCommentCreateAttributes, StaffUserDepartmentAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -53,6 +53,9 @@ export interface IServiceRequestRepository extends RepositoryBase {
     findOne: (jurisdictionId: string, id: string) => Promise<ServiceRequestAttributes>;
     findOneByPublicId: (jurisdictionId: string, publicId: string) => Promise<ServiceRequestAttributes>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[ServiceRequestAttributes[], number]>;
+    findAllForSubmitter: (
+        jurisdictionId: string, channel: string, submitterId: string
+    ) => Promise<[ServiceRequestAttributes[], number]>;
     findStatusList: (jurisdictionId: string) => Promise<ServiceRequestStatusAttributes[]>;
     getStats: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<Record<string, Record<string, number>>>;
     createComment: (
@@ -95,6 +98,12 @@ export interface IInboundMapRepository extends RepositoryBase {
     findOne: (id: string, channel: ChannelType) => Promise<InboundMapInstance | null>;
 }
 
+export interface IMessageDisambiguationRepository extends RepositoryBase {
+    create: (data: MessageDisambiguationCreateAttributes) =>
+        Promise<MessageDisambiguationAttributes>;
+    findOne: (submitterId: string) => Promise<MessageDisambiguationAttributes | null>;
+}
+
 export interface Repositories {
     jurisdictionRepository: IJurisdictionRepository;
     staffUserRepository: IStaffUserRepository;
@@ -104,4 +113,5 @@ export interface Repositories {
     departmentRepository: IDepartmentRepository;
     emailStatusRepository: IEmailStatusRepository;
     inboundMapRepository: IInboundMapRepository;
+    messageDisambiguationRepository: IMessageDisambiguationRepository;
 }

@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { Container } from 'inversify';
-import { CommunicationRepository, EmailStatusRepository, InboundMapRepository } from '../core/communications';
+import { CommunicationRepository, EmailStatusRepository, InboundMapRepository, MessageDisambiguationRepository } from '../core/communications';
 import { InboundMessageService, OutboundMessageService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { JurisdictionRepository } from '../core/jurisdictions';
@@ -8,7 +8,7 @@ import { ServiceRequestRepository, ServiceRequestService } from '../core/service
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
 import { StaffUserService } from '../core/staff-users/services';
-import type { AppConfig, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, IStaffUserRepository, IStaffUserService, MiddlewarePlugin, Services } from '../types';
+import type { AppConfig, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IMessageDisambiguationRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, IStaffUserRepository, IStaffUserService, MiddlewarePlugin, Services } from '../types';
 import { Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -41,6 +41,9 @@ function bindRepositoriesWithPlugins(
     repositoryContainer.bind<IInboundMapRepository>(repositoryIds.IInboundMapRepository).to(
         InboundMapRepository
     );
+    repositoryContainer.bind<IMessageDisambiguationRepository>(repositoryIds.IMessageDisambiguationRepository).to(
+        MessageDisambiguationRepository
+    );
 
     // bind from plugins if we have any, to override our default bindings
     if (config.plugins?.repositories) {
@@ -66,6 +69,9 @@ function bindRepositoriesWithPlugins(
     );
     const departmentRepository = repositoryContainer.get<IDepartmentRepository>(repositoryIds.IDepartmentRepository);
     const inboundMapRepository = repositoryContainer.get<IInboundMapRepository>(repositoryIds.IInboundMapRepository);
+    const messageDisambiguationRepository = repositoryContainer.get<IMessageDisambiguationRepository>(
+        repositoryIds.IMessageDisambiguationRepository
+    );
 
     const repositories = {
         jurisdictionRepository,
@@ -75,7 +81,8 @@ function bindRepositoriesWithPlugins(
         communicationRepository,
         emailStatusRepository,
         departmentRepository,
-        inboundMapRepository
+        inboundMapRepository,
+        messageDisambiguationRepository
     }
     return repositories;
 }

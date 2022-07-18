@@ -11,9 +11,13 @@ import type {
     ICommunicationRepository,
     IEmailStatusRepository,
     IInboundMapRepository,
+    IMessageDisambiguationRepository,
     InboundMapCreateAttributes,
     InboundMapInstance,
     LogEntry,
+    MessageDisambiguationAttributes,
+    MessageDisambiguationCreateAttributes,
+    MessageDisambiguationInstance,
     Models
 } from '../../types';
 import { EMAIL_EVENT_MAP } from './models';
@@ -138,4 +142,31 @@ export class InboundMapRepository implements IInboundMapRepository {
         return record;
     }
 
+}
+
+@injectable()
+export class MessageDisambiguationRepository implements IMessageDisambiguationRepository {
+
+    models: Models;
+    config: AppConfig;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppConfig) config: AppConfig,
+    ) {
+        this.models = models;
+        this.config = config
+    }
+
+    async create(data: MessageDisambiguationCreateAttributes): Promise<MessageDisambiguationAttributes> {
+        const { MessageDisambiguation } = this.models;
+        return await MessageDisambiguation.create(data) as MessageDisambiguationInstance;
+    }
+
+    async findOne(submitterId: string): Promise<MessageDisambiguationAttributes> {
+        const { MessageDisambiguation } = this.models;
+        const params = { where: { submitterId, status: 'open' } }
+        const record = await MessageDisambiguation.findOne(params) as MessageDisambiguationInstance;
+        return record;
+    }
 }

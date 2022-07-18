@@ -21,6 +21,16 @@ export const EMAIL_EVENT_IGNORE = ['processed', 'deferred', 'open', 'clicked']
 
 export const EMAIL_EVENT_MAP_KEYS = Object.keys(EMAIL_EVENT_MAP);
 
+export const MESSAGE_DISAMBIGUATION_STATUS_KEYS = [
+    'open',
+    'closed'
+]
+
+export const MESSAGE_DISAMBIGUATION_RESULT_KEYS = [
+    'new-request',
+    'existing-request'
+]
+
 export const CommunicationModel: ModelDefinition = {
     name: 'Communication',
     attributes: {
@@ -196,5 +206,52 @@ export const ChannelStatusModel: ModelDefinition = {
                 }
             }
         }
+    }
+}
+
+export const MessageDisambiguationModel: ModelDefinition = {
+    name: 'MessageDisambiguation',
+    attributes: {
+        id: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
+            primaryKey: true,
+        },
+        submitter_id: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        status: {
+            allowNull: false,
+            type: DataTypes.ENUM(...MESSAGE_DISAMBIGUATION_STATUS_KEYS),
+            defaultValue: MESSAGE_DISAMBIGUATION_STATUS_KEYS[0],
+        },
+        result: {
+            allowNull: true,
+            type: DataTypes.ENUM(...MESSAGE_DISAMBIGUATION_RESULT_KEYS),
+            defaultValue: MESSAGE_DISAMBIGUATION_RESULT_KEYS[0],
+        },
+        original_message: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+        disambiguation_messages: {
+            type: DataTypes.ARRAY(DataTypes.TEXT),
+            allowNull: true,
+        }
+    },
+    options: {
+        freezeTableName: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['submitter_id']
+            },
+            {
+                unique: true,
+                fields: ['submitter_id', 'status']
+            },
+        ]
     }
 }

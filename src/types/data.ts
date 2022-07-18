@@ -194,6 +194,21 @@ export type InboundMapCreateAttributes = Partial<InboundMapAttributes>
 export interface InboundMapInstance
     extends Model<InboundMapAttributes, InboundMapCreateAttributes>, InboundMapAttributes { }
 
+export interface MessageDisambiguationAttributes {
+    id: string;
+    submitter_id: string;
+    status: string;
+    result: string;
+    original_message: string;
+    disambiguation_messages: string[];
+}
+
+export type MessageDisambiguationCreateAttributes = Partial<MessageDisambiguationAttributes>
+
+export interface MessageDisambiguationInstance
+    extends Model<MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes>,
+    MessageDisambiguationAttributes { }
+
 export interface SmsAttributes {
     to: string;
     from: string;

@@ -18,8 +18,8 @@ import type {
     Repositories,
     ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
-import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeRequestURL } from './helpers';
 import { ServiceRequestService } from '../service-requests';
+import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeRequestURL } from './helpers';
 
 @injectable()
 export class OutboundMessageService implements IOutboundMessageService {
@@ -488,7 +488,12 @@ export class InboundMessageService implements IInboundMessageService {
 
     async createServiceRequest(inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes):
         Promise<[ServiceRequestAttributes, boolean]> {
-        const { serviceRequestRepository, staffUserRepository, inboundMapRepository } = this.repositories;
+        const {
+            serviceRequestRepository,
+            staffUserRepository,
+            inboundMapRepository,
+            messageDisambiguationRepository
+        } = this.repositories;
 
         const { inboundEmailDomain } = this.config;
         let intermediateRecord: ServiceRequestAttributes;
@@ -554,8 +559,8 @@ export class InboundMessageService implements IInboundMessageService {
             }
         } else {
             // TODO use proper IoC
-            const serviceRequestRepository = new ServiceRequestService(this.repositories, this.config);
-            intermediateRecord = await serviceRequestRepository.create(
+            const serviceRequestService = new ServiceRequestService(this.repositories, this.config);
+            intermediateRecord = await serviceRequestService.create(
                 cleanedData
             ) as ServiceRequestInstance;
         }
