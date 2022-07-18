@@ -116,6 +116,10 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
     ): Promise<[ServiceRequestAttributes[], number]> {
         const { ServiceRequest } = this.models;
 
+        if (channel === 'sms') {
+            // TODO - probably support channel and submitter id being on another field
+            const phone = submitterId
+        }
 
         const params = {
             where: {

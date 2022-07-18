@@ -40,8 +40,12 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             type: DataTypes.DATE
         },
     });
+    // await queryInterface.addIndex('MessageDisambiguation', ['submitter_id']);
+    // await queryInterface.addIndex('MessageDisambiguation', ['submitter_id', 'status']);
 }
 
 export async function down({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
     await queryInterface.dropTable('MessageDisambiguation');
+    //await queryInterface.removeIndex('MessageDisambiguation', ['submitter_id']);
+    //await queryInterface.removeIndex('MessageDisambiguation', ['submitter_id', 'status']);
 }

@@ -169,4 +169,20 @@ export class MessageDisambiguationRepository implements IMessageDisambiguationRe
         const record = await MessageDisambiguation.findOne(params) as MessageDisambiguationInstance;
         return record;
     }
+
+    async update(
+        jurisdictionId: string,
+        submitterId: string,
+        data: Partial<MessageDisambiguationAttributes>
+    ): Promise<MessageDisambiguationAttributes> {
+        const { MessageDisambiguation } = this.models;
+        const params = { where: { jurisdictionId, submitterId } };
+        const record = await MessageDisambiguation.findOne(params) as MessageDisambiguationInstance;
+        for (const [key, value] of Object.entries(data)) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            record[key] = value;
+        }
+        return await record.save();
+    }
 }

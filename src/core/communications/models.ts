@@ -236,6 +236,8 @@ export const MessageDisambiguationModel: ModelDefinition = {
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        // TODO - maybe this is a json object with more state stored,
+        // like mapping the number options we present to service request ids
         disambiguation_messages: {
             type: DataTypes.ARRAY(DataTypes.TEXT),
             allowNull: true,

@@ -7,7 +7,7 @@ import {
     ServiceRequestAttributes,
     ServiceRequestCreateAttributes
 } from '.';
-import { AuditedStateChangeExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from "./data";
+import { AuditedStateChangeExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, MessageDisambiguationAttributes, ParsedServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from "./data";
 
 export interface ServiceBase extends PluginBase {
     repositories: Repositories;
@@ -39,7 +39,7 @@ export interface IOutboundMessageService extends ServiceBase {
 
 export interface IInboundMessageService extends ServiceBase {
     createServiceRequest: (inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes) =>
-        Promise<[ServiceRequestAttributes, boolean]>;
+        Promise<[ServiceRequestAttributes | ParsedServiceRequestAttributes, boolean, MessageDisambiguationAttributes | null]>;
     createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
 }
 

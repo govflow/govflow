@@ -13,7 +13,7 @@ export const communicationsRouter = Router();
 communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
     const { outboundMessageService, inboundMessageService } = res.app.services;
-    const [record, recordCreated] = await inboundMessageService.createServiceRequest(req.body);
+    const [record, recordCreated, messageDisambiguationRecord] = await inboundMessageService.createServiceRequest(req.body);
     const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';
@@ -30,7 +30,7 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
     const { outboundMessageService, inboundMessageService } = res.app.services;
-    const [record, recordCreated] = await inboundMessageService.createServiceRequest(req.body);
+    const [record, recordCreated, messageDisambiguationRecord] = await inboundMessageService.createServiceRequest(req.body);
     const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';
