@@ -3,7 +3,7 @@ import multer from 'multer';
 import { twiml } from 'twilio';
 import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
-import { EmailEventAttributes, JurisdictionAttributes } from '../../types';
+import { EmailEventAttributes, JurisdictionAttributes, SmsEventAttributes } from '../../types';
 import { GovFlowEmitter } from '../event-listeners';
 import { verifySendGridWebhook } from './helpers';
 import { EMAIL_EVENT_IGNORE } from './models';
@@ -88,6 +88,14 @@ communicationsRouter.post('/events/email', wrapHandler(async (req: Request, res:
     res.status(200).send({ data: { status: 200, message: "Received email event" } });
 }))
 
+// public route for web hook integration
+communicationsRouter.post('/events/sms', wrapHandler(async (req: Request, res: Response) => {
+    const { smsStatusRepository } = res.app.repositories;
+    const event = req.body as unknown as SmsEventAttributes;
+    await smsStatusRepository.createFromEvent(event);
+    res.status(200).send({ data: { status: 200, message: "Received email event" } });
+}))
+
 communicationsRouter.get('/status/email/:email',
     wrapHandler(resolveJurisdiction()),
     enforceJurisdictionAccess,
@@ -98,6 +106,19 @@ communicationsRouter.get('/status/email/:email',
         // So the jurisdiction is not used in the data query.
         const base64Email = req.params.email;
         const record = await emailStatusRepository.isAllowed(base64Email);
+        res.status(200).send({ data: record });
+    }))
+
+communicationsRouter.get('/status/phone/:phone',
+    wrapHandler(resolveJurisdiction()),
+    enforceJurisdictionAccess,
+    wrapHandler(async (req: Request, res: Response) => {
+        const { smsStatusRepository } = res.app.repositories;
+        // We enforce jurisdiction access for security, but actually
+        // our email delivery status is global, not by jurisdiction
+        // So the jurisdiction is not used in the data query.
+        const base64Phone = req.params.phone;
+        const record = await smsStatusRepository.isAllowed(base64Phone);
         res.status(200).send({ data: record });
     }))
 

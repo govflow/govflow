@@ -142,6 +142,7 @@ export async function dispatchMessage(
             dispatchPayload.toPhone as string,
             dispatchPayload.fromPhone as string,
             dispatchPayload.textBody as string,
+            dispatchPayload.twilioStatusCallbackURL as string,
         );
     } else {
         const errorMessage = `Unknown communication dispatch channel`;

@@ -44,13 +44,20 @@ describe('Verify Core Communications Functionality.', function () {
 
     it('should send sms', async function () {
         const config = await initConfig();
-        const { twilioAccountSid, twilioAuthToken, twilioFromPhone, testToPhone } = config as AppConfig;
+        const {
+            twilioAccountSid,
+            twilioAuthToken,
+            twilioFromPhone,
+            testToPhone,
+            twilioStatusCallbackURL
+        } = config as AppConfig;
         const response = await sendSms(
             twilioAccountSid as string,
             twilioAuthToken as string,
             testToPhone as string,
             twilioFromPhone as string,
             'Test message body.',
+            twilioStatusCallbackURL
         );
         chai.assert(response);
     });
@@ -88,6 +95,7 @@ describe('Verify Core Communications Functionality.', function () {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
@@ -105,6 +113,7 @@ describe('Verify Core Communications Functionality.', function () {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
@@ -150,6 +159,7 @@ describe('Verify Core Communications Functionality.', function () {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = app.config;
         const jurisdictionId = testData.jurisdictions[0].id;
@@ -168,6 +178,7 @@ describe('Verify Core Communications Functionality.', function () {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: ''
         }

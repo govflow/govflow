@@ -215,6 +215,7 @@ export interface SmsAttributes {
     to: string;
     from: string;
     body: string;
+    statusCallback: string;
 }
 
 export interface EmailAttributes {
@@ -232,6 +233,7 @@ export interface DispatchConfigAttributes {
     replyToEmail: string;
     twilioAccountSid: string;
     twilioAuthToken: string;
+    twilioStatusCallbackURL: string;
     fromPhone: string;
     toPhone: string;
 }
@@ -353,6 +355,15 @@ export interface EmailEventAttributes {
     sg_event_id?: string;
     sg_message_id?: string;
     type?: string;
+}
+
+export interface SmsEventAttributes {
+    SmsSid: string;
+    SmsStatus: string;
+    MessageStatus: string;
+    MessageSid: string;
+    From: string;
+    AccountSid: string;
 }
 
 export interface RecipientAttributes {

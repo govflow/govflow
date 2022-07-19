@@ -11,6 +11,7 @@ export interface AppConfig {
     twilioAccountSid: string;
     twilioAuthToken: string;
     twilioFromPhone: string;
+    twilioStatusCallbackURL: string;
     testToEmail: string;
     testToPhone: string;
     appPort: number;

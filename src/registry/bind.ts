@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { Container } from 'inversify';
-import { CommunicationRepository, EmailStatusRepository, InboundMapRepository, MessageDisambiguationRepository } from '../core/communications';
+import { CommunicationRepository, EmailStatusRepository, InboundMapRepository, MessageDisambiguationRepository, SmsStatusRepository } from '../core/communications';
 import { InboundMessageService, OutboundMessageService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { JurisdictionRepository } from '../core/jurisdictions';
@@ -8,7 +8,7 @@ import { ServiceRequestRepository, ServiceRequestService } from '../core/service
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
 import { StaffUserService } from '../core/staff-users/services';
-import type { AppConfig, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IMessageDisambiguationRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, IStaffUserRepository, IStaffUserService, MiddlewarePlugin, Services } from '../types';
+import type { AppConfig, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IMessageDisambiguationRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, ISmsStatusRepository, IStaffUserRepository, IStaffUserService, MiddlewarePlugin, Services } from '../types';
 import { Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -34,6 +34,9 @@ function bindRepositoriesWithPlugins(
     );
     repositoryContainer.bind<IEmailStatusRepository>(repositoryIds.IEmailStatusRepository).to(
         EmailStatusRepository
+    );
+    repositoryContainer.bind<ISmsStatusRepository>(repositoryIds.ISmsStatusRepository).to(
+        SmsStatusRepository
     );
     repositoryContainer.bind<IDepartmentRepository>(repositoryIds.IDepartmentRepository).to(
         DepartmentRepository
@@ -67,6 +70,9 @@ function bindRepositoriesWithPlugins(
     const emailStatusRepository = repositoryContainer.get<IEmailStatusRepository>(
         repositoryIds.IEmailStatusRepository
     );
+    const smsStatusRepository = repositoryContainer.get<ISmsStatusRepository>(
+        repositoryIds.ISmsStatusRepository
+    );
     const departmentRepository = repositoryContainer.get<IDepartmentRepository>(repositoryIds.IDepartmentRepository);
     const inboundMapRepository = repositoryContainer.get<IInboundMapRepository>(repositoryIds.IInboundMapRepository);
     const messageDisambiguationRepository = repositoryContainer.get<IMessageDisambiguationRepository>(
@@ -80,6 +86,7 @@ function bindRepositoriesWithPlugins(
         serviceRequestRepository,
         communicationRepository,
         emailStatusRepository,
+        smsStatusRepository,
         departmentRepository,
         inboundMapRepository,
         messageDisambiguationRepository

@@ -7,12 +7,14 @@ export async function sendSms(
     authToken: string,
     toPhone: string,
     fromPhone: string,
-    body: string
+    body: string,
+    statusCallback: string,
 ): Promise<Record<string, string>> {
     const message = {
         to: toPhone,
         from: fromPhone,
         body: body,
+        statusCallback
     } as SmsAttributes
     if (process.env.COMMUNICATIONS_TO_CONSOLE) {
         return sendSmsToConsole(message);

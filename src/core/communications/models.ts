@@ -2,6 +2,22 @@ import { DataTypes } from 'sequelize';
 import validator from 'validator';
 import type { ModelDefinition } from '../../types';
 
+export const SMS_EVENT_MAP = {
+    'accepted': null,
+    'queued': null,
+    'sending': null,
+    'receiving': null,
+    'received': null,
+    'canceled': null,
+    'failed': false,
+    'undelivered': false,
+    'sent': true,
+    'delivered': true,
+    'read': true, // whatapp only
+} as Record<string, boolean | null>;
+
+export const SMS_EVENT_MAP_KEYS = Object.keys(SMS_EVENT_MAP);
+
 export const EMAIL_EVENT_MAP = {
     'processed': null, // Message has been received and is ready to be delivered.
     'deferred': null, // Receiving server temporarily rejected the message.

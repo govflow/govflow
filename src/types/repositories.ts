@@ -10,7 +10,7 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, ChannelType, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes, ServiceRequestCommentCreateAttributes, StaffUserDepartmentAttributes } from './data';
+import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, ChannelType, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes, ServiceRequestCommentCreateAttributes, SmsEventAttributes, StaffUserDepartmentAttributes } from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -92,6 +92,15 @@ export interface IEmailStatusRepository extends RepositoryBase {
     isAllowed: (email: string) => Promise<ChannelIsAllowed>;
 }
 
+export interface ISmsStatusRepository extends RepositoryBase {
+    create: (data: ChannelStatusAttributes) =>
+        Promise<ChannelStatusInstance>;
+    createFromEvent: (data: SmsEventAttributes) =>
+        Promise<ChannelStatusInstance>;
+    findOne: (phone: string) => Promise<ChannelStatusInstance | null>;
+    isAllowed: (phone: string) => Promise<ChannelIsAllowed>;
+}
+
 export interface IInboundMapRepository extends RepositoryBase {
     create: (data: InboundMapCreateAttributes) =>
         Promise<InboundMapInstance>;
@@ -115,6 +124,7 @@ export interface Repositories {
     communicationRepository: ICommunicationRepository;
     departmentRepository: IDepartmentRepository;
     emailStatusRepository: IEmailStatusRepository;
+    smsStatusRepository: ISmsStatusRepository;
     inboundMapRepository: IInboundMapRepository;
     messageDisambiguationRepository: IMessageDisambiguationRepository;
 }

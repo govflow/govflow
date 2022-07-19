@@ -770,6 +770,21 @@ describe('Hit all API endpoints', function () {
         }
     });
 
+    it('should GET a comms status for a phone', async function () {
+        const jurisdictionId = testData.jurisdictions[0].id;
+        const phoneStatuses = _.filter(testData.channelStatuses, { channel: 'sms' });
+        for (const status of phoneStatuses) {
+            const base64Phone = Buffer.from(status.id).toString('base64url');
+            const res = await chai.request(app).get(
+                `/communications/status/phone/${base64Phone}?jurisdictionId=${jurisdictionId}`
+            );
+            chai.assert.equal(res.status, 200);
+            chai.assert(res.body.data);
+            chai.assert.equal(res.body.data.id, base64Phone)
+            chai.assert.equal(res.body.data.isAllowed, true)
+        }
+    });
+
     it('should return 501 not implemented error for Open311 service discovery', async function () {
         const res = await chai.request(app).get('/open311/v2/discovery');
         chai.assert.equal(res.status, 501);

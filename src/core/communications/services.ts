@@ -66,6 +66,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
 
@@ -83,6 +84,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
@@ -114,6 +116,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
+                twilioStatusCallbackURL: twilioStatusCallbackURL as string,
                 fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
@@ -151,6 +154,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
         const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
@@ -172,6 +176,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
@@ -208,6 +213,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
         const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
@@ -232,6 +238,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
@@ -268,6 +275,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
         const { communicationRepository, emailStatusRepository } = this.repositories;
@@ -285,6 +293,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
+                twilioStatusCallbackURL: twilioStatusCallbackURL as string,
                 fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
@@ -317,6 +326,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
+                twilioStatusCallbackURL: twilioStatusCallbackURL as string,
                 fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
@@ -354,6 +364,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
         const {
@@ -397,6 +408,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         } as DispatchConfigAttributes

@@ -14,13 +14,15 @@ import type {
     IMessageDisambiguationRepository,
     InboundMapCreateAttributes,
     InboundMapInstance,
+    ISmsStatusRepository,
     LogEntry,
     MessageDisambiguationAttributes,
     MessageDisambiguationCreateAttributes,
     MessageDisambiguationInstance,
-    Models
+    Models,
+    SmsEventAttributes
 } from '../../types';
-import { EMAIL_EVENT_MAP } from './models';
+import { EMAIL_EVENT_MAP, SMS_EVENT_MAP } from './models';
 
 @injectable()
 export class CommunicationRepository implements ICommunicationRepository {
@@ -111,6 +113,68 @@ export class EmailStatusRepository implements IEmailStatusRepository {
             isAllowed = false;
         }
         return { id: base64Email, isAllowed };
+    }
+
+}
+
+@injectable()
+export class SmsStatusRepository implements ISmsStatusRepository {
+
+    models: Models;
+    config: AppConfig;
+
+    constructor(
+        @inject(appIds.Models) models: Models,
+        @inject(appIds.AppConfig) config: AppConfig,
+    ) {
+        this.models = models;
+        this.config = config
+    }
+
+    async create(data: ChannelStatusCreateAttributes): Promise<ChannelStatusInstance> {
+        const { ChannelStatus } = this.models;
+        return await ChannelStatus.create(data) as ChannelStatusInstance;
+    }
+
+    async createFromEvent(data: SmsEventAttributes): Promise<ChannelStatusInstance> {
+        const { ChannelStatus } = this.models;
+        const { From, MessageStatus } = data;
+        const eventKey = MessageStatus;
+        const isAllowed = SMS_EVENT_MAP[eventKey];
+        const logEntry = [eventKey, SMS_EVENT_MAP[eventKey]] as LogEntry;
+        const exists = await ChannelStatus.findOne({ where: { id: From } }) as ChannelStatusInstance;
+        let record;
+        if (exists) {
+            exists.isAllowed = isAllowed
+            exists.log.unshift(logEntry)
+            record = exists.save()
+        } else {
+            const log = [logEntry];
+            record = await ChannelStatus.create(
+                { id: From, channel: 'sms', isAllowed, log }
+            ) as ChannelStatusInstance;
+        }
+        return record;
+    }
+
+    async findOne(phone: string): Promise<ChannelStatusInstance | null> {
+        const { ChannelStatus } = this.models;
+        const record = await ChannelStatus.findOne(
+            { where: { id: phone, channel: 'sms' }, order: [['createdAt', 'DESC']] }
+        ) as ChannelStatusInstance | null;
+        return record;
+    }
+
+    async isAllowed(base64Phone: string): Promise<ChannelIsAllowed> {
+        const email = Buffer.from(base64Phone, 'base64url').toString('ascii');
+        const existingRecord = this.findOne(email);
+        let isAllowed = true;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (existingRecord && existingRecord.isAllowed === false) {
+            isAllowed = false;
+        }
+        return { id: base64Phone, isAllowed };
     }
 
 }
