@@ -23,12 +23,16 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             type: DataTypes.ENUM('new-request', 'existing-request'),
             defaultValue: 'new-request',
         },
-        original_message: {
+        originalMessage: {
             type: DataTypes.TEXT,
             allowNull: false,
         },
-        disambiguation_messages: {
+        disambiguationFlow: {
             type: DataTypes.ARRAY(DataTypes.TEXT),
+            allowNull: true,
+        },
+        choiceMap: {
+            type: DataTypes.JSONB,
             allowNull: true,
         },
         createdAt: {

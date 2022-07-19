@@ -201,7 +201,8 @@ export interface MessageDisambiguationAttributes {
     status: string;
     result: string;
     originalMessage: string;
-    disambiguationMessages: string[];
+    disambiguationFlow: string[];
+    choiceMap: Record<number, string>;
 }
 
 export type MessageDisambiguationCreateAttributes = Partial<MessageDisambiguationAttributes>
@@ -218,7 +219,7 @@ export interface SmsAttributes {
 
 export interface EmailAttributes {
     to: string;
-    form: string;
+    from: string;
     subject: string;
     body: string;
 }

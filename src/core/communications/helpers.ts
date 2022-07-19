@@ -414,3 +414,18 @@ export function getSendFromEmail(jurisdiction: JurisdictionAttributes, defaultSe
 export function getSendFromPhone(jurisdiction: JurisdictionAttributes, defaultSendFromPhone: string) {
     return jurisdiction.sendFromPhone ? jurisdiction.sendFromPhone : defaultSendFromPhone;
 }
+
+export function parseDisambiguationChoiceFromText(text: string): number | null {
+    let parsedValue = null;
+    const integerString = text.replace(/\D/g, '');
+    if (integerString) { parsedValue = parseInt(integerString); }
+    return parsedValue;
+}
+
+export function makeDisambiguationMessage(msg: string, choiceMap: Record<number, string>): string {
+    let disambiguationMessage = `${msg}\n`;
+    for (const [key, value] of Object.entries(choiceMap)) {
+        disambiguationMessage = `${disambiguationMessage}\n${key}: Existing Request #${value}\n`;
+    }
+    return disambiguationMessage;
+}

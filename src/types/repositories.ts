@@ -102,6 +102,9 @@ export interface IMessageDisambiguationRepository extends RepositoryBase {
     create: (data: MessageDisambiguationCreateAttributes) =>
         Promise<MessageDisambiguationAttributes>;
     findOne: (jurisdictionId: string, submitterId: string) => Promise<MessageDisambiguationAttributes | null>;
+    update: (
+        id: string, data: Partial<MessageDisambiguationAttributes>
+    ) => Promise<MessageDisambiguationAttributes | null>;
 }
 
 export interface Repositories {

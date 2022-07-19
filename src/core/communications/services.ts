@@ -12,15 +12,14 @@ import type {
     InboundSmsDataAttributes,
     IOutboundMessageService,
     JurisdictionAttributes,
-    MessageDisambiguationAttributes,
-    ParsedServiceRequestAttributes,
+    MessageDisambiguationAttributes, ParsedServiceRequestAttributes,
     PublicId,
     RecipientAttributes,
     Repositories,
     ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
 import { ServiceRequestService } from '../service-requests';
-import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeRequestURL } from './helpers';
+import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, findIdentifiers, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeDisambiguationMessage, makeRequestURL, parseDisambiguationChoiceFromText } from './helpers';
 
 @injectable()
 export class OutboundMessageService implements IOutboundMessageService {
@@ -465,12 +464,14 @@ export class InboundMessageService implements IInboundMessageService {
 
     repositories: Repositories
     config: AppConfig
+    NEW_REQUEST_IDENTIFIER: string
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
         @inject(appIds.AppConfig) config: AppConfig,) {
         this.repositories = repositories;
         this.config = config;
+        this.NEW_REQUEST_IDENTIFIER = 'New Request';
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -487,25 +488,119 @@ export class InboundMessageService implements IInboundMessageService {
         return valids.every(value => properties.includes(value))
     }
 
-    async createServiceRequest(inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes):
-        Promise<[
-            ServiceRequestAttributes | ParsedServiceRequestAttributes,
-            boolean,
-            MessageDisambiguationAttributes | null
-        ]> {
+    async disambiguateInboundData(
+        inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes
+    ): Promise<[boolean, string]> {
+        const { serviceRequestRepository, messageDisambiguationRepository, inboundMapRepository } = this.repositories;
+        let messageDisambiguationRecord: MessageDisambiguationAttributes | null = null,
+            disambiguate = false,
+            disambiguateResponse = '';
+
+        if (this.inboundIsSms(inboundData)) {
+
+            // because it is SMS, we cant just create a new service request,
+            // we need to disambiguate, which we might be able to do automatically,
+            // or we maybe required to ask the submitter for more information.
+            const { To, From, Body } = inboundData;
+            const channel = 'sms', submitterId = From, body = Body;
+            const { jurisdictionId } = await findIdentifiers(
+                To, channel, inboundMapRepository
+            );
+
+            // does this submitter even have an existing open record?
+            const [serviceRequests, _count] = await serviceRequestRepository.findAllForSubmitter(
+                jurisdictionId, channel, submitterId
+            );
+
+            if (serviceRequests) {
+                // The submitter has existing messages, so we do not know
+                // for certain if this is a new service request or a comment on an
+                // existing service request.
+
+                // So, we need to disambiguate by asking the submitter for more information
+
+                // And, we might already be in the middle of a disambiguation process
+                // with the submitter, so our strategy is furthert dependant on if a
+                // disambiguation record for this submitter is currently open.
+
+                // So first, check if we have an open record
+                messageDisambiguationRecord = await messageDisambiguationRepository.findOne(
+                    jurisdictionId, submitterId
+                );
+
+                if (messageDisambiguationRecord) {
+                    // We are in the middle of a disambiguation flow
+                    const choice = parseDisambiguationChoiceFromText(body);
+                    if (!choice) {
+                        // We are unable to parse a valid choice from the inbound data
+                        // So we need to message the submitter again.
+                        const disambiguationFlow = messageDisambiguationRecord.disambiguationFlow
+                        disambiguationFlow.push(body);
+                        const disambiguationMessage = makeDisambiguationMessage(
+                            'Your response was invalid. Try again.', messageDisambiguationRecord.choiceMap
+                        );
+                        disambiguationFlow.push(disambiguationMessage);
+                        await messageDisambiguationRepository.update(messageDisambiguationRecord.id, {
+                            disambiguationFlow
+                        });
+                        disambiguate = true;
+                        disambiguateResponse = disambiguationMessage;
+                    } else {
+                        // we have a valid choice so we can now disambiguate the submitters original message
+                        const choiceIdentifier = messageDisambiguationRecord.choiceMap[choice];
+                        await this.createServiceRequest(inboundData, choiceIdentifier);
+                        await messageDisambiguationRepository.update(messageDisambiguationRecord.id, {
+                            status: 'closed'
+                        });
+                    }
+                } else {
+                    // We are starting a disambiguation flow so we need to create a record
+                    const choiceMap = { 1: this.NEW_REQUEST_IDENTIFIER } as Record<number, string>;
+                    for (const [index, request] of serviceRequests.entries()) {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        choiceMap[index + 2] = request.publicId
+                    }
+                    const msg = `Please help us route your request correctly.\n
+                    Respond with a number from the following choices so we know
+                    whether you are creating a new service request, or responding to an existing one.`;
+                    const disambiguationMessage = makeDisambiguationMessage(msg, choiceMap);
+                    const disambiguationFlow = [disambiguationMessage];
+
+                    messageDisambiguationRecord = await messageDisambiguationRepository.create({
+                        jurisdictionId,
+                        submitterId,
+                        originalMessage: body,
+                        disambiguationFlow,
+                        choiceMap,
+                    });
+                    disambiguate = true;
+                    disambiguateResponse = disambiguationMessage;
+                }
+            }
+        }
+        return [disambiguate, disambiguateResponse];
+    }
+
+    async createServiceRequest(
+        inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes, knownIdentifier?: string
+    ):
+        Promise<[ServiceRequestAttributes, boolean]> {
         const {
             serviceRequestRepository,
             staffUserRepository,
             inboundMapRepository,
-            messageDisambiguationRepository
         } = this.repositories;
 
         const { inboundEmailDomain } = this.config;
         let intermediateRecord: ServiceRequestAttributes;
         let recordCreated = true;
-        let messageDisambiguationRecord: MessageDisambiguationAttributes | null = null;
         let cleanedData: ParsedServiceRequestAttributes;
         let publicId: PublicId;
+        let knownPublicId: PublicId;
+        if (knownIdentifier && knownIdentifier !== this.NEW_REQUEST_IDENTIFIER) {
+            knownPublicId = knownIdentifier;
+        }
 
         if (this.inboundIsEmail(inboundData)) {
             const { subject, to, cc, bcc, from, text, headers } = inboundData;
@@ -521,7 +616,7 @@ export class InboundMessageService implements IInboundMessageService {
             throw Error("Received an invalid inbound data payload");
         }
 
-        if (publicId || cleanedData.serviceRequestId) {
+        if (knownPublicId || publicId || cleanedData.serviceRequestId) {
             const [staffUsers, _count] = await staffUserRepository.findAll(
                 cleanedData.jurisdictionId, { whereParams: { isAdmin: true } }
             );
@@ -533,7 +628,11 @@ export class InboundMessageService implements IInboundMessageService {
                 ) as StaffUserAttributes;
                 addedBy = staffUserMatch.id;
             }
-            if (cleanedData.serviceRequestId) {
+            if (knownPublicId) {
+                intermediateRecord = await serviceRequestRepository.findOneByPublicId(
+                    cleanedData.jurisdictionId, knownPublicId as unknown as string
+                );
+            } else if (cleanedData.serviceRequestId) {
                 intermediateRecord = await serviceRequestRepository.findOne(
                     cleanedData.jurisdictionId, cleanedData.serviceRequestId
                 );
@@ -564,75 +663,6 @@ export class InboundMessageService implements IInboundMessageService {
                 throw new Error(dataToLog.message);
             }
         } else {
-
-            if (this.inboundIsSms(inboundData)) {
-                // we dont have a public ID or an existing service request
-                // that the inbound data belongs to
-                //
-                // AND, this is SMS
-                //
-                // because it is SMS, we cant just create a new service request,
-                // we need to disambiguate, which we might be able to do automatically,
-                // or we maybe required to ask the submitter for more information.
-
-                // we will start by getting some data we need:
-
-                // does this submitter even have an existing open record?
-                const [serviceRequests, _count] = await serviceRequestRepository.findAllForSubmitter(
-                    cleanedData.jurisdictionId, cleanedData.channel, cleanedData.phone
-                );
-
-                if (!serviceRequests) {
-                    // there are no existing open service requests
-                    // so there is nothing to disambiguate
-                    // we just proceed as normal
-                } else {
-                    // this submitter has existing messages, so we do not know
-                    // for certain if this is a new service request or a comment on an
-                    // existing service request.
-
-                    // we are going to need to exit the method early (right here in this block)
-                    // and send a request for more information back to the submitter
-
-                    // and, we might already be in the middle of a disambiguation process
-                    // with the submitter, so our strategy is dependant on if a disambiguation
-                    // record for this submitter is currently open.
-
-                    // so first, check if we have an open record:
-                    messageDisambiguationRecord = await messageDisambiguationRepository.findOne(cleanedData.phone);
-                    // TODO: prevent the possibility of multiple disambiguation flows at once
-                    if (messageDisambiguationRecord) {
-                        // what we do when we are in the middle of a disambiguation flow
-                        const choice = parseDisambiguationChoiceFromText(cleanedData.description);
-                        if (!choice) {
-                            messageDisambiguationRecord.disambiguation_messages.push(cleanedData.description);
-                            messageDisambiguationRecord.disambiguation_responses.push(
-                                `We still don't understand your choice, try:`
-                            );
-                            await messageDisambiguationRepository.update({
-                                // TODO:
-                            });
-                        }
-                    } else {
-                        // what we do if we are starting a disambiguation flow
-                        messageDisambiguationRecord = await messageDisambiguationRepository.create({
-                            // TODO - create new disambiguation instance here
-                        });
-                        messageDisambiguationRecord.disambiguation_messages.push(cleanedData.description);
-                        messageDisambiguationRecord.disambiguation_responses.push(
-                            `Please help us route your request correctly. Respond with a number from the following choices:`
-                        );
-                    }
-
-
-                    // important: we return early here to start the disambiguation
-                    // dialog with the submitter
-                    return [cleanedData, false, messageDisambiguationRecord];
-
-                }
-
-            }
-
             // TODO use proper IoC
             const serviceRequestService = new ServiceRequestService(this.repositories, this.config);
             intermediateRecord = await serviceRequestService.create(
@@ -644,7 +674,7 @@ export class InboundMessageService implements IInboundMessageService {
         const record = await serviceRequestRepository.findOne(
             cleanedData.jurisdictionId, intermediateRecord.id
         );
-        return [record, recordCreated, messageDisambiguationRecord];
+        return [record, recordCreated];
     }
 
     async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {

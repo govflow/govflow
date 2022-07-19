@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import multer from 'multer';
+import { twiml } from 'twilio';
 import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
 import { EmailEventAttributes, JurisdictionAttributes } from '../../types';
@@ -13,7 +14,17 @@ export const communicationsRouter = Router();
 communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
     const { outboundMessageService, inboundMessageService } = res.app.services;
-    const [record, recordCreated, messageDisambiguationRecord] = await inboundMessageService.createServiceRequest(req.body);
+
+    // if we need to disambiguate manually we start a dialog with the submitter here
+    const [disambiguate, disambiguateResponse] = await inboundMessageService.disambiguateInboundData(req.body);
+    if (disambiguate) {
+        const messageResponse = new twiml.MessagingResponse();
+        messageResponse.message(disambiguateResponse);
+        res.status(200).send(messageResponse.toString());
+    }
+
+    // the 'normal' case - we dont need to disambiguate the inbound data
+    const [record, recordCreated] = await inboundMessageService.createServiceRequest(req.body);
     const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';
@@ -30,7 +41,7 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
     const { outboundMessageService, inboundMessageService } = res.app.services;
-    const [record, recordCreated, messageDisambiguationRecord] = await inboundMessageService.createServiceRequest(req.body);
+    const [record, recordCreated] = await inboundMessageService.createServiceRequest(req.body);
     const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';

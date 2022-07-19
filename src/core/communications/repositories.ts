@@ -171,12 +171,11 @@ export class MessageDisambiguationRepository implements IMessageDisambiguationRe
     }
 
     async update(
-        jurisdictionId: string,
-        submitterId: string,
+        id: string,
         data: Partial<MessageDisambiguationAttributes>
     ): Promise<MessageDisambiguationAttributes> {
         const { MessageDisambiguation } = this.models;
-        const params = { where: { jurisdictionId, submitterId } };
+        const params = { where: { id } };
         const record = await MessageDisambiguation.findOne(params) as MessageDisambiguationInstance;
         for (const [key, value] of Object.entries(data)) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
