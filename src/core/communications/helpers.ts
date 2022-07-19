@@ -362,12 +362,17 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
     ];
 }
 
-export function canSubmitterComment(submitterEmail: string, validEmails: string[]): boolean {
+export function canSubmitterComment(
+    submitterEmail: string, submitterPhone: string, validEmails: string[], validPhones: string[]
+): boolean {
+    let canSubmit = false;
     if (validEmails.includes(submitterEmail)) {
-        return true
-    } else {
-        return false;
+        canSubmit = true
     }
+    if (!canSubmit && validPhones.includes(submitterPhone)) {
+        canSubmit = true
+    }
+    return canSubmit;
 }
 
 export function verifySendGridWebhook(
@@ -423,9 +428,11 @@ export function parseDisambiguationChoiceFromText(text: string): number | null {
 }
 
 export function makeDisambiguationMessage(msg: string, choiceMap: Record<number, string>): string {
-    let disambiguationMessage = `${msg}\n`;
+    let disambiguationMessage = `${msg}\n\n`;
     for (const [key, value] of Object.entries(choiceMap)) {
-        disambiguationMessage = `${disambiguationMessage}\n${key}: Existing Request #${value}\n`;
+        let line = `Existing Request #${value}`;
+        if (value == 'New Request') { line = value; }
+        disambiguationMessage = `${disambiguationMessage}${key}. ${line}\n`;
     }
     return disambiguationMessage;
 }

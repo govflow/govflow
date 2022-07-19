@@ -490,11 +490,13 @@ export class InboundMessageService implements IInboundMessageService {
 
     async disambiguateInboundData(
         inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes
-    ): Promise<[boolean, string]> {
+    ): Promise<[boolean, string, string, PublicId?]> {
         const { serviceRequestRepository, messageDisambiguationRepository, inboundMapRepository } = this.repositories;
         let messageDisambiguationRecord: MessageDisambiguationAttributes | null = null,
             disambiguate = false,
-            disambiguateResponse = '';
+            disambiguateResponse = '',
+            disambiguatedPublicId = '',
+            disambiguatedOriginalMessage = '';
 
         if (this.inboundIsSms(inboundData)) {
 
@@ -512,7 +514,7 @@ export class InboundMessageService implements IInboundMessageService {
                 jurisdictionId, channel, submitterId
             );
 
-            if (serviceRequests) {
+            if (serviceRequests && serviceRequests.length > 0) {
                 // The submitter has existing messages, so we do not know
                 // for certain if this is a new service request or a comment on an
                 // existing service request.
@@ -548,10 +550,11 @@ export class InboundMessageService implements IInboundMessageService {
                     } else {
                         // we have a valid choice so we can now disambiguate the submitters original message
                         const choiceIdentifier = messageDisambiguationRecord.choiceMap[choice];
-                        await this.createServiceRequest(inboundData, choiceIdentifier);
                         await messageDisambiguationRepository.update(messageDisambiguationRecord.id, {
                             status: 'closed'
                         });
+                        disambiguatedPublicId = choiceIdentifier;
+                        disambiguatedOriginalMessage = messageDisambiguationRecord.originalMessage;
                     }
                 } else {
                     // We are starting a disambiguation flow so we need to create a record
@@ -561,9 +564,9 @@ export class InboundMessageService implements IInboundMessageService {
                         // @ts-ignore
                         choiceMap[index + 2] = request.publicId
                     }
-                    const msg = `Please help us route your request correctly.\n
-                    Respond with a number from the following choices so we know
-                    whether you are creating a new service request, or responding to an existing one.`;
+                    const msg = `Please help us route your request correctly.\n\n
+Respond with a number from the following choices so we know
+whether you are creating a new service request, or responding to an existing one.`;
                     const disambiguationMessage = makeDisambiguationMessage(msg, choiceMap);
                     const disambiguationFlow = [disambiguationMessage];
 
@@ -579,11 +582,13 @@ export class InboundMessageService implements IInboundMessageService {
                 }
             }
         }
-        return [disambiguate, disambiguateResponse];
+        return [disambiguate, disambiguateResponse, disambiguatedOriginalMessage, disambiguatedPublicId];
     }
 
     async createServiceRequest(
-        inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes, knownIdentifier?: string
+        inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes,
+        originalMessage?: string,
+        knownIdentifier?: string
     ):
         Promise<[ServiceRequestAttributes, boolean]> {
         const {
@@ -609,8 +614,10 @@ export class InboundMessageService implements IInboundMessageService {
             );
         } else if (this.inboundIsSms(inboundData)) {
             const { To, From, Body } = inboundData;
+            let originalBody = Body;
+            if (originalMessage) { originalBody = originalMessage }
             [cleanedData, publicId] = await extractServiceRequestfromInboundSms(
-                { To, From, Body }, inboundMapRepository
+                { To, From, Body: originalBody }, inboundMapRepository
             );
         } else {
             throw Error("Received an invalid inbound data payload");
@@ -642,8 +649,9 @@ export class InboundMessageService implements IInboundMessageService {
                 );
             }
             recordCreated = false;
-            const validEmails = [...staffEmails, intermediateRecord.email];
-            const canComment = canSubmitterComment(cleanedData.email, validEmails);
+            const validEmails = [...staffEmails, intermediateRecord.email].filter(e => e);
+            const validPhones = [intermediateRecord.phone].filter(e => e); // TODO: Add staff phones wehn we later support it
+            const canComment = canSubmitterComment(cleanedData.email, cleanedData.phone, validEmails, validPhones);
             if (canComment && intermediateRecord) {
                 const comment = {
                     comment: cleanedData.description,

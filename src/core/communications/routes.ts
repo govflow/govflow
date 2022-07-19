@@ -16,15 +16,20 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
     const { outboundMessageService, inboundMessageService } = res.app.services;
 
     // if we need to disambiguate manually we start a dialog with the submitter here
-    const [disambiguate, disambiguateResponse] = await inboundMessageService.disambiguateInboundData(req.body);
+    const [
+        disambiguate,
+        disambiguateResponse,
+        disambiguatedOriginalMessage,
+        disambiguatedPublicId
+    ] = await inboundMessageService.disambiguateInboundData(req.body);
     if (disambiguate) {
         const messageResponse = new twiml.MessagingResponse();
         messageResponse.message(disambiguateResponse);
         res.status(200).send(messageResponse.toString());
     }
-
-    // the 'normal' case - we dont need to disambiguate the inbound data
-    const [record, recordCreated] = await inboundMessageService.createServiceRequest(req.body);
+    const [record, recordCreated] = await inboundMessageService.createServiceRequest(
+        req.body, disambiguatedPublicId, disambiguatedOriginalMessage
+    );
     const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';

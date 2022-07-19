@@ -43,6 +43,14 @@ export async function up({ context: queryInterface }: Record<string, QueryInterf
             allowNull: false,
             type: DataTypes.DATE
         },
+        jurisdictionId: {
+            type: DataTypes.STRING,
+            onDelete: 'CASCADE',
+            references: {
+                model: 'Jurisdiction',
+                key: 'id',
+            }
+        },
     });
     await queryInterface.addIndex('MessageDisambiguation', ['submitterId']);
     await queryInterface.addIndex('MessageDisambiguation', ['submitterId', 'status']);
