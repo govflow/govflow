@@ -151,7 +151,7 @@ export class SmsStatusRepository implements ISmsStatusRepository {
         } else {
             const log = [logEntry];
             record = await ChannelStatus.create(
-                { id: From, channel: 'sms', isAllowed, log }
+                { id: From, channel: 'phone', isAllowed, log }
             ) as ChannelStatusInstance;
         }
         return record;
@@ -160,7 +160,7 @@ export class SmsStatusRepository implements ISmsStatusRepository {
     async findOne(phone: string): Promise<ChannelStatusInstance | null> {
         const { ChannelStatus } = this.models;
         const record = await ChannelStatus.findOne(
-            { where: { id: phone, channel: 'sms' }, order: [['createdAt', 'DESC']] }
+            { where: { id: phone, channel: 'phone' }, order: [['createdAt', 'DESC']] }
         ) as ChannelStatusInstance | null;
         return record;
     }
