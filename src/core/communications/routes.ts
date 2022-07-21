@@ -28,7 +28,7 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
         res.status(200).send(messageResponse.toString());
     } else {
         const [record, recordCreated] = await inboundMessageService.createServiceRequest(
-            req.body, disambiguatedPublicId, disambiguatedOriginalMessage
+            req.body, disambiguatedOriginalMessage, disambiguatedPublicId
         );
         const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 

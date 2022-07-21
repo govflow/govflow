@@ -662,7 +662,7 @@ whether you are creating a new service request, or responding to an existing one
             }
             recordCreated = false;
             const validEmails = [...staffEmails, intermediateRecord.email].filter(e => e);
-            const validPhones = [intermediateRecord.phone].filter(e => e); // TODO: Add staff phones wehn we later support it
+            const validPhones = [intermediateRecord.phone].filter(e => e); // TODO: Add staff phones when we later support it
             const canComment = canSubmitterComment(cleanedData.email, cleanedData.phone, validEmails, validPhones);
             if (canComment && intermediateRecord) {
                 const comment = {
