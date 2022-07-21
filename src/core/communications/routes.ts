@@ -26,20 +26,21 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
         const messageResponse = new twiml.MessagingResponse();
         messageResponse.message(disambiguateResponse);
         res.status(200).send(messageResponse.toString());
-    }
-    const [record, recordCreated] = await inboundMessageService.createServiceRequest(
-        req.body, disambiguatedPublicId, disambiguatedOriginalMessage
-    );
-    const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
-
-    let eventName = 'serviceRequestCreate';
-    if (recordCreated) {
-        GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
     } else {
-        eventName = 'serviceRequestCommentBroadcast';
-        GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
+        const [record, recordCreated] = await inboundMessageService.createServiceRequest(
+            req.body, disambiguatedPublicId, disambiguatedOriginalMessage
+        );
+        const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
+
+        let eventName = 'serviceRequestCreate';
+        if (recordCreated) {
+            GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
+        } else {
+            eventName = 'serviceRequestCommentBroadcast';
+            GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
+        }
+        res.status(200).send({ data: { status: 200, message: "Received inbound SMS" } });
     }
-    res.status(200).send({ data: { status: 200, message: "Received inbound SMS" } });
 }))
 
 // public route for web hook integration
