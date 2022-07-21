@@ -6,8 +6,9 @@ import _ from 'lodash';
 import { createApp } from '../src';
 import { Open311ServiceRequestCreatePayload } from '../src/core/open311/types';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
-import { StaffUserDepartmentAttributes, TestDataPayload } from '../src/types';
+import { InboundMapAttributes, StaffUserDepartmentAttributes, TestDataPayload } from '../src/types';
 import { emailEvent } from './fixtures/event-email';
+import { inboundSms } from './fixtures/inbound';
 import { validServiceRequestData } from './fixtures/open311';
 
 chai.use(chaiHttp);
@@ -30,7 +31,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.102-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.103-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -783,6 +784,72 @@ describe('Hit all API endpoints', function () {
             chai.assert.equal(res.body.data.id, base64Phone)
             chai.assert.equal(res.body.data.isAllowed, true)
         }
+    });
+
+    it('runs disambiguation flow for new service request', async function () {
+        const inboundPayload = _.cloneDeep(inboundSms);
+        const sample = _.find(testData.inboundMaps, map => map.channel === 'sms') as InboundMapAttributes;
+        inboundPayload.To = sample?.id;
+
+        const res1 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload);
+
+        chai.assert.equal(res1.status, 200);
+        chai.assert.equal(res1.body.data.message, 'Received inbound SMS');
+
+        const inboundPayload2 = _.cloneDeep(inboundPayload);
+        inboundPayload2.To = sample?.id;
+        inboundPayload2.Body = 'the original message that needs disambiguation';
+
+        const res2 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload2);
+
+        chai.assert.equal(res2.status, 200);
+        chai.assert.equal(res2.text.includes('<?xml version='), true);
+        chai.assert.equal(res2.text.includes('Please help us route your request correctly'), true);
+
+        const inboundPayload3 = _.cloneDeep(inboundPayload);
+        inboundPayload3.To = sample?.id;
+        inboundPayload3.Body = 'butterflies'; // invalid disambiguation response
+
+        const res3 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload3);
+
+        chai.assert.equal(res3.status, 200);
+        chai.assert.equal(res3.text.includes('<?xml version='), true);
+        chai.assert.equal(res3.text.includes('Your response was invalid'), true);
+
+
+        const inboundPayload4 = _.cloneDeep(inboundPayload);
+        inboundPayload4.To = sample?.id;
+        inboundPayload4.Body = '1'; // valid response to create a new service request
+
+        const res4 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload4);
+
+        chai.assert.equal(res4.status, 200);
+        chai.assert.equal(res4.body.data.message, 'Received inbound SMS');
+
+    });
+
+    it('runs disambiguation flow for an existing service request', async function () {
+
+        const inboundPayload1 = _.cloneDeep(inboundSms);
+        const sample = _.find(testData.inboundMaps, map => map.channel === 'sms') as InboundMapAttributes;
+        inboundPayload1.To = sample?.id;
+        inboundPayload1.Body = 'My comment on an existing request';
+
+        const res1 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload1);
+
+        chai.assert.equal(res1.status, 200);
+        chai.assert.equal(res1.text.includes('<?xml version='), true);
+        chai.assert.equal(res1.text.includes('Please help us route your request correctly'), true);
+
+        const inboundPayload2 = _.cloneDeep(inboundPayload1);
+        inboundPayload2.To = sample?.id;
+        inboundPayload2.Body = '2'; // valid response to create a comment on an existing service request
+
+        const res2 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload2);
+
+        chai.assert.equal(res2.status, 200);
+        chai.assert.equal(res2.body.data.message, 'Received inbound SMS');
+
     });
 
     it('should return 501 not implemented error for Open311 service discovery', async function () {
