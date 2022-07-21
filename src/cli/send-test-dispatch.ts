@@ -13,6 +13,7 @@ import { DispatchConfigAttributes } from '../types';
         twilioAccountSid,
         twilioAuthToken,
         twilioFromPhone,
+        twilioStatusCallbackURL,
         testToEmail,
         testToPhone
     } = app.config;
@@ -24,6 +25,7 @@ import { DispatchConfigAttributes } from '../types';
         fromEmail: sendGridFromEmail as string,
         twilioAccountSid: twilioAccountSid as string,
         twilioAuthToken: twilioAuthToken as string,
+        twilioStatusCallbackURL: twilioStatusCallbackURL as string,
         fromPhone: twilioFromPhone as string,
         toPhone: testToPhone as string
     } as DispatchConfigAttributes;

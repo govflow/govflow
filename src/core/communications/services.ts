@@ -12,14 +12,14 @@ import type {
     InboundSmsDataAttributes,
     IOutboundMessageService,
     JurisdictionAttributes,
-    ParsedServiceRequestAttributes,
+    MessageDisambiguationAttributes, ParsedServiceRequestAttributes,
     PublicId,
     RecipientAttributes,
     Repositories,
     ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
-import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeRequestURL } from './helpers';
 import { ServiceRequestService } from '../service-requests';
+import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, findIdentifiers, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeDisambiguationMessage, makeRequestURL, parseDisambiguationChoiceFromText } from './helpers';
 
 @injectable()
 export class OutboundMessageService implements IOutboundMessageService {
@@ -66,6 +66,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
 
@@ -83,6 +84,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
@@ -114,6 +116,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
+                twilioStatusCallbackURL: twilioStatusCallbackURL as string,
                 fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
@@ -151,6 +154,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
         const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
@@ -172,6 +176,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
@@ -208,6 +213,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
         const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
@@ -232,6 +238,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         }
@@ -268,6 +275,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
         const { communicationRepository, emailStatusRepository } = this.repositories;
@@ -285,6 +293,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
+                twilioStatusCallbackURL: twilioStatusCallbackURL as string,
                 fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
@@ -317,6 +326,7 @@ export class OutboundMessageService implements IOutboundMessageService {
                 replyToEmail: replyToEmail as string,
                 twilioAccountSid: twilioAccountSid as string,
                 twilioAuthToken: twilioAuthToken as string,
+                twilioStatusCallbackURL: twilioStatusCallbackURL as string,
                 fromPhone: sendFromPhone as string,
                 toPhone: serviceRequest.phone as string
             }
@@ -354,6 +364,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             twilioAccountSid,
             twilioAuthToken,
             twilioFromPhone,
+            twilioStatusCallbackURL,
             inboundEmailDomain
         } = this.config;
         const {
@@ -397,6 +408,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             replyToEmail: replyToEmail as string,
             twilioAccountSid: twilioAccountSid as string,
             twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
             fromPhone: sendFromPhone as string,
             toPhone: serviceRequest.phone as string
         } as DispatchConfigAttributes
@@ -464,12 +476,14 @@ export class InboundMessageService implements IInboundMessageService {
 
     repositories: Repositories
     config: AppConfig
+    NEW_REQUEST_IDENTIFIER: string
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
         @inject(appIds.AppConfig) config: AppConfig,) {
         this.repositories = repositories;
         this.config = config;
+        this.NEW_REQUEST_IDENTIFIER = 'New Request';
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -486,15 +500,124 @@ export class InboundMessageService implements IInboundMessageService {
         return valids.every(value => properties.includes(value))
     }
 
-    async createServiceRequest(inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes):
+    async disambiguateInboundData(
+        inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes
+    ): Promise<[boolean, string, string, PublicId?]> {
+        const { serviceRequestRepository, messageDisambiguationRepository, inboundMapRepository } = this.repositories;
+        let messageDisambiguationRecord: MessageDisambiguationAttributes | null = null,
+            disambiguate = false,
+            disambiguateResponse = '',
+            disambiguatedPublicId = '',
+            disambiguatedOriginalMessage = '';
+
+        if (this.inboundIsSms(inboundData)) {
+
+            // because it is SMS, we cant just create a new service request,
+            // we need to disambiguate, which we might be able to do automatically,
+            // or we maybe required to ask the submitter for more information.
+            const { To, From, Body } = inboundData;
+            const channel = 'sms', submitterId = From, body = Body;
+            const { jurisdictionId } = await findIdentifiers(
+                To, channel, inboundMapRepository
+            );
+
+            // does this submitter even have an existing open record?
+            const [serviceRequests, _count] = await serviceRequestRepository.findAllForSubmitter(
+                jurisdictionId, channel, submitterId
+            );
+
+            if (serviceRequests && serviceRequests.length > 0) {
+                // The submitter has existing messages, so we do not know
+                // for certain if this is a new service request or a comment on an
+                // existing service request.
+
+                // So, we need to disambiguate by asking the submitter for more information
+
+                // And, we might already be in the middle of a disambiguation process
+                // with the submitter, so our strategy is furthert dependant on if a
+                // disambiguation record for this submitter is currently open.
+
+                // So first, check if we have an open record
+                messageDisambiguationRecord = await messageDisambiguationRepository.findOne(
+                    jurisdictionId, submitterId
+                );
+
+                if (messageDisambiguationRecord) {
+                    // We are in the middle of a disambiguation flow
+                    const choice = parseDisambiguationChoiceFromText(body);
+                    if (!choice) {
+                        // We are unable to parse a valid choice from the inbound data
+                        // So we need to message the submitter again.
+                        const disambiguationFlow = messageDisambiguationRecord.disambiguationFlow
+                        disambiguationFlow.push(body);
+                        const disambiguationMessage = makeDisambiguationMessage(
+                            'Your response was invalid. Try again.', messageDisambiguationRecord.choiceMap
+                        );
+                        disambiguationFlow.push(disambiguationMessage);
+                        await messageDisambiguationRepository.update(messageDisambiguationRecord.id, {
+                            disambiguationFlow
+                        });
+                        disambiguate = true;
+                        disambiguateResponse = disambiguationMessage;
+                    } else {
+                        // we have a valid choice so we can now disambiguate the submitters original message
+                        const choiceIdentifier = messageDisambiguationRecord.choiceMap[choice];
+                        await messageDisambiguationRepository.update(messageDisambiguationRecord.id, {
+                            status: 'closed'
+                        });
+                        disambiguatedPublicId = choiceIdentifier;
+                        disambiguatedOriginalMessage = messageDisambiguationRecord.originalMessage;
+                    }
+                } else {
+                    // We are starting a disambiguation flow so we need to create a record
+                    const choiceMap = { 1: this.NEW_REQUEST_IDENTIFIER } as Record<number, string>;
+                    for (const [index, request] of serviceRequests.entries()) {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        choiceMap[index + 2] = request.publicId
+                    }
+                    const msg = `Please help us route your request correctly.\n\n
+Respond with a number from the following choices so we know
+whether you are creating a new service request, or responding to an existing one.`;
+                    const disambiguationMessage = makeDisambiguationMessage(msg, choiceMap);
+                    const disambiguationFlow = [disambiguationMessage];
+
+                    messageDisambiguationRecord = await messageDisambiguationRepository.create({
+                        jurisdictionId,
+                        submitterId,
+                        originalMessage: body,
+                        disambiguationFlow,
+                        choiceMap,
+                    });
+                    disambiguate = true;
+                    disambiguateResponse = disambiguationMessage;
+                }
+            }
+        }
+        return [disambiguate, disambiguateResponse, disambiguatedOriginalMessage, disambiguatedPublicId];
+    }
+
+    async createServiceRequest(
+        inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes,
+        originalMessage?: string,
+        knownIdentifier?: string
+    ):
         Promise<[ServiceRequestAttributes, boolean]> {
-        const { serviceRequestRepository, staffUserRepository, inboundMapRepository } = this.repositories;
+        const {
+            serviceRequestRepository,
+            staffUserRepository,
+            inboundMapRepository,
+        } = this.repositories;
 
         const { inboundEmailDomain } = this.config;
         let intermediateRecord: ServiceRequestAttributes;
         let recordCreated = true;
         let cleanedData: ParsedServiceRequestAttributes;
         let publicId: PublicId;
+        let knownPublicId: PublicId;
+        if (knownIdentifier && knownIdentifier !== this.NEW_REQUEST_IDENTIFIER) {
+            knownPublicId = knownIdentifier;
+        }
 
         if (this.inboundIsEmail(inboundData)) {
             const { subject, to, cc, bcc, from, text, headers } = inboundData;
@@ -503,14 +626,16 @@ export class InboundMessageService implements IInboundMessageService {
             );
         } else if (this.inboundIsSms(inboundData)) {
             const { To, From, Body } = inboundData;
+            let originalBody = Body;
+            if (originalMessage) { originalBody = originalMessage }
             [cleanedData, publicId] = await extractServiceRequestfromInboundSms(
-                { To, From, Body }, inboundMapRepository
+                { To, From, Body: originalBody }, inboundMapRepository
             );
         } else {
             throw Error("Received an invalid inbound data payload");
         }
 
-        if (publicId || cleanedData.serviceRequestId) {
+        if (knownPublicId || publicId || cleanedData.serviceRequestId) {
             const [staffUsers, _count] = await staffUserRepository.findAll(
                 cleanedData.jurisdictionId, { whereParams: { isAdmin: true } }
             );
@@ -522,7 +647,11 @@ export class InboundMessageService implements IInboundMessageService {
                 ) as StaffUserAttributes;
                 addedBy = staffUserMatch.id;
             }
-            if (cleanedData.serviceRequestId) {
+            if (knownPublicId) {
+                intermediateRecord = await serviceRequestRepository.findOneByPublicId(
+                    cleanedData.jurisdictionId, knownPublicId as unknown as string
+                );
+            } else if (cleanedData.serviceRequestId) {
                 intermediateRecord = await serviceRequestRepository.findOne(
                     cleanedData.jurisdictionId, cleanedData.serviceRequestId
                 );
@@ -532,8 +661,9 @@ export class InboundMessageService implements IInboundMessageService {
                 );
             }
             recordCreated = false;
-            const validEmails = [...staffEmails, intermediateRecord.email];
-            const canComment = canSubmitterComment(cleanedData.email, validEmails);
+            const validEmails = [...staffEmails, intermediateRecord.email].filter(e => e);
+            const validPhones = [intermediateRecord.phone].filter(e => e); // TODO: Add staff phones wehn we later support it
+            const canComment = canSubmitterComment(cleanedData.email, cleanedData.phone, validEmails, validPhones);
             if (canComment && intermediateRecord) {
                 const comment = {
                     comment: cleanedData.description,
@@ -554,11 +684,12 @@ export class InboundMessageService implements IInboundMessageService {
             }
         } else {
             // TODO use proper IoC
-            const serviceRequestRepository = new ServiceRequestService(this.repositories, this.config);
-            intermediateRecord = await serviceRequestRepository.create(
+            const serviceRequestService = new ServiceRequestService(this.repositories, this.config);
+            intermediateRecord = await serviceRequestService.create(
                 cleanedData
             ) as ServiceRequestInstance;
         }
+
         // requery to ensure we have all relations
         const record = await serviceRequestRepository.findOne(
             cleanedData.jurisdictionId, intermediateRecord.id

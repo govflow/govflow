@@ -194,15 +194,33 @@ export type InboundMapCreateAttributes = Partial<InboundMapAttributes>
 export interface InboundMapInstance
     extends Model<InboundMapAttributes, InboundMapCreateAttributes>, InboundMapAttributes { }
 
+export interface MessageDisambiguationAttributes {
+    id: string;
+    jurisdictionId: string;
+    submitterId: string;
+    status: string;
+    result: string;
+    originalMessage: string;
+    disambiguationFlow: string[];
+    choiceMap: Record<number, string>;
+}
+
+export type MessageDisambiguationCreateAttributes = Partial<MessageDisambiguationAttributes>
+
+export interface MessageDisambiguationInstance
+    extends Model<MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes>,
+    MessageDisambiguationAttributes { }
+
 export interface SmsAttributes {
     to: string;
     from: string;
     body: string;
+    statusCallback: string;
 }
 
 export interface EmailAttributes {
     to: string;
-    form: string;
+    from: string;
     subject: string;
     body: string;
 }
@@ -215,6 +233,7 @@ export interface DispatchConfigAttributes {
     replyToEmail: string;
     twilioAccountSid: string;
     twilioAuthToken: string;
+    twilioStatusCallbackURL: string;
     fromPhone: string;
     toPhone: string;
 }
@@ -336,6 +355,15 @@ export interface EmailEventAttributes {
     sg_event_id?: string;
     sg_message_id?: string;
     type?: string;
+}
+
+export interface SmsEventAttributes {
+    SmsSid: string;
+    SmsStatus: string;
+    MessageStatus: string;
+    MessageSid: string;
+    From: string;
+    AccountSid: string;
 }
 
 export interface RecipientAttributes {

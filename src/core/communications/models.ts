@@ -2,6 +2,22 @@ import { DataTypes } from 'sequelize';
 import validator from 'validator';
 import type { ModelDefinition } from '../../types';
 
+export const SMS_EVENT_MAP = {
+    'accepted': null,
+    'queued': null,
+    'sending': null,
+    'receiving': null,
+    'received': null,
+    'canceled': null,
+    'failed': false,
+    'undelivered': false,
+    'sent': true,
+    'delivered': true,
+    'read': true, // whatapp only
+} as Record<string, boolean | null>;
+
+export const SMS_EVENT_MAP_KEYS = Object.keys(SMS_EVENT_MAP);
+
 export const EMAIL_EVENT_MAP = {
     'processed': null, // Message has been received and is ready to be delivered.
     'deferred': null, // Receiving server temporarily rejected the message.
@@ -20,6 +36,16 @@ export const EMAIL_EVENT_MAP = {
 export const EMAIL_EVENT_IGNORE = ['processed', 'deferred', 'open', 'clicked']
 
 export const EMAIL_EVENT_MAP_KEYS = Object.keys(EMAIL_EVENT_MAP);
+
+export const MESSAGE_DISAMBIGUATION_STATUS_KEYS = [
+    'open',
+    'closed'
+]
+
+export const MESSAGE_DISAMBIGUATION_RESULT_KEYS = [
+    'new-request',
+    'existing-request'
+]
 
 export const CommunicationModel: ModelDefinition = {
     name: 'Communication',
@@ -196,5 +222,56 @@ export const ChannelStatusModel: ModelDefinition = {
                 }
             }
         }
+    }
+}
+
+export const MessageDisambiguationModel: ModelDefinition = {
+    name: 'MessageDisambiguation',
+    attributes: {
+        id: {
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            allowNull: false,
+            primaryKey: true,
+        },
+        submitterId: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        status: {
+            allowNull: false,
+            type: DataTypes.ENUM(...MESSAGE_DISAMBIGUATION_STATUS_KEYS),
+            defaultValue: MESSAGE_DISAMBIGUATION_STATUS_KEYS[0],
+        },
+        result: {
+            allowNull: true,
+            type: DataTypes.ENUM(...MESSAGE_DISAMBIGUATION_RESULT_KEYS),
+            defaultValue: MESSAGE_DISAMBIGUATION_RESULT_KEYS[0],
+        },
+        originalMessage: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+        disambiguationFlow: {
+            type: DataTypes.ARRAY(DataTypes.TEXT),
+            allowNull: true,
+        },
+        choiceMap: {
+            type: DataTypes.JSONB,
+            allowNull: true,
+        }
+    },
+    options: {
+        freezeTableName: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['submitterId']
+            },
+            {
+                unique: true,
+                fields: ['submitterId', 'status']
+            },
+        ]
     }
 }

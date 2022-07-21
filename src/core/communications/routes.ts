@@ -1,8 +1,9 @@
 import { Request, Response, Router } from 'express';
 import multer from 'multer';
+import { twiml } from 'twilio';
 import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
-import { EmailEventAttributes, JurisdictionAttributes } from '../../types';
+import { EmailEventAttributes, JurisdictionAttributes, SmsEventAttributes } from '../../types';
 import { GovFlowEmitter } from '../event-listeners';
 import { verifySendGridWebhook } from './helpers';
 import { EMAIL_EVENT_IGNORE } from './models';
@@ -13,7 +14,22 @@ export const communicationsRouter = Router();
 communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
     const { outboundMessageService, inboundMessageService } = res.app.services;
-    const [record, recordCreated] = await inboundMessageService.createServiceRequest(req.body);
+
+    // if we need to disambiguate manually we start a dialog with the submitter here
+    const [
+        disambiguate,
+        disambiguateResponse,
+        disambiguatedOriginalMessage,
+        disambiguatedPublicId
+    ] = await inboundMessageService.disambiguateInboundData(req.body);
+    if (disambiguate) {
+        const messageResponse = new twiml.MessagingResponse();
+        messageResponse.message(disambiguateResponse);
+        res.status(200).send(messageResponse.toString());
+    }
+    const [record, recordCreated] = await inboundMessageService.createServiceRequest(
+        req.body, disambiguatedPublicId, disambiguatedOriginalMessage
+    );
     const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';
@@ -72,6 +88,14 @@ communicationsRouter.post('/events/email', wrapHandler(async (req: Request, res:
     res.status(200).send({ data: { status: 200, message: "Received email event" } });
 }))
 
+// public route for web hook integration
+communicationsRouter.post('/events/sms', wrapHandler(async (req: Request, res: Response) => {
+    const { smsStatusRepository } = res.app.repositories;
+    const event = req.body as unknown as SmsEventAttributes;
+    await smsStatusRepository.createFromEvent(event);
+    res.status(200).send({ data: { status: 200, message: "Received email event" } });
+}))
+
 communicationsRouter.get('/status/email/:email',
     wrapHandler(resolveJurisdiction()),
     enforceJurisdictionAccess,
@@ -82,6 +106,19 @@ communicationsRouter.get('/status/email/:email',
         // So the jurisdiction is not used in the data query.
         const base64Email = req.params.email;
         const record = await emailStatusRepository.isAllowed(base64Email);
+        res.status(200).send({ data: record });
+    }))
+
+communicationsRouter.get('/status/phone/:phone',
+    wrapHandler(resolveJurisdiction()),
+    enforceJurisdictionAccess,
+    wrapHandler(async (req: Request, res: Response) => {
+        const { smsStatusRepository } = res.app.repositories;
+        // We enforce jurisdiction access for security, but actually
+        // our email delivery status is global, not by jurisdiction
+        // So the jurisdiction is not used in the data query.
+        const base64Phone = req.params.phone;
+        const record = await smsStatusRepository.isAllowed(base64Phone);
         res.status(200).send({ data: record });
     }))
 

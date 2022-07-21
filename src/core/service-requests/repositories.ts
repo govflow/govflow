@@ -1,7 +1,7 @@
 import merge from 'deepmerge';
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
-import sequelize from 'sequelize';
+import sequelize, { Op } from 'sequelize';
 import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
 import type {
@@ -107,6 +107,26 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         const params = merge(
             queryParamsToSequelize(queryParams), { where: { jurisdictionId }, order: [['createdAt', 'DESC']] }
         );
+        const records = await ServiceRequest.findAll(params) as ServiceRequestInstance[];
+        return [records, records.length];
+    }
+
+    async findAllForSubmitter(
+        jurisdictionId: string, channel: string, submitterId: string
+    ): Promise<[ServiceRequestAttributes[], number]> {
+        const { ServiceRequest } = this.models;
+        // TODO: support channel to get the submitterId from email or phone fields
+        // currently, we know it is a phone based on the usage of this method
+        // only for disambiguation of inbound sms data
+
+        const params = {
+            where: {
+                jurisdictionId,
+                channel,
+                phone: submitterId,
+                status: { [Op.notIn]: SERVICE_REQUEST_CLOSED_STATES }
+            }
+        };
         const records = await ServiceRequest.findAll(params) as ServiceRequestInstance[];
         return [records, records.length];
     }

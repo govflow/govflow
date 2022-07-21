@@ -7,8 +7,10 @@ export const repositoryIds = {
     IEventRepository: Symbol('IEventRepository'),
     ICommunicationRepository: Symbol('ICommunicationRepository'),
     IEmailStatusRepository: Symbol('IEmailStatusRepository'),
+    ISmsStatusRepository: Symbol('ISmsStatusRepository'),
     IDepartmentRepository: Symbol('IDepartmentRepository'),
     IInboundMapRepository: Symbol('IInboundMapRepository'),
+    IMessageDisambiguationRepository: Symbol('IMessageDisambiguationRepository'),
 };
 
 export const serviceIds = {
