@@ -22,8 +22,8 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
         disambiguatedOriginalMessage,
         disambiguatedPublicId
     ] = await inboundMessageService.disambiguateInboundData(req.body);
+    const messageResponse = new twiml.MessagingResponse();
     if (disambiguate) {
-        const messageResponse = new twiml.MessagingResponse();
         messageResponse.message(disambiguateResponse);
         res.status(200).send(messageResponse.toString());
     } else {
@@ -39,7 +39,7 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
             eventName = 'serviceRequestCommentBroadcast';
             GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
         }
-        res.status(200).send({ data: { status: 200, message: "Received inbound SMS" } });
+        res.status(200).send(messageResponse.toString());
     }
 }))
 
