@@ -871,7 +871,8 @@ describe('Hit all API endpoints', function () {
         chai.assert(res.text.endsWith('</services>'));
     });
 
-    it('should POST a service request as Open311 for a jurisdiction', async function () {
+    it('should POST a service request with email and phone as Open311 for a jurisdiction', async function () {
+        const { serviceRequestRepository } = app.repositories;
         const jurisdiction_id = testData.jurisdictions[0].id;
         const jurisdiction_services = _.filter(testData.services, { jurisdictionId: jurisdiction_id });
         const service_code = jurisdiction_services[0].id;
@@ -883,6 +884,68 @@ describe('Hit all API endpoints', function () {
         const res = await chai.request(app).post(`/open311/v2/requests.json`).send(serviceRequestData);
         chai.assert.equal(res.status, 200);
         chai.assert.equal(res.body.data.service_code, serviceRequestData.service_code);
+
+        const record = await serviceRequestRepository.findOne(jurisdiction_id, res.body.data.service_request_id)
+        chai.assert.equal(record.channel, 'email');
+    });
+
+    it('should POST a service request with email as Open311 for a jurisdiction', async function () {
+        const { serviceRequestRepository } = app.repositories;
+        const jurisdiction_id = testData.jurisdictions[0].id;
+        const jurisdiction_services = _.filter(testData.services, { jurisdictionId: jurisdiction_id });
+        const service_code = jurisdiction_services[0].id;
+        const serviceRequestData = _.cloneDeep(
+            validServiceRequestData[0]
+        ) as unknown as Open311ServiceRequestCreatePayload;
+        delete serviceRequestData.phone
+        serviceRequestData.jurisdiction_id = jurisdiction_id;
+        serviceRequestData.service_code = service_code;
+        const res = await chai.request(app).post(`/open311/v2/requests.json`).send(serviceRequestData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.service_code, serviceRequestData.service_code);
+
+        const record = await serviceRequestRepository.findOne(jurisdiction_id, res.body.data.service_request_id)
+        chai.assert.equal(record.channel, 'email');
+    });
+
+    it('should POST a service request with phone as Open311 for a jurisdiction', async function () {
+        const { serviceRequestRepository } = app.repositories;
+        const jurisdiction_id = testData.jurisdictions[0].id;
+        const jurisdiction_services = _.filter(testData.services, { jurisdictionId: jurisdiction_id });
+        const service_code = jurisdiction_services[0].id;
+        const serviceRequestData = _.cloneDeep(
+            validServiceRequestData[0]
+        ) as unknown as Open311ServiceRequestCreatePayload;
+        delete serviceRequestData.email
+        serviceRequestData.jurisdiction_id = jurisdiction_id;
+        serviceRequestData.service_code = service_code;
+        const res = await chai.request(app).post(`/open311/v2/requests.json`).send(serviceRequestData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.service_code, serviceRequestData.service_code);
+
+        const record = await serviceRequestRepository.findOne(jurisdiction_id, res.body.data.service_request_id)
+        chai.assert.equal(record.channel, 'sms');
+    });
+
+
+    it('should POST an anonymous service request as Open311 for a jurisdiction', async function () {
+        const { serviceRequestRepository } = app.repositories;
+        const jurisdiction_id = testData.jurisdictions[0].id;
+        const jurisdiction_services = _.filter(testData.services, { jurisdictionId: jurisdiction_id });
+        const service_code = jurisdiction_services[0].id;
+        const serviceRequestData = _.cloneDeep(
+            validServiceRequestData[0]
+        ) as unknown as Open311ServiceRequestCreatePayload;
+        delete serviceRequestData.email
+        delete serviceRequestData.phone
+        serviceRequestData.jurisdiction_id = jurisdiction_id;
+        serviceRequestData.service_code = service_code;
+        const res = await chai.request(app).post(`/open311/v2/requests.json`).send(serviceRequestData);
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.service_code, serviceRequestData.service_code);
+
+        const record = await serviceRequestRepository.findOne(jurisdiction_id, res.body.data.service_request_id)
+        chai.assert.equal(record.channel, 'anon');
     });
 
     it('should return 501 error for GET one service as Open311 in JSON format', async function () {
