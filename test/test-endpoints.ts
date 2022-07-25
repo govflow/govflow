@@ -794,7 +794,6 @@ describe('Hit all API endpoints', function () {
         const res1 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload);
 
         chai.assert.equal(res1.status, 200);
-        chai.assert.equal(res1.body.data.message, 'Received inbound SMS');
 
         const inboundPayload2 = _.cloneDeep(inboundPayload);
         inboundPayload2.To = sample?.id;
@@ -824,7 +823,6 @@ describe('Hit all API endpoints', function () {
         const res4 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload4);
 
         chai.assert.equal(res4.status, 200);
-        chai.assert.equal(res4.body.data.message, 'Received inbound SMS');
 
     });
 
@@ -848,7 +846,6 @@ describe('Hit all API endpoints', function () {
         const res2 = await chai.request(app).post(`/communications/inbound/sms`).send(inboundPayload2);
 
         chai.assert.equal(res2.status, 200);
-        chai.assert.equal(res2.body.data.message, 'Received inbound SMS');
 
     });
 
