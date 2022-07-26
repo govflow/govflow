@@ -200,4 +200,17 @@ describe('Verify Core Communications Functionality.', function () {
         );
         chai.assert(record);
     });
+
+    it('dispatches a service request comment notification', async function () {
+        const { outboundMessageService } = app.services;
+        const { serviceRequestRepository } = app.repositories;
+        const jurisdiction = testData.jurisdictions[0];
+        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
+        const serviceRequest = serviceRequests[0];
+        const data = { comment: "hey you", addBy: "__SUBMITTER__" };
+        const comment = await serviceRequestRepository.createComment(jurisdiction.id, serviceRequest.id, data)
+        const record = await outboundMessageService.dispatchServiceRequestComment(jurisdiction, comment);
+        chai.assert(record);
+    });
+
 });
