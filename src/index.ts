@@ -4,6 +4,7 @@ import 'reflect-metadata';
 import { initConfig } from './config';
 import { coreMiddlewares, coreModels, coreRoutes } from './core';
 import { initDb } from './db';
+import logger from './logging';
 import { bindImplementationsWithPlugins } from './registry';
 import type { AppConfig, DatabaseEngine, JurisdictionAttributes, MigrationEngine, ModelPlugin, PluginRegistry, Repositories, Services, StaffUserAttributes } from './types';
 
@@ -27,6 +28,14 @@ declare global {
     }
 }
 /* eslint-enable */
+
+process.on('uncaughtException', (err) => {
+    const dataToLog = { message: `${err.message}`, error: `${err}` }
+    logger.error(dataToLog);
+    logger.on('finish', () => {
+        process.exit(1);
+    });
+});
 
 export async function createApp(): Promise<Application> {
 
