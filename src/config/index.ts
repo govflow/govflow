@@ -22,6 +22,8 @@ const defaultConfig: Partial<AppConfig> = {
     'twilioAuthToken': process.env.TWILIO_AUTH_TOKEN || '',
     'twilioFromPhone': process.env.TWILIO_FROM_PHONE || '',
     'twilioStatusCallbackURL': process.env.TWILIO_STATUS_CALLBACK_URL || '',
+    'sentryDsn': process.env.SENTRY_DSN || '',
+    'sentryEnvironment': process.env.SENTRY_ENVIRONMENT || '',
     'testToEmail': process.env.TEST_TO_EMAIL || '',
     'testToPhone': process.env.TEST_TO_PHONE || '',
     'appPort': parseInt(process.env.APP_PORT || '3000', 10),

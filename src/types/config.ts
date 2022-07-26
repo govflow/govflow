@@ -12,6 +12,8 @@ export interface AppConfig {
     twilioAuthToken: string;
     twilioFromPhone: string;
     twilioStatusCallbackURL: string;
+    sentryDsn: string;
+    sentryEnvironment: string;
     testToEmail: string;
     testToPhone: string;
     appPort: number;

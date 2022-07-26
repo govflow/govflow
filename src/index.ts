@@ -1,8 +1,9 @@
+import * as Sentry from "@sentry/node";
 import type { Application } from 'express';
 import express from 'express';
 import 'reflect-metadata';
 import { initConfig } from './config';
-import { coreMiddlewares, coreModels, coreRoutes } from './core';
+import { coreMiddlewares, coreModels, coreRoutes, internalServerError, notFound } from './core';
 import { initDb } from './db';
 import logger from './logging';
 import { bindImplementationsWithPlugins } from './registry';
@@ -42,6 +43,7 @@ export async function createApp(): Promise<Application> {
     // Read custom configurations from appSettings and register
     // onto config, including overriding existing configurations.
     const config = await initConfig();
+    if (config.sentryDsn) { Sentry.init({ dsn: config.sentryDsn, environment: config.sentryEnvironment }); }
 
     await initDb(config.database as DatabaseEngine, coreModels, config.plugins?.models as ModelPlugin[])
 
@@ -62,12 +64,16 @@ export async function createApp(): Promise<Application> {
     app.repositories = repositories;
     app.services = services;
 
+    if (config.sentryDsn) { app.use(Sentry.Handlers.requestHandler()); }
     // Use core middleware and mount routes.
     app.use(coreMiddlewares);
     if (middlewares && middlewares.length > 0) {
         app.use(middlewares);
     }
     app.use('/', coreRoutes);
+    if (config.sentryDsn) { app.use(Sentry.Handlers.errorHandler()); }
+    app.use(notFound, internalServerError);
+
 
     return app;
 }

@@ -26,7 +26,6 @@ coreRoutes.use('/jurisdictions', jurisdictionRouter);
 coreRoutes.use('/departments', departmentRouter);
 coreRoutes.use('/storage', storageRouter);
 coreRoutes.use('/open311/v2', open311Router);
-coreRoutes.use(notFound, internalServerError);
 
 const coreModels: ModelDefinition[] = [
     JurisdictionModel,
