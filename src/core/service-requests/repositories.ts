@@ -84,7 +84,14 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
                 { model: ServiceRequestComment, as: 'comments' },
                 { model: InboundMap, as: 'inboundMaps' }
             ],
+            order: [
+                [{ model: ServiceRequestComment, as: 'comments' }, 'createdAt', 'ASC']
+            ]
         };
+        // sequelize v6 typescript does not like the order clause
+        // even though it is valid so, need to ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const record = await ServiceRequest.findOne(params) as ServiceRequestInstance;
         return record;
     }
@@ -97,7 +104,14 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
                 { model: ServiceRequestComment, as: 'comments' },
                 { model: InboundMap, as: 'inboundMaps' }
             ],
+            order: [
+                [{ model: ServiceRequestComment, as: 'comments' }, 'createdAt', 'ASC']
+            ]
         };
+        // sequelize v6 typescript does not like the order clause
+        // even though it is valid so, need to ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const record = await ServiceRequest.findOne(params) as ServiceRequestInstance;
         return record;
     }

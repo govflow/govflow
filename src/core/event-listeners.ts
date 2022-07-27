@@ -28,7 +28,7 @@ GovFlowEmitter.on('serviceRequestClosed', async (jurisdiction, serviceRequest, d
     await serviceRequestClosedHandler(jurisdiction, serviceRequest, dispatchHandler);
 });
 
-GovFlowEmitter.on('serviceRequestCommentBroadcast', async (jurisdiction, serviceRequest, dispatchHandler) => {
+GovFlowEmitter.on('serviceRequestCommentBroadcast', async (jurisdiction, serviceRequestComment, dispatchHandler) => {
     logger.info('Responding to serviceRequestCommentBroadcast event.');
-    await serviceRequestCommentBroadcastHandler(jurisdiction, serviceRequest, dispatchHandler);
+    await serviceRequestCommentBroadcastHandler(jurisdiction, serviceRequestComment, dispatchHandler);
 });

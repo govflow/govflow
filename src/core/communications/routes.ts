@@ -27,17 +27,17 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
         messageResponse.message(disambiguateResponse);
         res.status(200).send(messageResponse.toString());
     } else {
-        const [record, recordCreated] = await inboundMessageService.createServiceRequest(
+        const [record, commentRecord] = await inboundMessageService.createServiceRequest(
             req.body, disambiguatedOriginalMessage, disambiguatedPublicId
         );
         const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
         let eventName = 'serviceRequestCreate';
-        if (recordCreated) {
+        if (!commentRecord) {
             GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
         } else {
             eventName = 'serviceRequestCommentBroadcast';
-            GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
+            GovFlowEmitter.emit(eventName, jurisdiction, commentRecord, outboundMessageService);
         }
         res.status(200).send(messageResponse.toString());
     }

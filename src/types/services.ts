@@ -47,7 +47,7 @@ export interface IInboundMessageService extends ServiceBase {
         disambiguatedOriginalMessage?: string,
         knownIdentifier?: string
     ) =>
-        Promise<[ServiceRequestAttributes, boolean]>;
+        Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes | undefined]>;
     createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
 }
 

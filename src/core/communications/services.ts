@@ -602,16 +602,15 @@ whether you are creating a new service request, or responding to an existing one
         originalMessage?: string,
         knownIdentifier?: string
     ):
-        Promise<[ServiceRequestAttributes, boolean]> {
+        Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes | undefined]> {
         const {
             serviceRequestRepository,
             staffUserRepository,
             inboundMapRepository,
         } = this.repositories;
-
         const { inboundEmailDomain } = this.config;
         let intermediateRecord: ServiceRequestAttributes;
-        let recordCreated = true;
+        let commentRecord: ServiceRequestCommentAttributes | undefined = undefined;
         let cleanedData: ParsedServiceRequestAttributes;
         let publicId: PublicId;
         let knownPublicId: PublicId;
@@ -660,7 +659,6 @@ whether you are creating a new service request, or responding to an existing one
                     cleanedData.jurisdictionId, publicId as unknown as string
                 );
             }
-            recordCreated = false;
             const validEmails = [...staffEmails, intermediateRecord.email].filter(e => e);
             const validPhones = [intermediateRecord.phone].filter(e => e); // TODO: Add staff phones when we later support it
             const canComment = canSubmitterComment(cleanedData.email, cleanedData.phone, validEmails, validPhones);
@@ -674,7 +672,7 @@ whether you are creating a new service request, or responding to an existing one
                     broadcastToStaff: true,
                     broadcastToAssignee: true,
                 };
-                await serviceRequestRepository.createComment(
+                commentRecord = await serviceRequestRepository.createComment(
                     cleanedData.jurisdictionId, intermediateRecord.id, comment
                 );
             } else {
@@ -694,7 +692,7 @@ whether you are creating a new service request, or responding to an existing one
         const record = await serviceRequestRepository.findOne(
             cleanedData.jurisdictionId, intermediateRecord.id
         );
-        return [record, recordCreated];
+        return [record, commentRecord];
     }
 
     async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {
