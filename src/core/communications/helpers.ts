@@ -106,7 +106,7 @@ export async function dispatchMessage(
         const emailStatus = await EmailStatusRepository.findOne(dispatchConfig.toEmail);
         if (emailStatus && emailStatus.isAllowed === false) {
             const errorMsg = `${dispatchConfig.toEmail} is not allowed for communications.`;
-            logger.error(errorMsg);
+            logger.error({ message: errorMsg });
             throw new Error(errorMsg);
         }
         subject = await loadTemplate(

@@ -73,7 +73,8 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
             record[key] = value;
         }
         record = await record.save();
-        return record;
+        // re-querying to get all properties that are set in `findOne`
+        return await this.findOne(record.jurisdictionId, record.id);
     }
 
     async findOne(jurisdictionId: string, id: string): Promise<ServiceRequestAttributes> {
