@@ -38,7 +38,15 @@ export interface IOutboundMessageService extends ServiceBase {
 }
 
 export interface IInboundMessageService extends ServiceBase {
+    createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
+}
+
+export interface IServiceRequestService extends ServiceBase {
     NEW_REQUEST_IDENTIFIER: string;
+    create: (data: ServiceRequestCreateAttributes) => Promise<ServiceRequestAttributes>;
+    createAuditedStateChange: (
+        jurisdictionId: string, id: string, key: string, value: string, extraData?: AuditedStateChangeExtraData
+    ) => Promise<ServiceRequestAttributes | ServiceRequestStateChangeErrorResponse>;
     disambiguateInboundData: (
         inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes
     ) => Promise<[boolean, string, string, PublicId?]>;
@@ -48,14 +56,6 @@ export interface IInboundMessageService extends ServiceBase {
         knownIdentifier?: string
     ) =>
         Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes | undefined]>;
-    createMap: (data: InboundMapAttributes) => Promise<InboundMapAttributes>;
-}
-
-export interface IServiceRequestService extends ServiceBase {
-    create: (data: ServiceRequestCreateAttributes) => Promise<ServiceRequestAttributes>;
-    createAuditedStateChange: (
-        jurisdictionId: string, id: string, key: string, value: string, extraData?: AuditedStateChangeExtraData
-    ) => Promise<ServiceRequestAttributes | ServiceRequestStateChangeErrorResponse>;
 }
 
 export interface IStaffUserService extends ServiceBase {

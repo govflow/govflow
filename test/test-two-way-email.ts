@@ -63,7 +63,7 @@ describe('Test two-way email communications.', function () {
 
     it('receives an email to create a service request comment when email is from submitter', async function () {
         const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
-        const { inboundMessageService } = app.services;
+        const { serviceRequestService } = app.services;
         const { inboundEmailDomain, sendGridFromEmail } = app.config;
         const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         // START need this for the logic of this test, to ensure we get an inbound email for the request
@@ -79,7 +79,7 @@ describe('Test two-way email communications.', function () {
         inboundPayload.from = serviceRequestSubmitterEmail;
         inboundPayload.subject = '[Request #3456789]: this is the subject';
         inboundPayload.text = 'this is the message';
-        await inboundMessageService.createServiceRequest(inboundPayload);
+        await serviceRequestService.createServiceRequest(inboundPayload);
         const updatedServiceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
         chai.assert.equal(updatedServiceRequest.comments.length, 2);
@@ -88,7 +88,7 @@ describe('Test two-way email communications.', function () {
 
     it('receives an email to create a service request comment when email is from staff', async function () {
         const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
-        const { inboundMessageService } = app.services;
+        const { serviceRequestService } = app.services;
         const { inboundEmailDomain, sendGridFromEmail } = app.config;
         const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         // START need this for the logic of this test, to ensure we get an inbound email for the request
@@ -107,7 +107,7 @@ describe('Test two-way email communications.', function () {
         inboundPayload.subject = '[Request #98765432]: this is the subject';
         // also testing here we clean up the body from some extra patterns
         inboundPayload.text = '> > >\nOn Mon, Apr 25, 2022 Some One <some@example.com> wrote: \n\nthis is the message';
-        await inboundMessageService.createServiceRequest(inboundPayload);
+        await serviceRequestService.createServiceRequest(inboundPayload);
         const updatedServiceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
         chai.assert.equal(updatedServiceRequest.comments.length, 3);

@@ -13,7 +13,7 @@ export const communicationsRouter = Router();
 // public route for web hook integration
 communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
-    const { outboundMessageService, inboundMessageService } = res.app.services;
+    const { outboundMessageService, serviceRequestService } = res.app.services;
 
     // if we need to disambiguate manually we start a dialog with the submitter here
     const [
@@ -21,13 +21,13 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
         disambiguateResponse,
         disambiguatedOriginalMessage,
         disambiguatedPublicId
-    ] = await inboundMessageService.disambiguateInboundData(req.body);
+    ] = await serviceRequestService.disambiguateInboundData(req.body);
     const messageResponse = new twiml.MessagingResponse();
     if (disambiguate) {
         messageResponse.message(disambiguateResponse);
         res.status(200).send(messageResponse.toString());
     } else {
-        const [record, commentRecord] = await inboundMessageService.createServiceRequest(
+        const [record, commentRecord] = await serviceRequestService.createServiceRequest(
             req.body, disambiguatedOriginalMessage, disambiguatedPublicId
         );
         const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
@@ -46,8 +46,8 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
 // public route for web hook integration
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
-    const { outboundMessageService, inboundMessageService } = res.app.services;
-    const [record, commentRecord] = await inboundMessageService.createServiceRequest(req.body);
+    const { outboundMessageService, serviceRequestService } = res.app.services;
+    const [record, commentRecord] = await serviceRequestService.createServiceRequest(req.body);
     const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';

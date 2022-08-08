@@ -1,25 +1,16 @@
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
-import logger from '../../logging';
 import { appIds } from '../../registry/service-identifiers';
 import type {
     AppConfig,
     CommunicationAttributes,
     DispatchConfigAttributes,
-    IInboundMessageService,
-    InboundEmailDataAttributes,
-    InboundMapAttributes,
-    InboundSmsDataAttributes,
-    IOutboundMessageService,
-    JurisdictionAttributes,
-    MessageDisambiguationAttributes, ParsedServiceRequestAttributes,
-    PublicId,
-    RecipientAttributes,
+    IInboundMessageService, InboundMapAttributes, IOutboundMessageService,
+    JurisdictionAttributes, RecipientAttributes,
     Repositories,
-    ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes
+    ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes
 } from '../../types';
-import { ServiceRequestService } from '../service-requests';
-import { canSubmitterComment, dispatchMessage, extractServiceRequestfromInboundEmail, extractServiceRequestfromInboundSms, findIdentifiers, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeDisambiguationMessage, makeRequestURL, parseDisambiguationChoiceFromText } from './helpers';
+import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeRequestURL } from './helpers';
 
 @injectable()
 export class OutboundMessageService implements IOutboundMessageService {
@@ -476,225 +467,12 @@ export class InboundMessageService implements IInboundMessageService {
 
     repositories: Repositories
     config: AppConfig
-    NEW_REQUEST_IDENTIFIER: string
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
         @inject(appIds.AppConfig) config: AppConfig,) {
         this.repositories = repositories;
         this.config = config;
-        this.NEW_REQUEST_IDENTIFIER = 'New Request';
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inboundIsEmail(data: any): data is InboundEmailDataAttributes {
-        const valids = ['to', 'from', 'subject', 'text', 'envelope', 'dkim', 'SPF'];
-        const properties = Object.keys(data)
-        return valids.every(value => properties.includes(value))
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inboundIsSms(data: any): data is InboundSmsDataAttributes {
-        const valids = ['To', 'From', 'Body', 'MessageSid', 'AccountSid', 'SmsMessageSid'];
-        const properties = Object.keys(data)
-        return valids.every(value => properties.includes(value))
-    }
-
-    async disambiguateInboundData(
-        inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes
-    ): Promise<[boolean, string, string, PublicId?]> {
-        const { serviceRequestRepository, messageDisambiguationRepository, inboundMapRepository } = this.repositories;
-        let messageDisambiguationRecord: MessageDisambiguationAttributes | null = null,
-            disambiguate = false,
-            disambiguateResponse = '',
-            disambiguatedPublicId = '',
-            disambiguatedOriginalMessage = '';
-
-        if (this.inboundIsSms(inboundData)) {
-
-            // because it is SMS, we cant just create a new service request,
-            // we need to disambiguate, which we might be able to do automatically,
-            // or we maybe required to ask the submitter for more information.
-            const { To, From, Body } = inboundData;
-            const channel = 'sms', submitterId = From, body = Body;
-            const { jurisdictionId } = await findIdentifiers(
-                To, channel, inboundMapRepository
-            );
-
-            // does this submitter even have an existing open record?
-            const [serviceRequests, _count] = await serviceRequestRepository.findAllForSubmitter(
-                jurisdictionId, channel, submitterId
-            );
-
-            if (serviceRequests && serviceRequests.length > 0) {
-                // The submitter has existing messages, so we do not know
-                // for certain if this is a new service request or a comment on an
-                // existing service request.
-
-                // So, we need to disambiguate by asking the submitter for more information
-
-                // And, we might already be in the middle of a disambiguation process
-                // with the submitter, so our strategy is furthert dependant on if a
-                // disambiguation record for this submitter is currently open.
-
-                // So first, check if we have an open record
-                messageDisambiguationRecord = await messageDisambiguationRepository.findOne(
-                    jurisdictionId, submitterId
-                );
-
-                if (messageDisambiguationRecord) {
-                    // We are in the middle of a disambiguation flow
-                    const choice = parseDisambiguationChoiceFromText(body);
-                    if (!choice) {
-                        // We are unable to parse a valid choice from the inbound data
-                        // So we need to message the submitter again.
-                        const disambiguationFlow = messageDisambiguationRecord.disambiguationFlow
-                        disambiguationFlow.push(body);
-                        const disambiguationMessage = makeDisambiguationMessage(
-                            'Your response was invalid. Try again.', messageDisambiguationRecord.choiceMap
-                        );
-                        disambiguationFlow.push(disambiguationMessage);
-                        await messageDisambiguationRepository.update(messageDisambiguationRecord.id, {
-                            disambiguationFlow
-                        });
-                        disambiguate = true;
-                        disambiguateResponse = disambiguationMessage;
-                    } else {
-                        // we have a valid choice so we can now disambiguate the submitters original message
-                        const choiceIdentifier = messageDisambiguationRecord.choiceMap[choice];
-                        await messageDisambiguationRepository.update(messageDisambiguationRecord.id, {
-                            status: 'closed'
-                        });
-                        disambiguatedPublicId = choiceIdentifier;
-                        disambiguatedOriginalMessage = messageDisambiguationRecord.originalMessage;
-                    }
-                } else {
-                    // We are starting a disambiguation flow so we need to create a record
-                    const choiceMap = { 1: this.NEW_REQUEST_IDENTIFIER } as Record<number, string>;
-                    for (const [index, request] of serviceRequests.entries()) {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        choiceMap[index + 2] = request.publicId
-                    }
-                    const msg = `Please help us route your request correctly.\n\n
-Respond with a number from the following choices so we know
-whether you are creating a new service request, or responding to an existing one.`;
-                    const disambiguationMessage = makeDisambiguationMessage(msg, choiceMap);
-                    const disambiguationFlow = [disambiguationMessage];
-
-                    messageDisambiguationRecord = await messageDisambiguationRepository.create({
-                        jurisdictionId,
-                        submitterId,
-                        originalMessage: body,
-                        disambiguationFlow,
-                        choiceMap,
-                    });
-                    disambiguate = true;
-                    disambiguateResponse = disambiguationMessage;
-                }
-            }
-        }
-        return [disambiguate, disambiguateResponse, disambiguatedOriginalMessage, disambiguatedPublicId];
-    }
-
-    async createServiceRequest(
-        inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes,
-        originalMessage?: string,
-        knownIdentifier?: string
-    ):
-        Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes | undefined]> {
-        const {
-            serviceRequestRepository,
-            staffUserRepository,
-            inboundMapRepository,
-        } = this.repositories;
-        const { inboundEmailDomain } = this.config;
-        let intermediateRecord: ServiceRequestAttributes;
-        let commentRecord: ServiceRequestCommentAttributes | undefined = undefined;
-        let cleanedData: ParsedServiceRequestAttributes;
-        let publicId: PublicId;
-        let knownPublicId: PublicId;
-        if (knownIdentifier && knownIdentifier !== this.NEW_REQUEST_IDENTIFIER) {
-            knownPublicId = knownIdentifier;
-        }
-
-        if (this.inboundIsEmail(inboundData)) {
-            const { subject, to, cc, bcc, from, text, headers } = inboundData;
-            [cleanedData, publicId] = await extractServiceRequestfromInboundEmail(
-                { subject, to, cc, bcc, from, text, headers }, inboundEmailDomain, inboundMapRepository
-            );
-        } else if (this.inboundIsSms(inboundData)) {
-            const { To, From, Body } = inboundData;
-            let originalBody = Body;
-            if (originalMessage) { originalBody = originalMessage }
-            [cleanedData, publicId] = await extractServiceRequestfromInboundSms(
-                { To, From, Body: originalBody }, inboundMapRepository
-            );
-        } else {
-            const dataToLog = { message: 'Invalid Comment Submitter.', data: inboundData }
-            logger.error(dataToLog);
-            throw new Error("Received an invalid inbound data payload");
-        }
-
-        if (knownPublicId || publicId || cleanedData.serviceRequestId) {
-            const [staffUsers, _count] = await staffUserRepository.findAll(
-                cleanedData.jurisdictionId, { whereParams: { isAdmin: true } }
-            );
-            const staffEmails = staffUsers.map((user: StaffUserAttributes) => { return user.email }) as string[];
-            let addedBy = '__SUBMITTER__';
-            if (staffEmails.includes(cleanedData.email)) {
-                const staffUserMatch = _.find(
-                    staffUsers, (u) => { return u.email === cleanedData.email }
-                ) as StaffUserAttributes;
-                addedBy = staffUserMatch.id;
-            }
-            if (knownPublicId) {
-                intermediateRecord = await serviceRequestRepository.findOneByPublicId(
-                    cleanedData.jurisdictionId, knownPublicId as unknown as string
-                );
-            } else if (cleanedData.serviceRequestId) {
-                intermediateRecord = await serviceRequestRepository.findOne(
-                    cleanedData.jurisdictionId, cleanedData.serviceRequestId
-                );
-            } else {
-                intermediateRecord = await serviceRequestRepository.findOneByPublicId(
-                    cleanedData.jurisdictionId, publicId as unknown as string
-                );
-            }
-            const validEmails = [...staffEmails, intermediateRecord.email].filter(e => e);
-            const validPhones = [intermediateRecord.phone].filter(e => e); // TODO: Add staff phones when we later support it
-            const canComment = canSubmitterComment(cleanedData.email, cleanedData.phone, validEmails, validPhones);
-            if (canComment && intermediateRecord) {
-                const comment = {
-                    comment: cleanedData.description,
-                    addedBy,
-                    // TODO: These are hard coded for now, but should really be made configurable via the InboundMap
-                    // or some other means. The hardcoded assumption here is that inbound messages
-                    // will be broadcast to staff and assignees
-                    broadcastToStaff: true,
-                    broadcastToAssignee: true,
-                };
-                commentRecord = await serviceRequestRepository.createComment(
-                    cleanedData.jurisdictionId, intermediateRecord.id, comment
-                );
-            } else {
-                const dataToLog = { message: 'Invalid Comment Submitter.', data: inboundData }
-                logger.error(dataToLog);
-                throw new Error(dataToLog.message);
-            }
-        } else {
-            // TODO use proper IoC
-            const serviceRequestService = new ServiceRequestService(this.repositories, this.config);
-            intermediateRecord = await serviceRequestService.create(
-                cleanedData
-            ) as ServiceRequestInstance;
-        }
-
-        // requery to ensure we have all relations
-        const record = await serviceRequestRepository.findOne(
-            cleanedData.jurisdictionId, intermediateRecord.id
-        );
-        return [record, commentRecord];
     }
 
     async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {
