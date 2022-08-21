@@ -39,3 +39,11 @@ export async function serviceRequestCommentBroadcastHandler(
 ): Promise<void> {
     await dispatchHandler.dispatchServiceRequestComment(jurisdiction, serviceRequestComment);
 }
+
+export async function cxSurveyHandler(
+    jurisdiction: JurisdictionAttributes,
+    serviceRequest: ServiceRequestAttributes,
+    dispatchHandler: IOutboundMessageService
+): Promise<void> {
+    await dispatchHandler.dispatchCXSurvey(jurisdiction, serviceRequest);
+}

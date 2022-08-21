@@ -12,6 +12,10 @@ export interface JurisdictionAttributes {
     sendFromEmailVerified: boolean,
     replyToEmail?: string;
     replyToServiceRequestEnabled: boolean;
+    cxSurveyEnabled: boolean;
+    cxSurveyTriggerStatus: string;
+    cxSurveyUrl: string;
+    cxSurveyBroadcastWindow: number;
     address?: string;
     city?: string;
     state?: string;

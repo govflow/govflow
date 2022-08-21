@@ -10,7 +10,7 @@ import type {
     Repositories,
     ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes
 } from '../../types';
-import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeRequestURL } from './helpers';
+import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeCXSurveyURL, makeRequestURL } from './helpers';
 
 @injectable()
 export class OutboundMessageService implements IOutboundMessageService {
@@ -459,6 +459,67 @@ export class OutboundMessageService implements IOutboundMessageService {
             if (record) { records.push(record); }
         }
         return records;
+    }
+
+    async dispatchCXSurvey(
+        jurisdiction: JurisdictionAttributes,
+        serviceRequest: ServiceRequestAttributes,
+    ): Promise<CommunicationAttributes | null> {
+
+        const { cxSurveyEnabled, cxSurveyTriggerStatus } = jurisdiction;
+        if (!cxSurveyEnabled) {
+            return null;
+        }
+
+        if (serviceRequest.status !== cxSurveyTriggerStatus) {
+            return null;
+        }
+
+        const {
+            sendGridApiKey,
+            sendGridFromEmail,
+            appName,
+            twilioAccountSid,
+            twilioAuthToken,
+            twilioFromPhone,
+            twilioStatusCallbackURL,
+        } = this.config;
+        const { communicationRepository, emailStatusRepository } = this.repositories;
+        let record: CommunicationAttributes | null = null;
+        const replyToEmail = sendGridFromEmail; // getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
+        const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
+        const sendFromPhone = getSendFromPhone(jurisdiction, twilioFromPhone);
+        const surveyUrl = makeCXSurveyURL(jurisdiction, serviceRequest);
+
+        const dispatchConfig = {
+            channel: serviceRequest.channel as string,
+            sendGridApiKey: sendGridApiKey as string,
+            toEmail: serviceRequest.email as string,
+            fromEmail: sendFromEmail as string,
+            replyToEmail: replyToEmail as string,
+            twilioAccountSid: twilioAccountSid as string,
+            twilioAuthToken: twilioAuthToken as string,
+            twilioStatusCallbackURL: twilioStatusCallbackURL as string,
+            fromPhone: sendFromPhone as string,
+            toPhone: serviceRequest.phone as string
+        }
+        const templateConfig = {
+            name: 'cx-survey-public-user',
+            context: {
+                appName,
+                appRequestUrl: surveyUrl,
+                serviceRequestStatus: serviceRequest.status,
+                serviceRequestPublicId: serviceRequest.publicId,
+                jurisdictionName: jurisdiction.name,
+                jurisdictionEmail: jurisdiction.email,
+                jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
+                recipientName: serviceRequest.displayName as string
+            }
+        }
+        record = await dispatchMessage(
+            dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        );
+        return record;
     }
 }
 
