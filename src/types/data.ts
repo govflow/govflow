@@ -109,6 +109,21 @@ export interface ServiceRequestAttributes {
     inboundMaps: InboundMapAttributes[];
 }
 
+export interface ServiceRequestAnonAttributes {
+    id: string;
+    publicId: string;
+    serviceId: string | null;
+    serviceName: string | null;
+    jurisdictionId: string;
+    jurisdictionName: string;
+    status: string;
+    createdAt: Date;
+    closeDate: Date;
+    departmentId: string | null;
+    departmentName: string | null;
+    context: string;
+}
+
 export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
 
 export interface ParsedServiceRequestAttributes {

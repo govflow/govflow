@@ -1,6 +1,6 @@
 ## CX Surveys
 
-Often, a jurisidction will send a survey after the lifecycle of a service request has completed, known as an "Exit Survey" or a "Customer Experience (CX) Survey".
+Often, a jurisdiction will send a survey after the lifecycle of a service request has completed, known as an "Exit Survey" or a "Customer Experience (CX) Survey".
 
 GovFlow provides basic integration for CX Surveys with the following implementation:
 

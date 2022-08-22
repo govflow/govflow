@@ -698,6 +698,24 @@ describe('Hit all API endpoints', function () {
         chai.assert.equal(res.body.data.at(-1).label, 'Junk [Closed]');
     });
 
+    it('should GET a service request anonymous data only for a jurisdiction', async function () {
+        const serviceRequest = testData.serviceRequests[0];
+        const res = await chai.request(app).get(
+            `/service-requests/anon-data/${serviceRequest.id}?jurisdictionId=${serviceRequest.jurisdictionId}`
+        );
+        chai.assert.equal(res.status, 200);
+        chai.assert.equal(res.body.data.id, serviceRequest.id);
+        chai.assert.doesNotHaveAnyKeys(
+            res.body.data,
+            ['firstName', 'lastName', 'displayName', 'email', 'phone', 'description', 'comments', 'inboundMaps']
+        );
+        chai.assert.hasAllKeys(
+            res.body.data,
+            ['id', 'publicId', 'serviceId', 'serviceName', 'departmentId', 'departmentName',
+                'jurisdictionId', 'jurisdictionName', 'status', 'createdAt', 'closeDate', 'context']
+        );
+    });
+
     it('should GET all departments for a jurisdiction', async function () {
         const jurisdictionId = testData.jurisdictions[0].id;
         const res = await chai.request(app).get(`/departments/?jurisdictionId=${jurisdictionId}`);

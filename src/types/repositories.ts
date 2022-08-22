@@ -10,7 +10,21 @@ import type {
     StaffUserAttributes,
     StaffUserLookUpAttributes
 } from '.';
-import { ChannelIsAllowed, ChannelStatusAttributes, ChannelStatusInstance, ChannelType, EmailEventAttributes, InboundMapCreateAttributes, InboundMapInstance, MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes, ServiceRequestCommentCreateAttributes, SmsEventAttributes, StaffUserDepartmentAttributes } from './data';
+import {
+    ChannelIsAllowed,
+    ChannelStatusAttributes,
+    ChannelStatusInstance,
+    ChannelType,
+    EmailEventAttributes,
+    InboundMapCreateAttributes,
+    InboundMapInstance,
+    MessageDisambiguationAttributes,
+    MessageDisambiguationCreateAttributes,
+    ServiceRequestAnonAttributes,
+    ServiceRequestCommentCreateAttributes,
+    SmsEventAttributes,
+    StaffUserDepartmentAttributes
+} from './data';
 
 export interface RepositoryBase extends PluginBase {
     models: Models;
@@ -69,6 +83,7 @@ export interface IServiceRequestRepository extends RepositoryBase {
         serviceRequestId: string,
         serviceRequestCommentId: string,
         data: Partial<ServiceRequestCommentAttributes>) => Promise<ServiceRequestCommentAttributes>;
+    getAnonData: (jurisdictionId: string, id: string) => Promise<ServiceRequestAnonAttributes | null>;
 }
 
 export interface ICommunicationRepository extends RepositoryBase {
