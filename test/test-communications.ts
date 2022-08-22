@@ -224,38 +224,43 @@ describe('Verify Core Communications Functionality.', function () {
         chai.assert.equal(jurisdiction.cxSurveyEnabled, false);
     });
 
-    it('cannot dispatch a cx survey notification when surveys are enabled but there is no survey url', async function () {
-        const { outboundMessageService } = app.services;
-        const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
-        let jurisdiction = await jurisdictionRepository.findOne(testData.jurisdictions[0].id);
-        jurisdiction = await jurisdictionRepository.update(jurisdiction.id, { cxSurveyEnabled: true })
-        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
-        const serviceRequest = await serviceRequestRepository.findOne(jurisdiction.id, serviceRequests[0].id);
-        const record = await outboundMessageService.dispatchCXSurvey(jurisdiction, serviceRequest);
-        chai.assert.equal(record, null);
-        chai.assert.equal(jurisdiction.cxSurveyEnabled, true);
-        chai.assert.equal(jurisdiction.cxSurveyUrl, null);
-    });
+    it('cannot dispatch a cx survey notification when surveys are enabled but there is no survey url',
+        async function () {
+            const { outboundMessageService } = app.services;
+            const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
+            let jurisdiction = await jurisdictionRepository.findOne(testData.jurisdictions[0].id);
+            jurisdiction = await jurisdictionRepository.update(jurisdiction.id, { cxSurveyEnabled: true })
+            const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
+            const serviceRequest = await serviceRequestRepository.findOne(jurisdiction.id, serviceRequests[0].id);
+            const record = await outboundMessageService.dispatchCXSurvey(jurisdiction, serviceRequest);
+            chai.assert.equal(record, null);
+            chai.assert.equal(jurisdiction.cxSurveyEnabled, true);
+            chai.assert.equal(jurisdiction.cxSurveyUrl, null);
+        });
 
-    it('cannot dispatch a cx survey notification when surveys are enabled, survey url exists, but service request status is not equal to cxSurveyTriggerStatus', async function () {
-        const { outboundMessageService } = app.services;
-        const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
-        const surveyUrl = 'https://example.com/cx-survey';
-        const serviceRequestStatus = 'inbox';
-        let jurisdiction = await jurisdictionRepository.findOne(testData.jurisdictions[0].id);
-        jurisdiction = await jurisdictionRepository.update(
-            jurisdiction.id, { cxSurveyEnabled: true, cxSurveyUrl: surveyUrl }
-        );
-        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
-        let serviceRequest = await serviceRequestRepository.findOne(jurisdiction.id, serviceRequests[0].id);
-        serviceRequest = await serviceRequestRepository.update(jurisdiction.id, serviceRequest.id, { status: serviceRequestStatus })
-        const record = await outboundMessageService.dispatchCXSurvey(jurisdiction, serviceRequest);
-        chai.assert.equal(record, null);
-        chai.assert.equal(jurisdiction.cxSurveyEnabled, true);
-        chai.assert.equal(jurisdiction.cxSurveyUrl, surveyUrl);
-        chai.assert.notEqual(jurisdiction.cxSurveyTriggerStatus, serviceRequest.status);
-        chai.assert.equal(jurisdiction.cxSurveyTriggerStatus, 'done');
-    });
+    it(`cannot dispatch a cx survey notification when surveys are enabled, survey url exists,
+    but service request status is not equal to cxSurveyTriggerStatus`,
+        async function () {
+            const { outboundMessageService } = app.services;
+            const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
+            const surveyUrl = 'https://example.com/cx-survey';
+            const serviceRequestStatus = 'inbox';
+            let jurisdiction = await jurisdictionRepository.findOne(testData.jurisdictions[0].id);
+            jurisdiction = await jurisdictionRepository.update(
+                jurisdiction.id, { cxSurveyEnabled: true, cxSurveyUrl: surveyUrl }
+            );
+            const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
+            let serviceRequest = await serviceRequestRepository.findOne(jurisdiction.id, serviceRequests[0].id);
+            serviceRequest = await serviceRequestRepository.update(
+                jurisdiction.id, serviceRequest.id, { status: serviceRequestStatus }
+            );
+            const record = await outboundMessageService.dispatchCXSurvey(jurisdiction, serviceRequest);
+            chai.assert.equal(record, null);
+            chai.assert.equal(jurisdiction.cxSurveyEnabled, true);
+            chai.assert.equal(jurisdiction.cxSurveyUrl, surveyUrl);
+            chai.assert.notEqual(jurisdiction.cxSurveyTriggerStatus, serviceRequest.status);
+            chai.assert.equal(jurisdiction.cxSurveyTriggerStatus, 'done');
+        });
 
     it('can dispatch a cx survey notification with default trigger status', async function () {
         const { outboundMessageService } = app.services;
@@ -268,8 +273,12 @@ describe('Verify Core Communications Functionality.', function () {
         );
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
         let serviceRequest = await serviceRequestRepository.findOne(jurisdiction.id, serviceRequests[0].id);
-        serviceRequest = await serviceRequestRepository.update(jurisdiction.id, serviceRequest.id, { status: serviceRequestStatus })
-        const record = await outboundMessageService.dispatchCXSurvey(jurisdiction, serviceRequest) as CommunicationAttributes;
+        serviceRequest = await serviceRequestRepository.update(
+            jurisdiction.id, serviceRequest.id, { status: serviceRequestStatus }
+        );
+        const record = await outboundMessageService.dispatchCXSurvey(
+            jurisdiction, serviceRequest
+        ) as CommunicationAttributes;
         chai.assert.equal(record.accepted, true);
         chai.assert.equal(record.delivered, true);
         chai.assert.equal(record.dispatched, true);
@@ -277,6 +286,55 @@ describe('Verify Core Communications Functionality.', function () {
         chai.assert.equal(jurisdiction.cxSurveyUrl, surveyUrl);
         chai.assert.equal(jurisdiction.cxSurveyTriggerStatus, serviceRequest.status);
         chai.assert.equal(jurisdiction.cxSurveyTriggerStatus, 'done');
+    });
+
+    it('can dispatch a cx survey notification with a custom trigger status', async function () {
+        const { outboundMessageService } = app.services;
+        const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
+        const surveyUrl = 'https://example.com/cx-survey';
+        const serviceRequestStatus = 'inbox';
+        let jurisdiction = await jurisdictionRepository.findOne(testData.jurisdictions[0].id);
+        jurisdiction = await jurisdictionRepository.update(
+            jurisdiction.id,
+            { cxSurveyEnabled: true, cxSurveyUrl: surveyUrl, cxSurveyTriggerStatus: serviceRequestStatus }
+        );
+        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
+        let serviceRequest = await serviceRequestRepository.findOne(jurisdiction.id, serviceRequests[0].id);
+        serviceRequest = await serviceRequestRepository.update(
+            jurisdiction.id, serviceRequest.id, { status: serviceRequestStatus }
+        );
+        const record = await outboundMessageService.dispatchCXSurvey(
+            jurisdiction, serviceRequest
+        ) as CommunicationAttributes;
+        chai.assert.equal(record.accepted, true);
+        chai.assert.equal(record.delivered, true);
+        chai.assert.equal(record.dispatched, true);
+        chai.assert.equal(jurisdiction.cxSurveyEnabled, true);
+        chai.assert.equal(jurisdiction.cxSurveyUrl, surveyUrl);
+        chai.assert.equal(jurisdiction.cxSurveyTriggerStatus, serviceRequest.status);
+        chai.assert.equal(jurisdiction.cxSurveyTriggerStatus, 'inbox');
+    });
+
+    it('cannot dispatch a cx survey notification when the submitter is anonymous', async function () {
+        const { outboundMessageService } = app.services;
+        const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
+        const surveyUrl = 'https://example.com/cx-survey';
+        const serviceRequestStatus = 'done';
+        let jurisdiction = await jurisdictionRepository.findOne(testData.jurisdictions[0].id);
+        jurisdiction = await jurisdictionRepository.update(
+            jurisdiction.id, { cxSurveyEnabled: true, cxSurveyUrl: surveyUrl }
+        );
+        const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
+        let serviceRequest = await serviceRequestRepository.findOne(jurisdiction.id, serviceRequests[0].id);
+        serviceRequest = await serviceRequestRepository.update(
+            jurisdiction.id, serviceRequest.id, { status: serviceRequestStatus, email: '', phone: '' }
+        );
+        const record = await outboundMessageService.dispatchCXSurvey(
+            jurisdiction, serviceRequest
+        ) as CommunicationAttributes;
+        chai.assert.equal(record, null);
+        chai.assert.equal(serviceRequest.email, null);
+        chai.assert.equal(serviceRequest.phone, null);
     });
 
 });

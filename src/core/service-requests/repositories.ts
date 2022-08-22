@@ -67,7 +67,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         Promise<ServiceRequestAttributes> {
         const { ServiceRequest } = this.models;
         const allowUpdateFields = [
-            'assignedTo', 'serviceId', 'departmentId', 'status', 'address', 'geometry', 'address_id'
+            'assignedTo', 'serviceId', 'departmentId', 'status', 'address', 'geometry', 'address_id', 'email', 'phone'
         ]
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;

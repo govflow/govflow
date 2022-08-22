@@ -130,6 +130,10 @@ export const ServiceRequestModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: {
                 // isPhone: true TODO: write something like this with libphonenumber
+            },
+            set(value) {
+                if (value === '') { value = null; }
+                this.setDataValue('phone', value);
             }
         },
         assignedTo: {
