@@ -54,6 +54,7 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     const templateString = templateBuffer.toString();
     const isEmail = templateType === "email" ? true : false;
     const replyEnabled = templateContext.jurisdictionReplyToServiceRequestEnabled;
+    const messageType = templateContext.messageType;
 
     let lineBreak = "\n";
     if (isEmail) { lineBreak = '<br />'; }
@@ -64,12 +65,12 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     if (isBody) {
 
         let doNotReplyLine = '';
-        if (!replyEnabled) {
+        if (!replyEnabled || messageType === 'core') {
             const doNotReplyMsg = isEmail ? emailBodyDoNotReplyLine : smsBodyDoNotReplyLine;
             doNotReplyLine = `${lineBreak}${lineBreak}${doNotReplyMsg}${lineBreak}`;
         }
 
-        if (isEmail && replyEnabled) {
+        if (isEmail && replyEnabled && messageType === 'core') {
             replyAboveLine = `${emailBodySanitizeLine}${lineBreak}${lineBreak}`;
         }
 

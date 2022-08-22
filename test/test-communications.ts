@@ -7,7 +7,7 @@ import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, l
 import { sendEmail } from '../src/email';
 import { sendSms } from '../src/sms';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
-import type { AppConfig, CommunicationAttributes, StaffUserAttributes, TestDataPayload } from '../src/types';
+import type { AppConfig, CommunicationAttributes, StaffUserAttributes, TemplateConfigContextAttributes, TestDataPayload } from '../src/types';
 
 describe('Verify Core Communications Functionality.', function () {
     let app: Application;
@@ -73,8 +73,9 @@ describe('Verify Core Communications Functionality.', function () {
             jurisdictionName: 'Dummy Name',
             jurisdictionEmail: 'dummy@example.com',
             jurisdictionReplyToServiceRequestEnabled: false,
-            recipientName: 'Dummy Name'
-        }
+            recipientName: 'Dummy Name',
+            messageType: 'core'
+        } as TemplateConfigContextAttributes;
         const response = await loadTemplate(templateName, templateContext);
         chai.assert(new String(response).valueOf().startsWith(new String(expectedOutput).valueOf()));
     });
@@ -127,8 +128,9 @@ describe('Verify Core Communications Functionality.', function () {
                 jurisdictionName: 'dummy-name',
                 jurisdictionEmail: 'dummy@example.com',
                 jurisdictionReplyToServiceRequestEnabled: false,
-                recipientName: serviceRequest.displayName as string
-            }
+                recipientName: serviceRequest.displayName as string,
+                messageType: 'core'
+            } as TemplateConfigContextAttributes
         }
         if (serviceRequest.channel) {
             const record = await dispatchMessage(
@@ -192,8 +194,9 @@ describe('Verify Core Communications Functionality.', function () {
                 jurisdictionName: 'dummy-name',
                 jurisdictionEmail: 'dummy@example.com',
                 jurisdictionReplyToServiceRequestEnabled: false,
-                recipientName: admin.displayName as string
-            }
+                recipientName: admin.displayName as string,
+                messageType: 'core'
+            } as TemplateConfigContextAttributes
         }
         const record = await dispatchMessage(
             dispatchConfig, templateConfig, communicationRepository, emailStatusRepository

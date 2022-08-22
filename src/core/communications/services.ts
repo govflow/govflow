@@ -8,7 +8,7 @@ import type {
     IInboundMessageService, InboundMapAttributes, IOutboundMessageService,
     JurisdictionAttributes, RecipientAttributes,
     Repositories,
-    ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes
+    ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes, TemplateConfigContextAttributes
 } from '../../types';
 import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeCXSurveyURL, makeRequestURL } from './helpers';
 
@@ -89,8 +89,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
                 jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                recipientName: serviceRequest.displayName as string
-            }
+                recipientName: serviceRequest.displayName as string,
+                messageType: 'core'
+            } as TemplateConfigContextAttributes
         }
         const record = await dispatchMessage(
             dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
@@ -121,8 +122,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
                     jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                    recipientName: staff.displayName as string
-                }
+                    recipientName: staff.displayName as string,
+                    messageType: 'core'
+                } as TemplateConfigContextAttributes
             }
             const record = await dispatchMessage(
                 dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
@@ -181,8 +183,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
                 jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                recipientName: staffUser.displayName as string
-            }
+                recipientName: staffUser.displayName as string,
+                messageType: 'core'
+            } as TemplateConfigContextAttributes
         }
         const record = await dispatchMessage(
             dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
@@ -243,8 +246,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
                 jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                recipientName: staffUser.displayName as string
-            }
+                recipientName: staffUser.displayName as string,
+                messageType: 'core'
+            } as TemplateConfigContextAttributes
         }
         const record = await dispatchMessage(
             dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
@@ -298,8 +302,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
                     jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                    recipientName: serviceRequest.displayName as string
-                }
+                    recipientName: serviceRequest.displayName as string,
+                    messageType: 'core'
+                } as TemplateConfigContextAttributes
             }
             const record = await dispatchMessage(
                 dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
@@ -331,8 +336,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
                     jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                    recipientName: staff.displayName as string
-                }
+                    recipientName: staff.displayName as string,
+                    messageType: 'core'
+                } as TemplateConfigContextAttributes
             }
             const record = await dispatchMessage(
                 dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
@@ -450,8 +456,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                     jurisdictionName: jurisdiction.name,
                     jurisdictionEmail: jurisdiction.email,
                     jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                    recipientName: recipient.displayName as string
-                }
+                    recipientName: recipient.displayName as string,
+                    messageType: 'core'
+                } as TemplateConfigContextAttributes
             }
             const record = await dispatchMessage(
                 dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
@@ -510,8 +517,9 @@ export class OutboundMessageService implements IOutboundMessageService {
                 jurisdictionName: jurisdiction.name,
                 jurisdictionEmail: jurisdiction.email,
                 jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
-                recipientName: serviceRequest.displayName as string
-            }
+                recipientName: serviceRequest.displayName as string,
+                messageType: 'cx'
+            } as TemplateConfigContextAttributes
         }
         record = await dispatchMessage(
             dispatchConfig, templateConfig, communicationRepository, emailStatusRepository

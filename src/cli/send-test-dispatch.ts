@@ -2,7 +2,7 @@
 import 'reflect-metadata';
 import { dispatchMessage } from '../core/communications/helpers';
 import { createApp } from '../index';
-import { DispatchConfigAttributes } from '../types';
+import { DispatchConfigAttributes, TemplateConfigContextAttributes } from '../types';
 
 (async () => {
     // Ensure you unset process.env.COMMUNICATIONS_TO_CONSOLE to use the real backend.
@@ -39,8 +39,9 @@ import { DispatchConfigAttributes } from '../types';
             jurisdictionName: 'Dummy Name',
             jurisdictionEmail: 'dummy@example.com',
             jurisdictionReplyToServiceRequestEnabled: false,
-            recipientName: 'Test Recipient Name'
-        }
+            recipientName: 'Test Recipient Name',
+            messageType: 'core'
+        } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(
         dispatchConfig,

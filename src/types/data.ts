@@ -263,6 +263,8 @@ export interface DispatchPayloadAttributes extends DispatchConfigAttributes {
     htmlBody?: string;
 }
 
+export type GovFlowMessageType = 'core' | 'cx';
+
 export interface TemplateConfigContextAttributes {
     appName: string;
     appRequestUrl: string;
@@ -272,6 +274,7 @@ export interface TemplateConfigContextAttributes {
     jurisdictionEmail: string;
     jurisdictionReplyToServiceRequestEnabled: boolean;
     recipientName: string;
+    messageType: GovFlowMessageType;
 }
 
 export interface TemplateConfigAttributes {
