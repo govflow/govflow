@@ -6,10 +6,14 @@ import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
 import type {
     AppConfig,
+    DepartmentAttributes,
     InboundMapInstance,
     IServiceRequestRepository,
+    JurisdictionAttributes,
     Models,
     QueryParamsAll,
+    ServiceAttributes,
+    ServiceRequestAnonAttributes,
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
     ServiceRequestCommentCreateAttributes,
@@ -63,7 +67,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         Promise<ServiceRequestAttributes> {
         const { ServiceRequest } = this.models;
         const allowUpdateFields = [
-            'assignedTo', 'serviceId', 'departmentId', 'status', 'address', 'geometry', 'address_id'
+            'assignedTo', 'serviceId', 'departmentId', 'status', 'address', 'geometry', 'address_id', 'email', 'phone'
         ]
         const safeData = Object.assign({}, _.pick(data, allowUpdateFields), { id, jurisdictionId });
         let record = await ServiceRequest.findByPk(id) as ServiceRequestInstance;
@@ -208,6 +212,42 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
             record[key] = value;
         }
         return await record.save();
+    }
+
+    async getAnonData(jurisdictionId: string, id: string): Promise<ServiceRequestAnonAttributes | null> {
+        const { Service, Department, Jurisdiction } = this.models;
+        const record = await this.findOne(jurisdictionId, id) as ServiceRequestInstance;
+        if (record) {
+            const jurisdiction = await Jurisdiction.findOne(
+                { where: { id: record.jurisdictionId } }
+            ) as JurisdictionAttributes | null;
+            const department = await Department.findOne(
+                { where: { id: record.departmentId } }
+            ) as DepartmentAttributes | null;
+            const service = await Service.findOne({ where: { id: record.serviceId } }) as ServiceAttributes | null;
+            let serviceName = null;
+            let departmentName = null;
+            let serviceId = null;
+            let jurisdictionName = null;
+            if (service) { serviceName = service.name; serviceId = service.id; }
+            if (department) { departmentName = department.name; }
+            if (jurisdiction) { jurisdictionName = jurisdiction.name; }
+            return {
+                id: record.id,
+                publicId: record.publicId,
+                serviceId: serviceId,
+                serviceName: serviceName,
+                departmentId: record.departmentId,
+                departmentName: departmentName,
+                jurisdictionId: jurisdictionId,
+                jurisdictionName: jurisdictionName as string,
+                status: record.status,
+                createdAt: record.createdAt,
+                closeDate: record.closeDate,
+                context: '311'
+            }
+        }
+        return null;
     }
 
 }

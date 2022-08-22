@@ -1,9 +1,12 @@
 import { EventEmitter } from 'events';
 import logger from '../logging';
 import {
+    cxSurveyHandler,
     serviceRequestChangeAssignedToHandler,
     serviceRequestChangeStatusHandler,
-    serviceRequestClosedHandler, serviceRequestCommentBroadcastHandler, serviceRequestCreateHandler
+    serviceRequestClosedHandler,
+    serviceRequestCommentBroadcastHandler,
+    serviceRequestCreateHandler
 } from './communications/event-handlers';
 
 export const GovFlowEmitter = new EventEmitter();
@@ -11,11 +14,13 @@ export const GovFlowEmitter = new EventEmitter();
 GovFlowEmitter.on('serviceRequestCreate', async (jurisdiction, serviceRequest, dispatchHandler) => {
     logger.info('Responding to serviceRequestCreate event.');
     await serviceRequestCreateHandler(jurisdiction, serviceRequest, dispatchHandler);
+    await cxSurveyHandler(jurisdiction, serviceRequest, dispatchHandler);
 });
 
 GovFlowEmitter.on('serviceRequestChangeStatus', async (jurisdiction, serviceRequest, dispatchHandler) => {
     logger.info('Responding to serviceRequestChangeStatus event.');
     await serviceRequestChangeStatusHandler(jurisdiction, serviceRequest, dispatchHandler);
+    await cxSurveyHandler(jurisdiction, serviceRequest, dispatchHandler);
 });
 
 GovFlowEmitter.on('serviceRequestChangeAssignedTo', async (jurisdiction, serviceRequest, dispatchHandler) => {
@@ -26,6 +31,7 @@ GovFlowEmitter.on('serviceRequestChangeAssignedTo', async (jurisdiction, service
 GovFlowEmitter.on('serviceRequestClosed', async (jurisdiction, serviceRequest, dispatchHandler) => {
     logger.info('Responding to serviceRequestClosed event.');
     await serviceRequestClosedHandler(jurisdiction, serviceRequest, dispatchHandler);
+    await cxSurveyHandler(jurisdiction, serviceRequest, dispatchHandler);
 });
 
 GovFlowEmitter.on('serviceRequestCommentBroadcast', async (jurisdiction, serviceRequestComment, dispatchHandler) => {

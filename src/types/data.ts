@@ -12,6 +12,10 @@ export interface JurisdictionAttributes {
     sendFromEmailVerified: boolean,
     replyToEmail?: string;
     replyToServiceRequestEnabled: boolean;
+    cxSurveyEnabled: boolean;
+    cxSurveyTriggerStatus: string;
+    cxSurveyUrl: string;
+    cxSurveyBroadcastWindow: number;
     address?: string;
     city?: string;
     state?: string;
@@ -103,6 +107,21 @@ export interface ServiceRequestAttributes {
     departmentId: string;
     comments: ServiceRequestCommentAttributes[];
     inboundMaps: InboundMapAttributes[];
+}
+
+export interface ServiceRequestAnonAttributes {
+    id: string;
+    publicId: string;
+    serviceId: string | null;
+    serviceName: string | null;
+    jurisdictionId: string;
+    jurisdictionName: string;
+    status: string;
+    createdAt: Date;
+    closeDate: Date;
+    departmentId: string | null;
+    departmentName: string | null;
+    context: string;
 }
 
 export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>

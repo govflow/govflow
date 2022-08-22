@@ -1,0 +1,7 @@
+Hello ${context.recipientName},
+
+Thank you for submitting your service request #${context.serviceRequestPublicId} for ${context.jurisdictionName}.
+
+In order to improve our service, we kindly ask you to complete a short survey about your experience at the following link:
+
+${context.appRequestUrl}

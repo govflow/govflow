@@ -122,6 +122,13 @@ serviceRequestRouter.get('/:id', wrapHandler(async (req: Request, res: Response)
     res.status(200).send({ data: record });
 }))
 
+serviceRequestRouter.get('/anon-data/:id', wrapHandler(async (req: Request, res: Response) => {
+    const { serviceRequestRepository } = res.app.repositories;
+    const { id } = req.params;
+    const record = await serviceRequestRepository.getAnonData(req.jurisdiction.id, id);
+    res.status(200).send({ data: record });
+}))
+
 serviceRequestRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
     const { outboundMessageService, serviceRequestService } = res.app.services;
     const record = await serviceRequestService.create(req.body as ServiceRequestAttributes);

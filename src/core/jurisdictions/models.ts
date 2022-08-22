@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import type { ModelDefinition } from '../../types';
+import { REQUEST_STATUS_KEYS, SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export const JurisdictionModel: ModelDefinition = {
     name: 'Jurisdiction',
@@ -56,6 +57,25 @@ export const JurisdictionModel: ModelDefinition = {
             allowNull: false,
             defaultValue: false,
             type: DataTypes.BOOLEAN,
+        },
+        cxSurveyEnabled: {
+            allowNull: false,
+            defaultValue: false,
+            type: DataTypes.BOOLEAN,
+        },
+        cxSurveyTriggerStatus: {
+            allowNull: false,
+            defaultValue: SERVICE_REQUEST_CLOSED_STATES[0],
+            type: DataTypes.ENUM(...REQUEST_STATUS_KEYS),
+        },
+        cxSurveyUrl: {
+            allowNull: true,
+            type: DataTypes.STRING,
+        },
+        cxSurveyBroadcastWindow: {
+            allowNull: false,
+            defaultValue: 24,
+            type: DataTypes.INTEGER,
         },
         address: {
             allowNull: true,

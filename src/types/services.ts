@@ -35,6 +35,10 @@ export interface IOutboundMessageService extends ServiceBase {
         jurisdiction: JurisdictionAttributes,
         serviceRequestComment: ServiceRequestCommentAttributes
     ) => Promise<CommunicationAttributes[]>;
+    dispatchCXSurvey: (
+        jurisdiction: JurisdictionAttributes,
+        serviceRequest: ServiceRequestAttributes
+    ) => Promise<CommunicationAttributes | null>;
 }
 
 export interface IInboundMessageService extends ServiceBase {

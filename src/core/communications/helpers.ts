@@ -32,6 +32,14 @@ export function makeRequestURL(appClientUrl: string, appClientRequestsPath: stri
     return `${appClientUrl}${appClientRequestsPath}/${serviceRequestId}`
 }
 
+export function makeCXSurveyURL(
+    jurisdiction: JurisdictionAttributes,
+    serviceRequest: ServiceRequestAttributes,
+): string {
+    const { cxSurveyUrl } = jurisdiction;
+    return `${cxSurveyUrl}?cx_case_id=${serviceRequest.id}`
+}
+
 export async function loadTemplate(templateName: string, templateContext: TemplateConfigContextAttributes, isBody = true): Promise<string> {
     const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
     const [templateType, ..._rest] = templateName.split('.');
