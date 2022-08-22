@@ -10,4 +10,3 @@ GovFlow provides basic integration for CX Surveys with the following implementat
 - `cxSurveyTriggerStatus` (default: `done`) when a ServiceRequest for this jurisdiction has a status equal to `cxSurveyTriggerStatus`, then, broadcast a CX Survey to the request submitter.
 - `cxSurveyUrl` (default: `null`) set to a URL which is the URl to the survey for this Jursidiction. The URL has GET params appended to it (currently, `cx_case_id` with the unique identifier for the ServiceRequest). if `cxSurveyUrl` is null or a blank string then broadcasts will be prevented.
 - `cxSurveyBroadcastWindow` (default `24`) the approximate number of hours after a Service Request is set with `cxSurveyTriggerStatus` that a CX Survey broadcast will be emitted. Setting this to `0` means that the broadcast will happen "immediately"
-

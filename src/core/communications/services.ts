@@ -466,12 +466,9 @@ export class OutboundMessageService implements IOutboundMessageService {
         serviceRequest: ServiceRequestAttributes,
     ): Promise<CommunicationAttributes | null> {
 
-        const { cxSurveyEnabled, cxSurveyTriggerStatus } = jurisdiction;
-        if (!cxSurveyEnabled) {
-            return null;
-        }
-
-        if (serviceRequest.status !== cxSurveyTriggerStatus) {
+        const { cxSurveyEnabled, cxSurveyTriggerStatus, cxSurveyUrl } = jurisdiction;
+        // exit early when we dont meet the essential conditions
+        if (!cxSurveyEnabled || !cxSurveyUrl || serviceRequest.status !== cxSurveyTriggerStatus) {
             return null;
         }
 
