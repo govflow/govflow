@@ -19,7 +19,15 @@ export const JurisdictionModel: ModelDefinition = {
         email: {
             allowNull: true,
             type: DataTypes.STRING,
-            validate: { isEmail: true }
+            validate: { isEmail: true },
+            set(value) {
+                if (value === '') {
+                    value = null;
+                } else if (typeof value === 'string') {
+                    value = value.toLowerCase();
+                }
+                this.setDataValue('email', value);
+            }
         },
         enforceAssignmentThroughDepartment: {
             type: DataTypes.BOOLEAN,
@@ -36,7 +44,15 @@ export const JurisdictionModel: ModelDefinition = {
         sendFromEmail: {
             allowNull: true,
             type: DataTypes.STRING,
-            validate: { isEmail: true }
+            validate: { isEmail: true },
+            set(value) {
+                if (value === '') {
+                    value = null;
+                } else if (typeof value === 'string') {
+                    value = value.toLowerCase();
+                }
+                this.setDataValue('email', value);
+            }
         },
         sendFromEmailVerified: {
             allowNull: false,
@@ -46,7 +62,15 @@ export const JurisdictionModel: ModelDefinition = {
         replyToEmail: {
             allowNull: true,
             type: DataTypes.STRING,
-            validate: { isEmail: true }
+            validate: { isEmail: true },
+            set(value) {
+                if (value === '') {
+                    value = null;
+                } else if (typeof value === 'string') {
+                    value = value.toLowerCase();
+                }
+                this.setDataValue('email', value);
+            }
         },
         replyToServiceRequestEnabled: {
             allowNull: false,
@@ -76,6 +100,10 @@ export const JurisdictionModel: ModelDefinition = {
             allowNull: false,
             defaultValue: 24,
             type: DataTypes.INTEGER,
+            validate: {
+                min: 0,
+                max: 71 //sendgrid allows a max of 72 hours out for scheduling
+            }
         },
         address: {
             allowNull: true,

@@ -243,7 +243,8 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
                 jurisdictionName: jurisdictionName as string,
                 status: record.status,
                 createdAt: record.createdAt,
-                closeDate: record.closeDate,
+                updatedAt: record.updatedAt,
+                closeDate: record.closeDate || record.updatedAt, // if trigger state is not a closed state, then there will be no closedDate
                 context: '311'
             }
         }

@@ -21,7 +21,15 @@ export const DepartmentModel: ModelDefinition = {
         primaryContactEmail: {
             allowNull: true,
             type: DataTypes.STRING,
-            validate: { isEmail: true }
+            validate: { isEmail: true },
+            set(value) {
+                if (value === '') {
+                    value = null;
+                } else if (typeof value === 'string') {
+                    value = value.toLowerCase();
+                }
+                this.setDataValue('email', value);
+            }
         },
     },
     options: {

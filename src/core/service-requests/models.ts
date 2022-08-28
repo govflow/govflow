@@ -95,7 +95,8 @@ export const ServiceRequestModel: ModelDefinition = {
             defaultValue: REQUEST_STATUS_KEYS[0],
             set(value) {
                 if (SERVICE_REQUEST_CLOSED_STATES.includes(value as string)) {
-                    this.setDataValue('closeDate', new Date());
+
+                    this.setDataValue('closeDate', this.getDataValue('closeDate') || new Date());
                 } else {
                     this.setDataValue('closeDate', null);
                 }
@@ -121,7 +122,11 @@ export const ServiceRequestModel: ModelDefinition = {
             type: DataTypes.STRING,
             validate: { isEmail: true },
             set(value) {
-                if (value === '') { value = null; }
+                if (value === '') {
+                    value = null;
+                } else if (typeof value === 'string') {
+                    value = value.toLowerCase();
+                }
                 this.setDataValue('email', value);
             }
         },
@@ -167,9 +172,9 @@ export const ServiceRequestModel: ModelDefinition = {
         closeDate: {
             allowNull: true,
             type: DataTypes.DATE,
-            set(value) {
-                throw new Error(`The 'closeDate' attribute is not allowed to be directly set: ${value}`);
-            }
+            // set(value) {
+            //     throw new Error(`The 'closeDate' attribute is not allowed to be directly set: ${value}`);
+            // }
         },
         displayName: {
             type: DataTypes.VIRTUAL,

@@ -368,7 +368,7 @@ whether you are creating a new service request, or responding to an existing one
                 { To, From, Body: originalBody }, inboundMapRepository
             );
         } else {
-            const dataToLog = { message: 'Invalid Comment Submitter.', data: inboundData }
+            const dataToLog = { message: 'Invalid Inbound Data Payload.', data: inboundData }
             logger.error(dataToLog);
             throw new Error("Received an invalid inbound data payload");
         }
@@ -417,7 +417,13 @@ whether you are creating a new service request, or responding to an existing one
             } else {
                 const dataToLog = { message: 'Invalid Comment Submitter.', data: inboundData }
                 logger.error(dataToLog);
-                throw new Error(dataToLog.message);
+                let submitterFrom = '';
+                if (this.inboundIsEmail(inboundData)) {
+                    submitterFrom = inboundData.from;
+                } else if (this.inboundIsSms(inboundData)) {
+                    submitterFrom = inboundData.From;
+                }
+                throw new Error(`${dataToLog.message}: ${submitterFrom} for Request #${publicId}`);
             }
         } else {
             intermediateRecord = await this.create(

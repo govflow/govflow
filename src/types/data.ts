@@ -118,6 +118,7 @@ export interface ServiceRequestAnonAttributes {
     jurisdictionName: string;
     status: string;
     createdAt: Date;
+    updatedAt: Date;
     closeDate: Date;
     departmentId: string | null;
     departmentName: string | null;

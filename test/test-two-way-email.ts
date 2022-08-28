@@ -86,6 +86,58 @@ describe('Test two-way email communications.', function () {
         chai.assert.equal(updatedServiceRequest.comments[1].comment, inboundPayload.text);
     });
 
+    it(`receives an email to create a service request comment when
+    email is from submitter and email has mixed case`, async function () {
+        const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
+        const { serviceRequestService } = app.services;
+        const { inboundEmailDomain, sendGridFromEmail } = app.config;
+        const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
+        // START need this for the logic of this test, to ensure we get an inbound email for the request
+        serviceRequest.status = 'todo';
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
+        jurisdiction.replyToServiceRequestEnabled = true
+        // END need this for the logic of this test, to ensure we get an inbound email for the request
+        serviceRequestInboundEmailAddress = getReplyToEmail(
+            serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail
+        );
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.to = serviceRequestInboundEmailAddress;
+        inboundPayload.from = serviceRequestSubmitterEmail.toUpperCase(); // change case
+        inboundPayload.subject = '[Request #3456789]: this is the subject';
+        inboundPayload.text = 'this is the message';
+        await serviceRequestService.createServiceRequest(inboundPayload);
+        const updatedServiceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
+        chai.assert(updatedServiceRequest);
+        chai.assert.equal(updatedServiceRequest.comments.length, 3);
+        chai.assert.equal(updatedServiceRequest.comments[1].comment, inboundPayload.text);
+    });
+
+    it(`receives an email to create a service request comment when email
+    is from submitter and email has complete format`, async function () {
+        const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
+        const { serviceRequestService } = app.services;
+        const { inboundEmailDomain, sendGridFromEmail } = app.config;
+        const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
+        // START need this for the logic of this test, to ensure we get an inbound email for the request
+        serviceRequest.status = 'todo';
+        const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
+        jurisdiction.replyToServiceRequestEnabled = true
+        // END need this for the logic of this test, to ensure we get an inbound email for the request
+        serviceRequestInboundEmailAddress = getReplyToEmail(
+            serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail
+        );
+        const inboundPayload = _.cloneDeep(inboundEmail);
+        inboundPayload.to = serviceRequestInboundEmailAddress;
+        inboundPayload.from = `Edward Example <${serviceRequestSubmitterEmail}>`; // change format
+        inboundPayload.subject = '[Request #3456789]: this is the subject';
+        inboundPayload.text = 'this is the message';
+        await serviceRequestService.createServiceRequest(inboundPayload);
+        const updatedServiceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
+        chai.assert(updatedServiceRequest);
+        chai.assert.equal(updatedServiceRequest.comments.length, 4);
+        chai.assert.equal(updatedServiceRequest.comments[1].comment, inboundPayload.text);
+    });
+
     it('receives an email to create a service request comment when email is from staff', async function () {
         const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
         const { serviceRequestService } = app.services;
@@ -110,7 +162,7 @@ describe('Test two-way email communications.', function () {
         await serviceRequestService.createServiceRequest(inboundPayload);
         const updatedServiceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
         chai.assert(updatedServiceRequest);
-        chai.assert.equal(updatedServiceRequest.comments.length, 3);
+        chai.assert.equal(updatedServiceRequest.comments.length, 5);
         chai.assert.equal(updatedServiceRequest.comments[2].comment, 'this is the message');
     });
 

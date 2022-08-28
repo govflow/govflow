@@ -31,7 +31,7 @@ describe('Hit all API endpoints', function () {
     it('should GET Root API information', async function () {
         const res = await chai.request(app).get('/');
         chai.assert.equal(res.status, 200);
-        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.108-alpha' } }));
+        chai.assert.equal(res.text, JSON.stringify({ data: { name: 'govflow', version: '0.0.109-alpha' } }));
     });
 
     it('should GET staff users for jurisdiction', async function () {
@@ -712,7 +712,7 @@ describe('Hit all API endpoints', function () {
         chai.assert.hasAllKeys(
             res.body.data,
             ['id', 'publicId', 'serviceId', 'serviceName', 'departmentId', 'departmentName',
-                'jurisdictionId', 'jurisdictionName', 'status', 'createdAt', 'closeDate', 'context']
+                'jurisdictionId', 'jurisdictionName', 'status', 'createdAt', 'updatedAt', 'closeDate', 'context']
         );
     });
 

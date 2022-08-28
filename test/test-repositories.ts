@@ -70,7 +70,7 @@ describe('Verify Core Repositories.', function () {
             const record = await staffUserRepository.create(staffUserData);
             chai.assert(record);
             chai.assert.equal(record.jurisdictionId, staffUserData.jurisdictionId);
-            chai.assert.equal(record.email, staffUserData.email);
+            chai.assert.equal(record.email, staffUserData.email.toLowerCase());
         }
     });
 

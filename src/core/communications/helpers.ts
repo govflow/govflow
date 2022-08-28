@@ -375,8 +375,10 @@ export async function extractServiceRequestfromInboundEmail(data: InboundEmailDa
 export function canSubmitterComment(
     submitterEmail: string, submitterPhone: string, validEmails: string[], validPhones: string[]
 ): boolean {
+    const emailTests = validEmails.map(e => e.toLowerCase());
+    const emailTestable = submitterEmail.toLocaleLowerCase();
     let canSubmit = false;
-    if (validEmails.includes(submitterEmail)) {
+    if (emailTests.includes(emailTestable)) {
         canSubmit = true
     }
     if (!canSubmit && validPhones.includes(submitterPhone)) {

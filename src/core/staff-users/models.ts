@@ -41,7 +41,15 @@ export const StaffUserModel: ModelDefinition = {
         email: {
             allowNull: false,
             type: DataTypes.STRING,
-            validate: { isEmail: true }
+            validate: { isEmail: true },
+            set(value) {
+                if (value === '') {
+                    value = null;
+                } else if (typeof value === 'string') {
+                    value = value.toLowerCase();
+                }
+                this.setDataValue('email', value);
+            }
         },
         phone: {
             allowNull: true,
