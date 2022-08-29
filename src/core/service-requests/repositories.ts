@@ -2,6 +2,7 @@ import merge from 'deepmerge';
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
 import sequelize, { Op } from 'sequelize';
+import { SERVICE_TYPE_MISSING_ID, SERVICE_TYPE_MISSING_NAME } from '../../constants';
 import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
 import type {
@@ -225,9 +226,9 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
                 { where: { id: record.departmentId } }
             ) as DepartmentAttributes | null;
             const service = await Service.findOne({ where: { id: record.serviceId } }) as ServiceAttributes | null;
-            let serviceName = null;
+            let serviceId = SERVICE_TYPE_MISSING_ID;
+            let serviceName = SERVICE_TYPE_MISSING_NAME;
             let departmentName = null;
-            let serviceId = null;
             let jurisdictionName = null;
             if (service) { serviceName = service.name; serviceId = service.id; }
             if (department) { departmentName = department.name; }
