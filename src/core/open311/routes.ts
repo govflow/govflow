@@ -4,7 +4,7 @@ import xml2js from 'xml2js';
 import { wrapHandler } from '../../helpers';
 // import { resolveJurisdiction } from '../../middlewares';
 import { maybeCaptcha } from '../../middlewares';
-import { GovFlowEmitter } from '../event-listeners';
+import { serviceRequestEmitter } from '../hooks';
 import { toGovflowServiceRequest, toOpen311Service, toOpen311ServiceRequest } from './helpers';
 import { Open311ServiceRequestCreatePayload } from './types';
 export const open311Router = Router();
@@ -73,13 +73,13 @@ open311Router.post(
     wrapHandler(maybeCaptcha),
     wrapHandler(async (req: Request, res: Response) => {
         const { jurisdictionRepository } = res.app.repositories;
-        const { outboundMessageService, serviceRequestService } = res.app.services;
+        const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
         const dataAsGovFlow = toGovflowServiceRequest(
             req.body as unknown as Open311ServiceRequestCreatePayload
         );
         const record = await serviceRequestService.create(dataAsGovFlow);
         const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId);
-        GovFlowEmitter.emit('serviceRequestCreate', jurisdiction, record, outboundMessageService);
+        await serviceRequestEmitter.emit('serviceRequestCreate', { jurisdiction, record, dispatchHandler });
         res.status(200).send({ data: toOpen311ServiceRequest(record), success: true });
     }))
 

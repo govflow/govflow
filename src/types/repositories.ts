@@ -77,7 +77,7 @@ export interface IServiceRequestRepository extends RepositoryBase {
         serviceRequestId: string,
         data: ServiceRequestCommentCreateAttributes,
         user?: StaffUserAttributes
-    ) => Promise<ServiceRequestCommentAttributes>;
+    ) => Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes]>;
     updateComment: (
         jurisdictionId: string,
         serviceRequestId: string,

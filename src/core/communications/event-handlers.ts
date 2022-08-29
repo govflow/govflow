@@ -1,4 +1,4 @@
-import type { IOutboundMessageService, JurisdictionAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes } from '../../types';
+import type { HookDataExtraData, IOutboundMessageService, JurisdictionAttributes, ServiceRequestAttributes } from '../../types';
 
 export async function serviceRequestCreateHandler(
     jurisdiction: JurisdictionAttributes,
@@ -34,10 +34,11 @@ export async function serviceRequestClosedHandler(
 
 export async function serviceRequestCommentBroadcastHandler(
     jurisdiction: JurisdictionAttributes,
-    serviceRequestComment: ServiceRequestCommentAttributes,
-    dispatchHandler: IOutboundMessageService
+    serviceRequest: ServiceRequestAttributes,
+    dispatchHandler: IOutboundMessageService,
+    extraData: HookDataExtraData
 ): Promise<void> {
-    await dispatchHandler.dispatchServiceRequestComment(jurisdiction, serviceRequestComment);
+    await dispatchHandler.dispatchServiceRequestComment(jurisdiction, serviceRequest, extraData);
 }
 
 export async function cxSurveyHandler(

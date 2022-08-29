@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import { serviceRequestFiltersToSequelize, wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
 import { AuditedStateChangeExtraData, ServiceRequestAttributes } from '../../types';
-import { GovFlowEmitter } from '../event-listeners';
+import { serviceRequestEmitter } from '../hooks';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export const serviceRequestRouter = Router();
@@ -27,8 +27,9 @@ serviceRequestRouter.get('/stats', async (req: Request, res: Response) => {
 });
 
 serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Response) => {
-    const { outboundMessageService, serviceRequestService } = res.app.services;
+    const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
     const { status, serviceRequestId } = req.body;
+    const { jurisdiction } = req;
     const extraData = { user: req.user };
     let eventName = 'serviceRequestChangeStatus';
     const record = await serviceRequestService.createAuditedStateChange(
@@ -37,13 +38,14 @@ serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Respo
     if (SERVICE_REQUEST_CLOSED_STATES.includes(status as string)) {
         eventName = 'serviceRequestClosed'
     }
-    GovFlowEmitter.emit(eventName, req.jurisdiction, record, outboundMessageService);
+    await serviceRequestEmitter.emit(eventName, { jurisdiction, record, dispatchHandler });
     res.status(200).send({ data: record });
 }))
 
 serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Response) => {
-    const { outboundMessageService, serviceRequestService } = res.app.services;
+    const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
     const { assignedTo, departmentId, serviceRequestId } = req.body;
+    const { jurisdiction } = req;
     const extraData = {
         user: req.user,
         departmentId
@@ -60,7 +62,7 @@ serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Respo
     if (record.isError) {
         res.status(400).send({ data: record });
     } else {
-        GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, outboundMessageService);
+        await serviceRequestEmitter.emit('serviceRequestChangeAssignedTo', { jurisdiction, record, dispatchHandler });
         res.status(200).send({ data: record });
     }
 }))
@@ -87,14 +89,18 @@ serviceRequestRouter.post('/service', wrapHandler(async (req: Request, res: Resp
 
 serviceRequestRouter.post('/comments/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
     const { serviceRequestRepository } = res.app.repositories;
-    const { outboundMessageService } = res.app.services;
+    const { outboundMessageService: dispatchHandler } = res.app.services;
+    const { jurisdiction } = req;
     const { serviceRequestId } = req.params;
     const data = Object.assign({}, req.body, { addedBy: req.user?.id });
-    const record = await serviceRequestRepository.createComment(req.jurisdiction.id, serviceRequestId, data);
-    if (record.isBroadcast) {
-        GovFlowEmitter.emit('serviceRequestCommentBroadcast', req.jurisdiction, record, outboundMessageService);
+    const [record, comment] = await serviceRequestRepository.createComment(req.jurisdiction.id, serviceRequestId, data);
+    if (comment.isBroadcast) {
+        const extraData = { serviceRequestCommentId: comment.id };
+        await serviceRequestEmitter.emit(
+            'serviceRequestCommentBroadcast', { jurisdiction, record, dispatchHandler, extraData }
+        );
     }
-    res.status(200).send({ data: record });
+    res.status(200).send({ data: comment });
 }))
 
 serviceRequestRouter.post('/comments/:serviceRequestId/:id', wrapHandler(async (req: Request, res: Response) => {
@@ -130,8 +136,9 @@ serviceRequestRouter.get('/anon-data/:id', wrapHandler(async (req: Request, res:
 }))
 
 serviceRequestRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
-    const { outboundMessageService, serviceRequestService } = res.app.services;
+    const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
+    const { jurisdiction } = req;
     const record = await serviceRequestService.create(req.body as ServiceRequestAttributes);
-    GovFlowEmitter.emit('serviceRequestCreate', req.jurisdiction, record, outboundMessageService);
+    await serviceRequestEmitter.emit('serviceRequestCreate', { jurisdiction, record, dispatchHandler });
     res.status(200).send({ data: record });
 }))

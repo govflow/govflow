@@ -7,7 +7,7 @@ import {
     ServiceRequestAttributes,
     ServiceRequestCreateAttributes
 } from '.';
-import { AuditedStateChangeExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, PublicId, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from "./data";
+import { AuditedStateChangeExtraData, HookDataExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, PublicId, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from "./data";
 
 export interface ServiceBase extends PluginBase {
     repositories: Repositories;
@@ -33,7 +33,8 @@ export interface IOutboundMessageService extends ServiceBase {
     ) => Promise<CommunicationAttributes[]>;
     dispatchServiceRequestComment: (
         jurisdiction: JurisdictionAttributes,
-        serviceRequestComment: ServiceRequestCommentAttributes
+        serviceRequest: ServiceRequestAttributes,
+        extraData: HookDataExtraData
     ) => Promise<CommunicationAttributes[]>;
     dispatchCXSurvey: (
         jurisdiction: JurisdictionAttributes,

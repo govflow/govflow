@@ -190,12 +190,13 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         jurisdictionId: string,
         serviceRequestId: string,
         data: ServiceRequestCommentCreateAttributes,
-    ): Promise<ServiceRequestCommentAttributes> {
+    ): Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes]> {
         const { ServiceRequestComment } = this.models;
-        const record = await ServiceRequestComment.create(
+        const comment = await ServiceRequestComment.create(
             Object.assign({}, data, { serviceRequestId })
         ) as ServiceRequestCommentInstance;
-        return record;
+        const record = await this.findOne(jurisdictionId, serviceRequestId);
+        return [record, comment];
     }
 
     async updateComment(

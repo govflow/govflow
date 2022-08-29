@@ -211,9 +211,13 @@ describe('Verify Core Communications Functionality.', function () {
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
         const serviceRequest = serviceRequests[0];
         const data = { comment: "hey you", addBy: "__SUBMITTER__" };
-        const comment = await serviceRequestRepository.createComment(jurisdiction.id, serviceRequest.id, data)
-        const record = await outboundMessageService.dispatchServiceRequestComment(jurisdiction, comment);
-        chai.assert(record);
+        const [record, comment] = await serviceRequestRepository.createComment(
+            jurisdiction.id, serviceRequest.id, data
+        );
+        const commRecord = await outboundMessageService.dispatchServiceRequestComment(
+            jurisdiction, record, { serviceRequestCommentId: comment.id }
+        );
+        chai.assert(commRecord);
     });
 
     it('cannot dispatch a cx survey notification when surveys are disabled', async function () {

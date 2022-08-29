@@ -4,7 +4,7 @@ import { twiml } from 'twilio';
 import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
 import { EmailEventAttributes, JurisdictionAttributes, SmsEventAttributes } from '../../types';
-import { GovFlowEmitter } from '../event-listeners';
+import { serviceRequestEmitter } from '../hooks';
 import { verifySendGridWebhook } from './helpers';
 import { EMAIL_EVENT_IGNORE } from './models';
 
@@ -13,7 +13,7 @@ export const communicationsRouter = Router();
 // public route for web hook integration
 communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
-    const { outboundMessageService, serviceRequestService } = res.app.services;
+    const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
 
     // if we need to disambiguate manually we start a dialog with the submitter here
     const [
@@ -27,17 +27,19 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
         messageResponse.message(disambiguateResponse);
         res.status(200).send(messageResponse.toString());
     } else {
-        const [record, commentRecord] = await serviceRequestService.createServiceRequest(
+        const [record, comment] = await serviceRequestService.createServiceRequest(
             req.body, disambiguatedOriginalMessage, disambiguatedPublicId
         );
         const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
         let eventName = 'serviceRequestCreate';
-        if (!commentRecord) {
-            GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
+        if (!comment) {
+            await serviceRequestEmitter.emit(eventName, { jurisdiction, record, dispatchHandler });
         } else {
             eventName = 'serviceRequestCommentBroadcast';
-            GovFlowEmitter.emit(eventName, jurisdiction, commentRecord, outboundMessageService);
+            const serviceRequestCommentId = comment.id;
+            const extraData = { serviceRequestCommentId };
+            await serviceRequestEmitter.emit(eventName, { jurisdiction, record, dispatchHandler, extraData });
         }
         res.status(200).send(messageResponse.toString());
     }
@@ -46,16 +48,18 @@ communicationsRouter.post('/inbound/sms', multer().none(), wrapHandler(async (re
 // public route for web hook integration
 communicationsRouter.post('/inbound/email', multer().none(), wrapHandler(async (req: Request, res: Response) => {
     const { jurisdictionRepository } = res.app.repositories;
-    const { outboundMessageService, serviceRequestService } = res.app.services;
-    const [record, commentRecord] = await serviceRequestService.createServiceRequest(req.body);
+    const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
+    const [record, comment] = await serviceRequestService.createServiceRequest(req.body);
     const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
 
     let eventName = 'serviceRequestCreate';
-    if (!commentRecord) {
-        GovFlowEmitter.emit(eventName, jurisdiction, record, outboundMessageService);
+    if (!comment) {
+        await serviceRequestEmitter.emit(eventName, { jurisdiction, record, dispatchHandler });
     } else {
         eventName = 'serviceRequestCommentBroadcast';
-        GovFlowEmitter.emit(eventName, jurisdiction, commentRecord, outboundMessageService);
+        const serviceRequestCommentId = comment.id;
+        const extraData = { serviceRequestCommentId };
+        await serviceRequestEmitter.emit(eventName, { jurisdiction, comment, dispatchHandler, extraData });
     }
     res.status(200).send({ data: { status: 200, message: "Received inbound email" } });
 }))

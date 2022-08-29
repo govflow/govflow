@@ -217,10 +217,10 @@ export class ServiceRequestService implements IServiceRequestService {
             auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
         }
         const auditMessage = makeAuditMessage(extraData?.user, auditMessageFields);
-        await serviceRequestRepository.createComment(
+        const [updatedRecord, _comment] = await serviceRequestRepository.createComment(
             jurisdictionId, record.id, { comment: auditMessage, addedBy: extraData?.user?.id }
         );
-        return record;
+        return updatedRecord;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -347,7 +347,7 @@ whether you are creating a new service request, or responding to an existing one
         } = this.repositories;
         const { inboundEmailDomain } = this.config;
         let intermediateRecord: ServiceRequestAttributes;
-        let commentRecord: ServiceRequestCommentAttributes | undefined = undefined;
+        let comment: ServiceRequestCommentAttributes | undefined = undefined;
         let cleanedData: ParsedServiceRequestAttributes;
         let publicId: PublicId;
         let knownPublicId: PublicId;
@@ -402,7 +402,7 @@ whether you are creating a new service request, or responding to an existing one
             const validPhones = [intermediateRecord.phone].filter(e => e); // TODO: Add staff phones when we later support it
             const canComment = canSubmitterComment(cleanedData.email, cleanedData.phone, validEmails, validPhones);
             if (canComment && intermediateRecord) {
-                const comment = {
+                const commentData = {
                     comment: cleanedData.description,
                     addedBy,
                     // TODO: These are hard coded for now, but should really be made configurable via the InboundMap
@@ -411,9 +411,10 @@ whether you are creating a new service request, or responding to an existing one
                     broadcastToStaff: true,
                     broadcastToAssignee: true,
                 };
-                commentRecord = await serviceRequestRepository.createComment(
-                    cleanedData.jurisdictionId, intermediateRecord.id, comment
+                const [_record, _comment] = await serviceRequestRepository.createComment(
+                    cleanedData.jurisdictionId, intermediateRecord.id, commentData
                 );
+                comment = _comment;
             } else {
                 const dataToLog = { message: 'Invalid Comment Submitter.', data: inboundData }
                 logger.error(dataToLog);
@@ -435,7 +436,7 @@ whether you are creating a new service request, or responding to an existing one
         const record = await serviceRequestRepository.findOne(
             cleanedData.jurisdictionId, intermediateRecord.id
         );
-        return [record, commentRecord];
+        return [record, comment];
     }
 
 }

@@ -1,6 +1,6 @@
 {
   "name": "@govflow/govflow",
-  "version": "0.0.111-alpha",
+  "version": "0.0.112-alpha",
   "description": "An open, modular work order and workflow management system for local governments and resident satisfaction.",
   "homepage": "https://github.com/govflow/govflow",
   "main": "./index.js",
@@ -11,6 +11,7 @@
     "start": "ts-node ./src/cli/default-server",
     "migrate": "ts-node ./src/cli/migrate-database",
     "generate-fake-data": "ts-node ./src/cli/generate-fake-data",
+    "generate-dummy-data-for-jurisdiction": "ts-node ./src/cli/generate-dummy-data-for-jurisdiction",
     "send-test-email": "ts-node ./src/cli/send-test-email",
     "send-test-sms": "ts-node ./src/cli/send-test-sms",
     "send-test-dispatch": "ts-node ./src/cli/send-test-dispatch",
@@ -44,6 +45,7 @@
     "dotenv": "^10.0.0",
     "email-addresses": "^5.0.0",
     "email-forward-parser": "^1.0.14",
+    "emittery": "^0.13.1",
     "express": "^4.17.1",
     "express-xml-bodyparser": "^0.3.0",
     "inversify": "^6.0.1",

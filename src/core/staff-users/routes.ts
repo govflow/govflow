@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
-import { GovFlowEmitter } from '../event-listeners';
+import { serviceRequestEmitter } from '../hooks';
 
 export const accountRouter = Router();
 
@@ -42,7 +42,8 @@ accountRouter.post('/staff/departments/assign/:id', wrapHandler(async (req: Requ
 }))
 
 accountRouter.post('/staff/departments/remove/:id', wrapHandler(async (req: Request, res: Response) => {
-    const { staffUserService, outboundMessageService } = res.app.services;
+    const { staffUserService, outboundMessageService: dispatchHandler } = res.app.services;
+    const { jurisdiction } = req;
     const { id } = req.params;
     const { departmentId } = req.body;
     const record = await staffUserService.removeDepartment(req.jurisdiction.id, id, departmentId);
@@ -51,8 +52,7 @@ accountRouter.post('/staff/departments/remove/:id', wrapHandler(async (req: Requ
     if (record.isError) {
         res.status(400).send({ data: record });
     } else {
-        GovFlowEmitter.emit('serviceRequestChangeAssignedTo', req.jurisdiction, record, outboundMessageService);
+        await serviceRequestEmitter.emit('serviceRequestChangeAssignedTo', { jurisdiction, record, dispatchHandler });
         res.status(200).send({ data: record });
     }
-    res.status(200).send({ data: record });
 }))

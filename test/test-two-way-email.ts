@@ -53,12 +53,12 @@ describe('Test two-way email communications.', function () {
             comment: "Hey is this correct?",
             broadcastToSubmitter: true
         }
-        const record = await serviceRequestRepository.createComment(jurisdictionId, serviceRequestId, data);
-        chai.assert(record);
-        chai.assert.equal(record.isBroadcast, true);
-        chai.assert.equal(record.broadcastToSubmitter, true);
-        chai.assert.equal(record.broadcastToAssignee, false);
-        chai.assert.equal(record.broadcastToStaff, false);
+        const [_record, comment] = await serviceRequestRepository.createComment(jurisdictionId, serviceRequestId, data);
+        chai.assert(comment);
+        chai.assert.equal(comment.isBroadcast, true);
+        chai.assert.equal(comment.broadcastToSubmitter, true);
+        chai.assert.equal(comment.broadcastToAssignee, false);
+        chai.assert.equal(comment.broadcastToStaff, false);
     });
 
     it('receives an email to create a service request comment when email is from submitter', async function () {
@@ -179,11 +179,11 @@ describe('Test two-way email communications.', function () {
             broadcastToStaff: false
         }
         const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
-        const serviceRequestComment = await serviceRequestRepository.createComment(
+        const [record, comment] = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
         const response = await outboundMessageService.dispatchServiceRequestComment(
-            jurisdiction, serviceRequestComment
+            jurisdiction, record, { serviceRequestCommentId: comment.id }
         );
         const dispatchPayload = response[0].dispatchPayload;
         // we only broadcast to submitter so we should only have a single communication record
@@ -208,11 +208,11 @@ describe('Test two-way email communications.', function () {
             broadcastToStaff: true
         }
         const serviceRequest = await serviceRequestRepository.findOne(jurisdictionId, serviceRequestId);
-        const serviceRequestComment = await serviceRequestRepository.createComment(
+        const [record, comment] = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
         const response = await outboundMessageService.dispatchServiceRequestComment(
-            jurisdiction, serviceRequestComment
+            jurisdiction, record, { serviceRequestCommentId: comment.id }
         );
         // we should have a communication record per staff user
         chai.assert.equal(response.length, count);
@@ -236,14 +236,11 @@ describe('Test two-way email communications.', function () {
             broadcastToAssignee: false,
             broadcastToStaff: false
         }
-        // const serviceRequest = await serviceRequestRepository.findOne(
-        //     jurisdictionId, serviceRequestId
-        // );
-        const serviceRequestComment = await serviceRequestRepository.createComment(
+        const [record, comment] = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
         const response = await outboundMessageService.dispatchServiceRequestComment(
-            jurisdiction, serviceRequestComment
+            jurisdiction, record, { serviceRequestCommentId: comment.id }
         );
         const dispatchResponse = JSON.parse(response[0].dispatchResponse as unknown as string);
         chai.assert(dispatchResponse.text.includes(emailBodySanitizeLine));
@@ -263,11 +260,11 @@ describe('Test two-way email communications.', function () {
             broadcastToAssignee: false,
             broadcastToStaff: false
         }
-        const serviceRequestComment = await serviceRequestRepository.createComment(
+        const [record, comment] = await serviceRequestRepository.createComment(
             jurisdictionId, serviceRequestId, data
         );
         const response = await outboundMessageService.dispatchServiceRequestComment(
-            jurisdiction, serviceRequestComment
+            jurisdiction, record, { serviceRequestCommentId: comment.id }
         );
         const dispatchResponse = JSON.parse(response[0].dispatchResponse as unknown as string);
         chai.assert.equal(dispatchResponse.text.includes(emailBodySanitizeLine), false);

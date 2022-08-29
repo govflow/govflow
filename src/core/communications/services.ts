@@ -5,6 +5,7 @@ import type {
     AppConfig,
     CommunicationAttributes,
     DispatchConfigAttributes,
+    HookDataExtraData,
     IInboundMessageService, InboundMapAttributes, IOutboundMessageService,
     JurisdictionAttributes, RecipientAttributes,
     Repositories,
@@ -350,7 +351,8 @@ export class OutboundMessageService implements IOutboundMessageService {
 
     async dispatchServiceRequestComment(
         jurisdiction: JurisdictionAttributes,
-        serviceRequestComment: ServiceRequestCommentAttributes
+        serviceRequest: ServiceRequestAttributes,
+        extraData: HookDataExtraData
     ): Promise<CommunicationAttributes[]> {
         const {
             sendGridApiKey,
@@ -367,12 +369,12 @@ export class OutboundMessageService implements IOutboundMessageService {
         const {
             communicationRepository,
             staffUserRepository,
-            emailStatusRepository,
-            serviceRequestRepository
+            emailStatusRepository
         } = this.repositories;
-        const serviceRequest = await serviceRequestRepository.findOne(
-            jurisdiction.id, serviceRequestComment.serviceRequestId
-        );
+        const { serviceRequestCommentId } = extraData;
+        const serviceRequestComment = serviceRequest.comments.find(
+            i => i.id === serviceRequestCommentId
+        ) as ServiceRequestCommentAttributes;
         const records: CommunicationAttributes[] = [];
         const replyToEmail = getReplyToEmail(
             serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail

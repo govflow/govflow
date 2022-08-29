@@ -208,10 +208,10 @@ describe('Verify Core Repositories.', function () {
         const { serviceRequestRepository } = app.repositories;
         for (const serviceRequestData of testData.serviceRequests) {
             for (const comment of serviceRequestData.comments) {
-                const record = await serviceRequestRepository.createComment(
+                const [_record, _comment] = await serviceRequestRepository.createComment(
                     serviceRequestData.jurisdictionId, serviceRequestData.id, comment
                 );
-                chai.assert(record);
+                chai.assert(_comment);
             }
         }
     });

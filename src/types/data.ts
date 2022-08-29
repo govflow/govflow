@@ -1,4 +1,5 @@
 import type { Model } from 'sequelize';
+import { IOutboundMessageService } from './services';
 
 export interface JurisdictionAttributes {
     id: string;
@@ -451,4 +452,13 @@ export interface ParsedForwardedData {
     forwarded: boolean;
     message: string;
     email: ParsedForwardEmail;
+}
+
+export type HookDataExtraData = Record<string, string>;
+
+export interface HookData {
+    jurisdiction: JurisdictionAttributes;
+    record: ServiceRequestAttributes;
+    dispatchHandler: IOutboundMessageService;
+    extraData?: HookDataExtraData;
 }
