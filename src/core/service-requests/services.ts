@@ -444,6 +444,7 @@ whether you are creating a new service request, or responding to an existing one
                     broadcastToStaff: true,
                     broadcastToAssignee: true,
                 };
+                // NOTE: this uses repository so as NOT to trigger extra notification
                 const [_record, _comment] = await serviceRequestRepository.createComment(
                     cleanedData.jurisdictionId, intermediateRecord.id, commentData
                 );
@@ -460,7 +461,8 @@ whether you are creating a new service request, or responding to an existing one
                 throw new Error(`${dataToLog.message}: ${submitterFrom} for Request #${publicId}`);
             }
         } else {
-            intermediateRecord = await this.create(
+            // NOTE: this uses repository so as NOT to trigger extra notification
+            intermediateRecord = await serviceRequestRepository.create(
                 cleanedData
             ) as ServiceRequestInstance;
         }
