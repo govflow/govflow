@@ -1,7 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
-import { serviceRequestEmitter } from '../hooks';
 
 export const accountRouter = Router();
 
@@ -42,17 +41,18 @@ accountRouter.post('/staff/departments/assign/:id', wrapHandler(async (req: Requ
 }))
 
 accountRouter.post('/staff/departments/remove/:id', wrapHandler(async (req: Request, res: Response) => {
-    const { staffUserService, outboundMessageService: dispatchHandler } = res.app.services;
-    const { jurisdiction } = req;
+    const { staffUserService } = res.app.services;
     const { id } = req.params;
     const { departmentId } = req.body;
     const record = await staffUserService.removeDepartment(req.jurisdiction.id, id, departmentId);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (record.isError) {
-        res.status(400).send({ data: record });
+    if (!record) {
+        res.status(400).send({
+            data: {
+                isError: true,
+                message: 'Invalid action. Ensure another Staff User is Department lead first.'
+            }
+        });
     } else {
-        await serviceRequestEmitter.emit('serviceRequestChangeAssignedTo', { jurisdiction, record, dispatchHandler });
         res.status(200).send({ data: record });
     }
 }))

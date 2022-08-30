@@ -7,21 +7,22 @@ import type {
     DispatchConfigAttributes,
     HookDataExtraData,
     IInboundMessageService, InboundMapAttributes, IOutboundMessageService,
+    IServiceRequestHookRunner,
     JurisdictionAttributes, RecipientAttributes,
     Repositories,
     ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes, TemplateConfigContextAttributes
 } from '../../types';
 import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeCXSurveyURL, makeRequestURL } from './helpers';
 
-@injectable()
 export class OutboundMessageService implements IOutboundMessageService {
 
     repositories: Repositories
     config: AppConfig
 
     constructor(
-        @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppConfig) config: AppConfig,) {
+        repositories: Repositories,
+        config: AppConfig
+    ) {
         this.repositories = repositories;
         this.config = config;
     }
@@ -535,12 +536,16 @@ export class InboundMessageService implements IInboundMessageService {
 
     repositories: Repositories
     config: AppConfig
+    hookRunner: IServiceRequestHookRunner
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppConfig) config: AppConfig,) {
+        @inject(appIds.AppConfig) config: AppConfig,
+        @inject(appIds.ServiceRequestHookRunner) hookRunner: IServiceRequestHookRunner,
+    ) {
         this.repositories = repositories;
         this.config = config;
+        this.hookRunner = hookRunner;
     }
 
     async createMap(data: InboundMapAttributes): Promise<InboundMapAttributes> {

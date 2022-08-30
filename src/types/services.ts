@@ -1,3 +1,4 @@
+import type Emittery from 'emittery';
 import {
     AppConfig,
     CommunicationAttributes,
@@ -7,14 +8,20 @@ import {
     ServiceRequestAttributes,
     ServiceRequestCreateAttributes
 } from '.';
-import { AuditedStateChangeExtraData, HookDataExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, PublicId, ServiceRequestCommentAttributes, ServiceRequestStateChangeErrorResponse, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserStateChangeErrorResponse } from "./data";
+import { AuditedStateChangeExtraData, HookDataExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, PublicId, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, StaffUserAttributes, StaffUserDepartmentAttributes } from "./data";
 
-export interface ServiceBase extends PluginBase {
+export interface MinimalServiceBase extends PluginBase {
     repositories: Repositories;
     config: AppConfig;
 }
 
-export interface IOutboundMessageService extends ServiceBase {
+export interface ServiceBase extends MinimalServiceBase {
+    repositories: Repositories;
+    config: AppConfig;
+    hookRunner: IServiceRequestHookRunner;
+}
+
+export interface IOutboundMessageService extends MinimalServiceBase {
     dispatchServiceRequestCreate: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
@@ -49,9 +56,12 @@ export interface IInboundMessageService extends ServiceBase {
 export interface IServiceRequestService extends ServiceBase {
     NEW_REQUEST_IDENTIFIER: string;
     create: (data: ServiceRequestCreateAttributes) => Promise<ServiceRequestAttributes>;
+    createComment: (
+        jurisdictionId: string, serviceRequestId: string, data: ServiceRequestCommentCreateAttributes
+    ) => Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes]>;
     createAuditedStateChange: (
         jurisdictionId: string, id: string, key: string, value: string, extraData?: AuditedStateChangeExtraData
-    ) => Promise<ServiceRequestAttributes | ServiceRequestStateChangeErrorResponse>;
+    ) => Promise<ServiceRequestAttributes | null>;
     disambiguateInboundData: (
         inboundData: InboundEmailDataAttributes | InboundSmsDataAttributes
     ) => Promise<[boolean, string, string, PublicId?]>;
@@ -70,11 +80,21 @@ export interface IStaffUserService extends ServiceBase {
     ) => Promise<StaffUserAttributes | null>;
     removeDepartment: (
         jurisdictionId: string, staffUserId: string, departmentId: string
-    ) => Promise<StaffUserAttributes | StaffUserStateChangeErrorResponse | null>;
+    ) => Promise<StaffUserAttributes | null>;
+}
+
+export interface IServiceRequestHookRunner {
+    dispatchHandler: IOutboundMessageService
+    emitter: Emittery
+    run: (
+        hookName: string,
+        jurisdiction: JurisdictionAttributes,
+        record: ServiceRequestAttributes,
+        extraData?: HookDataExtraData
+    ) => Promise<void>;
 }
 
 export interface Services {
-    outboundMessageService: IOutboundMessageService;
     inboundMessageService: IInboundMessageService;
     serviceRequestService: IServiceRequestService;
     staffUserService: IStaffUserService;

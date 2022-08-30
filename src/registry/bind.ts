@@ -3,12 +3,13 @@ import { Container } from 'inversify';
 import { CommunicationRepository, EmailStatusRepository, InboundMapRepository, MessageDisambiguationRepository, SmsStatusRepository } from '../core/communications';
 import { InboundMessageService, OutboundMessageService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
+import { ServiceRequestHookRunner } from '../core/hooks';
 import { JurisdictionRepository } from '../core/jurisdictions';
 import { ServiceRequestRepository, ServiceRequestService } from '../core/service-requests';
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
 import { StaffUserService } from '../core/staff-users/services';
-import type { AppConfig, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IMessageDisambiguationRepository, IOutboundMessageService, IServiceRepository, IServiceRequestRepository, IServiceRequestService, ISmsStatusRepository, IStaffUserRepository, IStaffUserService, MiddlewarePlugin, Services } from '../types';
+import type { AppConfig, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IMessageDisambiguationRepository, IServiceRepository, IServiceRequestHookRunner, IServiceRequestRepository, IServiceRequestService, ISmsStatusRepository, IStaffUserRepository, IStaffUserService, MiddlewarePlugin, Services } from '../types';
 import { Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -101,10 +102,15 @@ function bindServicesWithPlugins(
     // default service bindings
     const serviceContainer = new Container();
 
+    const dispatchHandler = new OutboundMessageService(repositories, config);
+    const serviceRequestHookRunner = new ServiceRequestHookRunner(dispatchHandler);
+
     serviceContainer.bind<AppConfig>(appIds.AppConfig).toConstantValue(config);
     serviceContainer.bind<Repositories>(appIds.Repositories).toConstantValue(repositories);
+    serviceContainer.bind<IServiceRequestHookRunner>(
+        appIds.ServiceRequestHookRunner
+    ).toConstantValue(serviceRequestHookRunner);
 
-    serviceContainer.bind<IOutboundMessageService>(serviceIds.IOutboundMessageService).to(OutboundMessageService);
     serviceContainer.bind<IInboundMessageService>(serviceIds.IInboundMessageService).to(InboundMessageService);
     serviceContainer.bind<IServiceRequestService>(serviceIds.IServiceRequestService).to(ServiceRequestService);
     serviceContainer.bind<IStaffUserService>(serviceIds.IStaffUserService).to(StaffUserService);
@@ -117,13 +123,11 @@ function bindServicesWithPlugins(
     }
 
     // get our implementations and return them
-    const outboundMessageService = serviceContainer.get<IOutboundMessageService>(serviceIds.IOutboundMessageService);
     const inboundMessageService = serviceContainer.get<IInboundMessageService>(serviceIds.IInboundMessageService);
     const serviceRequestService = serviceContainer.get<IServiceRequestService>(serviceIds.IServiceRequestService);
     const staffUserService = serviceContainer.get<IStaffUserService>(serviceIds.IStaffUserService);
 
     const services = {
-        outboundMessageService,
         inboundMessageService,
         serviceRequestService,
         staffUserService

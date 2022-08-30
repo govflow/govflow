@@ -24,4 +24,6 @@ export const appIds = {
     AppConfig: Symbol('AppConfig'),
     Models: Symbol('Models'),
     Repositories: Symbol('Repositories'),
+    OutboundMessageService: Symbol('OutboundMessageService'),
+    ServiceRequestHookRunner: Symbol('ServiceRequestHookRunner'),
 };

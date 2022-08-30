@@ -4,6 +4,7 @@ import { Application } from 'express';
 import faker from 'faker';
 import _ from 'lodash';
 import { emailBodySanitizeLine, getReplyToEmail } from '../src/core/communications/helpers';
+import { OutboundMessageService } from '../src/core/communications/services';
 import { createApp } from '../src/index';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
 import { ServiceRequestAttributes, StaffUserAttributes, StaffUserInstance, TestDataPayload } from '../src/types';
@@ -168,7 +169,7 @@ describe('Test two-way email communications.', function () {
 
     it('broadcasts a service request comment to submitter', async function () {
         const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         const [staffUsers, _count] = await staffUserRepository.findAll(jurisdictionId);
         const data = {
@@ -194,7 +195,7 @@ describe('Test two-way email communications.', function () {
 
     it('broadcasts a service request comment to staff only', async function () {
         const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         const [staffUsers, count] = await staffUserRepository.findAll(jurisdictionId);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -224,7 +225,7 @@ describe('Test two-way email communications.', function () {
 
     it('uses an email sanitize line for outgoing email when reply to service request is enabled', async function () {
         const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         // ensure it is the value we need for the test
         jurisdiction.replyToServiceRequestEnabled = true;
@@ -248,7 +249,7 @@ describe('Test two-way email communications.', function () {
 
     it('does not use sanitize line for outgoing email when reply to service request is disabled', async function () {
         const { serviceRequestRepository, jurisdictionRepository, staffUserRepository } = app.repositories;
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
         // ensure it is the value we need for the test
         jurisdiction.replyToServiceRequestEnabled = false;

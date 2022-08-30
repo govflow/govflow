@@ -7,18 +7,17 @@ import {
     AuditedStateChangeExtraData,
     auditMessageFields,
     InboundEmailDataAttributes,
-    InboundSmsDataAttributes,
-    IServiceRequestService,
+    InboundSmsDataAttributes, IServiceRequestHookRunner, IServiceRequestService,
+    JurisdictionAttributes,
     MessageDisambiguationAttributes,
     ParsedServiceRequestAttributes,
     PublicId,
     Repositories,
     ServiceRequestAttributes,
     ServiceRequestCommentAttributes,
+    ServiceRequestCommentCreateAttributes,
     ServiceRequestCreateAttributes,
-    ServiceRequestInstance,
-    ServiceRequestStateChangeErrorResponse,
-    StaffUserAttributes
+    ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
 import {
     canSubmitterComment,
@@ -29,25 +28,29 @@ import {
     parseDisambiguationChoiceFromText
 } from '../communications/helpers';
 import { makeAuditMessage } from './helpers';
-import { REQUEST_STATUSES } from './models';
+import { REQUEST_STATUSES, SERVICE_REQUEST_CLOSED_STATES } from './models';
 
 @injectable()
 export class ServiceRequestService implements IServiceRequestService {
 
     repositories: Repositories
     config: AppConfig
+    hookRunner: IServiceRequestHookRunner
     NEW_REQUEST_IDENTIFIER: string
 
     constructor(
         @inject(appIds.Repositories) repositories: Repositories,
-        @inject(appIds.AppConfig) config: AppConfig,) {
+        @inject(appIds.AppConfig) config: AppConfig,
+        @inject(appIds.ServiceRequestHookRunner) hookRunner: IServiceRequestHookRunner,
+    ) {
         this.repositories = repositories;
         this.config = config;
+        this.hookRunner = hookRunner;
         this.NEW_REQUEST_IDENTIFIER = 'New Request';
     }
 
     async create(data: ServiceRequestCreateAttributes): Promise<ServiceRequestAttributes> {
-        const { serviceRequestRepository, serviceRepository } = this.repositories;
+        const { serviceRequestRepository, serviceRepository, jurisdictionRepository } = this.repositories;
 
         const processedServiceRequest = { ...data };
 
@@ -61,8 +64,24 @@ export class ServiceRequestService implements IServiceRequestService {
                 processedServiceRequest.departmentId = service.defaultDepartmentId;
             }
         }
+        const record = await serviceRequestRepository.create(processedServiceRequest);
+        const jurisdiction = await jurisdictionRepository.findOne(processedServiceRequest.jurisdictionId as string);
+        await this.hookRunner.run('serviceRequestCreate', jurisdiction, record);
+        return record;
+    }
 
-        return serviceRequestRepository.create(processedServiceRequest);
+    async createComment(
+        jurisdictionId: string, serviceRequestId: string, data: ServiceRequestCommentCreateAttributes
+    ): Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes]> {
+        const { serviceRequestRepository, jurisdictionRepository } = this.repositories;
+        const [record, comment] = await serviceRequestRepository.createComment(jurisdictionId, serviceRequestId, data);
+        if (comment.isBroadcast) {
+            const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId);
+            const extraData = { serviceRequestCommentId: comment.id };
+            const hookName = 'serviceRequestCommentBroadcast';
+            await this.hookRunner.run(hookName, jurisdiction, record, extraData);
+        }
+        return [record, comment];
     }
 
     async createAuditedStateChange(
@@ -72,7 +91,7 @@ export class ServiceRequestService implements IServiceRequestService {
         value: string,
         extraData?: AuditedStateChangeExtraData
     ):
-        Promise<ServiceRequestAttributes | ServiceRequestStateChangeErrorResponse> {
+        Promise<ServiceRequestAttributes | null> {
         const {
             jurisdictionRepository,
             serviceRequestRepository,
@@ -126,10 +145,7 @@ export class ServiceRequestService implements IServiceRequestService {
             }
 
             if (!allowedAction) {
-                return {
-                    isError: true,
-                    message: 'Cannot update Service Request assignee without a valid Department'
-                } as ServiceRequestStateChangeErrorResponse
+                return null;
             }
 
         }
@@ -141,12 +157,16 @@ export class ServiceRequestService implements IServiceRequestService {
         const auditMessageFields: auditMessageFields[] = [];
         let newDisplayValue = value;
         let fieldName = key;
+        let hookName = '';
 
         // save the change on the record
         record = await serviceRequestRepository.update(jurisdictionId, id, updateData);
 
         // create the audit record / message
         if (key === 'status') {
+            // name for hook later
+            const serviceRequestIsClosed = SERVICE_REQUEST_CLOSED_STATES.includes(value as string);
+            hookName = serviceRequestIsClosed ? 'serviceRequestClosed' : 'serviceRequestChangeStatus';
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             newDisplayValue = REQUEST_STATUSES[value];
@@ -156,6 +176,8 @@ export class ServiceRequestService implements IServiceRequestService {
             fieldName = 'Status';
             auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
         } else if (key === 'assignedTo') {
+            // name for hook later
+            hookName = 'serviceRequestChangeAssignedTo';
             if (value) {
                 const newAssignee = await staffUserRepository.findOne(jurisdictionId, value);
                 if (newAssignee) { newDisplayValue = newAssignee.displayName }
@@ -217,9 +239,19 @@ export class ServiceRequestService implements IServiceRequestService {
             auditMessageFields.push({ fieldName, oldValue: oldDisplayValue, newValue: newDisplayValue });
         }
         const auditMessage = makeAuditMessage(extraData?.user, auditMessageFields);
+        // using repository below as this is an audit message
+        // which is just an internal comment and therefore
+        // should not trigger notifications, and doing via
+        // service method would send notifications
         const [updatedRecord, _comment] = await serviceRequestRepository.createComment(
             jurisdictionId, record.id, { comment: auditMessage, addedBy: extraData?.user?.id }
         );
+
+        if (hookName) {
+            // TODO: some changes do not trigger notifications
+            // eg currently: serviceId and departmentId
+            await this.hookRunner.run(hookName, jurisdiction, record)
+        }
         return updatedRecord;
     }
 
@@ -343,6 +375,7 @@ whether you are creating a new service request, or responding to an existing one
         const {
             serviceRequestRepository,
             staffUserRepository,
+            jurisdictionRepository,
             inboundMapRepository,
         } = this.repositories;
         const { inboundEmailDomain } = this.config;
@@ -436,6 +469,17 @@ whether you are creating a new service request, or responding to an existing one
         const record = await serviceRequestRepository.findOne(
             cleanedData.jurisdictionId, intermediateRecord.id
         );
+
+        const jurisdiction = await jurisdictionRepository.findOne(record.jurisdictionId) as JurisdictionAttributes;
+        if (!comment) {
+            const hookName = 'serviceRequestCreate';
+            await this.hookRunner.run(hookName, jurisdiction, record);
+        } else {
+            const serviceRequestCommentId = comment.id;
+            const extraData = { serviceRequestCommentId };
+            const hookName = 'serviceRequestCommentBroadcast';
+            await this.hookRunner.run(hookName, jurisdiction, record, extraData);
+        }
         return [record, comment];
     }
 

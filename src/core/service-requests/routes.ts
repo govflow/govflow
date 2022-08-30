@@ -2,8 +2,6 @@ import { Request, Response, Router } from 'express';
 import { serviceRequestFiltersToSequelize, wrapHandler } from '../../helpers';
 import { enforceJurisdictionAccess, resolveJurisdiction } from '../../middlewares';
 import { AuditedStateChangeExtraData, ServiceRequestAttributes } from '../../types';
-import { serviceRequestEmitter } from '../hooks';
-import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
 export const serviceRequestRouter = Router();
 
@@ -27,25 +25,18 @@ serviceRequestRouter.get('/stats', async (req: Request, res: Response) => {
 });
 
 serviceRequestRouter.post('/status', wrapHandler(async (req: Request, res: Response) => {
-    const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
+    const { serviceRequestService } = res.app.services;
     const { status, serviceRequestId } = req.body;
-    const { jurisdiction } = req;
     const extraData = { user: req.user };
-    let eventName = 'serviceRequestChangeStatus';
     const record = await serviceRequestService.createAuditedStateChange(
         req.jurisdiction.id, serviceRequestId, 'status', status, extraData
     );
-    if (SERVICE_REQUEST_CLOSED_STATES.includes(status as string)) {
-        eventName = 'serviceRequestClosed'
-    }
-    await serviceRequestEmitter.emit(eventName, { jurisdiction, record, dispatchHandler });
     res.status(200).send({ data: record });
 }))
 
 serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Response) => {
-    const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
+    const { serviceRequestService } = res.app.services;
     const { assignedTo, departmentId, serviceRequestId } = req.body;
-    const { jurisdiction } = req;
     const extraData = {
         user: req.user,
         departmentId
@@ -57,12 +48,14 @@ serviceRequestRouter.post('/assign', wrapHandler(async (req: Request, res: Respo
         assignedTo,
         extraData as AuditedStateChangeExtraData,
     );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (record.isError) {
-        res.status(400).send({ data: record });
+    if (!record) {
+        res.status(400).send({
+            data: {
+                isError: true,
+                message: 'Cannot update Service Request assignee'
+            }
+        });
     } else {
-        await serviceRequestEmitter.emit('serviceRequestChangeAssignedTo', { jurisdiction, record, dispatchHandler });
         res.status(200).send({ data: record });
     }
 }))
@@ -88,18 +81,10 @@ serviceRequestRouter.post('/service', wrapHandler(async (req: Request, res: Resp
 }))
 
 serviceRequestRouter.post('/comments/:serviceRequestId', wrapHandler(async (req: Request, res: Response) => {
-    const { serviceRequestRepository } = res.app.repositories;
-    const { outboundMessageService: dispatchHandler } = res.app.services;
-    const { jurisdiction } = req;
+    const { serviceRequestService } = res.app.services;
     const { serviceRequestId } = req.params;
     const data = Object.assign({}, req.body, { addedBy: req.user?.id });
-    const [record, comment] = await serviceRequestRepository.createComment(req.jurisdiction.id, serviceRequestId, data);
-    if (comment.isBroadcast) {
-        const extraData = { serviceRequestCommentId: comment.id };
-        await serviceRequestEmitter.emit(
-            'serviceRequestCommentBroadcast', { jurisdiction, record, dispatchHandler, extraData }
-        );
-    }
+    const [_record, comment] = await serviceRequestService.createComment(req.jurisdiction.id, serviceRequestId, data);
     res.status(200).send({ data: comment });
 }))
 
@@ -136,9 +121,7 @@ serviceRequestRouter.get('/anon-data/:id', wrapHandler(async (req: Request, res:
 }))
 
 serviceRequestRouter.post('/', wrapHandler(async (req: Request, res: Response) => {
-    const { outboundMessageService: dispatchHandler, serviceRequestService } = res.app.services;
-    const { jurisdiction } = req;
+    const { serviceRequestService } = res.app.services;
     const record = await serviceRequestService.create(req.body as ServiceRequestAttributes);
-    await serviceRequestEmitter.emit('serviceRequestCreate', { jurisdiction, record, dispatchHandler });
     res.status(200).send({ data: record });
 }))

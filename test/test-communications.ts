@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { createApp } from '../src';
 import { initConfig } from '../src/config';
 import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, loadTemplate, makeRequestURL } from '../src/core/communications/helpers';
+import { OutboundMessageService } from '../src/core/communications/services';
 import { sendEmail } from '../src/email';
 import { sendSms } from '../src/sms';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
@@ -205,7 +206,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('dispatches a service request comment notification', async function () {
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const { serviceRequestRepository } = app.repositories;
         const jurisdiction = testData.jurisdictions[0];
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
@@ -221,7 +222,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('cannot dispatch a cx survey notification when surveys are disabled', async function () {
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
         const jurisdiction = await jurisdictionRepository.findOne(testData.jurisdictions[0].id);
         const serviceRequests = _.filter(testData.serviceRequests, { jurisdictionId: jurisdiction.id });
@@ -233,7 +234,7 @@ describe('Verify Core Communications Functionality.', function () {
 
     it('cannot dispatch a cx survey notification when surveys are enabled but there is no survey url',
         async function () {
-            const { outboundMessageService } = app.services;
+            const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
             const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
             let jurisdiction = await jurisdictionRepository.findOne(testData.jurisdictions[0].id);
             jurisdiction = await jurisdictionRepository.update(jurisdiction.id, { cxSurveyEnabled: true })
@@ -248,7 +249,7 @@ describe('Verify Core Communications Functionality.', function () {
     it(`cannot dispatch a cx survey notification when surveys are enabled, survey url exists,
     but service request status is not equal to cxSurveyTriggerStatus`,
         async function () {
-            const { outboundMessageService } = app.services;
+            const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
             const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
             const surveyUrl = 'https://example.com/cx-survey';
             const serviceRequestStatus = 'inbox';
@@ -270,7 +271,7 @@ describe('Verify Core Communications Functionality.', function () {
         });
 
     it('can dispatch a cx survey notification with default trigger status', async function () {
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
         const surveyUrl = 'https://example.com/cx-survey';
         const serviceRequestStatus = 'done';
@@ -296,7 +297,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('can dispatch a cx survey notification with a custom trigger status', async function () {
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
         const surveyUrl = 'https://example.com/cx-survey';
         const serviceRequestStatus = 'inbox';
@@ -323,7 +324,7 @@ describe('Verify Core Communications Functionality.', function () {
     });
 
     it('cannot dispatch a cx survey notification when the submitter is anonymous', async function () {
-        const { outboundMessageService } = app.services;
+        const outboundMessageService = new OutboundMessageService(app.repositories, app.config);
         const { serviceRequestRepository, jurisdictionRepository } = app.repositories;
         const surveyUrl = 'https://example.com/cx-survey';
         const serviceRequestStatus = 'done';

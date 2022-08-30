@@ -420,16 +420,6 @@ export interface AuditedStateChangeExtraData {
     departmentId?: string;
 }
 
-export interface ServiceRequestStateChangeErrorResponse {
-    isError: boolean;
-    message: string;
-}
-
-export interface StaffUserStateChangeErrorResponse {
-    isError: boolean;
-    message: string;
-}
-
 export interface auditMessageFields {
     fieldName: string;
     oldValue: string;
