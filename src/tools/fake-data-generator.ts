@@ -175,7 +175,7 @@ function makeStaffUserDepartments(staffUsers: StaffUserAttributes[], departments
         })
     }
     // make sure some are not leads
-    for (const sud of staffUserDepartments.slice(5)) { // TODO - not just slice
+    for (const sud of staffUserDepartments.slice(5)) { // TODO: not just slice
         sud.isLead = false
     }
     return staffUserDepartments;

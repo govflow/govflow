@@ -67,7 +67,7 @@ export function enforceJurisdictionAccess(req: Request, res: Response, next: Nex
     const STATUS_CODE_FORBIDDEN = 403;
 
     if (!process.env.ENFORCE_AUTHORIZATION) {
-        // TODO remove once we support auth on Govflow and adapt tests to make requests as authenticated users
+        // TODO: remove once we support auth on Govflow and adapt tests to make requests as authenticated users
         next();
         return;
     }

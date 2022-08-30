@@ -8,7 +8,7 @@ import { toGovflowServiceRequest, toOpen311Service, toOpen311ServiceRequest } fr
 import { Open311ServiceRequestCreatePayload } from './types';
 export const open311Router = Router();
 
-// TODO use once we support resolving based on POST body
+// TODO: use once we support resolving based on POST body
 // open311Router.use(wrapHandler(resolveJurisdiction('jurisdiction_id', ['/discovery'])));
 
 function isXML(path: string) {

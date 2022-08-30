@@ -40,7 +40,7 @@ export const toOpen311ServiceRequest = (serviceRequest: ServiceRequestAttributes
     description: serviceRequest.description,
     address: serviceRequest.address,
     status: serviceRequest.status === 'done' ? 'closed' : 'open',
-    service_name: '', // TODO populate field and return service name
+    service_name: '', // TODO: populate field and return service name
     service_code: serviceRequest.serviceId || '',
     requested_datetime: serviceRequest.createdAt.toISOString(),
     updated_datetime: serviceRequest.updatedAt.toISOString(),
