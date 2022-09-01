@@ -127,6 +127,7 @@ function makeDateRanges() {
     const windowLength = perMonth / OPEN_TICKET_WINDOWS.length;
     const windows = Array(windowLength).fill(OPEN_TICKET_WINDOWS).flat();
     const daysContainer = Array(windows.length).fill(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const days = daysContainer.map(e => faker.datatype.number({ 'min': 1, 'max': 28 }));
     const dateData = windows.map((e, i) => { return { window: e, month: month, day: days[i] } });
     dateRanges.push(...dateData.map(makeDateRange));

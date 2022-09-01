@@ -17,34 +17,57 @@ export const serviceRequestLifecycleEmitter = new ServiceRequestLifecycleEmitter
 serviceRequestLifecycleEmitter.on('serviceRequestCreate', async (data: HookData) => {
     logger.info('Responding to serviceRequestCreate event.');
     const { jurisdiction, record, dispatchHandler } = data;
-    await serviceRequestCreateHandler(jurisdiction, record, dispatchHandler);
-    await cxSurveyHandler(jurisdiction, record, dispatchHandler);
+    const { workflowEnabled, cxSurveyEnabled } = jurisdiction;
+    if (workflowEnabled) {
+        await serviceRequestCreateHandler(jurisdiction, record, dispatchHandler);
+    }
+    if (cxSurveyEnabled) {
+        await cxSurveyHandler(jurisdiction, record, dispatchHandler);
+    }
 });
 
 serviceRequestLifecycleEmitter.on('serviceRequestChangeStatus', async (data: HookData) => {
     logger.info('Responding to serviceRequestChangeStatus event.');
     const { jurisdiction, record, dispatchHandler } = data;
-    await serviceRequestChangeStatusHandler(jurisdiction, record, dispatchHandler);
-    await cxSurveyHandler(jurisdiction, record, dispatchHandler);
+    const { workflowEnabled, cxSurveyEnabled } = jurisdiction;
+    if (workflowEnabled) {
+        await serviceRequestChangeStatusHandler(jurisdiction, record, dispatchHandler);
+    }
+    if (cxSurveyEnabled) {
+        await cxSurveyHandler(jurisdiction, record, dispatchHandler);
+    }
 });
 
 serviceRequestLifecycleEmitter.on('serviceRequestChangeAssignedTo', async (data: HookData) => {
     logger.info('Responding to serviceRequestChangeAssignedTo event.');
     const { jurisdiction, record, dispatchHandler } = data;
-    await serviceRequestChangeAssignedToHandler(jurisdiction, record, dispatchHandler);
+    const { workflowEnabled } = jurisdiction;
+    if (workflowEnabled) {
+        await serviceRequestChangeAssignedToHandler(jurisdiction, record, dispatchHandler);
+    }
 });
 
 serviceRequestLifecycleEmitter.on('serviceRequestClosed', async (data: HookData) => {
     logger.info('Responding to serviceRequestClosed event.');
     const { jurisdiction, record, dispatchHandler } = data;
-    await serviceRequestClosedHandler(jurisdiction, record, dispatchHandler);
-    await cxSurveyHandler(jurisdiction, record, dispatchHandler);
+    const { workflowEnabled, cxSurveyEnabled } = jurisdiction;
+    if (workflowEnabled) {
+        await serviceRequestClosedHandler(jurisdiction, record, dispatchHandler);
+    }
+    if (cxSurveyEnabled) {
+        await cxSurveyHandler(jurisdiction, record, dispatchHandler);
+    }
 });
 
 serviceRequestLifecycleEmitter.on('serviceRequestCommentBroadcast', async (data: HookData) => {
     logger.info('Responding to serviceRequestCommentBroadcast event.');
     const { jurisdiction, record, dispatchHandler, extraData } = data;
-    await serviceRequestCommentBroadcastHandler(jurisdiction, record, dispatchHandler, extraData as HookDataExtraData);
+    const { workflowEnabled } = jurisdiction;
+    if (workflowEnabled) {
+        await serviceRequestCommentBroadcastHandler(
+            jurisdiction, record, dispatchHandler, extraData as HookDataExtraData
+        );
+    }
 });
 
 @injectable()

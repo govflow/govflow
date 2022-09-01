@@ -82,6 +82,11 @@ export const JurisdictionModel: ModelDefinition = {
             defaultValue: false,
             type: DataTypes.BOOLEAN,
         },
+        workflowEnabled: {
+            allowNull: false,
+            defaultValue: true,
+            type: DataTypes.BOOLEAN,
+        },
         cxSurveyEnabled: {
             allowNull: false,
             defaultValue: false,

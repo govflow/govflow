@@ -48,6 +48,7 @@ export class JurisdictionRepository implements IJurisdictionRepository {
             'broadcastToSubmitterOnRequestClosed',
             'enforceAssignmentThroughDepartment',
             'filterBroadcastsByDepartment',
+            'workflowEnabled',
             'cxSurveyEnabled',
             'cxSurveyTriggerStatus',
             'cxSurveyBroadcastWindow',

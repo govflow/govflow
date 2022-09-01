@@ -12,7 +12,7 @@ serviceRequestRouter.get('/status-list', wrapHandler(async (req: Request, res: R
     const { serviceRequestRepository } = res.app.repositories;
     const record = await serviceRequestRepository.findStatusList(req.jurisdiction.id);
     res.status(200).send({ data: record });
-}))
+}));
 
 serviceRequestRouter.get('/stats', async (req: Request, res: Response) => {
     const { serviceRequestRepository } = res.app.repositories;

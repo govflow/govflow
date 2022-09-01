@@ -13,6 +13,7 @@ export interface JurisdictionAttributes {
     sendFromEmailVerified: boolean,
     replyToEmail?: string;
     replyToServiceRequestEnabled: boolean;
+    workflowEnabled: boolean;
     cxSurveyEnabled: boolean;
     cxSurveyTriggerStatus: string;
     cxSurveyUrl: string;
