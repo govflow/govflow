@@ -126,7 +126,8 @@ function makeDateRanges() {
   for (const month of MONTHS) {
     const windowLength = perMonth / OPEN_TICKET_WINDOWS.length;
     const windows = Array(windowLength).fill(OPEN_TICKET_WINDOWS).flat();
-    const days = Array(windows.length).fill(faker.datatype.number({ 'min': 1, 'max': 28 }));
+    const daysContainer = Array(windows.length).fill(null);
+    const days = daysContainer.map(e => faker.datatype.number({ 'min': 1, 'max': 28 }));
     const dateData = windows.map((e, i) => { return { window: e, month: month, day: days[i] } });
     dateRanges.push(...dateData.map(makeDateRange));
   }
@@ -154,11 +155,21 @@ export async function run(app: Application) {
   for (const serviceRequest of serviceRequests) {
     try {
       await serviceRequestRepository.create(serviceRequest);
+      console.log(serviceRequest.createdAt, serviceRequest.updatedAt, serviceRequest.closeDate);
     } catch (err) {
       console.log("ERROR CREATING SERVICE REQUEST")
       console.log(err)
     }
   }
+
+  // DELETE TO START AGAIN
+  // const [requests, _count] = await serviceRequestRepository.findAll(GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID);
+  // console.log(GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID)
+  // console.log(_count)
+  // for (const r of requests) {
+  //   // @ts-ignore
+  //   await r.destroy();
+  // }
 
   const [allServiceRequests, serviceRequestCount] = await serviceRequestRepository.findAll(
     GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID
