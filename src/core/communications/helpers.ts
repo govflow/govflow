@@ -37,7 +37,7 @@ export function makeCXSurveyURL(
     serviceRequest: ServiceRequestAttributes,
 ): string {
     const { cxSurveyUrl } = jurisdiction;
-    return `${cxSurveyUrl}?cx_case_id=${serviceRequest.id}`
+    return `${cxSurveyUrl}?cx_case_id=${serviceRequest.id}&s=${serviceRequest.channel}`
 }
 
 export async function loadTemplate(templateName: string, templateContext: TemplateConfigContextAttributes, isBody = true): Promise<string> {
