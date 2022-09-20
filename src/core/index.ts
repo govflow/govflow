@@ -16,7 +16,7 @@ import { storageRouter } from './storage';
 const coreRoutes = Router();
 
 coreRoutes.get('/', wrapHandler(async (req: Request, res: Response) => {
-    res.status(200).send({ data: { name: 'govflow', version: '0.0.115-alpha' } });
+  res.status(200).send({ data: { name: 'govflow', version: '0.0.116-alpha' } });
 }))
 coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
@@ -28,40 +28,40 @@ coreRoutes.use('/storage', storageRouter);
 coreRoutes.use('/open311/v2', open311Router);
 
 const coreModels: ModelDefinition[] = [
-    JurisdictionModel,
-    ServiceRequestModel,
-    ServiceRequestCommentModel,
-    ServiceModel,
-    StaffUserModel,
-    StaffUserDepartmentModel,
-    CommunicationModel,
-    DepartmentModel,
-    InboundMapModel,
-    ChannelStatusModel,
-    MessageDisambiguationModel
+  JurisdictionModel,
+  ServiceRequestModel,
+  ServiceRequestCommentModel,
+  ServiceModel,
+  StaffUserModel,
+  StaffUserDepartmentModel,
+  CommunicationModel,
+  DepartmentModel,
+  InboundMapModel,
+  ChannelStatusModel,
+  MessageDisambiguationModel
 ]
 
 const coreRepositories: PluginBase[] = [
-    JurisdictionRepository,
-    ServiceRequestRepository,
-    ServiceRepository,
-    StaffUserRepository,
-    CommunicationRepository,
-    DepartmentRepository,
-    EmailStatusRepository,
+  JurisdictionRepository,
+  ServiceRequestRepository,
+  ServiceRepository,
+  StaffUserRepository,
+  CommunicationRepository,
+  DepartmentRepository,
+  EmailStatusRepository,
 ]
 
 const coreMiddlewares: RequestHandler[] = [
-    cors(),
-    json(),
-    urlencoded({ extended: true })
+  cors(),
+  json(),
+  urlencoded({ extended: true })
 ]
 
 export {
-    coreRoutes,
-    coreModels,
-    coreRepositories,
-    coreMiddlewares,
-    internalServerError,
-    notFound
+  coreRoutes,
+  coreModels,
+  coreRepositories,
+  coreMiddlewares,
+  internalServerError,
+  notFound
 };
