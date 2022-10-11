@@ -10,9 +10,9 @@ At the level of the GovFlow instance (the server), we need one Twilio Number con
 
 This number is used to emit SMS messages for Service Request submissions as a fallback, and irregardless of whether a given Jurisdiction has opted in to Inbound SMS ot Two-way SMS. Think if it like `webmaster@localhost` for SMS in GovFlow.
 
-This number needs to be configured to send messages (default when you acquire a Twilio Number), and also it is highly recommended to provide an autoresponder from this number so if anyone attempts to respond back to an SMS, it is clear that it is a "no reply" number.
+This number needs to be configured to send messages (default when you acquire a Twilio Number), and also it is highly recommended to provide an autoresponder from this number so if anyone attempts to respond back to an SMS, it is clear that it is a "no reply" number. This number will belong to a Twilio Messaging Service, you should name a your messaging service and associate all numbers with it. Set the messaging service as `TWILIO_MESSAGE_SERVICE_SID`.
 
-The core configuration for Twilio is to set `TWILIO_ACCOUNT_SID ` and `TWILIO_AUTH_TOKEN` with valid credentials from a Twilio account, in order to interact with Twilio.
+The core configuration for Twilio is to set `TWILIO_ACCOUNT_SID `, `TWILIO_MESSAGE_SERVICE_SID`, and `TWILIO_AUTH_TOKEN` with valid credentials from a Twilio account, in order to interact with Twilio.
 
 ### Set up an auto response with Studio Flow
 
@@ -29,7 +29,7 @@ The core configuration for Twilio is to set `TWILIO_ACCOUNT_SID ` and `TWILIO_AU
 
 Ok, so now with the basics of what the GovFlow server needs done, we can move onto Jurisdiction-level Twilio Number configuration for inbound SMS.
 
-As a reminder, rhe core configuration for Twilio is to set `TWILIO_ACCOUNT_SID ` and `TWILIO_AUTH_TOKEN` with valid credentials from a Twilio account.
+As a reminder, the core configuration for Twilio is to set `TWILIO_ACCOUNT_SID `, `TWILIO_MESSAGE_SERVICE_SID`, and `TWILIO_AUTH_TOKEN` with valid credentials from a Twilio account.
 
 ### Create a general number for the Jursidiction
 
