@@ -1,6 +1,6 @@
 # Broadcasting
 
-Broadcasting refers to sendign messages out of the system via any supported communication channel.
+Broadcasting refers to sending messages out of the system via any supported communication channel.
 
 Primarily, GovFlow broadcasts messages around the lifecycle of a service request.
 
