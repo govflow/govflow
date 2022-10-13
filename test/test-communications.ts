@@ -230,7 +230,7 @@ describe('Verify Core Communications Functionality.', function () {
       jurisdictionEmail: 'dummy@example.com',
       jurisdictionReplyToServiceRequestEnabled: false,
       recipientName: 'Dummy Name',
-      messageType: 'core'
+      messageType: 'workflow'
     } as TemplateConfigContextAttributes;
     const response = await loadTemplate(templateName, templateContext);
     chai.assert(new String(response).valueOf().startsWith(new String(expectedOutput).valueOf()));
@@ -270,6 +270,7 @@ describe('Verify Core Communications Functionality.', function () {
     const sendAt = makeSendAtDate(referenceDate, workflowBroadcastWindow);
     const dispatchConfig = {
       channel: serviceRequest.channel as string,
+      type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: serviceRequest.email as string,
       fromEmail: sendFromEmail as string,
@@ -281,6 +282,7 @@ describe('Verify Core Communications Functionality.', function () {
       fromPhone: sendFromPhone as string,
       toPhone: serviceRequest.phone as string,
       sendAt,
+      serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
       name: 'service-request-new-public-user',
@@ -293,7 +295,7 @@ describe('Verify Core Communications Functionality.', function () {
         jurisdictionEmail: 'dummy@example.com',
         jurisdictionReplyToServiceRequestEnabled: false,
         recipientName: serviceRequest.displayName as string,
-        messageType: 'core'
+        messageType: 'workflow'
       } as TemplateConfigContextAttributes
     }
     if (serviceRequest.channel) {
@@ -340,6 +342,7 @@ describe('Verify Core Communications Functionality.', function () {
     const sendAt = new Date();
     const dispatchConfig = {
       channel: 'email',
+      type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: admin.email as string,
       fromEmail: sendFromEmail as string,
@@ -363,7 +366,7 @@ describe('Verify Core Communications Functionality.', function () {
         jurisdictionEmail: 'dummy@example.com',
         jurisdictionReplyToServiceRequestEnabled: false,
         recipientName: admin.displayName as string,
-        messageType: 'core'
+        messageType: 'workflow'
       } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(

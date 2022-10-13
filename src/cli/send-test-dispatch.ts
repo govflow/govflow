@@ -19,8 +19,10 @@ import { DispatchConfigAttributes, TemplateConfigContextAttributes } from '../ty
     testToPhone
   } = app.config;
   const { communicationRepository, emailStatusRepository } = app.repositories;
+  const messageType = 'workflow';
   const dispatchConfig = {
     channel: process.env.TEST_DISPATCH_CHANNEL,
+    type: messageType,
     sendGridApiKey: sendGridApiKey as string,
     toEmail: testToEmail as string,
     fromEmail: sendGridFromEmail as string,
@@ -45,7 +47,7 @@ import { DispatchConfigAttributes, TemplateConfigContextAttributes } from '../ty
       jurisdictionEmail: 'dummy@example.com',
       jurisdictionReplyToServiceRequestEnabled: false,
       recipientName: 'Test Recipient Name',
-      messageType: 'core'
+      messageType: messageType,
     } as TemplateConfigContextAttributes
   }
   const record = await dispatchMessage(

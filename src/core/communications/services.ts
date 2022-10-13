@@ -76,6 +76,7 @@ export class OutboundMessageService implements IOutboundMessageService {
 
     const dispatchConfig = {
       channel: serviceRequest.channel as string,
+      type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: serviceRequest.email as string,
       fromEmail: sendFromEmail as string,
@@ -86,7 +87,8 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioStatusCallbackURL: twilioStatusCallbackURL as string,
       fromPhone: sendFromPhone as string,
       toPhone: serviceRequest.phone as string,
-      sendAt: sendAt
+      sendAt: sendAt,
+      serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
       name: 'service-request-new-public-user',
@@ -99,7 +101,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         jurisdictionEmail: jurisdiction.email,
         jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
         recipientName: serviceRequest.displayName as string,
-        messageType: 'core'
+        messageType: 'workflow'
       } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(
@@ -111,6 +113,7 @@ export class OutboundMessageService implements IOutboundMessageService {
     for (const staff of staffRecipients) {
       const dispatchConfig = {
         channel: 'email', // we only use email for staff
+        type: 'workflow',
         sendGridApiKey: sendGridApiKey as string,
         toEmail: staff.email as string,
         fromEmail: sendGridFromEmail as string,
@@ -121,7 +124,8 @@ export class OutboundMessageService implements IOutboundMessageService {
         twilioStatusCallbackURL: twilioStatusCallbackURL as string,
         fromPhone: sendFromPhone as string,
         toPhone: serviceRequest.phone as string,
-        sendAt: sendAt
+        sendAt: sendAt,
+        serviceRequestId: serviceRequest.id,
       }
       const templateConfig = {
         name: 'service-request-new-staff-user',
@@ -134,7 +138,7 @@ export class OutboundMessageService implements IOutboundMessageService {
           jurisdictionEmail: jurisdiction.email,
           jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
           recipientName: staff.displayName as string,
-          messageType: 'core'
+          messageType: 'workflow'
         } as TemplateConfigContextAttributes
       }
       const record = await dispatchMessage(
@@ -177,6 +181,7 @@ export class OutboundMessageService implements IOutboundMessageService {
     const sendAt = makeSendAtDate(referenceDate, workflowBroadcastWindow);
     const dispatchConfig = {
       channel: 'email', // we only use email for staff
+      type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: staffUser.email as string,
       fromEmail: sendFromEmail as string,
@@ -187,7 +192,8 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioStatusCallbackURL: twilioStatusCallbackURL as string,
       fromPhone: sendFromPhone as string,
       toPhone: serviceRequest.phone as string,
-      sendAt
+      sendAt,
+      serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
       name: 'service-request-changed-status-staff-user',
@@ -200,7 +206,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         jurisdictionEmail: jurisdiction.email,
         jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
         recipientName: staffUser.displayName as string,
-        messageType: 'core'
+        messageType: 'workflow'
       } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(
@@ -246,6 +252,7 @@ export class OutboundMessageService implements IOutboundMessageService {
     const sendAt = makeSendAtDate(referenceDate, workflowBroadcastWindow);
     const dispatchConfig = {
       channel: 'email', // we only use email for staff
+      type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: staffUser.email as string,
       fromEmail: sendFromEmail as string,
@@ -256,7 +263,8 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioStatusCallbackURL: twilioStatusCallbackURL as string,
       fromPhone: sendFromPhone as string,
       toPhone: serviceRequest.phone as string,
-      sendAt
+      sendAt,
+      serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
       name: 'service-request-changed-assignee-staff-user',
@@ -269,7 +277,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         jurisdictionEmail: jurisdiction.email,
         jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
         recipientName: staffUser.displayName as string,
-        messageType: 'core'
+        messageType: 'workflow'
       } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(
@@ -308,6 +316,7 @@ export class OutboundMessageService implements IOutboundMessageService {
     if (jurisdiction.broadcastToSubmitterOnRequestClosed) {
       const dispatchConfig = {
         channel: serviceRequest.channel as string,
+        type: 'workflow',
         sendGridApiKey: sendGridApiKey as string,
         toEmail: serviceRequest.email as string,
         fromEmail: sendFromEmail as string,
@@ -318,7 +327,8 @@ export class OutboundMessageService implements IOutboundMessageService {
         twilioStatusCallbackURL: twilioStatusCallbackURL as string,
         fromPhone: sendFromPhone as string,
         toPhone: serviceRequest.phone as string,
-        sendAt
+        sendAt,
+        serviceRequestId: serviceRequest.id,
       }
       const templateConfig = {
         name: 'service-request-closed-public-user',
@@ -331,7 +341,7 @@ export class OutboundMessageService implements IOutboundMessageService {
           jurisdictionEmail: jurisdiction.email,
           jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
           recipientName: serviceRequest.displayName as string,
-          messageType: 'core'
+          messageType: 'workflow'
         } as TemplateConfigContextAttributes
       }
       const record = await dispatchMessage(
@@ -344,6 +354,7 @@ export class OutboundMessageService implements IOutboundMessageService {
     for (const staff of staffRecipients) {
       const dispatchConfig = {
         channel: 'email', // we only use email for staff
+        type: 'workflow',
         sendGridApiKey: sendGridApiKey as string,
         toEmail: staff.email as string,
         fromEmail: sendGridFromEmail as string,
@@ -354,7 +365,8 @@ export class OutboundMessageService implements IOutboundMessageService {
         twilioStatusCallbackURL: twilioStatusCallbackURL as string,
         fromPhone: sendFromPhone as string,
         toPhone: serviceRequest.phone as string,
-        sendAt
+        sendAt,
+        serviceRequestId: serviceRequest.id,
       }
       const templateConfig = {
         name: 'service-request-closed-staff-user',
@@ -367,7 +379,7 @@ export class OutboundMessageService implements IOutboundMessageService {
           jurisdictionEmail: jurisdiction.email,
           jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
           recipientName: staff.displayName as string,
-          messageType: 'core'
+          messageType: 'workflow'
         } as TemplateConfigContextAttributes
       }
       const record = await dispatchMessage(
@@ -431,6 +443,7 @@ export class OutboundMessageService implements IOutboundMessageService {
     }
     const dispatchConfig = {
       channel: serviceRequest.channel as string,
+      type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: '', // populated per recipient
       fromEmail: sendFromEmail as string,
@@ -440,7 +453,8 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioAuthToken: twilioAuthToken as string,
       twilioStatusCallbackURL: twilioStatusCallbackURL as string,
       fromPhone: sendFromPhone as string,
-      toPhone: serviceRequest.phone as string
+      toPhone: serviceRequest.phone as string,
+      serviceRequestId: serviceRequest.id,
     } as DispatchConfigAttributes
 
     const recipients = [] as RecipientAttributes[];
@@ -490,7 +504,7 @@ export class OutboundMessageService implements IOutboundMessageService {
           jurisdictionEmail: jurisdiction.email,
           jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
           recipientName: recipient.displayName as string,
-          messageType: 'core'
+          messageType: 'workflow'
         } as TemplateConfigContextAttributes
       }
       const record = await dispatchMessage(
@@ -535,6 +549,7 @@ export class OutboundMessageService implements IOutboundMessageService {
 
     const dispatchConfig = {
       channel: serviceRequest.channel as string,
+      type: 'cx',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: serviceRequest.email as string,
       fromEmail: sendFromEmail as string,
@@ -545,7 +560,8 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioAuthToken: twilioAuthToken as string,
       twilioStatusCallbackURL: twilioStatusCallbackURL as string,
       fromPhone: sendFromPhone as string,
-      toPhone: serviceRequest.phone as string
+      toPhone: serviceRequest.phone as string,
+      serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
       name: 'cx-survey-public-user',

@@ -176,6 +176,8 @@ export interface ServiceRequestStatusAttributes {
 export interface CommunicationAttributes {
   id?: string;
   channel: string;
+  address: string;
+  type: string;
   dispatched: boolean;
   dispatchPayload: DispatchConfigAttributes;
   dispatchResponse: Record<string, string>;
@@ -255,6 +257,7 @@ export interface EmailAttributes {
 
 export interface DispatchConfigAttributes {
   channel: string;
+  type: string;
   sendGridApiKey: string;
   toEmail: string;
   fromEmail: string;
@@ -266,6 +269,7 @@ export interface DispatchConfigAttributes {
   fromPhone: string;
   toPhone: string;
   sendAt: Date | undefined;
+  serviceRequestId?: string;
 }
 
 export interface DispatchPayloadAttributes extends DispatchConfigAttributes {
@@ -274,7 +278,7 @@ export interface DispatchPayloadAttributes extends DispatchConfigAttributes {
   htmlBody?: string;
 }
 
-export type GovFlowMessageType = 'core' | 'cx';
+export type GovFlowMessageType = 'workflow' | 'cx';
 
 export interface TemplateConfigContextAttributes {
   appName: string;

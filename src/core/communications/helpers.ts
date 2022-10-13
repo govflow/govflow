@@ -65,12 +65,12 @@ export async function loadTemplate(templateName: string, templateContext: Templa
   if (isBody) {
 
     let doNotReplyLine = '';
-    if (!replyEnabled || messageType === 'core') {
+    if (!replyEnabled || messageType === 'workflow') {
       const doNotReplyMsg = isEmail ? emailBodyDoNotReplyLine : smsBodyDoNotReplyLine;
       doNotReplyLine = `${lineBreak}${lineBreak}${doNotReplyMsg}${lineBreak}`;
     }
 
-    if (isEmail && replyEnabled && messageType === 'core') {
+    if (isEmail && replyEnabled && messageType === 'workflow') {
       replyAboveLine = `${emailBodySanitizeLine}${lineBreak}${lineBreak}`;
     }
 
@@ -106,6 +106,8 @@ export async function dispatchMessage(
   let subject: string;
   let textBody: string;
   let htmlBody: string;
+  // cant dispatch if we dont have an address to dispatch to
+  if (!dispatchConfig.toEmail && !dispatchConfig.toPhone) { return null; }
   if (dispatchConfig.channel === 'email') {
     // first, check we can send to this email address
     // and we exit early if we cannot.
@@ -168,16 +170,32 @@ export async function dispatchMessage(
   }
 
   if (!dispatchResponse) {
+    // something failed with the messaging backend
+    // save what we tried to send anyway, in case we can schedule it for later
+    await CommunicationRepository.create({
+      channel: dispatchConfig.channel,
+      address: dispatchConfig.channel === 'email' ? dispatchConfig.toEmail : dispatchConfig.toPhone,
+      type: dispatchConfig.type,
+      dispatched: false,
+      dispatchPayload: dispatchConfig,
+      dispatchResponse: {}, // no response
+      accepted: false,
+      delivered: false,
+      serviceRequestId: dispatchConfig.serviceRequestId,
+    })
     return null;
   } else {
     const record = await CommunicationRepository.create({
       channel: dispatchConfig.channel,
+      address: dispatchConfig.channel === 'email' ? dispatchConfig.toEmail : dispatchConfig.toPhone,
+      type: dispatchConfig.type,
       dispatched: true,
       dispatchPayload: dispatchConfig,
       dispatchResponse: dispatchResponse as Record<string, string>,
       // TODO: conditionally check
       accepted: true,
       delivered: true,
+      serviceRequestId: dispatchConfig.serviceRequestId,
     })
     return record;
   }
