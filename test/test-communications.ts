@@ -46,6 +46,69 @@ describe('Verify Core Communications Functionality.', function () {
     chai.assert(response);
   });
 
+  it('should send email with valid sendAt: future', async function () {
+    const config = await initConfig();
+    const { sendGridApiKey } = config as AppConfig;
+    const referenceDate = new Date();
+    const fakeBroadcastWindow = 10;
+    const sendAt = makeSendAtDate(referenceDate, fakeBroadcastWindow);
+    const response = await sendEmail(
+      sendGridApiKey as string,
+      'example@example.com',
+      'example@example.com',
+      'example@example.com', // replyTo
+      'Test subject line',
+      'Test <strong>html</strong> body',
+      'Test text body',
+      sendAt,
+    );
+    const data = JSON.parse(response as unknown as string);
+    chai.assert(response);
+    chai.assert(typeof data.send_at === "number") // we have a unix timestamp for sending
+  });
+
+  it('should send email with invalid sendAt: past', async function () {
+    const config = await initConfig();
+    const { sendGridApiKey } = config as AppConfig;
+    const referenceDate = new Date();
+    const fakeBroadcastWindow = -10;
+    const sendAt = makeSendAtDate(referenceDate, fakeBroadcastWindow);
+    const response = await sendEmail(
+      sendGridApiKey as string,
+      'example@example.com',
+      'example@example.com',
+      'example@example.com', // replyTo
+      'Test subject line',
+      'Test <strong>html</strong> body',
+      'Test text body',
+      sendAt,
+    );
+    const data = JSON.parse(response as unknown as string);
+    chai.assert(response);
+    chai.assert(typeof data.send_at === "undefined") // when not present it means send immediately
+  });
+
+  it('should send email with invalid sendAt: too far in future', async function () {
+    const config = await initConfig();
+    const { sendGridApiKey } = config as AppConfig;
+    const referenceDate = new Date();
+    const fakeBroadcastWindow = 24 * 10;
+    const sendAt = makeSendAtDate(referenceDate, fakeBroadcastWindow);
+    const response = await sendEmail(
+      sendGridApiKey as string,
+      'example@example.com',
+      'example@example.com',
+      'example@example.com', // replyTo
+      'Test subject line',
+      'Test <strong>html</strong> body',
+      'Test text body',
+      sendAt,
+    );
+    const data = JSON.parse(response as unknown as string);
+    chai.assert(response);
+    chai.assert(typeof data.send_at === 'number'); // it still sends at furthest future time possible
+  });
+
   it('should send sms', async function () {
     const config = await initConfig();
     const {
@@ -68,6 +131,91 @@ describe('Verify Core Communications Functionality.', function () {
       sendAt,
     );
     chai.assert(response);
+  });
+
+  it('should send sms with valid sendAt: future', async function () {
+    const config = await initConfig();
+    const {
+      twilioAccountSid,
+      twilioMessagingServiceSid,
+      twilioAuthToken,
+      twilioFromPhone,
+      testToPhone,
+      twilioStatusCallbackURL
+    } = config as AppConfig;
+    const referenceDate = new Date();
+    const fakeBroadcastWindow = 24;
+    const sendAt = makeSendAtDate(referenceDate, fakeBroadcastWindow);
+    const response = await sendSms(
+      twilioAccountSid as string,
+      twilioMessagingServiceSid as string,
+      twilioAuthToken as string,
+      testToPhone as string,
+      twilioFromPhone as string,
+      'Test message body.',
+      twilioStatusCallbackURL,
+      sendAt,
+    );
+    chai.assert(response);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    chai.assert(response.sendAt instanceof Date);
+  });
+
+  it('should send sms with invalid sendAt: past', async function () {
+    const config = await initConfig();
+    const {
+      twilioAccountSid,
+      twilioMessagingServiceSid,
+      twilioAuthToken,
+      twilioFromPhone,
+      testToPhone,
+      twilioStatusCallbackURL
+    } = config as AppConfig;
+    const referenceDate = new Date();
+    const fakeBroadcastWindow = -25;
+    const sendAt = makeSendAtDate(referenceDate, fakeBroadcastWindow);
+    const response = await sendSms(
+      twilioAccountSid as string,
+      twilioMessagingServiceSid as string,
+      twilioAuthToken as string,
+      testToPhone as string,
+      twilioFromPhone as string,
+      'Test message body.',
+      twilioStatusCallbackURL,
+      sendAt,
+    );
+    chai.assert(response);
+    chai.assert(typeof response.sendAt === 'undefined');
+  });
+
+  it('should send sms with invalid sendAt: too far in future', async function () {
+    const config = await initConfig();
+    const {
+      twilioAccountSid,
+      twilioMessagingServiceSid,
+      twilioAuthToken,
+      twilioFromPhone,
+      testToPhone,
+      twilioStatusCallbackURL
+    } = config as AppConfig;
+    const referenceDate = new Date();
+    const fakeBroadcastWindow = 24 * 5;
+    const sendAt = makeSendAtDate(referenceDate, fakeBroadcastWindow);
+    const response = await sendSms(
+      twilioAccountSid as string,
+      twilioMessagingServiceSid as string,
+      twilioAuthToken as string,
+      testToPhone as string,
+      twilioFromPhone as string,
+      'Test message body.',
+      twilioStatusCallbackURL,
+      sendAt,
+    );
+    chai.assert(response);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    chai.assert(response.sendAt instanceof Date); // still sends with furthest schedule available
   });
 
   it('loads a template', async function () {
