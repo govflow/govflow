@@ -4,10 +4,12 @@ import { DataTypes } from 'sequelize';
 export async function up({ context: queryInterface }: Record<string, QueryInterface>): Promise<void> {
   await queryInterface.addColumn('Communication', 'address', {
     type: DataTypes.STRING,
+    defaultValue: '',
     allowNull: false,
   });
   await queryInterface.addColumn('Communication', 'type', {
     type: DataTypes.ENUM('workflow', 'cx'),
+    defaultValue: 'workflow',
     allowNull: false,
   });
   await queryInterface.addIndex('Communication', ['address', 'channel', 'type']);

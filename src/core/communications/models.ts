@@ -66,6 +66,7 @@ export const CommunicationModel: ModelDefinition = {
     },
     type: {
       type: DataTypes.ENUM('workflow', 'cx'),
+      defaultValue: 'workflow',
       allowNull: false,
     },
     // has the payload been sent to the provider
