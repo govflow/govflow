@@ -43,6 +43,7 @@ async function sendSmsToTwilio(
 ): Promise<Record<string, string>> {
   const client = getClient(accountSid, authToken);
   try {
+    logger.warn({ message: `sending sms to twilio: ${message.sendAt}`, data: message })
     const response = await client.messages.create(message);
     return response as unknown as Record<string, string>;
   } catch (error) {
