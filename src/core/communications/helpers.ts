@@ -1,6 +1,5 @@
 import { EventWebhook } from '@sendgrid/eventwebhook';
 import type { ClientResponse } from '@sendgrid/mail';
-import * as Sentry from "@sentry/node";
 import addrs from 'email-addresses';
 import EmailForwardParser from 'email-forward-parser';
 import { constants as fsConstants, promises as fs } from 'fs';
@@ -491,8 +490,8 @@ export function makeSendAtDate(referenceDate: Date, broadcastWindow: number): Da
   return sendAt;
 }
 
-function _captureTimestamps(sourceSendAt: Date, targetSendAt: Date, now: Date) {
-  return `${sourceSendAt.toUTCString()} || ${targetSendAt.toUTCString()} || ${now.toUTCString()}`
+function _renderDate(date: Date): string {
+  return date.toUTCString();
 }
 
 export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: ScheduleWindow): Date | null {
@@ -504,17 +503,38 @@ export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: S
   const fiveMinutes = (5 * 60 * 1000);
 
   if (targetSendAt.getTime() <= now.getTime() + scheduleWindow.min) {
-    //the targetSendAt is in the past so not valid
-    Sentry.captureMessage(`targetSendAt past: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
+    logger.warn({
+      message: `the targetSendAt is in the past so not valid for scheduling: ${_renderDate(targetSendAt)}`,
+      data: {
+        sourceSendAt: _renderDate(sourceSendAt),
+        targetSendAt: _renderDate(targetSendAt),
+        now: _renderDate(now),
+        scheduleWindow
+      }
+    })
     return null;
   } else {
     if (targetSendAt.getTime() < now.getTime() + scheduleWindow.max) {
-      // the targetSendAt is valid, use it
-      Sentry.captureMessage(`targetSendAt valid: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
+      logger.warn({
+        message: `the targetSendAt is valid for scheduling: ${_renderDate(targetSendAt)}`,
+        data: {
+          sourceSendAt: _renderDate(sourceSendAt),
+          targetSendAt: _renderDate(targetSendAt),
+          now: _renderDate(now),
+          scheduleWindow
+        }
+      })
       return targetSendAt;
     } else {
-      // the targetSendAt is too far in the future - set the maximum
-      Sentry.captureMessage(`targetSendAt future: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
+      logger.warn({
+        message: `the targetSendAt is too far in the future so not valid for scheduling: ${_renderDate(targetSendAt)}`,
+        data: {
+          sourceSendAt: _renderDate(sourceSendAt),
+          targetSendAt: _renderDate(targetSendAt),
+          now: _renderDate(now),
+          scheduleWindow
+        }
+      })
       return new Date(now.getTime() + (scheduleWindow.max - fiveMinutes));
     }
   }

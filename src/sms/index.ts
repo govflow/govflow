@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/node";
 import getClient from 'twilio';
 import { maybeSetSendAt } from '../core/communications/helpers';
 import logger from '../logging';
@@ -26,10 +25,15 @@ export async function sendSms(
   }
   const normalizedSendAt = maybeSetSendAt(sendAt, scheduleWindow);
   if (normalizedSendAt) {
-    Sentry.captureMessage(`Send SMS timestamp: ${normalizedSendAt?.toUTCString()} || ${normalizedSendAt?.toString()}`);
     message.messagingServiceSid = messagingServiceSid;
     message.scheduleType = 'fixed';
     message.sendAt = normalizedSendAt;
+    logger.warn({
+      message: `Timestamp for SMS scheduling: ${normalizedSendAt.toUTCString()}`,
+      data: {
+        message: message
+      }
+    })
   }
   if (process.env.COMMUNICATIONS_TO_CONSOLE) {
     return sendSmsToConsole(message);
