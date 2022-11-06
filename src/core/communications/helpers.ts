@@ -492,7 +492,7 @@ export function makeSendAtDate(referenceDate: Date, broadcastWindow: number): Da
 }
 
 function _captureTimestamps(sourceSendAt: Date, targetSendAt: Date, now: Date) {
-  return `targetSendAt past: ${sourceSendAt.toUTCString()} || ${targetSendAt.toUTCString()} || ${now.toUTCString()}`
+  return `${sourceSendAt.toUTCString()} || ${targetSendAt.toUTCString()} || ${now.toUTCString()}`
 }
 
 export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: ScheduleWindow): Date | null {
@@ -505,7 +505,7 @@ export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: S
 
   if (targetSendAt.getTime() <= now.getTime() + scheduleWindow.min) {
     //the targetSendAt is in the past so not valid
-    Sentry.captureMessage(`targetSendAt in past: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
+    Sentry.captureMessage(`targetSendAt past: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
     return null;
   } else {
     if (targetSendAt.getTime() < now.getTime() + scheduleWindow.max) {
@@ -514,7 +514,7 @@ export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: S
       return targetSendAt;
     } else {
       // the targetSendAt is too far in the future - set the maximum
-      Sentry.captureMessage(`targetSendAt in future: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
+      Sentry.captureMessage(`targetSendAt future: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
       return new Date(now.getTime() + (scheduleWindow.max - fiveMinutes));
     }
   }
