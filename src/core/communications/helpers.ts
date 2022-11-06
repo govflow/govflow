@@ -1,5 +1,6 @@
 import { EventWebhook } from '@sendgrid/eventwebhook';
 import type { ClientResponse } from '@sendgrid/mail';
+import * as Sentry from "@sentry/node";
 import addrs from 'email-addresses';
 import EmailForwardParser from 'email-forward-parser';
 import { constants as fsConstants, promises as fs } from 'fs';
@@ -9,7 +10,7 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { ChannelType, CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundSmsDataToRequestAttributes, JurisdictionAttributes, ParsedForwardedData, ParsedServiceRequestAttributes, PublicId, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { ChannelType, CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundSmsDataToRequestAttributes, JurisdictionAttributes, ParsedForwardedData, ParsedServiceRequestAttributes, PublicId, ScheduleWindow, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 import { InboundMapRepository } from './repositories';
 
@@ -488,4 +489,33 @@ export function makeSendAtDate(referenceDate: Date, broadcastWindow: number): Da
   const targetHour = referenceDate.getHours() + broadcastWindow;
   sendAt.setHours(targetHour);
   return sendAt;
+}
+
+function _captureTimestamps(sourceSendAt: Date, targetSendAt: Date, now: Date) {
+  return `targetSendAt past: ${sourceSendAt.toUTCString()} || ${targetSendAt.toUTCString()} || ${now.toUTCString()}`
+}
+
+export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: ScheduleWindow): Date | null {
+  if (typeof sourceSendAt === 'undefined') { return null; }
+
+  // https://stackoverflow.com/questions/948532/how-to-convert-a-date-to-utc/14610512#14610512
+  const targetSendAt = new Date(sourceSendAt.getTime());
+  const now = new Date(new Date().getTime());
+  const fiveMinutes = (5 * 60 * 1000);
+
+  if (targetSendAt.getTime() <= now.getTime() + scheduleWindow.min) {
+    //the targetSendAt is in the past so not valid
+    Sentry.captureMessage(`targetSendAt in past: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
+    return null;
+  } else {
+    if (targetSendAt.getTime() < now.getTime() + scheduleWindow.max) {
+      // the targetSendAt is valid, use it
+      Sentry.captureMessage(`targetSendAt valid: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
+      return targetSendAt;
+    } else {
+      // the targetSendAt is too far in the future - set the maximum
+      Sentry.captureMessage(`targetSendAt in future: ${_captureTimestamps(sourceSendAt, targetSendAt, now)}`);
+      return new Date(now.getTime() + (scheduleWindow.max - fiveMinutes));
+    }
+  }
 }

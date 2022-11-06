@@ -195,9 +195,10 @@ describe('Verify Core Repositories.', function () {
     for (const serviceRequestData of testData.serviceRequests) {
       const record = await serviceRequestRepository.create(serviceRequestData);
       chai.assert(record);
+      chai.assert.typeOf(record.publicId, 'string');
       if (SERVICE_REQUEST_CLOSED_STATES.includes(record.status)) {
         chai.assert.notEqual(record.closeDate, null);
-        chai.assert.typeOf(record.closeDate, 'date')
+        chai.assert.typeOf(record.closeDate, 'date');
       } else {
         chai.assert.equal(record.closeDate, null);
       }

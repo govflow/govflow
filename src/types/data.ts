@@ -465,3 +465,8 @@ export interface HookData {
   dispatchHandler: IOutboundMessageService;
   extraData?: HookDataExtraData;
 }
+
+export interface ScheduleWindow {
+  min: number;
+  max: number;
+}

@@ -32,9 +32,9 @@ import { DispatchConfigAttributes, TemplateConfigContextAttributes } from '../ty
     twilioStatusCallbackURL: twilioStatusCallbackURL as string,
     fromPhone: twilioFromPhone as string,
     toPhone: testToPhone as string,
-    //  Add 15 mins
-    // sendAt: new Date(new Date().getTime() + (16 * 60 * 1000)),
-    sendAt: new Date(),
+    // Add 20 mins
+    sendAt: new Date(new Date().getTime() + (20 * 60 * 1000)),
+    // sendAt: new Date(),
   } as DispatchConfigAttributes;
   const templateConfig = {
     name: 'service-request-new-public-user',

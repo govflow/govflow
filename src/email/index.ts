@@ -5,31 +5,12 @@ import sendGridMailClient from '@sendgrid/mail';
 import { simpleParser } from 'mailparser';
 import nodemailer from 'nodemailer';
 import validator from 'validator';
+import { maybeSetSendAt } from '../core/communications/helpers';
 import logger from '../logging';
 import { EmailAttributes } from '../types';
 
 export async function parseRawMail(source: string) {
   return await simpleParser(source);
-}
-
-function maybeSetSendAt(passedSendAt: Date | undefined): Date | null {
-  if (typeof passedSendAt === 'undefined') { return null; }
-  // Sendgrid accepts sendAt between now and 72 hours from now
-  const now = new Date();
-  const oneHour = (60 * 60 * 1000);
-  const seventyTwoHours = 72 * oneHour;
-  if (passedSendAt.getTime() <= now.getTime()) {
-    //the passedSendAt is in the past so not valid
-    return null;
-  } else {
-    if (passedSendAt.getTime() < now.getTime() + seventyTwoHours) {
-      // the passedSendAt is valid, use it
-      return passedSendAt;
-    } else {
-      // the passedSendAt is too far in the future - set the maximum
-      return new Date(now.getTime() + (seventyTwoHours - oneHour));
-    }
-  }
 }
 
 export async function sendEmail(
@@ -55,7 +36,11 @@ export async function sendEmail(
     text: textBody,
     html: htmlBody,
   } as EmailAttributes;
-  const normalizedSendAt = maybeSetSendAt(sendAt);
+  const scheduleWindow = {
+    min: 0,
+    max: (60 * 60 * 1000) * 72 // 72 hours
+  }
+  const normalizedSendAt = maybeSetSendAt(sendAt, scheduleWindow);
   if (normalizedSendAt) {
     const send_at = Math.floor(normalizedSendAt.getTime() / 1000); // unix timestamp
     message.send_at = send_at;

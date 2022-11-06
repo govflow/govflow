@@ -1,26 +1,7 @@
 import getClient from 'twilio';
+import { maybeSetSendAt } from '../core/communications/helpers';
 import logger from '../logging';
 import { SmsAttributes } from '../types';
-
-function maybeSetSendAt(passedSendAt: Date | undefined): Date | null {
-  if (typeof passedSendAt === 'undefined') { return null; }
-  // Twilio accepts sendAt between 15 minutes and seven days from now
-  const now = new Date();
-  const fifteenMinutes = 15 * 60 * 1000;
-  const sevenDays = 7 * (24 * (60 * 60 * 1000));
-  if (passedSendAt.getTime() <= now.getTime() + fifteenMinutes) {
-    // passedSendAt is in the past or less than 15 mins so not valid
-    return null;
-  } else {
-    if (passedSendAt.getTime() < now.getTime() + sevenDays) {
-      // passedSendAt is valid - use it
-      return passedSendAt;
-    } else {
-      // passedSendAt is too far in future - use the maximum
-      return new Date(now.getTime() + sevenDays);
-    }
-  }
-}
 
 export async function sendSms(
   accountSid: string,
@@ -38,7 +19,11 @@ export async function sendSms(
     body,
     statusCallback
   } as SmsAttributes;
-  const normalizedSendAt = maybeSetSendAt(sendAt);
+  const scheduleWindow = {
+    min: 15 * 60 * 1000, // fifteen minutes
+    max: (60 * 60 * 1000) * 168 // seven days
+  }
+  const normalizedSendAt = maybeSetSendAt(sendAt, scheduleWindow);
   if (normalizedSendAt) {
     message.messagingServiceSid = messagingServiceSid;
     message.scheduleType = 'fixed';

@@ -544,9 +544,8 @@ export class OutboundMessageService implements IOutboundMessageService {
     const surveyUrl = makeCXSurveyURL(jurisdiction, serviceRequest);
     const referenceDate = SERVICE_REQUEST_CLOSED_STATES.includes(serviceRequest.status)
       ? serviceRequest.closeDate
-      : new Date();
+      : serviceRequest.updatedAt;
     const sendAt = makeSendAtDate(referenceDate, cxSurveyBroadcastWindow);
-
     const dispatchConfig = {
       channel: serviceRequest.channel as string,
       type: 'cx',
