@@ -22,6 +22,7 @@ export const INPUT_CHANNELS = {
   'bot': 'Bot',
   'sms': 'SMS',
   'email': 'Email',
+  'import': 'Import'
 }
 
 export const INPUT_CHANNEL_KEYS = Object.keys(INPUT_CHANNELS);
