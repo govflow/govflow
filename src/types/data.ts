@@ -84,6 +84,12 @@ export type ServiceCreateAttributes = Partial<ServiceAttributes>
 export interface ServiceInstance
   extends Model<ServiceAttributes, ServiceCreateAttributes>, ServiceAttributes { }
 
+export type ServiceRequestStatus = 'inbox' | 'todo' | 'doing' | 'blocked' | 'done' | 'invalid' | 'moved' | 'junk';
+
+export type ServiceRequestInputChannel = 'webform' | 'bot' | 'sms' | 'email' | 'import';
+
+export type ServiceRequestChannel = 'sms' | 'email' | 'anon' | ''; // empty string because the model has a default value, and can calculate one
+
 export interface ServiceRequestAttributes {
   id: string;
   publicId: string;
@@ -96,15 +102,15 @@ export interface ServiceRequestAttributes {
   lastName: string;
   email: string;
   phone: string;
-  status: string;
+  status: ServiceRequestStatus;
   assignedTo: string;
   createdAt: Date;
   updatedAt: Date;
   images: string[];
   lat: number;
   lon: number;
-  inputChannel: string;
-  channel: string;
+  inputChannel: ServiceRequestInputChannel;
+  channel: ServiceRequestChannel;
   closeDate: Date;
   displayName: string;
   departmentId: string;
@@ -119,7 +125,7 @@ export interface ServiceRequestAnonAttributes {
   serviceName: string | null;
   jurisdictionId: string;
   jurisdictionName: string;
-  status: string;
+  status: ServiceRequestStatus;
   createdAt: Date;
   updatedAt: Date;
   closeDate: Date;
@@ -132,8 +138,8 @@ export type ServiceRequestCreateAttributes = Partial<ServiceRequestAttributes>
 
 export interface ParsedServiceRequestAttributes {
   jurisdictionId: string;
-  inputChannel: string;
-  channel: string;
+  inputChannel: ServiceRequestInputChannel;
+  channel: ServiceRequestChannel;
   firstName: string;
   lastName: string;
   email: string;

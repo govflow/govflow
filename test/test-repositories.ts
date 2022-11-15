@@ -6,7 +6,7 @@ import { SERVICE_REQUEST_CLOSED_STATES } from '../src/core/service-requests/mode
 import { STAFF_USER_PERMISSIONS } from '../src/core/staff-users/models';
 import { createApp } from '../src/index';
 import makeTestData from '../src/tools/fake-data-generator';
-import { ChannelStatusAttributes, StaffUserAttributes, TestDataPayload } from '../src/types';
+import { ChannelStatusAttributes, ServiceRequestStatus, StaffUserAttributes, TestDataPayload } from '../src/types';
 import { emailEvent } from './fixtures/event-email';
 
 describe('Verify Core Repositories.', function () {
@@ -268,7 +268,7 @@ describe('Verify Core Repositories.', function () {
   it('should update a service request via repository', async function () {
     const { serviceRequestRepository } = app.repositories;
     const serviceRequest = testData.serviceRequests[0];
-    const updateFields = { status: 'blocked' };
+    const updateFields = { status: 'blocked' as ServiceRequestStatus };
     const record = await serviceRequestRepository.update(
       serviceRequest.jurisdictionId, serviceRequest.id, updateFields
     );
