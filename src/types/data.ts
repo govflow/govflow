@@ -1,6 +1,8 @@
 import type { Model } from 'sequelize';
 import { IOutboundMessageService } from './services';
 
+export type CXDataSource = 'OrganicDataItem' | 'CivicPlusSeeClickFix' | 'CivicPlusRequestTracker' | 'Lucity';
+
 export interface JurisdictionAttributes {
   id: string;
   name: string;
@@ -19,6 +21,7 @@ export interface JurisdictionAttributes {
   cxSurveyTriggerStatus: string;
   cxSurveyUrl: string;
   cxSurveyBroadcastWindow: number;
+  cxDataSource: CXDataSource;
   address?: string;
   city?: string;
   state?: string;

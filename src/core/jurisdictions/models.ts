@@ -2,6 +2,13 @@ import { DataTypes } from 'sequelize';
 import type { ModelDefinition } from '../../types';
 import { REQUEST_STATUS_KEYS, SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
+export const CX_DATA_SOURCES = [
+  'OrganicDataItem',
+  'CivicPlusSeeClickFix',
+  'CivicPlusRequestTracker',
+  'Lucity'
+]
+
 export const JurisdictionModel: ModelDefinition = {
   name: 'Jurisdiction',
   attributes: {
@@ -118,6 +125,11 @@ export const JurisdictionModel: ModelDefinition = {
         min: 0,
         max: 71 //sendgrid allows a max of 72 hours out for scheduling
       }
+    },
+    cxDataSource: {
+      allowNull: false,
+      defaultValue: CX_DATA_SOURCES[0],
+      type: DataTypes.ENUM(...CX_DATA_SOURCES),
     },
     address: {
       allowNull: true,
