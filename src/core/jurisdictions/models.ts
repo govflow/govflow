@@ -2,6 +2,12 @@ import { DataTypes } from 'sequelize';
 import type { ModelDefinition } from '../../types';
 import { REQUEST_STATUS_KEYS, SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 
+export const GOVFLOW_USAGE_CONTEXTS = [
+  '311',
+  '911',
+  'Policing',
+]
+
 export const CX_DATA_SOURCES = [
   'OrganicDataItem',
   'CivicPlusSeeClickFix',
@@ -35,6 +41,11 @@ export const JurisdictionModel: ModelDefinition = {
         }
         this.setDataValue('email', value);
       }
+    },
+    usageContext: {
+      allowNull: false,
+      defaultValue: GOVFLOW_USAGE_CONTEXTS[0],
+      type: DataTypes.ENUM(...GOVFLOW_USAGE_CONTEXTS),
     },
     enforceAssignmentThroughDepartment: {
       type: DataTypes.BOOLEAN,

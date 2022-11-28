@@ -3,10 +3,13 @@ import { IOutboundMessageService } from './services';
 
 export type CXDataSource = 'OrganicDataItem' | 'CivicPlusSeeClickFix' | 'CivicPlusRequestTracker' | 'Lucity';
 
+export type GovFlowUsageContext = '311' | '911' | 'Policing';
+
 export interface JurisdictionAttributes {
   id: string;
   name: string;
   email: string;
+  usageContext: GovFlowUsageContext;
   enforceAssignmentThroughDepartment: boolean;
   filterBroadcastsByDepartment: boolean;
   broadcastToSubmitterOnRequestClosed: boolean;

@@ -22,6 +22,7 @@ import type {
   ServiceRequestInstance,
   ServiceRequestStatusAttributes
 } from '../../types';
+import { GOVFLOW_USAGE_CONTEXTS } from '../jurisdictions';
 import { REQUEST_STATUSES, SERVICE_REQUEST_CLOSED_STATES } from './models';
 
 
@@ -247,7 +248,7 @@ export class ServiceRequestRepository implements IServiceRequestRepository {
         createdAt: record.createdAt,
         updatedAt: record.updatedAt,
         closeDate: record.closeDate || record.updatedAt, // if trigger state is not a closed state, then there will be no closedDate
-        context: '311'
+        context: jurisdiction?.usageContext || GOVFLOW_USAGE_CONTEXTS[0],
       }
     }
     return null;
