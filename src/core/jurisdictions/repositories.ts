@@ -2,11 +2,11 @@ import { inject, injectable } from 'inversify';
 import _ from 'lodash';
 import { appIds } from '../../registry/service-identifiers';
 import {
-    AppConfig,
-    IJurisdictionRepository,
-    JurisdictionAttributes,
-    JurisdictionInstance,
-    Models, StaffUserInstance
+  AppConfig,
+  IJurisdictionRepository,
+  JurisdictionAttributes,
+  JurisdictionInstance,
+  Models, StaffUserInstance
 } from '../../types';
 
 @injectable()
@@ -38,26 +38,28 @@ export class JurisdictionRepository implements IJurisdictionRepository {
     async update(id: string, data: Partial<JurisdictionAttributes>): Promise<JurisdictionAttributes> {
         const { Jurisdiction } = this.models;
         const allowUpdateFields = [
-            'name',
-            'email',
-            'sendFromEmail',
-            'sendFromEmailVerified',
-            'sendFromPhone',
-            'replyToEmail',
-            'replyToServiceRequestEnabled',
-            'broadcastToSubmitterOnRequestClosed',
-            'enforceAssignmentThroughDepartment',
-            'filterBroadcastsByDepartment',
-            'workflowEnabled',
-            'cxSurveyEnabled',
-            'cxSurveyTriggerStatus',
-            'cxSurveyBroadcastWindow',
-            'cxSurveyUrl',
-            'address',
-            'city',
-            'state',
-            'country',
-            'zip'
+          'usageContext',
+          'name',
+          'email',
+          'sendFromEmail',
+          'sendFromEmailVerified',
+          'sendFromPhone',
+          'replyToEmail',
+          'replyToServiceRequestEnabled',
+          'broadcastToSubmitterOnRequestClosed',
+          'enforceAssignmentThroughDepartment',
+          'filterBroadcastsByDepartment',
+          'workflowEnabled',
+          'cxSurveyEnabled',
+          'cxDataSource',
+          'cxSurveyTriggerStatus',
+          'cxSurveyBroadcastWindow',
+          'cxSurveyUrl',
+          'address',
+          'city',
+          'state',
+          'country',
+          'zip'
         ];
         const safeData = _.pick(data, allowUpdateFields);
         const record = await Jurisdiction.findByPk(id) as JurisdictionInstance;
