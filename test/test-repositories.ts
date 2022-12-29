@@ -346,12 +346,23 @@ describe('Verify Core Repositories.', function () {
     }
   });
 
-  it('should find one department by jurisdiction via repository', async function () {
+  it('should find one department for jurisdiction via repository', async function () {
     const { departmentRepository } = app.repositories;
     for (const departmentData of testData.departments) {
       const record = await departmentRepository.findOne(departmentData.jurisdictionId, departmentData.id);
       chai.assert(record);
       chai.assert.equal(record.id, departmentData.id);
+      chai.assert.equal(record.jurisdictionId, departmentData.jurisdictionId);
+    }
+  });
+
+  it('should find one department for jurisdiction by name via repository', async function () {
+    const { departmentRepository } = app.repositories;
+    for (const departmentData of testData.departments) {
+      const record = await departmentRepository.findOneByName(departmentData.jurisdictionId, departmentData.name);
+      chai.assert(record);
+      chai.assert.equal(record.id, departmentData.id);
+      chai.assert.equal(record.name, departmentData.name);
       chai.assert.equal(record.jurisdictionId, departmentData.jurisdictionId);
     }
   });

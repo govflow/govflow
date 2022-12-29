@@ -1,29 +1,29 @@
 import type {
-    AppConfig,
-    CommunicationAttributes,
-    CommunicationCreateAttributes,
-    DepartmentAttributes, JurisdictionAttributes,
-    Models, PluginBase, QueryParamsAll,
-    ServiceAttributes,
-    ServiceRequestAttributes,
-    ServiceRequestCommentAttributes, ServiceRequestStatusAttributes,
-    StaffUserAttributes,
-    StaffUserLookUpAttributes
+  AppConfig,
+  CommunicationAttributes,
+  CommunicationCreateAttributes,
+  DepartmentAttributes, JurisdictionAttributes,
+  Models, PluginBase, QueryParamsAll,
+  ServiceAttributes,
+  ServiceRequestAttributes,
+  ServiceRequestCommentAttributes, ServiceRequestStatusAttributes,
+  StaffUserAttributes,
+  StaffUserLookUpAttributes
 } from '.';
 import {
-    ChannelIsAllowed,
-    ChannelStatusAttributes,
-    ChannelStatusInstance,
-    ChannelType,
-    EmailEventAttributes,
-    InboundMapCreateAttributes,
-    InboundMapInstance,
-    MessageDisambiguationAttributes,
-    MessageDisambiguationCreateAttributes,
-    ServiceRequestAnonAttributes,
-    ServiceRequestCommentCreateAttributes,
-    SmsEventAttributes,
-    StaffUserDepartmentAttributes
+  ChannelIsAllowed,
+  ChannelStatusAttributes,
+  ChannelStatusInstance,
+  ChannelType,
+  EmailEventAttributes,
+  InboundMapCreateAttributes,
+  InboundMapInstance,
+  MessageDisambiguationAttributes,
+  MessageDisambiguationCreateAttributes,
+  ServiceRequestAnonAttributes,
+  ServiceRequestCommentCreateAttributes,
+  SmsEventAttributes,
+  StaffUserDepartmentAttributes
 } from './data';
 
 export interface RepositoryBase extends PluginBase {
@@ -95,6 +95,7 @@ export interface IDepartmentRepository extends RepositoryBase {
     create: (data: DepartmentAttributes) => Promise<DepartmentAttributes>;
     update: (jurisdictionId: string, id: string, data: Partial<DepartmentAttributes>) => Promise<DepartmentAttributes>;
     findOne: (jurisdictionId: string, id: string) => Promise<DepartmentAttributes>;
+    findOneByName: (jurisdictionId: string, name: string) => Promise<DepartmentAttributes>;
     findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[DepartmentAttributes[], number]>;
 }
 

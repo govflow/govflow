@@ -45,6 +45,12 @@ export class DepartmentRepository implements IDepartmentRepository {
         return await Department.findOne(params) as DepartmentInstance;
     }
 
+    async findOneByName(jurisdictionId: string, name: string): Promise<DepartmentAttributes> {
+      const { Department } = this.models;
+      const params = { where: { jurisdictionId, name } };
+      return await Department.findOne(params) as DepartmentInstance;
+    }
+
     async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[DepartmentAttributes[], number]> {
         const { Department } = this.models;
         const records = await Department.findAll({
