@@ -3,29 +3,29 @@ import _ from 'lodash';
 import logger from '../../logging';
 import { appIds } from '../../registry/service-identifiers';
 import {
-    AppConfig,
-    AuditedStateChangeExtraData,
-    auditMessageFields,
-    InboundEmailDataAttributes,
-    InboundSmsDataAttributes, IServiceRequestHookRunner, IServiceRequestService,
-    JurisdictionAttributes,
-    MessageDisambiguationAttributes,
-    ParsedServiceRequestAttributes,
-    PublicId,
-    Repositories,
-    ServiceRequestAttributes,
-    ServiceRequestCommentAttributes,
-    ServiceRequestCommentCreateAttributes,
-    ServiceRequestCreateAttributes,
-    ServiceRequestInstance, StaffUserAttributes
+  AppConfig,
+  AuditedStateChangeExtraData,
+  auditMessageFields,
+  InboundEmailDataAttributes,
+  InboundSmsDataAttributes, IServiceRequestHookRunner, IServiceRequestService,
+  JurisdictionAttributes,
+  MessageDisambiguationAttributes,
+  ParsedServiceRequestAttributes,
+  PublicId,
+  Repositories,
+  ServiceRequestAttributes,
+  ServiceRequestCommentAttributes,
+  ServiceRequestCommentCreateAttributes,
+  ServiceRequestCreateAttributes,
+  ServiceRequestInstance, StaffUserAttributes
 } from '../../types';
 import {
-    canSubmitterComment,
-    extractServiceRequestfromInboundEmail,
-    extractServiceRequestfromInboundSms,
-    findIdentifiers,
-    makeDisambiguationMessage,
-    parseDisambiguationChoiceFromText
+  canSubmitterComment,
+  extractServiceRequestfromInboundEmail,
+  extractServiceRequestfromInboundSms,
+  findIdentifiers,
+  makeDisambiguationMessage,
+  parseDisambiguationChoiceFromText
 } from '../communications/helpers';
 import { makeAuditMessage } from './helpers';
 import { REQUEST_STATUSES, SERVICE_REQUEST_CLOSED_STATES } from './models';
@@ -68,6 +68,20 @@ export class ServiceRequestService implements IServiceRequestService {
         const jurisdiction = await jurisdictionRepository.findOne(processedServiceRequest.jurisdictionId as string);
         await this.hookRunner.run('serviceRequestCreate', jurisdiction, record);
         return record;
+    }
+
+    async update(
+      jurisdictionId: string, id: string, data: ServiceRequestCreateAttributes
+    ): Promise<ServiceRequestAttributes> {
+      // This method is used for automated imports only!
+      // The UI methods are more granular and use createAuditedStateChange
+      const { serviceRequestRepository, jurisdictionRepository } = this.repositories;
+      const record = await serviceRequestRepository.update(jurisdictionId, id, data);
+      const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId as string);
+      const serviceRequestIsClosed = SERVICE_REQUEST_CLOSED_STATES.includes(data.status as string);
+      const hookName = serviceRequestIsClosed ? 'serviceRequestClosed' : 'serviceRequestChangeStatus';
+      await this.hookRunner.run(hookName, jurisdiction, record);
+      return record;
     }
 
     async createComment(

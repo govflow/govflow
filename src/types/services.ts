@@ -1,12 +1,12 @@
 import type Emittery from 'emittery';
 import {
-    AppConfig,
-    CommunicationAttributes,
-    JurisdictionAttributes,
-    PluginBase,
-    Repositories,
-    ServiceRequestAttributes,
-    ServiceRequestCreateAttributes
+  AppConfig,
+  CommunicationAttributes,
+  JurisdictionAttributes,
+  PluginBase,
+  Repositories,
+  ServiceRequestAttributes,
+  ServiceRequestCreateAttributes
 } from '.';
 import { AuditedStateChangeExtraData, HookDataExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, PublicId, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, StaffUserAttributes, StaffUserDepartmentAttributes } from "./data";
 
@@ -56,6 +56,9 @@ export interface IInboundMessageService extends ServiceBase {
 export interface IServiceRequestService extends ServiceBase {
     NEW_REQUEST_IDENTIFIER: string;
     create: (data: ServiceRequestCreateAttributes) => Promise<ServiceRequestAttributes>;
+    update: (
+      jurisdictionId: string, id: string, data: Partial<ServiceRequestAttributes>
+    ) => Promise<ServiceRequestAttributes>;
     createComment: (
         jurisdictionId: string, serviceRequestId: string, data: ServiceRequestCommentCreateAttributes
     ) => Promise<[ServiceRequestAttributes, ServiceRequestCommentAttributes]>;
