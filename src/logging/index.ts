@@ -4,7 +4,7 @@ const logger = winston.createLogger({
   levels: winston.config.npm.levels,
   format: winston.format.json(),
   transports: [
-    new winston.transports.Console({ level: 'warn' }),
+    new winston.transports.Console({ level: 'info' }),
   ]
 });
 

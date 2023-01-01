@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import _ from 'lodash';
+import logger from '../../logging';
 import { appIds } from '../../registry/service-identifiers';
 import type {
   AppConfig,
@@ -520,9 +521,37 @@ export class OutboundMessageService implements IOutboundMessageService {
     serviceRequest: ServiceRequestAttributes,
   ): Promise<CommunicationAttributes | null> {
 
-    const { cxSurveyEnabled, cxSurveyTriggerStatus, cxSurveyUrl, cxSurveyBroadcastWindow } = jurisdiction;
+    const { id, name, cxSurveyEnabled, cxSurveyTriggerStatus, cxSurveyUrl, cxSurveyBroadcastWindow } = jurisdiction;
+
+    logger.info({
+      message: `Entering dispatch of CX survey for ${jurisdiction.name}`,
+      data: {
+        jurisdiction: {
+          id,
+          name,
+          cxSurveyEnabled,
+          cxSurveyTriggerStatus,
+          cxSurveyUrl,
+          cxSurveyBroadcastWindow
+        }
+      }
+    })
+
     // exit early when we dont meet the essential conditions
     if (!cxSurveyEnabled || !cxSurveyUrl || serviceRequest.status !== cxSurveyTriggerStatus) {
+      logger.info({
+        message: `Early exit dispatch of CX survey for ${jurisdiction.name}`,
+        data: {
+          jurisdiction: {
+            id,
+            name,
+            cxSurveyEnabled,
+            cxSurveyTriggerStatus,
+            cxSurveyUrl,
+            cxSurveyBroadcastWindow
+          }
+        }
+      })
       return null;
     }
 
@@ -576,6 +605,23 @@ export class OutboundMessageService implements IOutboundMessageService {
         messageType: 'cx'
       } as TemplateConfigContextAttributes
     }
+
+    logger.info({
+      message: `Will dispatch a CX survey for ${jurisdiction.name}`,
+      data: {
+        jurisdiction: {
+          id,
+          name
+        },
+        serviceRequest: {
+          id: serviceRequest.id,
+          status: serviceRequest.status
+        },
+        dispatchConfig,
+        templateConfig
+      }
+    })
+
     record = await dispatchMessage(
       dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
     );

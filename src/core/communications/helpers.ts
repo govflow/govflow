@@ -503,7 +503,7 @@ export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: S
   const fiveMinutes = (5 * 60 * 1000);
 
   if (targetSendAt.getTime() <= now.getTime() + scheduleWindow.min) {
-    logger.warn({
+    logger.info({
       message: `the targetSendAt is in the past so not valid for scheduling: ${_renderDate(targetSendAt)}`,
       data: {
         sourceSendAt: _renderDate(sourceSendAt),
@@ -515,7 +515,7 @@ export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: S
     return null;
   } else {
     if (targetSendAt.getTime() < now.getTime() + scheduleWindow.max) {
-      logger.warn({
+      logger.info({
         message: `the targetSendAt is valid for scheduling: ${_renderDate(targetSendAt)}`,
         data: {
           sourceSendAt: _renderDate(sourceSendAt),
@@ -526,7 +526,7 @@ export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: S
       })
       return targetSendAt;
     } else {
-      logger.warn({
+      logger.info({
         message: `the targetSendAt is too far in the future so not valid for scheduling: ${_renderDate(targetSendAt)}`,
         data: {
           sourceSendAt: _renderDate(sourceSendAt),

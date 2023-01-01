@@ -4,7 +4,7 @@ import logger from '../logging';
 import { MigrationPlugin } from '../types';
 
 export function initEngine(database_url: string): Sequelize {
-  return new Sequelize(database_url, { logging: msg => logger.info(msg), })
+  return new Sequelize(database_url, { logging: false })
 }
 
 export function initMigrator(databaseEngine: Sequelize, extraMigrationPaths: MigrationPlugin[] | undefined): Umzug<QueryInterface> {

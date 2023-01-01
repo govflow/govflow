@@ -28,7 +28,7 @@ export async function sendSms(
     message.messagingServiceSid = messagingServiceSid;
     message.scheduleType = 'fixed';
     message.sendAt = normalizedSendAt;
-    logger.warn({
+    logger.info({
       message: `Timestamp for SMS scheduling: ${normalizedSendAt.toUTCString()}`,
       data: {
         message: message
@@ -47,7 +47,7 @@ async function sendSmsToTwilio(
 ): Promise<Record<string, string>> {
   const client = getClient(accountSid, authToken);
   try {
-    logger.warn({ message: `sending sms to twilio: ${message.sendAt}`, data: message })
+    logger.info({ message: `sending sms to twilio: ${message.sendAt}`, data: message })
     const response = await client.messages.create(message);
     return response as unknown as Record<string, string>;
   } catch (error) {
