@@ -39,6 +39,7 @@ export class JurisdictionRepository implements IJurisdictionRepository {
         const { Jurisdiction } = this.models;
         const allowUpdateFields = [
           'usageContext',
+          'preferredBroadcastChannel',
           'name',
           'email',
           'sendFromEmail',
