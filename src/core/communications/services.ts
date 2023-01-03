@@ -14,7 +14,7 @@ import type {
   ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes, TemplateConfigContextAttributes
 } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
-import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeCXSurveyURL, makeRequestURL, makeSendAtDate } from './helpers';
+import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeCXSurveyURL, makeRequestURL, makeSendAtDate, setDispatchChannel } from './helpers';
 
 export class OutboundMessageService implements IOutboundMessageService {
 
@@ -76,7 +76,7 @@ export class OutboundMessageService implements IOutboundMessageService {
     const sendAt = makeSendAtDate(referenceDate, workflowBroadcastWindow);
 
     const dispatchConfig = {
-      channel: serviceRequest.channel as string,
+      channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel),
       type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: serviceRequest.email as string,
@@ -113,6 +113,8 @@ export class OutboundMessageService implements IOutboundMessageService {
     const staffRecipients = await this.getStaffRecipients(jurisdiction, serviceRequest.departmentId);
     for (const staff of staffRecipients) {
       const dispatchConfig = {
+        // TODO: review this at some point
+        // channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel)
         channel: 'email', // we only use email for staff
         type: 'workflow',
         sendGridApiKey: sendGridApiKey as string,
@@ -181,6 +183,8 @@ export class OutboundMessageService implements IOutboundMessageService {
     const referenceDate = new Date();
     const sendAt = makeSendAtDate(referenceDate, workflowBroadcastWindow);
     const dispatchConfig = {
+      // TODO: review this at some point
+      // channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel)
       channel: 'email', // we only use email for staff
       type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
@@ -252,6 +256,8 @@ export class OutboundMessageService implements IOutboundMessageService {
     const referenceDate = new Date();
     const sendAt = makeSendAtDate(referenceDate, workflowBroadcastWindow);
     const dispatchConfig = {
+      // TODO: review this at some point
+      // channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel)
       channel: 'email', // we only use email for staff
       type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
@@ -316,7 +322,7 @@ export class OutboundMessageService implements IOutboundMessageService {
 
     if (jurisdiction.broadcastToSubmitterOnRequestClosed) {
       const dispatchConfig = {
-        channel: serviceRequest.channel as string,
+        channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel),
         type: 'workflow',
         sendGridApiKey: sendGridApiKey as string,
         toEmail: serviceRequest.email as string,
@@ -354,6 +360,8 @@ export class OutboundMessageService implements IOutboundMessageService {
     const staffRecipients = await this.getStaffRecipients(jurisdiction, serviceRequest.departmentId);
     for (const staff of staffRecipients) {
       const dispatchConfig = {
+        // TODO: review this at some point
+        // channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel)
         channel: 'email', // we only use email for staff
         type: 'workflow',
         sendGridApiKey: sendGridApiKey as string,
@@ -443,7 +451,7 @@ export class OutboundMessageService implements IOutboundMessageService {
       serviceRequestCommentContext = `<br /><br />Message sent to the request submitter:<br /><br />`;
     }
     const dispatchConfig = {
-      channel: serviceRequest.channel as string,
+      channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel),
       type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: '', // populated per recipient
@@ -576,7 +584,7 @@ export class OutboundMessageService implements IOutboundMessageService {
       : serviceRequest.updatedAt;
     const sendAt = makeSendAtDate(referenceDate, cxSurveyBroadcastWindow);
     const dispatchConfig = {
-      channel: serviceRequest.channel as string,
+      channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel),
       type: 'cx',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: serviceRequest.email as string,

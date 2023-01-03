@@ -3,7 +3,7 @@ import type { Application } from 'express';
 import _ from 'lodash';
 import { createApp } from '../src';
 import { initConfig } from '../src/config';
-import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, loadTemplate, makeRequestURL, makeSendAtDate } from '../src/core/communications/helpers';
+import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, loadTemplate, makeRequestURL, makeSendAtDate, setDispatchChannel } from '../src/core/communications/helpers';
 import { OutboundMessageService } from '../src/core/communications/services';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../src/core/service-requests';
 import { sendEmail } from '../src/email';
@@ -269,7 +269,7 @@ describe('Verify Core Communications Functionality.', function () {
       : new Date();
     const sendAt = makeSendAtDate(referenceDate, workflowBroadcastWindow);
     const dispatchConfig = {
-      channel: serviceRequest.channel as string,
+      channel: setDispatchChannel(serviceRequest.channel, jurisdiction.preferredBroadcastChannel),
       type: 'workflow',
       sendGridApiKey: sendGridApiKey as string,
       toEmail: serviceRequest.email as string,

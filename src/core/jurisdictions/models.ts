@@ -8,6 +8,11 @@ export const GOVFLOW_USAGE_CONTEXTS = [
   'Policing',
 ]
 
+export const JURISDICTION_PREFERRED_BROADCAST_CHANNELS = [
+  'email',
+  'sms',
+]
+
 export const CX_DATA_SOURCES = [
   'OrganicDataItem',
   'CivicPlusSeeClickFix',
@@ -46,6 +51,10 @@ export const JurisdictionModel: ModelDefinition = {
       allowNull: false,
       defaultValue: GOVFLOW_USAGE_CONTEXTS[0],
       type: DataTypes.ENUM(...GOVFLOW_USAGE_CONTEXTS),
+    },
+    preferredBroadcastChannel: {
+      defaultValue: JURISDICTION_PREFERRED_BROADCAST_CHANNELS[0],
+      type: DataTypes.ENUM(...JURISDICTION_PREFERRED_BROADCAST_CHANNELS),
     },
     enforceAssignmentThroughDepartment: {
       type: DataTypes.BOOLEAN,

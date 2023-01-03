@@ -153,13 +153,15 @@ export const ServiceRequestModel: ModelDefinition = {
     },
     channel: {
       allowNull: false,
-      type: DataTypes.ENUM('email', 'sms', 'anon'),
+      type: DataTypes.ENUM('email', 'sms', 'anon', 'multiple'),
       defaultValue: 'email',
       set(value) {
         if (!value) {
           const email = this.getDataValue('email');
           const phone = this.getDataValue('phone');
-          if (email) {
+          if (email && phone) {
+            value = 'multiple'
+          } else if (email) {
             value = 'email';
           } else if (phone) {
             value = 'sms';

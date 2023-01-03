@@ -904,7 +904,7 @@ describe('Hit all API endpoints', function () {
     chai.assert.equal(res.body.data.service_code, serviceRequestData.service_code);
 
     const record = await serviceRequestRepository.findOne(jurisdiction_id, res.body.data.service_request_id)
-    chai.assert.equal(record.channel, 'email');
+    chai.assert.equal(record.channel, 'multiple');
   });
 
   it('should POST a service request with email as Open311 for a jurisdiction', async function () {

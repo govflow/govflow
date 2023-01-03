@@ -10,6 +10,7 @@ export interface JurisdictionAttributes {
   name: string;
   email: string;
   usageContext: GovFlowUsageContext;
+  preferredBroadcastChannel: JurisdictionPreferredBroadcastChannel;
   enforceAssignmentThroughDepartment: boolean;
   filterBroadcastsByDepartment: boolean;
   broadcastToSubmitterOnRequestClosed: boolean;
@@ -94,7 +95,9 @@ export type ServiceRequestStatus = 'inbox' | 'todo' | 'doing' | 'blocked' | 'don
 
 export type ServiceRequestInputChannel = 'webform' | 'bot' | 'sms' | 'email' | 'import';
 
-export type ServiceRequestChannel = 'sms' | 'email' | 'anon' | ''; // empty string because the model has a default value, and can calculate one
+export type ServiceRequestChannel = 'sms' | 'email' | 'anon' | 'multiple' | ''; // empty string because the model has a default value, and can calculate one
+
+export type JurisdictionPreferredBroadcastChannel = 'email' | 'sms';
 
 export interface ServiceRequestAttributes {
   id: string;

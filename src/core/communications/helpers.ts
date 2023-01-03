@@ -9,7 +9,7 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { ChannelType, CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundSmsDataToRequestAttributes, JurisdictionAttributes, ParsedForwardedData, ParsedServiceRequestAttributes, PublicId, ScheduleWindow, ServiceRequestAttributes, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { ChannelType, CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundSmsDataToRequestAttributes, JurisdictionAttributes, JurisdictionPreferredBroadcastChannel, ParsedForwardedData, ParsedServiceRequestAttributes, PublicId, ScheduleWindow, ServiceRequestAttributes, ServiceRequestChannel, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 import { InboundMapRepository } from './repositories';
 
@@ -537,5 +537,16 @@ export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: S
       })
       return new Date(now.getTime() + (scheduleWindow.max - fiveMinutes));
     }
+  }
+}
+
+export function setDispatchChannel(
+  serviceRequestChannel: ServiceRequestChannel,
+  jurisdictionPreferredBroadcastChannel: JurisdictionPreferredBroadcastChannel
+) {
+  if (serviceRequestChannel === 'multiple') {
+    return jurisdictionPreferredBroadcastChannel;
+  } else {
+    return serviceRequestChannel;
   }
 }
