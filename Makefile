@@ -2,7 +2,7 @@
 SHELL := /bin/bash
 USER := govflow
 NAME := govflow
-VERSION := 0.1.6
+VERSION := 0.1.7
 COMPOSE := docker-compose -f docker-compose/docker-compose.yml --compatibility
 REPOSITORY := $(USER)/$(NAME)
 DOCKER_HOST := ghcr.io
