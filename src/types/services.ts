@@ -57,7 +57,10 @@ export interface IServiceRequestService extends ServiceBase {
     NEW_REQUEST_IDENTIFIER: string;
     create: (data: ServiceRequestCreateAttributes) => Promise<ServiceRequestAttributes>;
     update: (
-      jurisdictionId: string, id: string, data: Partial<ServiceRequestAttributes>
+      jurisdictionId: string,
+      id: string,
+      data: Partial<ServiceRequestAttributes>,
+      existingData?: ServiceRequestAttributes
     ) => Promise<ServiceRequestAttributes>;
     createComment: (
         jurisdictionId: string, serviceRequestId: string, data: ServiceRequestCommentCreateAttributes

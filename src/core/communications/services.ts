@@ -667,7 +667,11 @@ export class OutboundMessageService implements IOutboundMessageService {
             cxSurveyTriggerStatus,
             cxSurveyUrl,
             cxSurveyBroadcastWindow
-          }
+          },
+          serviceRequest: {
+            id: serviceRequest.id,
+            status: serviceRequest.status,
+          },
         }
       })
       return null;

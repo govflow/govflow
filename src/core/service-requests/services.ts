@@ -71,7 +71,7 @@ export class ServiceRequestService implements IServiceRequestService {
     }
 
     async update(
-      jurisdictionId: string, id: string, data: ServiceRequestCreateAttributes
+      jurisdictionId: string, id: string, data: ServiceRequestCreateAttributes, existingData?: ServiceRequestAttributes
     ): Promise<ServiceRequestAttributes> {
       // This method is used for automated imports only!
       // The UI methods are more granular and use createAuditedStateChange
@@ -80,7 +80,23 @@ export class ServiceRequestService implements IServiceRequestService {
       const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId as string);
       const serviceRequestIsClosed = SERVICE_REQUEST_CLOSED_STATES.includes(data.status as string);
       const hookName = serviceRequestIsClosed ? 'serviceRequestClosed' : 'serviceRequestChangeStatus';
-      await this.hookRunner.run(hookName, jurisdiction, record);
+      // We use this method for doing automated import of lots of data ::
+      // If we got a record that already exists, and, it is already closed
+      // then, we want to ensure we do not keep sending out notifications
+      // It seems like there should be a more elegant way/place to do this ...
+      // But, as this method is ONLY USED IN AUTOMATED IMPORTING, it is the simplest
+      // and easiest way to prevent redundant notifications in those situations
+      if (existingData && SERVICE_REQUEST_CLOSED_STATES.includes(existingData.status)) {
+        logger.info({
+          message: `Updating service request that is already closed for ${jurisdiction.name}. Skipping notifications`,
+          data: {
+            newServiceRequestData: data,
+            existingServiceRequestData: existingData,
+          }
+        })
+      } else {
+        await this.hookRunner.run(hookName, jurisdiction, record);
+      }
       return record;
     }
 
