@@ -1,9 +1,12 @@
 import type { Model } from 'sequelize';
 import { IOutboundMessageService } from './services';
 
+
 export type CXDataSource = 'OrganicDataItem' | 'CivicPlusSeeClickFix' | 'CivicPlusRequestTracker' | 'Lucity';
 
 export type GovFlowUsageContext = '311' | '911' | 'Policing';
+
+export type CommunicationChannels = 'email' | 'sms';
 
 export interface JurisdictionAttributes {
   id: string;
@@ -251,6 +254,25 @@ export interface MessageDisambiguationInstance
   extends Model<MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes>,
   MessageDisambiguationAttributes { }
 
+export type TemplateTypes = 'body' | 'subject';
+
+export type TemplateNames = 'cx-survey-public-user' | 'service-request-changed-assignee-staff-user' | 'service-request-changed-status-staff-user' | 'service-request-closed-public-user' | 'service-request-closed-staff-user' | 'service-request-comment-broadcast-public-user' | 'service-request-comment-broadcast-staff-user' | 'service-request-new-public-user' | 'service-request-new-staff-user';
+
+export interface TemplateAttributes {
+  id: string;
+  jurisdictionId: string;
+  channel: CommunicationChannels;
+  name: TemplateNames;
+  type: TemplateTypes;
+  content: string;
+}
+
+export type TemplateCreateAttributes = Partial<TemplateAttributes>
+
+export interface TemplateInstance
+  extends Model<TemplateAttributes, TemplateCreateAttributes>,
+  TemplateAttributes { }
+
 export interface SmsAttributes {
   to: string;
   from: string;
@@ -322,6 +344,7 @@ export interface TestDataPayload {
   departments: DepartmentAttributes[],
   inboundMaps: InboundMapAttributes[],
   channelStatuses: ChannelStatusAttributes[];
+  templates: TemplateAttributes[];
 }
 
 export interface TestDataMakerOptions {

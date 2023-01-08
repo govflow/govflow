@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import validator from 'validator';
 import type { ModelDefinition } from '../../types';
+import { COMMUNICATION_CHANNEL_KEYS } from '../service-requests/models';
 
 export const SMS_EVENT_MAP = {
   'accepted': null,
@@ -45,6 +46,23 @@ export const MESSAGE_DISAMBIGUATION_STATUS_KEYS = [
 export const MESSAGE_DISAMBIGUATION_RESULT_KEYS = [
   'new-request',
   'existing-request'
+]
+
+export const TEMPLATE_TYPES = [
+  'body',
+  'subject'
+]
+
+export const TEMPLATE_NAMES = [
+  'cx-survey-public-user',
+  'service-request-changed-assignee-staff-user',
+  'service-request-changed-status-staff-user',
+  'service-request-closed-public-user',
+  'service-request-closed-staff-user',
+  'service-request-comment-broadcast-public-user',
+  'service-request-comment-broadcast-staff-user',
+  'service-request-new-public-user',
+  'service-request-new-staff-user',
 ]
 
 export const CommunicationModel: ModelDefinition = {
@@ -284,6 +302,49 @@ export const MessageDisambiguationModel: ModelDefinition = {
       {
         unique: true,
         fields: ['submitterId', 'status']
+      },
+    ]
+  }
+}
+
+export const TemplateModel: ModelDefinition = {
+  name: 'Template',
+  attributes: {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      allowNull: false,
+      primaryKey: true,
+    },
+    channel: {
+      allowNull: false,
+      type: DataTypes.ENUM(...COMMUNICATION_CHANNEL_KEYS), // email or sms
+      defaultValue: COMMUNICATION_CHANNEL_KEYS[0],
+    },
+    name: {
+      allowNull: false,
+      type: DataTypes.ENUM(...TEMPLATE_NAMES), // all available template names
+    },
+    type: {
+      allowNull: false,
+      type: DataTypes.ENUM(...TEMPLATE_TYPES), // body or subject
+      defaultValue: TEMPLATE_TYPES[0],
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+  },
+  options: {
+    freezeTableName: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ['name']
+      },
+      {
+        unique: true,
+        fields: ['name', 'channel', 'jurisdictionId']
       },
     ]
   }

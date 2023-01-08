@@ -1,8 +1,9 @@
 import faker from 'faker';
 import type { Sequelize } from 'sequelize/types';
+import { TEMPLATE_NAMES, TEMPLATE_TYPES } from '../core/communications';
 import { REQUEST_STATUS_KEYS } from '../core/service-requests';
 import { STAFF_USER_PERMISSIONS } from '../core/staff-users';
-import { ChannelStatusAttributes, CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserDepartmentModel, StaffUserModel, TestDataMakerOptions, TestDataPayload } from '../types';
+import { ChannelStatusAttributes, CommunicationAttributes, DepartmentAttributes, InboundMapAttributes, JurisdictionAttributes, ServiceAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestInstance, StaffUserAttributes, StaffUserDepartmentAttributes, StaffUserDepartmentModel, StaffUserModel, TemplateAttributes, TestDataMakerOptions, TestDataPayload } from '../types';
 
 /* eslint-disable */
 function factory(generator: Function, times: number, generatorOpts: {}) {
@@ -210,6 +211,16 @@ function makeChannelStatus() {
   return faker.helpers.randomize([email, phone]) as ChannelStatusAttributes
 }
 
+function makeTemplate(options: Partial<TestDataMakerOptions>) {
+  return {
+    id: faker.datatype.uuid(),
+    jurisdictionId: options.jurisdiction?.id,
+    name: faker.helpers.randomize(TEMPLATE_NAMES),
+    type: faker.helpers.randomize(TEMPLATE_TYPES),
+    content: "Dummy template content"
+  } as TemplateAttributes;
+}
+
 export async function writeTestDataToDatabase(databaseEngine: Sequelize, testData: TestDataPayload): Promise<void> {
   const {
     Jurisdiction,
@@ -221,7 +232,8 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     Communication,
     Department,
     InboundMap,
-    ChannelStatus
+    ChannelStatus,
+    Template
   } = databaseEngine.models;
 
   for (const jurisdictionData of testData.jurisdictions) {
@@ -269,6 +281,10 @@ export async function writeTestDataToDatabase(databaseEngine: Sequelize, testDat
     await ChannelStatus.create(channelStatusData);
   }
 
+  for (const templateData of testData.templates) {
+    await Template.create(templateData);
+  }
+
 }
 
 export default function makeTestData(): TestDataPayload {
@@ -281,6 +297,7 @@ export default function makeTestData(): TestDataPayload {
   let departments: DepartmentAttributes[] = [];
   let inboundMaps: InboundMapAttributes[] = [];
   let channelStatuses: ChannelStatusAttributes[] = [];
+  let templates: TemplateAttributes[] = [];
 
   // we want some jurisdictions to enforce assignment through department
   jurisdictions[2].enforceAssignmentThroughDepartment = true
@@ -307,6 +324,9 @@ export default function makeTestData(): TestDataPayload {
     ) as unknown as InboundMapAttributes[]
     inboundMaps = [..._inboundEmailMaps, ..._inboundSmsMaps];
     staffUserDepartments = makeStaffUserDepartments(staffUsers, departments);
+    templates = templates.concat(
+      factory(makeTemplate, 5, { jurisdiction }) as unknown as TemplateAttributes[]
+    )
   }
 
   for (const serviceRequest of serviceRequests) {
@@ -326,6 +346,7 @@ export default function makeTestData(): TestDataPayload {
     communications,
     departments,
     inboundMaps,
-    channelStatuses
+    channelStatuses,
+    templates
   }
 }

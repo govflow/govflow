@@ -9,9 +9,15 @@ import type {
   HookDataExtraData,
   IInboundMessageService, InboundMapAttributes, IOutboundMessageService,
   IServiceRequestHookRunner,
-  JurisdictionAttributes, RecipientAttributes,
+  ITemplateService,
+  JurisdictionAttributes, QueryParamsAll, RecipientAttributes,
   Repositories,
-  ServiceRequestAttributes, ServiceRequestCommentAttributes, StaffUserAttributes, TemplateConfigContextAttributes
+  ServiceRequestAttributes,
+  ServiceRequestCommentAttributes,
+  StaffUserAttributes,
+  TemplateAttributes,
+  TemplateConfigContextAttributes,
+  TemplateCreateAttributes
 } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 import { dispatchMessage, getReplyToEmail, getSendFromEmail, getSendFromPhone, makeCXSurveyURL, makeRequestURL, makeSendAtDate, setDispatchChannel } from './helpers';
@@ -772,6 +778,57 @@ export class InboundMessageService implements IInboundMessageService {
     const { inboundMapRepository } = this.repositories;
     const record = await inboundMapRepository.create(data) as InboundMapAttributes;
     return record;
+  }
+
+}
+
+@injectable()
+export class TemplateService implements ITemplateService {
+
+  repositories: Repositories
+  config: AppConfig
+  hookRunner: IServiceRequestHookRunner
+
+  constructor(
+    @inject(appIds.Repositories) repositories: Repositories,
+    @inject(appIds.AppConfig) config: AppConfig,
+    @inject(appIds.ServiceRequestHookRunner) hookRunner: IServiceRequestHookRunner,
+  ) {
+    this.repositories = repositories;
+    this.config = config;
+    this.hookRunner = hookRunner;
+  }
+
+  async create(data: TemplateCreateAttributes): Promise<TemplateAttributes> {
+    const { templateRepository } = this.repositories;
+    return await templateRepository.create(data) as TemplateAttributes;
+  }
+
+  async findOne(jurisdictionId: string, id: string): Promise<TemplateAttributes | null> {
+    const { templateRepository } = this.repositories;
+    return await templateRepository.findOne(jurisdictionId, id);
+  }
+
+  async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[TemplateAttributes[], number]> {
+    const { templateRepository } = this.repositories;
+    return await templateRepository.findAll(jurisdictionId, queryParams);
+  }
+
+  async update(
+    jurisdictionId: string,
+    id: string,
+    data: Partial<TemplateAttributes>
+  ): Promise<TemplateAttributes> {
+    const { templateRepository } = this.repositories;
+    return await templateRepository.update(jurisdictionId, id, data);
+  }
+
+  async delete(
+    jurisdictionId: string,
+    id: string
+  ): Promise<void> {
+    const { templateRepository } = this.repositories;
+    return await templateRepository.delete(jurisdictionId, id);
   }
 
 }

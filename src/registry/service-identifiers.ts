@@ -11,6 +11,7 @@ export const repositoryIds = {
     IDepartmentRepository: Symbol('IDepartmentRepository'),
     IInboundMapRepository: Symbol('IInboundMapRepository'),
     IMessageDisambiguationRepository: Symbol('IMessageDisambiguationRepository'),
+    ITemplateRepository: Symbol('ITemplateRepository'),
 };
 
 export const serviceIds = {
@@ -18,6 +19,7 @@ export const serviceIds = {
     IInboundMessageService: Symbol('IInboundMessageService'),
     IServiceRequestService: Symbol('IServiceRequestService'),
     IStaffUserService: Symbol('IStaffUserService'),
+    ITemplateService: Symbol('ITemplateService'),
 };
 
 export const appIds = {

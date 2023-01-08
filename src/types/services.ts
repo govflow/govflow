@@ -4,11 +4,12 @@ import {
   CommunicationAttributes,
   JurisdictionAttributes,
   PluginBase,
+  QueryParamsAll,
   Repositories,
   ServiceRequestAttributes,
   ServiceRequestCreateAttributes
 } from '.';
-import { AuditedStateChangeExtraData, HookDataExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, PublicId, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, StaffUserAttributes, StaffUserDepartmentAttributes } from "./data";
+import { AuditedStateChangeExtraData, HookDataExtraData, InboundEmailDataAttributes, InboundMapAttributes, InboundSmsDataAttributes, PublicId, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, StaffUserAttributes, StaffUserDepartmentAttributes, TemplateAttributes, TemplateCreateAttributes } from "./data";
 
 export interface MinimalServiceBase extends PluginBase {
     repositories: Repositories;
@@ -89,6 +90,14 @@ export interface IStaffUserService extends ServiceBase {
     ) => Promise<StaffUserAttributes | null>;
 }
 
+export interface ITemplateService extends ServiceBase {
+  create: (data: TemplateCreateAttributes) => Promise<TemplateAttributes>;
+  findOne: (jurisdictionId: string, id: string) => Promise<TemplateAttributes | null>;
+  findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[TemplateAttributes[], number]>;
+  update: (jurisdictionId: string, id: string, data: Partial<TemplateAttributes>) => Promise<TemplateAttributes | null>;
+  delete: (jurisdictionId: string, id: string,) => Promise<void>;
+}
+
 export interface IServiceRequestHookRunner {
     dispatchHandler: IOutboundMessageService
     emitter: Emittery
@@ -104,4 +113,5 @@ export interface Services {
     inboundMessageService: IInboundMessageService;
     serviceRequestService: IServiceRequestService;
     staffUserService: IStaffUserService;
+    templateService: ITemplateService;
 }
