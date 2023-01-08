@@ -73,17 +73,10 @@ async function sendEmailToConsole(message: EmailAttributes): Promise<Record<stri
     message: `Routing email to console for ${message.to}`,
     data: { message },
   })
-  const streamTransporter = nodemailer.createTransport({
-    streamTransport: true,
-    newline: 'unix',
-    buffer: true
-  })
   const jsonTransporter = nodemailer.createTransport({
     jsonTransport: true,
   })
-  const streamResponse = await streamTransporter.sendMail(message);
   const jsonResponse = await jsonTransporter.sendMail(message);
-  console.log(streamResponse.message.toString());
   return jsonResponse.message as unknown as Record<string, string>;
 }
 

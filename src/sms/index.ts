@@ -66,6 +66,5 @@ async function sendSmsToConsole(message: SmsAttributes): Promise<Record<string, 
     message: `Routing sms to console for ${message.to}`,
     data: { message },
   })
-  console.log(message);
   return message as unknown as Record<string, string>;
 }
