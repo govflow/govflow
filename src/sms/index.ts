@@ -45,6 +45,10 @@ export async function sendSms(
 async function sendSmsToTwilio(
   message: SmsAttributes, accountSid: string, authToken: string
 ): Promise<Record<string, string>> {
+  logger.info({
+    message: `Routing sms to Twilio for ${message.to}`,
+    data: { message },
+  })
   const client = getClient(accountSid, authToken);
   try {
     logger.info({ message: `sending sms to twilio: ${message.sendAt}`, data: message })
@@ -58,6 +62,10 @@ async function sendSmsToTwilio(
 }
 
 async function sendSmsToConsole(message: SmsAttributes): Promise<Record<string, string>> {
+  logger.info({
+    message: `Routing sms to console for ${message.to}`,
+    data: { message },
+  })
   console.log(message);
   return message as unknown as Record<string, string>;
 }

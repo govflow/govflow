@@ -25,7 +25,7 @@ export interface IOutboundMessageService extends MinimalServiceBase {
     dispatchServiceRequestCreate: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
-    ) => Promise<CommunicationAttributes[]>;
+    ) => Promise<CommunicationAttributes[] | null>;
     dispatchServiceRequestChangeStatus: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
@@ -37,12 +37,12 @@ export interface IOutboundMessageService extends MinimalServiceBase {
     dispatchServiceRequestClosed: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes
-    ) => Promise<CommunicationAttributes[]>;
+    ) => Promise<CommunicationAttributes[] | null>;
     dispatchServiceRequestComment: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes,
         extraData: HookDataExtraData
-    ) => Promise<CommunicationAttributes[]>;
+    ) => Promise<CommunicationAttributes[] | null>;
     dispatchCXSurvey: (
         jurisdiction: JurisdictionAttributes,
         serviceRequest: ServiceRequestAttributes

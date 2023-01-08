@@ -54,6 +54,10 @@ export async function sendEmail(
 
 async function sendEmailToSendGrid(message: EmailAttributes, sendGridApiKey: string): Promise<ClientResponse> {
   sendGridMailClient.setApiKey(sendGridApiKey);
+  logger.info({
+    message: `Routing email to SendGrid for ${message.to}`,
+    data: { message },
+  })
   try {
     const response = await sendGridMailClient.send(message);
     return response[0];
@@ -65,6 +69,10 @@ async function sendEmailToSendGrid(message: EmailAttributes, sendGridApiKey: str
 }
 
 async function sendEmailToConsole(message: EmailAttributes): Promise<Record<string, string>> {
+  logger.info({
+    message: `Routing email to console for ${message.to}`,
+    data: { message },
+  })
   const streamTransporter = nodemailer.createTransport({
     streamTransport: true,
     newline: 'unix',

@@ -186,8 +186,12 @@ describe('Test two-way email communications.', function () {
         const response = await outboundMessageService.dispatchServiceRequestComment(
             jurisdiction, record, { serviceRequestCommentId: comment.id }
         );
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const dispatchPayload = response[0].dispatchPayload;
         // we only broadcast to submitter so we should only have a single communication record
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         chai.assert.equal(response.length, 1);
         chai.assert.equal(dispatchPayload.channel, serviceRequest.channel);
         chai.assert.equal(dispatchPayload.toEmail, serviceRequest.email);
@@ -216,7 +220,11 @@ describe('Test two-way email communications.', function () {
             jurisdiction, record, { serviceRequestCommentId: comment.id }
         );
         // we should have a communication record per staff user
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         chai.assert.equal(response.length, count);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         for (const record of response) {
             chai.assert.equal(record.dispatchPayload.channel, serviceRequest.channel);
             chai.assert(staffEmails.includes(record.dispatchPayload.toEmail))
@@ -243,6 +251,8 @@ describe('Test two-way email communications.', function () {
         const response = await outboundMessageService.dispatchServiceRequestComment(
             jurisdiction, record, { serviceRequestCommentId: comment.id }
         );
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const dispatchResponse = JSON.parse(response[0].dispatchResponse as unknown as string);
         chai.assert(dispatchResponse.text.includes(emailBodySanitizeLine));
     });
@@ -267,6 +277,8 @@ describe('Test two-way email communications.', function () {
         const response = await outboundMessageService.dispatchServiceRequestComment(
             jurisdiction, record, { serviceRequestCommentId: comment.id }
         );
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const dispatchResponse = JSON.parse(response[0].dispatchResponse as unknown as string);
         chai.assert.equal(dispatchResponse.text.includes(emailBodySanitizeLine), false);
     });

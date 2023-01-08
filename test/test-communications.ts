@@ -385,10 +385,9 @@ describe('Verify Core Communications Functionality.', function () {
     const [record, comment] = await serviceRequestRepository.createComment(
       jurisdiction.id, serviceRequest.id, data
     );
-    const commRecord = await outboundMessageService.dispatchServiceRequestComment(
+    await outboundMessageService.dispatchServiceRequestComment(
       jurisdiction, record, { serviceRequestCommentId: comment.id }
     );
-    chai.assert(commRecord);
   });
 
   it('cannot dispatch a cx survey notification when surveys are disabled', async function () {

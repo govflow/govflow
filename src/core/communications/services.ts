@@ -51,7 +51,7 @@ export class OutboundMessageService implements IOutboundMessageService {
   async dispatchServiceRequestCreate(
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes
-  ): Promise<CommunicationAttributes[]> {
+  ): Promise<CommunicationAttributes[] | null> {
     const {
       sendGridApiKey,
       sendGridFromEmail,
@@ -65,9 +65,26 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioStatusCallbackURL,
       inboundEmailDomain
     } = this.config;
-
+    const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
+    if (!workflowEnabled) {
+      logger.info({
+        message: `Inside, and exiting, dispatchServiceRequestCreate with workflow disabled for ${name}`,
+        data: {
+          jurisdiction: {
+            id,
+            name,
+            workflowEnabled,
+            workflowBroadcastWindow,
+          },
+          serviceRequest: {
+            id: serviceRequest.id,
+            status: serviceRequest.status,
+          }
+        }
+      });
+      return null;
+    }
     const { communicationRepository, emailStatusRepository } = this.repositories;
-    const { workflowBroadcastWindow } = jurisdiction;
     const records: CommunicationAttributes[] = [];
     const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
     const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
@@ -156,6 +173,25 @@ export class OutboundMessageService implements IOutboundMessageService {
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes
   ): Promise<CommunicationAttributes | null> {
+    const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
+    if (!workflowEnabled) {
+      logger.info({
+        message: `Inside, and exiting, dispatchServiceRequestChangeStatus with workflow disabled for ${name}`,
+        data: {
+          jurisdiction: {
+            id,
+            name,
+            workflowEnabled,
+            workflowBroadcastWindow,
+          },
+          serviceRequest: {
+            id: serviceRequest.id,
+            status: serviceRequest.status,
+          }
+        }
+      });
+      return null;
+    }
     const {
       sendGridApiKey,
       sendGridFromEmail,
@@ -170,7 +206,6 @@ export class OutboundMessageService implements IOutboundMessageService {
       inboundEmailDomain
     } = this.config;
     const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
-    const { workflowBroadcastWindow } = jurisdiction;
     const staffUser = await staffUserRepository.findOne(
       serviceRequest.jurisdictionId, serviceRequest.assignedTo
     );
@@ -224,7 +259,25 @@ export class OutboundMessageService implements IOutboundMessageService {
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes
   ): Promise<CommunicationAttributes | null> {
-
+    const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
+    if (!workflowEnabled) {
+      logger.info({
+        message: `Inside, and exiting, dispatchServiceRequestChangeAssignee with workflow disabled for ${name}`,
+        data: {
+          jurisdiction: {
+            id,
+            name,
+            workflowEnabled,
+            workflowBroadcastWindow,
+          },
+          serviceRequest: {
+            id: serviceRequest.id,
+            status: serviceRequest.status,
+          }
+        }
+      });
+      return null;
+    }
     const {
       sendGridApiKey,
       sendGridFromEmail,
@@ -239,7 +292,6 @@ export class OutboundMessageService implements IOutboundMessageService {
       inboundEmailDomain
     } = this.config;
     const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
-    const { workflowBroadcastWindow } = jurisdiction;
 
     // early return if the service request has been unassigned
     if (!serviceRequest.assignedTo) { return null; }
@@ -296,8 +348,26 @@ export class OutboundMessageService implements IOutboundMessageService {
   async dispatchServiceRequestClosed(
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes
-  ): Promise<CommunicationAttributes[]> {
-
+  ): Promise<CommunicationAttributes[] | null> {
+    const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
+    if (!workflowEnabled) {
+      logger.info({
+        message: `Inside, and exiting, dispatchServiceRequestClosed with workflow disabled for ${name}`,
+        data: {
+          jurisdiction: {
+            id,
+            name,
+            workflowEnabled,
+            workflowBroadcastWindow,
+          },
+          serviceRequest: {
+            id: serviceRequest.id,
+            status: serviceRequest.status,
+          }
+        }
+      });
+      return null;
+    }
     const {
       sendGridApiKey,
       sendGridFromEmail,
@@ -312,7 +382,6 @@ export class OutboundMessageService implements IOutboundMessageService {
       inboundEmailDomain
     } = this.config;
     const { communicationRepository, emailStatusRepository } = this.repositories;
-    const { workflowBroadcastWindow } = jurisdiction;
     const records: CommunicationAttributes[] = [];
     const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
     const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
@@ -403,7 +472,26 @@ export class OutboundMessageService implements IOutboundMessageService {
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes,
     extraData: HookDataExtraData
-  ): Promise<CommunicationAttributes[]> {
+  ): Promise<CommunicationAttributes[] | null> {
+    const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
+    if (!workflowEnabled) {
+      logger.warn({
+        message: `Inside, and exiting, dispatchServiceRequestComment with workflow disabled for ${name}`,
+        data: {
+          jurisdiction: {
+            id,
+            name,
+            workflowEnabled,
+            workflowBroadcastWindow,
+          },
+          serviceRequest: {
+            id: serviceRequest.id,
+            status: serviceRequest.status,
+          }
+        }
+      });
+      return null;
+    }
     const {
       sendGridApiKey,
       sendGridFromEmail,
@@ -528,11 +616,29 @@ export class OutboundMessageService implements IOutboundMessageService {
     jurisdiction: JurisdictionAttributes,
     serviceRequest: ServiceRequestAttributes,
   ): Promise<CommunicationAttributes | null> {
-
     const { id, name, cxSurveyEnabled, cxSurveyTriggerStatus, cxSurveyUrl, cxSurveyBroadcastWindow } = jurisdiction;
-
+    if (!cxSurveyEnabled) {
+      logger.info({
+        message: `Inside, and exiting, dispatchCXSurvey with cx survey disabled for ${name}`,
+        data: {
+          jurisdiction: {
+            id,
+            name,
+            cxSurveyEnabled,
+            cxSurveyTriggerStatus,
+            cxSurveyUrl,
+            cxSurveyBroadcastWindow,
+          },
+          serviceRequest: {
+            id: serviceRequest.id,
+            status: serviceRequest.status,
+          }
+        }
+      });
+      return null;
+    }
     logger.info({
-      message: `Entering dispatch of CX survey for ${jurisdiction.name}`,
+      message: `Entering dispatch of CX survey for ${name}`,
       data: {
         jurisdiction: {
           id,
@@ -541,14 +647,18 @@ export class OutboundMessageService implements IOutboundMessageService {
           cxSurveyTriggerStatus,
           cxSurveyUrl,
           cxSurveyBroadcastWindow
+        },
+        serviceRequest: {
+          id: serviceRequest.id,
+          status: serviceRequest.status,
         }
       }
     })
 
     // exit early when we dont meet the essential conditions
-    if (!cxSurveyEnabled || !cxSurveyUrl || serviceRequest.status !== cxSurveyTriggerStatus) {
-      logger.info({
-        message: `Early exit dispatch of CX survey for ${jurisdiction.name}`,
+    if (!cxSurveyUrl || serviceRequest.status !== cxSurveyTriggerStatus) {
+      logger.warn({
+        message: `Early exit dispatch of CX survey with insufficient conditions for ${jurisdiction.name}`,
         data: {
           jurisdiction: {
             id,
