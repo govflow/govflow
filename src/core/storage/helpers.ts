@@ -39,13 +39,12 @@ export async function presignPut(
     })
     let response: string | null;
     try {
-        await ensureBucket(client, storageBucket, storageRegion);
-        response = await client.presignedPutObject(storageBucket, filename)
+      await ensureBucket(client, storageBucket, storageRegion);
+      response = await client.presignedPutObject(storageBucket, filename)
     } catch(error) {
-        const status_code = 400
-        const data = { message: 'Error from object storage', status_code: status_code, error: `${error}` }
-        logger.error(data);
-        response = null;
+      const status_code = 400
+      logger.error('Error from object storage', { status_code: status_code, error: `${error}` });
+      response = null;
     }
     return response;
 }
@@ -70,12 +69,11 @@ export async function presignGet(
     })
     let response: string | null;
     try {
-        response = await client.presignedGetObject(storageBucket, filename, storageSignedGetExpiry)
+      response = await client.presignedGetObject(storageBucket, filename, storageSignedGetExpiry)
     } catch(error) {
-        const status_code = 400
-        const data = { message: 'Error from object storage', status_code: status_code, error: `${error}` }
-        logger.error(data);
-        response = null;
+      const status_code = 400
+      logger.error('Error from object storage', { status_code: status_code, error: `${error}` });
+      response = null;
     }
     return response;
 }

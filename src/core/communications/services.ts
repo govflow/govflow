@@ -67,9 +67,9 @@ export class OutboundMessageService implements IOutboundMessageService {
     } = this.config;
     const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
     if (!workflowEnabled) {
-      logger.info({
-        message: `Inside, and exiting, dispatchServiceRequestCreate with workflow disabled for ${name}`,
-        data: {
+      logger.info(
+        `Inside, and exiting, dispatchServiceRequestCreate with workflow disabled for ${name}`,
+        {
           jurisdiction: {
             id,
             name,
@@ -81,7 +81,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             status: serviceRequest.status,
           }
         }
-      });
+      );
       return null;
     }
     const { communicationRepository, emailStatusRepository } = this.repositories;
@@ -175,9 +175,9 @@ export class OutboundMessageService implements IOutboundMessageService {
   ): Promise<CommunicationAttributes | null> {
     const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
     if (!workflowEnabled) {
-      logger.info({
-        message: `Inside, and exiting, dispatchServiceRequestChangeStatus with workflow disabled for ${name}`,
-        data: {
+      logger.info(
+        `Inside, and exiting, dispatchServiceRequestChangeStatus with workflow disabled for ${name}`,
+        {
           jurisdiction: {
             id,
             name,
@@ -189,7 +189,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             status: serviceRequest.status,
           }
         }
-      });
+      );
       return null;
     }
     const {
@@ -261,9 +261,9 @@ export class OutboundMessageService implements IOutboundMessageService {
   ): Promise<CommunicationAttributes | null> {
     const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
     if (!workflowEnabled) {
-      logger.info({
-        message: `Inside, and exiting, dispatchServiceRequestChangeAssignee with workflow disabled for ${name}`,
-        data: {
+      logger.info(
+        `Inside, and exiting, dispatchServiceRequestChangeAssignee with workflow disabled for ${name}`,
+        {
           jurisdiction: {
             id,
             name,
@@ -275,7 +275,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             status: serviceRequest.status,
           }
         }
-      });
+      );
       return null;
     }
     const {
@@ -351,9 +351,9 @@ export class OutboundMessageService implements IOutboundMessageService {
   ): Promise<CommunicationAttributes[] | null> {
     const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
     if (!workflowEnabled) {
-      logger.info({
-        message: `Inside, and exiting, dispatchServiceRequestClosed with workflow disabled for ${name}`,
-        data: {
+      logger.info(
+        `Inside, and exiting, dispatchServiceRequestClosed with workflow disabled for ${name}`,
+        {
           jurisdiction: {
             id,
             name,
@@ -365,7 +365,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             status: serviceRequest.status,
           }
         }
-      });
+      );
       return null;
     }
     const {
@@ -475,9 +475,9 @@ export class OutboundMessageService implements IOutboundMessageService {
   ): Promise<CommunicationAttributes[] | null> {
     const { workflowEnabled, workflowBroadcastWindow, name, id } = jurisdiction;
     if (!workflowEnabled) {
-      logger.warn({
-        message: `Inside, and exiting, dispatchServiceRequestComment with workflow disabled for ${name}`,
-        data: {
+      logger.warn(
+        `Inside, and exiting, dispatchServiceRequestComment with workflow disabled for ${name}`,
+        {
           jurisdiction: {
             id,
             name,
@@ -489,7 +489,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             status: serviceRequest.status,
           }
         }
-      });
+      );
       return null;
     }
     const {
@@ -618,9 +618,9 @@ export class OutboundMessageService implements IOutboundMessageService {
   ): Promise<CommunicationAttributes | null> {
     const { id, name, cxSurveyEnabled, cxSurveyTriggerStatus, cxSurveyUrl, cxSurveyBroadcastWindow } = jurisdiction;
     if (!cxSurveyEnabled) {
-      logger.info({
-        message: `Inside, and exiting, dispatchCXSurvey with cx survey disabled for ${name}`,
-        data: {
+      logger.info(
+        `Inside, and exiting, dispatchCXSurvey with cx survey disabled for ${name}`,
+        {
           jurisdiction: {
             id,
             name,
@@ -634,12 +634,12 @@ export class OutboundMessageService implements IOutboundMessageService {
             status: serviceRequest.status,
           }
         }
-      });
+      );
       return null;
     }
-    logger.info({
-      message: `Entering dispatch of CX survey for ${name}`,
-      data: {
+    logger.info(
+      `Entering dispatch of CX survey for ${name}`,
+      {
         jurisdiction: {
           id,
           name,
@@ -653,13 +653,13 @@ export class OutboundMessageService implements IOutboundMessageService {
           status: serviceRequest.status,
         }
       }
-    })
+    )
 
     // exit early when we dont meet the essential conditions
     if (!cxSurveyUrl || serviceRequest.status !== cxSurveyTriggerStatus) {
-      logger.info({
-        message: `Early exit dispatch of CX survey with insufficient conditions for ${jurisdiction.name}`,
-        data: {
+      logger.info(
+        `Early exit dispatch of CX survey with insufficient conditions for ${jurisdiction.name}`,
+        {
           jurisdiction: {
             id,
             name,
@@ -673,7 +673,7 @@ export class OutboundMessageService implements IOutboundMessageService {
             status: serviceRequest.status,
           },
         }
-      })
+      )
       return null;
     }
 
@@ -728,9 +728,9 @@ export class OutboundMessageService implements IOutboundMessageService {
       } as TemplateConfigContextAttributes
     }
 
-    logger.info({
-      message: `Will dispatch a CX survey for ${jurisdiction.name}`,
-      data: {
+    logger.info(
+      `Will dispatch a CX survey for ${jurisdiction.name}`,
+      {
         jurisdiction: {
           id,
           name
@@ -742,7 +742,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         dispatchConfig,
         templateConfig
       }
-    })
+    )
 
     record = await dispatchMessage(
       dispatchConfig, templateConfig, communicationRepository, emailStatusRepository

@@ -117,7 +117,7 @@ export async function dispatchMessage(
     const emailStatus = await EmailStatusRepository.findOne(dispatchConfig.toEmail);
     if (emailStatus && emailStatus.isAllowed === false) {
       const errorMsg = `${dispatchConfig.toEmail} is not allowed for communications.`;
-      logger.error({ message: errorMsg });
+      logger.error(errorMsg);
       throw new Error(errorMsg);
     }
     subject = await loadTemplate(
@@ -161,12 +161,7 @@ export async function dispatchMessage(
   } else {
     const errorMessage = `Unknown communication dispatch channel`;
     const error = new Error(errorMessage);
-    const errorData = {
-      message: errorMessage,
-      dispatchConfig: dispatchConfig,
-      error: `${error}`
-    }
-    logger.warn(errorData);
+    logger.warn(errorMessage, { dispatchConfig, error: `${error}` });
   }
 
   if (!dispatchResponse) {
@@ -503,38 +498,38 @@ export function maybeSetSendAt(sourceSendAt: Date | undefined, scheduleWindow: S
   const fiveMinutes = (5 * 60 * 1000);
 
   if (targetSendAt.getTime() <= now.getTime() + scheduleWindow.min) {
-    logger.info({
-      message: `the targetSendAt is in the past so not valid for scheduling: ${_renderDate(targetSendAt)}`,
-      data: {
+    logger.info(
+      `the targetSendAt is in the past so not valid for scheduling: ${_renderDate(targetSendAt)}`,
+      {
         sourceSendAt: _renderDate(sourceSendAt),
         targetSendAt: _renderDate(targetSendAt),
         now: _renderDate(now),
         scheduleWindow
       }
-    })
+    )
     return null;
   } else {
     if (targetSendAt.getTime() < now.getTime() + scheduleWindow.max) {
-      logger.info({
-        message: `the targetSendAt is valid for scheduling: ${_renderDate(targetSendAt)}`,
-        data: {
+      logger.info(
+        `the targetSendAt is valid for scheduling: ${_renderDate(targetSendAt)}`,
+        {
           sourceSendAt: _renderDate(sourceSendAt),
           targetSendAt: _renderDate(targetSendAt),
           now: _renderDate(now),
           scheduleWindow
         }
-      })
+      )
       return targetSendAt;
     } else {
-      logger.info({
-        message: `the targetSendAt is too far in the future so not valid for scheduling: ${_renderDate(targetSendAt)}`,
-        data: {
+      logger.info(
+        `the targetSendAt is too far in the future so not valid for scheduling: ${_renderDate(targetSendAt)}`,
+        {
           sourceSendAt: _renderDate(sourceSendAt),
           targetSendAt: _renderDate(targetSendAt),
           now: _renderDate(now),
           scheduleWindow
         }
-      })
+      )
       return new Date(now.getTime() + (scheduleWindow.max - fiveMinutes));
     }
   }

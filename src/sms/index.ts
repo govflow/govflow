@@ -28,12 +28,12 @@ export async function sendSms(
     message.messagingServiceSid = messagingServiceSid;
     message.scheduleType = 'fixed';
     message.sendAt = normalizedSendAt;
-    logger.info({
-      message: `Timestamp for SMS scheduling: ${normalizedSendAt.toUTCString()}`,
-      data: {
+    logger.info(
+      `Timestamp for SMS scheduling: ${normalizedSendAt.toUTCString()}`,
+      {
         message: message
       }
-    })
+    )
   }
   if (process.env.COMMUNICATIONS_TO_CONSOLE) {
     return sendSmsToConsole(message);
@@ -45,13 +45,13 @@ export async function sendSms(
 async function sendSmsToTwilio(
   message: SmsAttributes, accountSid: string, authToken: string
 ): Promise<Record<string, string>> {
-  logger.info({
-    message: `Routing sms to Twilio for ${message.to}`,
-    data: { message },
-  })
+  logger.info(
+    `Routing sms to Twilio for ${message.to}`,
+    { message },
+  )
   const client = getClient(accountSid, authToken);
   try {
-    logger.info({ message: `sending sms to twilio: ${message.sendAt}`, data: message })
+    logger.info(`sending sms to twilio: ${message.sendAt}`, { message })
     const response = await client.messages.create(message);
     return response as unknown as Record<string, string>;
   } catch (error) {
@@ -62,9 +62,9 @@ async function sendSmsToTwilio(
 }
 
 async function sendSmsToConsole(message: SmsAttributes): Promise<Record<string, string>> {
-  logger.info({
-    message: `Routing sms to console for ${message.to}`,
-    data: { message },
-  })
+  logger.info(
+    `Routing sms to console for ${message.to}`,
+    { message }
+  )
   return message as unknown as Record<string, string>;
 }

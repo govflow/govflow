@@ -28,9 +28,9 @@ serviceRequestLifecycleEmitter.on('serviceRequestCreate', async (data: HookData)
     const { jurisdiction, record, dispatchHandler } = data;
     const { workflowEnabled, cxSurveyEnabled } = jurisdiction;
     if (workflowEnabled) {
-      logger.info({
-        message: 'Handling serviceRequestCreate event with workflow enabled.',
-        data: {
+      logger.info(
+        'Handling serviceRequestCreate event with workflow enabled.',
+        {
           jurisdiction: {
             id: jurisdiction.id,
             name: jurisdiction.name,
@@ -42,13 +42,13 @@ serviceRequestLifecycleEmitter.on('serviceRequestCreate', async (data: HookData)
             status: record.status,
           }
         }
-      });
+      );
       await serviceRequestCreateHandler(jurisdiction, record, dispatchHandler);
     }
     if (cxSurveyEnabled) {
-      logger.info({
-        message: 'Handling serviceRequestCreate event with cx survey enabled.',
-        data: {
+      logger.info(
+        'Handling serviceRequestCreate event with cx survey enabled.',
+        {
           jurisdiction: {
             id: jurisdiction.id,
             name: jurisdiction.name,
@@ -60,7 +60,7 @@ serviceRequestLifecycleEmitter.on('serviceRequestCreate', async (data: HookData)
             status: record.status,
           }
         }
-      });
+      );
       await cxSurveyHandler(jurisdiction, record, dispatchHandler);
     }
 });
@@ -70,9 +70,9 @@ serviceRequestLifecycleEmitter.on('serviceRequestChangeStatus', async (data: Hoo
     const { jurisdiction, record, dispatchHandler } = data;
     const { workflowEnabled, cxSurveyEnabled } = jurisdiction;
     if (workflowEnabled) {
-      logger.info({
-        message: 'Handling serviceRequestChangeStatus event with workflow enabled.',
-        data: {
+      logger.info(
+        'Handling serviceRequestChangeStatus event with workflow enabled.',
+        {
           jurisdiction: {
             id: jurisdiction.id,
             name: jurisdiction.name,
@@ -84,13 +84,13 @@ serviceRequestLifecycleEmitter.on('serviceRequestChangeStatus', async (data: Hoo
             status: record.status,
           }
         }
-      });
-        await serviceRequestChangeStatusHandler(jurisdiction, record, dispatchHandler);
+      );
+      await serviceRequestChangeStatusHandler(jurisdiction, record, dispatchHandler);
     }
     if (cxSurveyEnabled) {
-      logger.info({
-        message: 'Handling serviceRequestChangeStatus event with cx survey enabled.',
-        data: {
+      logger.info(
+        'Handling serviceRequestChangeStatus event with cx survey enabled.',
+        {
           jurisdiction: {
             id: jurisdiction.id,
             name: jurisdiction.name,
@@ -102,8 +102,8 @@ serviceRequestLifecycleEmitter.on('serviceRequestChangeStatus', async (data: Hoo
             status: record.status,
           }
         }
-      });
-        await cxSurveyHandler(jurisdiction, record, dispatchHandler);
+      );
+      await cxSurveyHandler(jurisdiction, record, dispatchHandler);
     }
 });
 
@@ -112,9 +112,9 @@ serviceRequestLifecycleEmitter.on('serviceRequestChangeAssignedTo', async (data:
     const { jurisdiction, record, dispatchHandler } = data;
     const { workflowEnabled } = jurisdiction;
     if (workflowEnabled) {
-      logger.info({
-        message: 'Handling serviceRequestChangeAssignedTo event with workflow enabled.',
-        data: {
+      logger.info(
+        'Handling serviceRequestChangeAssignedTo event with workflow enabled.',
+        {
           jurisdiction: {
             id: jurisdiction.id,
             name: jurisdiction.name,
@@ -126,7 +126,7 @@ serviceRequestLifecycleEmitter.on('serviceRequestChangeAssignedTo', async (data:
             status: record.status,
           }
         }
-      });
+      );
       await serviceRequestChangeAssignedToHandler(jurisdiction, record, dispatchHandler);
     }
 });
@@ -136,9 +136,9 @@ serviceRequestLifecycleEmitter.on('serviceRequestClosed', async (data: HookData)
     const { jurisdiction, record, dispatchHandler } = data;
     const { workflowEnabled, cxSurveyEnabled } = jurisdiction;
     if (workflowEnabled) {
-      logger.info({
-        message: 'Handling serviceRequestClosed event with workflow enabled.',
-        data: {
+      logger.info(
+        'Handling serviceRequestClosed event with workflow enabled.',
+        {
           jurisdiction: {
             id: jurisdiction.id,
             name: jurisdiction.name,
@@ -150,13 +150,13 @@ serviceRequestLifecycleEmitter.on('serviceRequestClosed', async (data: HookData)
             status: record.status,
           }
         }
-      });
+      );
       await serviceRequestClosedHandler(jurisdiction, record, dispatchHandler);
     }
     if (cxSurveyEnabled) {
-      logger.info({
-        message: 'Handling serviceRequestClosed event with cx survey enabled.',
-        data: {
+      logger.info(
+        'Handling serviceRequestClosed event with cx survey enabled.',
+        {
           jurisdiction: {
             id: jurisdiction.id,
             name: jurisdiction.name,
@@ -168,7 +168,7 @@ serviceRequestLifecycleEmitter.on('serviceRequestClosed', async (data: HookData)
             status: record.status,
           }
         }
-      });
+      );
       await cxSurveyHandler(jurisdiction, record, dispatchHandler);
     }
 });
@@ -178,9 +178,9 @@ serviceRequestLifecycleEmitter.on('serviceRequestCommentBroadcast', async (data:
   const { jurisdiction, record, dispatchHandler, extraData } = data;
   const { workflowEnabled } = jurisdiction;
   if (workflowEnabled) {
-    logger.info({
-      message: 'Handling serviceRequestCommentBroadcast event with workflow enabled.',
-      data: {
+    logger.info(
+      'Handling serviceRequestCommentBroadcast event with workflow enabled.',
+      {
         jurisdiction: {
           id: jurisdiction.id,
           name: jurisdiction.name,
@@ -192,7 +192,7 @@ serviceRequestLifecycleEmitter.on('serviceRequestCommentBroadcast', async (data:
           status: record.status,
         }
       }
-    });
+    );
     await serviceRequestCommentBroadcastHandler(
       jurisdiction, record, dispatchHandler, extraData as HookDataExtraData
     );

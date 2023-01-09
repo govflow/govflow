@@ -22,7 +22,7 @@ export async function verifyRecaptchaResponse(secretKey: string, responseToken: 
         })
         responseData = response.data;
     } catch(error) {
-        logger.error({message: 'Failed request to reCaptcha', error: `${error}`})
+        logger.error('Failed request to reCaptcha', { error: `${error}` })
         responseData = { success: false } as unknown as RecaptchaV2VerificationResponse;
     }
     return responseData;

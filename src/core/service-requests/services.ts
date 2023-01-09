@@ -93,13 +93,13 @@ export class ServiceRequestService implements IServiceRequestService {
       // But, as this method is ONLY USED IN AUTOMATED IMPORTING, it is the simplest
       // and easiest way to prevent redundant notifications in those situations
       if (existingData && SERVICE_REQUEST_CLOSED_STATES.includes(existingData.status)) {
-        logger.info({
-          message: `Updating service request that is already closed for ${jurisdiction.name}. Skipping notifications`,
-          data: {
+        logger.info(
+          `Updating service request that is already closed for ${jurisdiction.name}. Skipping notifications`,
+          {
             newServiceRequestData: data,
             existingServiceRequestData: existingData,
           }
-        })
+        )
       } else {
         if (hookName) {
           await this.hookRunner.run(hookName, jurisdiction, record);
@@ -439,9 +439,8 @@ whether you are creating a new service request, or responding to an existing one
                 { To, From, Body: originalBody }, inboundMapRepository
             );
         } else {
-            const dataToLog = { message: 'Invalid Inbound Data Payload.', data: inboundData }
-            logger.error(dataToLog);
-            throw new Error("Received an invalid inbound data payload");
+          logger.error('Invalid Inbound Data Payload.', { inboundData });
+          throw new Error("Received an invalid inbound data payload");
         }
 
         if (knownPublicId || publicId || cleanedData.serviceRequestId) {
@@ -488,15 +487,14 @@ whether you are creating a new service request, or responding to an existing one
                 );
                 comment = _comment;
             } else {
-                const dataToLog = { message: 'Invalid Comment Submitter.', data: inboundData }
-                logger.error(dataToLog);
+                logger.error('Invalid Comment Submitter.', { inboundData });
                 let submitterFrom = '';
                 if (this.inboundIsEmail(inboundData)) {
                     submitterFrom = inboundData.from;
                 } else if (this.inboundIsSms(inboundData)) {
                     submitterFrom = inboundData.From;
                 }
-                throw new Error(`${dataToLog.message}: ${submitterFrom} for Request #${publicId}`);
+              throw new Error(`Invalid Comment Submitter: ${submitterFrom} for Request #${publicId}`);
             }
         } else {
             // NOTE: this uses repository so as NOT to trigger extra notification

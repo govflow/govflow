@@ -31,11 +31,9 @@ declare global {
 /* eslint-enable */
 
 process.on('uncaughtException', (err) => {
-    const dataToLog = { message: `${err.message}`, error: `${err}` }
-    logger.error(dataToLog);
-    logger.on('finish', () => {
-        process.exit(1);
-    });
+  const dataToLog = { message: `${err.message}`, error: `${err}` }
+  logger.fatal(dataToLog.message, dataToLog);
+  process.exit(1);
 });
 
 export async function createApp(): Promise<Application> {
