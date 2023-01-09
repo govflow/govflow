@@ -80,7 +80,7 @@ export class ServiceRequestService implements IServiceRequestService {
       const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId as string);
       let hookName = null;
       const serviceRequestIsClosed = SERVICE_REQUEST_CLOSED_STATES.includes(data.status as string);
-      const serviceRequestChangedStatus = existingData ? existingData.status === data.status : false;
+      const serviceRequestChangedStatus = existingData ? existingData.status != data.status : false;
       if (serviceRequestIsClosed) {
         hookName = 'serviceRequestClosed';
       } else if (serviceRequestChangedStatus) {
