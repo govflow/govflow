@@ -657,7 +657,7 @@ export class OutboundMessageService implements IOutboundMessageService {
 
     // exit early when we dont meet the essential conditions
     if (!cxSurveyUrl || serviceRequest.status !== cxSurveyTriggerStatus) {
-      logger.warn({
+      logger.info({
         message: `Early exit dispatch of CX survey with insufficient conditions for ${jurisdiction.name}`,
         data: {
           jurisdiction: {

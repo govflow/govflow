@@ -78,8 +78,14 @@ export class ServiceRequestService implements IServiceRequestService {
       const { serviceRequestRepository, jurisdictionRepository } = this.repositories;
       const record = await serviceRequestRepository.update(jurisdictionId, id, data);
       const jurisdiction = await jurisdictionRepository.findOne(jurisdictionId as string);
+      let hookName = null;
       const serviceRequestIsClosed = SERVICE_REQUEST_CLOSED_STATES.includes(data.status as string);
-      const hookName = serviceRequestIsClosed ? 'serviceRequestClosed' : 'serviceRequestChangeStatus';
+      const serviceRequestChangedStatus = existingData ? existingData.status === data.status : false;
+      if (serviceRequestIsClosed) {
+        hookName = 'serviceRequestClosed';
+      } else if (serviceRequestChangedStatus) {
+        hookName = 'serviceRequestChangeStatus';
+      }
       // We use this method for doing automated import of lots of data ::
       // If we got a record that already exists, and, it is already closed
       // then, we want to ensure we do not keep sending out notifications
@@ -95,7 +101,9 @@ export class ServiceRequestService implements IServiceRequestService {
           }
         })
       } else {
-        await this.hookRunner.run(hookName, jurisdiction, record);
+        if (hookName) {
+          await this.hookRunner.run(hookName, jurisdiction, record);
+        }
       }
       return record;
     }
