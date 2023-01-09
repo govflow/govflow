@@ -16,7 +16,7 @@ import { storageRouter } from './storage';
 const coreRoutes = Router();
 
 coreRoutes.get('/', wrapHandler(async (req: Request, res: Response) => {
-  res.status(200).send({ data: { name: 'govflow', version: '0.1.9' } });
+  res.status(200).send({ data: { name: 'govflow', version: '0.2.0' } });
 }))
 coreRoutes.use('/services', serviceRouter);
 coreRoutes.use('/service-requests', serviceRequestRouter);
