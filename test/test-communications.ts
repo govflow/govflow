@@ -9,7 +9,7 @@ import { SERVICE_REQUEST_CLOSED_STATES } from '../src/core/service-requests';
 import { sendEmail } from '../src/email';
 import { sendSms } from '../src/sms';
 import makeTestData, { writeTestDataToDatabase } from '../src/tools/fake-data-generator';
-import type { AppConfig, CommunicationAttributes, StaffUserAttributes, TemplateConfigContextAttributes, TestDataPayload } from '../src/types';
+import type { AppConfig, CommunicationAttributes, CommunicationTemplateNames, StaffUserAttributes, TemplateConfigContextAttributes, TestDataPayload } from '../src/types';
 
 describe('Verify Core Communications Functionality.', function () {
   let app: Application;
@@ -219,29 +219,77 @@ describe('Verify Core Communications Functionality.', function () {
   });
 
   it('loads a template', async function () {
+    const { templateRepository } = app.repositories;
     const expectedOutput = '[Dummy Name - Request #1234]: A New Service Request Has Been Submitted\n'
-    const templateName = 'email.service-request-new-staff-user.subject'
+    const channel = 'email';
+    const name = 'service-request-new-staff-user';
+    const type = 'subject';
     const templateContext = {
       appName: 'Gov Flow',
       appRequestUrl: 'https://dummy.url',
       serviceRequestStatus: 'dummy-status',
       serviceRequestPublicId: '1234',
+      jurisdictionId: '1234567890',
       jurisdictionName: 'Dummy Name',
       jurisdictionEmail: 'dummy@example.com',
       jurisdictionReplyToServiceRequestEnabled: false,
       recipientName: 'Dummy Name',
       messageType: 'workflow'
     } as TemplateConfigContextAttributes;
-    const response = await loadTemplate(templateName, templateContext);
+    const response = await loadTemplate(
+      templateContext.jurisdictionId,
+      channel,
+      name,
+      type,
+      templateContext,
+      templateRepository,
+    );
     chai.assert(new String(response).valueOf().startsWith(new String(expectedOutput).valueOf()));
   });
+
+  // it('loads a custom template subject for a jurisdiction', async function () {
+  //   const expectedOutput = '[Dummy Name - Request #1234]: A New Service Request Has Been Submitted\n'
+  //   const templateName = 'email.service-request-new-staff-user.subject'
+  //   const templateContext = {
+  //     appName: 'Gov Flow',
+  //     appRequestUrl: 'https://dummy.url',
+  //     serviceRequestStatus: 'dummy-status',
+  //     serviceRequestPublicId: '1234',
+  //     jurisdictionName: 'Dummy Name',
+  //     jurisdictionEmail: 'dummy@example.com',
+  //     jurisdictionReplyToServiceRequestEnabled: false,
+  //     recipientName: 'Dummy Name',
+  //     messageType: 'workflow'
+  //   } as TemplateConfigContextAttributes;
+  //   const response = await loadTemplate(templateName, templateContext);
+  //   chai.assert(new String(response).valueOf().startsWith(new String(expectedOutput).valueOf()));
+  // });
+
+  // it('loads a custom template body for a jurisdiction', async function () {
+  //   const expectedOutput = '[Dummy Name - Request #1234]: A New Service Request Has Been Submitted\n'
+  //   const templateName = 'email.service-request-new-staff-user.body'
+  //   const templateContext = {
+  //     appName: 'Gov Flow',
+  //     appRequestUrl: 'https://dummy.url',
+  //     serviceRequestStatus: 'dummy-status',
+  //     serviceRequestPublicId: '1234',
+  //     jurisdictionName: 'Dummy Name',
+  //     jurisdictionEmail: 'dummy@example.com',
+  //     jurisdictionReplyToServiceRequestEnabled: false,
+  //     recipientName: 'Dummy Name',
+  //     messageType: 'workflow'
+  //   } as TemplateConfigContextAttributes;
+  //   const response = await loadTemplate(templateName, templateContext);
+  //   chai.assert(new String(response).valueOf().startsWith(new String(expectedOutput).valueOf()));
+  // });
 
   it('dispatch a message for a public user', async function () {
     const {
       serviceRequestRepository,
       communicationRepository,
       emailStatusRepository,
-      jurisdictionRepository
+      jurisdictionRepository,
+      templateRepository
     } = app.repositories;
     const {
       sendGridApiKey,
@@ -285,12 +333,13 @@ describe('Verify Core Communications Functionality.', function () {
       serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
-      name: 'service-request-new-public-user',
+      name: 'service-request-new-public-user' as CommunicationTemplateNames,
       context: {
         appName,
         appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
         serviceRequestStatus: serviceRequest.status,
         serviceRequestPublicId: '1234',
+        jurisdictionId: '1234567890',
         jurisdictionName: 'dummy-name',
         jurisdictionEmail: 'dummy@example.com',
         jurisdictionReplyToServiceRequestEnabled: false,
@@ -300,7 +349,7 @@ describe('Verify Core Communications Functionality.', function () {
     }
     if (serviceRequest.channel) {
       const record = await dispatchMessage(
-        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
       );
       chai.assert(record);
     } else {
@@ -316,7 +365,8 @@ describe('Verify Core Communications Functionality.', function () {
       staffUserRepository,
       communicationRepository,
       emailStatusRepository,
-      jurisdictionRepository
+      jurisdictionRepository,
+      templateRepository
     } = app.repositories;
     const {
       sendGridApiKey,
@@ -356,12 +406,13 @@ describe('Verify Core Communications Functionality.', function () {
       sendAt,
     }
     const templateConfig = {
-      name: 'service-request-new-staff-user',
+      name: 'service-request-new-staff-user' as CommunicationTemplateNames,
       context: {
         appName,
         appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, ''),
         serviceRequestStatus: 'dummy',
         serviceRequestPublicId: '1234',
+        jurisdictionId: '1234567890',
         jurisdictionName: 'dummy-name',
         jurisdictionEmail: 'dummy@example.com',
         jurisdictionReplyToServiceRequestEnabled: false,
@@ -370,7 +421,7 @@ describe('Verify Core Communications Functionality.', function () {
       } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(
-      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
     );
     chai.assert(record);
   });

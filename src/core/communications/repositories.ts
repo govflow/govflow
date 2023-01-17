@@ -24,8 +24,7 @@ import type {
   MessageDisambiguationCreateAttributes,
   MessageDisambiguationInstance,
   Models,
-  QueryParamsAll,
-  SmsEventAttributes,
+  QueryParamsAll, SmsEventAttributes,
   TemplateAttributes,
   TemplateCreateAttributes,
   TemplateInstance
@@ -280,6 +279,15 @@ export class TemplateRepository implements ITemplateRepository {
   async findOne(jurisdictionId: string, id: string): Promise<TemplateAttributes> {
     const { Template } = this.models;
     const params = { where: { jurisdictionId, id } }
+    const record = await Template.findOne(params) as TemplateInstance;
+    return record;
+  }
+
+  async findOneWhere(
+    jurisdictionId: string, where: Record<string, string | number | symbol>
+  ): Promise<TemplateAttributes> {
+    const { Template } = this.models;
+    const params = { where: Object.assign({ jurisdictionId }, where) };
     const record = await Template.findOne(params) as TemplateInstance;
     return record;
   }

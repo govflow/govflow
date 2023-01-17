@@ -93,6 +93,9 @@ export interface IStaffUserService extends ServiceBase {
 export interface ITemplateService extends ServiceBase {
   create: (data: TemplateCreateAttributes) => Promise<TemplateAttributes>;
   findOne: (jurisdictionId: string, id: string) => Promise<TemplateAttributes | null>;
+  findOneWhere: (
+    jurisdictionId: string, where: Record<string, string | number | symbol>
+  ) => Promise<TemplateAttributes | null>;
   findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[TemplateAttributes[], number]>;
   update: (jurisdictionId: string, id: string, data: Partial<TemplateAttributes>) => Promise<TemplateAttributes | null>;
   delete: (jurisdictionId: string, id: string,) => Promise<void>;

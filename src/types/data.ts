@@ -8,6 +8,10 @@ export type GovFlowUsageContext = '311' | '911' | 'Policing';
 
 export type CommunicationChannels = 'email' | 'sms';
 
+export type CommunicationTemplateTypes = 'subject' | 'body';
+
+export type CommunicationTemplateNames = 'cx-survey-public-user' | 'service-request-changed-assignee-staff-user' | 'service-request-changed-status-staff-user' | 'service-request-closed-public-user' | 'service-request-closed-staff-user' | 'service-request-comment-broadcast-public-user' | 'service-request-comment-broadcast-staff-user' | 'service-request-new-public-user' | 'service-request-new-staff-user';
+
 export interface JurisdictionAttributes {
   id: string;
   name: string;
@@ -322,6 +326,7 @@ export interface TemplateConfigContextAttributes {
   appRequestUrl: string;
   serviceRequestStatus: string;
   serviceRequestPublicId: string;
+  jurisdictionId: string;
   jurisdictionName: string;
   jurisdictionEmail: string;
   jurisdictionReplyToServiceRequestEnabled: boolean;
@@ -330,7 +335,7 @@ export interface TemplateConfigContextAttributes {
 }
 
 export interface TemplateConfigAttributes {
-  name: string;
+  name: CommunicationTemplateNames;
   context: TemplateConfigContextAttributes;
 }
 

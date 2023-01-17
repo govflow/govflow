@@ -471,8 +471,7 @@ describe('Verify Core Repositories.', function () {
   it('should delete templates via repository', async function () {
     const { templateRepository } = app.repositories;
     for (const templateData of testData.templates) {
-      const record = await templateRepository.delete(templateData.jurisdictionId, templateData.id);
-      // chai.assert.equal(record, null);
+      await templateRepository.delete(templateData.jurisdictionId, templateData.id);
       const foundRecord = await templateRepository.findOne(templateData.jurisdictionId, templateData.id);
       chai.assert.equal(foundRecord, null);
     }

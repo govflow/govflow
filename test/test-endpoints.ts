@@ -753,6 +753,52 @@ describe('Hit all API endpoints', function () {
     chai.assert.equal(res.body.data.name, 'New Name');
   });
 
+  it('should GET all templates for a jurisdiction', async function () {
+    const jurisdictionId = testData.jurisdictions[0].id;
+    const res = await chai.request(app).get(`/communications/templates/?jurisdictionId=${jurisdictionId}`);
+    chai.assert.equal(res.status, 200);
+    chai.assert.equal(res.body.data[0].jurisdictionId, jurisdictionId);
+    chai.assert.equal(res.body.count, 5);
+  });
+
+  it('should GET a template', async function () {
+    const template = _.cloneDeep(testData.templates[0]);
+    const res = await chai.request(app).get(
+      `/communications/templates/${template.id}?jurisdictionId=${template.jurisdictionId}`
+    );
+    chai.assert.equal(res.status, 200);
+    chai.assert.equal(res.body.data.id, template.id);
+    chai.assert.equal(res.body.data.jurisdictionId, template.jurisdictionId);
+  });
+
+  it('should POST a template', async function () {
+    const templateData = _.cloneDeep(testData.templates[0]);
+    templateData.id = faker.datatype.uuid();
+    const res = await chai.request(app).post(
+      `/communications/templates?jurisdictionId=${templateData.jurisdictionId}`
+    ).send(templateData);
+    chai.assert.equal(res.status, 200);
+    chai.assert.equal(res.body.data.id, templateData.id);
+  });
+
+  it('should PUT a template', async function () {
+    const templateData = _.cloneDeep(testData.templates[0]);
+    const updatedContent = 'Updated content for my template';
+    const res = await chai.request(app).put(
+      `/communications/templates/${templateData.id}?jurisdictionId=${templateData.jurisdictionId}`
+    ).send({ content: updatedContent });
+    chai.assert.equal(res.status, 200);
+    chai.assert.equal(res.body.data.content, updatedContent);
+  });
+
+  it('should DELETE a template', async function () {
+    const templateData = _.cloneDeep(testData.templates[0]);
+    const res = await chai.request(app).post(
+      `/communications/templates/delete/${templateData.id}?jurisdictionId=${templateData.jurisdictionId}`
+    );
+    chai.assert.equal(res.status, 200);
+  });
+
   it('should POST an inbound email map', async function () {
     const inboundMapData = _.cloneDeep(testData.inboundMaps[0]);
     inboundMapData.id = 'muni-publicworks';

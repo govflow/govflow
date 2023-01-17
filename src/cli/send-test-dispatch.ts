@@ -2,7 +2,7 @@
 import 'reflect-metadata';
 import { dispatchMessage } from '../core/communications/helpers';
 import { createApp } from '../index';
-import { DispatchConfigAttributes, TemplateConfigContextAttributes } from '../types';
+import { CommunicationTemplateNames, DispatchConfigAttributes, TemplateConfigContextAttributes } from '../types';
 
 (async () => {
   // Ensure you unset process.env.COMMUNICATIONS_TO_CONSOLE to use the real backend.
@@ -18,7 +18,7 @@ import { DispatchConfigAttributes, TemplateConfigContextAttributes } from '../ty
     testToEmail,
     testToPhone
   } = app.config;
-  const { communicationRepository, emailStatusRepository } = app.repositories;
+  const { communicationRepository, emailStatusRepository, templateRepository } = app.repositories;
   const messageType = 'workflow';
   const dispatchConfig = {
     channel: process.env.TEST_DISPATCH_CHANNEL,
@@ -37,12 +37,13 @@ import { DispatchConfigAttributes, TemplateConfigContextAttributes } from '../ty
     // sendAt: new Date(),
   } as DispatchConfigAttributes;
   const templateConfig = {
-    name: 'service-request-new-public-user',
+    name: 'service-request-new-public-user' as CommunicationTemplateNames,
     context: {
       appName: 'Test Gov Flow Message Dispatch',
       appRequestUrl: `https://example.com/`,
       serviceRequestStatus: 'inbox',
       serviceRequestPublicId: '1234',
+      jurisdictionId: '1234567890',
       jurisdictionName: 'Dummy Name',
       jurisdictionEmail: 'dummy@example.com',
       jurisdictionReplyToServiceRequestEnabled: false,
@@ -54,7 +55,8 @@ import { DispatchConfigAttributes, TemplateConfigContextAttributes } from '../ty
     dispatchConfig,
     templateConfig,
     communicationRepository,
-    emailStatusRepository
+    emailStatusRepository,
+    templateRepository
   );
   console.log(record);
 })();

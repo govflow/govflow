@@ -137,6 +137,9 @@ export interface IMessageDisambiguationRepository extends RepositoryBase {
 export interface ITemplateRepository extends RepositoryBase {
   create: (data: TemplateCreateAttributes) => Promise<TemplateAttributes>;
   findOne: (jurisdictionId: string, id: string) => Promise<TemplateAttributes | null>;
+  findOneWhere: (
+    jurisdictionId: string, where: Record<string, string | number | symbol>
+  ) => Promise<TemplateAttributes | null>;
   findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[TemplateAttributes[], number]>;
   update: (jurisdictionId: string, id: string, data: Partial<TemplateAttributes>) => Promise<TemplateAttributes>;
   delete: (jurisdictionId: string, id: string,) => Promise<void>;

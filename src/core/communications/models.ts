@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import validator from 'validator';
-import type { ModelDefinition } from '../../types';
+import type { CommunicationTemplateNames, CommunicationTemplateTypes, ModelDefinition } from '../../types';
 import { COMMUNICATION_CHANNEL_KEYS } from '../service-requests/models';
 
 export const SMS_EVENT_MAP = {
@@ -51,7 +51,7 @@ export const MESSAGE_DISAMBIGUATION_RESULT_KEYS = [
 export const TEMPLATE_TYPES = [
   'body',
   'subject'
-]
+] as CommunicationTemplateTypes[];
 
 export const TEMPLATE_NAMES = [
   'cx-survey-public-user',
@@ -63,7 +63,7 @@ export const TEMPLATE_NAMES = [
   'service-request-comment-broadcast-staff-user',
   'service-request-new-public-user',
   'service-request-new-staff-user',
-]
+] as CommunicationTemplateNames[];
 
 export const CommunicationModel: ModelDefinition = {
   name: 'Communication',

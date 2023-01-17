@@ -5,6 +5,7 @@ import { appIds } from '../../registry/service-identifiers';
 import type {
   AppConfig,
   CommunicationAttributes,
+  CommunicationTemplateNames,
   DispatchConfigAttributes,
   HookDataExtraData,
   IInboundMessageService, InboundMapAttributes, IOutboundMessageService,
@@ -90,7 +91,7 @@ export class OutboundMessageService implements IOutboundMessageService {
       );
       return null;
     }
-    const { communicationRepository, emailStatusRepository } = this.repositories;
+    const { communicationRepository, emailStatusRepository, templateRepository } = this.repositories;
     const records: CommunicationAttributes[] = [];
     const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
     const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
@@ -115,12 +116,13 @@ export class OutboundMessageService implements IOutboundMessageService {
       serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
-      name: 'service-request-new-public-user',
+      name: 'service-request-new-public-user' as CommunicationTemplateNames,
       context: {
         appName: appName as string,
         appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
         serviceRequestStatus: serviceRequest.status,
         serviceRequestPublicId: serviceRequest.publicId,
+        jurisdictionId: jurisdiction.id,
         jurisdictionName: jurisdiction.name,
         jurisdictionEmail: jurisdiction.email,
         jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
@@ -129,7 +131,7 @@ export class OutboundMessageService implements IOutboundMessageService {
       } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(
-      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
     );
     if (record) { records.push(record); }
 
@@ -154,12 +156,13 @@ export class OutboundMessageService implements IOutboundMessageService {
         serviceRequestId: serviceRequest.id,
       }
       const templateConfig = {
-        name: 'service-request-new-staff-user',
+        name: 'service-request-new-staff-user' as CommunicationTemplateNames,
         context: {
           appName,
           appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
           serviceRequestStatus: serviceRequest.status,
           serviceRequestPublicId: serviceRequest.publicId,
+          jurisdictionId: jurisdiction.id,
           jurisdictionName: jurisdiction.name,
           jurisdictionEmail: jurisdiction.email,
           jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
@@ -168,7 +171,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         } as TemplateConfigContextAttributes
       }
       const record = await dispatchMessage(
-        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
       );
       if (record) { records.push(record); }
     }
@@ -211,7 +214,9 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioStatusCallbackURL,
       inboundEmailDomain
     } = this.config;
-    const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
+    const {
+      staffUserRepository, communicationRepository, emailStatusRepository, templateRepository
+    } = this.repositories;
     const staffUser = await staffUserRepository.findOne(
       serviceRequest.jurisdictionId, serviceRequest.assignedTo
     );
@@ -242,12 +247,13 @@ export class OutboundMessageService implements IOutboundMessageService {
       serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
-      name: 'service-request-changed-status-staff-user',
+      name: 'service-request-changed-status-staff-user' as CommunicationTemplateNames,
       context: {
         appName,
         appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
         serviceRequestStatus: serviceRequest.status,
         serviceRequestPublicId: serviceRequest.publicId,
+        jurisdictionId: jurisdiction.id,
         jurisdictionName: jurisdiction.name,
         jurisdictionEmail: jurisdiction.email,
         jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
@@ -256,7 +262,7 @@ export class OutboundMessageService implements IOutboundMessageService {
       } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(
-      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
     );
     return record;
   }
@@ -297,7 +303,9 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioStatusCallbackURL,
       inboundEmailDomain
     } = this.config;
-    const { staffUserRepository, communicationRepository, emailStatusRepository } = this.repositories;
+    const {
+      staffUserRepository, communicationRepository, emailStatusRepository, templateRepository
+    } = this.repositories;
 
     // early return if the service request has been unassigned
     if (!serviceRequest.assignedTo) { return null; }
@@ -332,12 +340,13 @@ export class OutboundMessageService implements IOutboundMessageService {
       serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
-      name: 'service-request-changed-assignee-staff-user',
+      name: 'service-request-changed-assignee-staff-user' as CommunicationTemplateNames,
       context: {
         appName,
         appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
         serviceRequestStatus: serviceRequest.status,
         serviceRequestPublicId: serviceRequest.publicId,
+        jurisdictionId: jurisdiction.id,
         jurisdictionName: jurisdiction.name,
         jurisdictionEmail: jurisdiction.email,
         jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
@@ -346,7 +355,7 @@ export class OutboundMessageService implements IOutboundMessageService {
       } as TemplateConfigContextAttributes
     }
     const record = await dispatchMessage(
-      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
     );
     return record;
   }
@@ -387,7 +396,7 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioStatusCallbackURL,
       inboundEmailDomain
     } = this.config;
-    const { communicationRepository, emailStatusRepository } = this.repositories;
+    const { communicationRepository, emailStatusRepository, templateRepository } = this.repositories;
     const records: CommunicationAttributes[] = [];
     const replyToEmail = getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
     const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
@@ -413,12 +422,13 @@ export class OutboundMessageService implements IOutboundMessageService {
         serviceRequestId: serviceRequest.id,
       }
       const templateConfig = {
-        name: 'service-request-closed-public-user',
+        name: 'service-request-closed-public-user' as CommunicationTemplateNames,
         context: {
           appName,
           appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
           serviceRequestStatus: serviceRequest.status,
           serviceRequestPublicId: serviceRequest.publicId,
+          jurisdictionId: jurisdiction.id,
           jurisdictionName: jurisdiction.name,
           jurisdictionEmail: jurisdiction.email,
           jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
@@ -427,7 +437,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         } as TemplateConfigContextAttributes
       }
       const record = await dispatchMessage(
-        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
       );
       if (record) { records.push(record); }
     }
@@ -453,12 +463,13 @@ export class OutboundMessageService implements IOutboundMessageService {
         serviceRequestId: serviceRequest.id,
       }
       const templateConfig = {
-        name: 'service-request-closed-staff-user',
+        name: 'service-request-closed-staff-user' as CommunicationTemplateNames,
         context: {
           appName,
           appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
           serviceRequestStatus: serviceRequest.status,
           serviceRequestPublicId: serviceRequest.publicId,
+          jurisdictionId: jurisdiction.id,
           jurisdictionName: jurisdiction.name,
           jurisdictionEmail: jurisdiction.email,
           jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
@@ -467,7 +478,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         } as TemplateConfigContextAttributes
       }
       const record = await dispatchMessage(
-        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
       );
       if (record) { records.push(record); }
     }
@@ -514,7 +525,8 @@ export class OutboundMessageService implements IOutboundMessageService {
     const {
       communicationRepository,
       staffUserRepository,
-      emailStatusRepository
+      emailStatusRepository,
+      templateRepository
     } = this.repositories;
     const { serviceRequestCommentId } = extraData;
     const serviceRequestComment = serviceRequest.comments.find(
@@ -594,7 +606,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         dispatchConfig.channel = 'email'; // we only use email for staff
       }
       const templateConfig = {
-        name: `service-request-comment-broadcast-${_userType}`,
+        name: `service-request-comment-broadcast-${_userType}` as CommunicationTemplateNames,
         context: {
           appName,
           appRequestUrl: makeRequestURL(appClientUrl, appClientRequestsPath, serviceRequest.id),
@@ -603,6 +615,7 @@ export class OutboundMessageService implements IOutboundMessageService {
           serviceRequestCommenterName: serviceRequestCommenterName,
           serviceRequestCommentContext: serviceRequestCommentContext,
           serviceRequestComment: serviceRequestComment.comment,
+          jurisdictionId: jurisdiction.id,
           jurisdictionName: jurisdiction.name,
           jurisdictionEmail: jurisdiction.email,
           jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
@@ -611,7 +624,7 @@ export class OutboundMessageService implements IOutboundMessageService {
         } as TemplateConfigContextAttributes
       }
       const record = await dispatchMessage(
-        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+        dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
       );
       if (record) { records.push(record); }
     }
@@ -693,7 +706,7 @@ export class OutboundMessageService implements IOutboundMessageService {
       twilioFromPhone,
       twilioStatusCallbackURL,
     } = this.config;
-    const { communicationRepository, emailStatusRepository } = this.repositories;
+    const { communicationRepository, emailStatusRepository, templateRepository } = this.repositories;
     let record: CommunicationAttributes | null = null;
     const replyToEmail = sendGridFromEmail; // getReplyToEmail(serviceRequest, jurisdiction, inboundEmailDomain, sendGridFromEmail);
     const sendFromEmail = getSendFromEmail(jurisdiction, sendGridFromEmail);
@@ -720,12 +733,13 @@ export class OutboundMessageService implements IOutboundMessageService {
       serviceRequestId: serviceRequest.id,
     }
     const templateConfig = {
-      name: 'cx-survey-public-user',
+      name: 'cx-survey-public-user' as CommunicationTemplateNames,
       context: {
         appName,
         appRequestUrl: surveyUrl,
         serviceRequestStatus: serviceRequest.status,
         serviceRequestPublicId: serviceRequest.publicId,
+        jurisdictionId: jurisdiction.id,
         jurisdictionName: jurisdiction.name,
         jurisdictionEmail: jurisdiction.email,
         jurisdictionReplyToServiceRequestEnabled: jurisdiction.replyToServiceRequestEnabled,
@@ -751,7 +765,7 @@ export class OutboundMessageService implements IOutboundMessageService {
     )
 
     record = await dispatchMessage(
-      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository
+      dispatchConfig, templateConfig, communicationRepository, emailStatusRepository, templateRepository
     );
     return record;
   }
@@ -807,6 +821,13 @@ export class TemplateService implements ITemplateService {
   async findOne(jurisdictionId: string, id: string): Promise<TemplateAttributes | null> {
     const { templateRepository } = this.repositories;
     return await templateRepository.findOne(jurisdictionId, id);
+  }
+
+  async findOneWhere(
+    jurisdictionId: string, where: Record<string, string | number | symbol>
+  ): Promise<TemplateAttributes | null> {
+    const { templateRepository } = this.repositories;
+    return await templateRepository.findOneWhere(jurisdictionId, where);
   }
 
   async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[TemplateAttributes[], number]> {

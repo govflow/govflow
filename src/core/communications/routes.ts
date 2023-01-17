@@ -121,7 +121,7 @@ communicationsRouter.get('/templates',
     res.status(200).send({ data: records, count: count });
 }))
 
-communicationsRouter.get('templates/:id',
+communicationsRouter.get('/templates/:id',
   wrapHandler(resolveJurisdiction()),
   enforceJurisdictionAccess,
   wrapHandler(async (req: Request, res: Response) => {
@@ -130,7 +130,7 @@ communicationsRouter.get('templates/:id',
     res.status(200).send({ data: record });
 }))
 
-communicationsRouter.post('templates/',
+communicationsRouter.post('/templates',
   wrapHandler(resolveJurisdiction()),
   enforceJurisdictionAccess,
   wrapHandler(async (req: Request, res: Response) => {
@@ -139,7 +139,7 @@ communicationsRouter.post('templates/',
     res.status(200).send({ data: record });
 }))
 
-communicationsRouter.put('templates/:id',
+communicationsRouter.put('/templates/:id',
   wrapHandler(resolveJurisdiction()),
   enforceJurisdictionAccess,
   wrapHandler(async (req: Request, res: Response) => {
@@ -149,7 +149,7 @@ communicationsRouter.put('templates/:id',
     res.status(200).send({ data: record });
 }))
 
-communicationsRouter.put('templates/delete/:id',
+communicationsRouter.post('/templates/delete/:id',
   wrapHandler(resolveJurisdiction()),
   enforceJurisdictionAccess,
   wrapHandler(async (req: Request, res: Response) => {
