@@ -23,7 +23,9 @@ import {
   ServiceRequestAnonAttributes,
   ServiceRequestCommentCreateAttributes,
   SmsEventAttributes,
-  StaffUserDepartmentAttributes
+  StaffUserDepartmentAttributes,
+  TemplateAttributes,
+  TemplateCreateAttributes
 } from './data';
 
 export interface RepositoryBase extends PluginBase {
@@ -132,6 +134,17 @@ export interface IMessageDisambiguationRepository extends RepositoryBase {
     ) => Promise<MessageDisambiguationAttributes | null>;
 }
 
+export interface ITemplateRepository extends RepositoryBase {
+  create: (data: TemplateCreateAttributes) => Promise<TemplateAttributes>;
+  findOne: (jurisdictionId: string, id: string) => Promise<TemplateAttributes | null>;
+  findOneWhere: (
+    jurisdictionId: string, where: Record<string, string | number | symbol>
+  ) => Promise<TemplateAttributes | null>;
+  findAll: (jurisdictionId: string, queryParams?: QueryParamsAll) => Promise<[TemplateAttributes[], number]>;
+  update: (jurisdictionId: string, id: string, data: Partial<TemplateAttributes>) => Promise<TemplateAttributes>;
+  delete: (jurisdictionId: string, id: string,) => Promise<void>;
+}
+
 export interface Repositories {
     jurisdictionRepository: IJurisdictionRepository;
     staffUserRepository: IStaffUserRepository;
@@ -143,4 +156,5 @@ export interface Repositories {
     smsStatusRepository: ISmsStatusRepository;
     inboundMapRepository: IInboundMapRepository;
     messageDisambiguationRepository: IMessageDisambiguationRepository;
+    templateRepository: ITemplateRepository;
 }

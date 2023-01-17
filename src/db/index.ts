@@ -28,7 +28,8 @@ function applyCoreModelRelations(models: Models) {
     Communication,
     Department,
     InboundMap,
-    MessageDisambiguation
+    MessageDisambiguation,
+    Template
   } = models;
 
   Jurisdiction.hasMany(StaffUser, { as: 'staffUsers', foreignKey: 'jurisdictionId' });
@@ -79,6 +80,9 @@ function applyCoreModelRelations(models: Models) {
 
   ServiceRequest.hasMany(InboundMap, { as: 'inboundMaps', foreignKey: 'serviceRequestId' });
   InboundMap.belongsTo(ServiceRequest, { as: 'serviceRequest' });
+
+  Jurisdiction.hasMany(Template, { as: 'templates', foreignKey: 'jurisdictionId' });
+  Template.belongsTo(Jurisdiction, { as: 'jurisdiction' });
 }
 
 function registerModels(

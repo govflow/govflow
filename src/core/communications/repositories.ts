@@ -1,26 +1,33 @@
 import { inject, injectable } from 'inversify';
+import { merge } from 'lodash';
+import { FindOptions } from 'sequelize/types';
+import { queryParamsToSequelize } from '../../helpers';
 import { appIds } from '../../registry/service-identifiers';
 import type {
-    AppConfig, ChannelIsAllowed, ChannelStatusCreateAttributes,
-    ChannelStatusInstance,
-    ChannelType,
-    CommunicationAttributes,
-    CommunicationCreateAttributes,
-    CommunicationInstance,
-    EmailEventAttributes,
-    ICommunicationRepository,
-    IEmailStatusRepository,
-    IInboundMapRepository,
-    IMessageDisambiguationRepository,
-    InboundMapCreateAttributes,
-    InboundMapInstance,
-    ISmsStatusRepository,
-    LogEntry,
-    MessageDisambiguationAttributes,
-    MessageDisambiguationCreateAttributes,
-    MessageDisambiguationInstance,
-    Models,
-    SmsEventAttributes
+  AppConfig, ChannelIsAllowed, ChannelStatusCreateAttributes,
+  ChannelStatusInstance,
+  ChannelType,
+  CommunicationAttributes,
+  CommunicationCreateAttributes,
+  CommunicationInstance,
+  EmailEventAttributes,
+  ICommunicationRepository,
+  IEmailStatusRepository,
+  IInboundMapRepository,
+  IMessageDisambiguationRepository,
+  InboundMapCreateAttributes,
+  InboundMapInstance,
+  ISmsStatusRepository,
+  ITemplateRepository,
+  LogEntry,
+  MessageDisambiguationAttributes,
+  MessageDisambiguationCreateAttributes,
+  MessageDisambiguationInstance,
+  Models,
+  QueryParamsAll, SmsEventAttributes,
+  TemplateAttributes,
+  TemplateCreateAttributes,
+  TemplateInstance
 } from '../../types';
 import { EMAIL_EVENT_MAP, SMS_EVENT_MAP } from './models';
 
@@ -248,4 +255,75 @@ export class MessageDisambiguationRepository implements IMessageDisambiguationRe
         }
         return await record.save();
     }
+}
+
+@injectable()
+export class TemplateRepository implements ITemplateRepository {
+
+  models: Models;
+  config: AppConfig;
+
+  constructor(
+    @inject(appIds.Models) models: Models,
+    @inject(appIds.AppConfig) config: AppConfig,
+  ) {
+    this.models = models;
+    this.config = config
+  }
+
+  async create(data: TemplateCreateAttributes): Promise<TemplateAttributes> {
+    const { Template } = this.models;
+    return await Template.create(data) as TemplateInstance;
+  }
+
+  async findOne(jurisdictionId: string, id: string): Promise<TemplateAttributes> {
+    const { Template } = this.models;
+    const params = { where: { jurisdictionId, id } }
+    const record = await Template.findOne(params) as TemplateInstance;
+    return record;
+  }
+
+  async findOneWhere(
+    jurisdictionId: string, where: Record<string, string | number | symbol>
+  ): Promise<TemplateAttributes> {
+    const { Template } = this.models;
+    const params = { where: Object.assign({ jurisdictionId }, where) };
+    const record = await Template.findOne(params) as TemplateInstance;
+    return record;
+  }
+
+  async findAll(jurisdictionId: string, queryParams?: QueryParamsAll): Promise<[TemplateAttributes[], number]> {
+    const { Template } = this.models;
+    const params = merge(
+      queryParamsToSequelize(queryParams), { where: { jurisdictionId }, order: [['createdAt', 'DESC']] }
+    ) as unknown as FindOptions<TemplateAttributes>;
+    const records = await Template.findAll(params) as TemplateInstance[];
+    return [records, records.length];
+  }
+
+  async update(
+    jurisdictionId: string,
+    id: string,
+    data: Partial<TemplateAttributes>
+  ): Promise<TemplateAttributes> {
+    const { Template } = this.models;
+    const params = { where: { id, jurisdictionId } };
+    const record = await Template.findOne(params) as TemplateInstance;
+    for (const [key, value] of Object.entries(data)) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      record[key] = value;
+    }
+    return await record.save();
+  }
+
+  async delete(
+    jurisdictionId: string,
+    id: string
+  ): Promise<void> {
+    const { Template } = this.models;
+    const params = { where: { id } };
+    const record = await Template.findOne(params) as TemplateInstance;
+    return await record.destroy();
+  }
 }

@@ -31,6 +31,7 @@ export const COMMUNICATION_CHANNELS = {
   'sms': 'SMS',
   'email': 'Email',
 }
+
 export const COMMUNICATION_CHANNEL_KEYS = Object.keys(COMMUNICATION_CHANNELS);
 
 export const ServiceRequestModel: ModelDefinition = {

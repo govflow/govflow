@@ -9,7 +9,7 @@ import striptags from 'striptags';
 import { sendEmail } from '../../email';
 import logger from '../../logging';
 import { sendSms } from '../../sms';
-import { ChannelType, CommunicationAttributes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundSmsDataToRequestAttributes, JurisdictionAttributes, JurisdictionPreferredBroadcastChannel, ParsedForwardedData, ParsedServiceRequestAttributes, PublicId, ScheduleWindow, ServiceRequestAttributes, ServiceRequestChannel, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
+import { ChannelType, CommunicationAttributes, CommunicationChannels, CommunicationTemplateNames, CommunicationTemplateTypes, DispatchConfigAttributes, DispatchPayloadAttributes, EmailEventAttributes, ICommunicationRepository, IEmailStatusRepository, InboundEmailDataToRequestAttributes, InboundMapInstance, InboundSmsDataToRequestAttributes, ITemplateRepository, JurisdictionAttributes, JurisdictionPreferredBroadcastChannel, ParsedForwardedData, ParsedServiceRequestAttributes, PublicId, ScheduleWindow, ServiceRequestAttributes, ServiceRequestChannel, TemplateConfigAttributes, TemplateConfigContextAttributes } from '../../types';
 import { SERVICE_REQUEST_CLOSED_STATES } from '../service-requests';
 import { InboundMapRepository } from './repositories';
 
@@ -40,9 +40,51 @@ export function makeCXSurveyURL(
   return `${cxSurveyUrl}?cx_case_id=${serviceRequest.id}&s=${serviceRequest.channel}`
 }
 
-export async function loadTemplate(templateName: string, templateContext: TemplateConfigContextAttributes, isBody = true): Promise<string> {
-  const filepath = path.resolve(`${__dirname}/templates/${templateName}.txt`);
-  const [templateType, ..._rest] = templateName.split('.');
+export function compileTemplate(templateString: string, templateContext: TemplateConfigContextAttributes) {
+  const templateCompiler = _.template(templateString);
+  return templateCompiler({ context: templateContext });
+}
+
+export async function loadTemplate(
+  jurisdictionId: string,
+  channel: CommunicationChannels,
+  name: CommunicationTemplateNames,
+  type: CommunicationTemplateTypes,
+  templateContext: TemplateConfigContextAttributes,
+  templateRepository: ITemplateRepository,
+): Promise<string> {
+  const customString = await loadCustomTemplateString(jurisdictionId, channel, name, type, templateRepository);
+  if (customString) {
+    return compileTemplate(customString, templateContext);
+  } else {
+    const defaultString = await loadDefaultTemplateString(channel, name, type, templateContext);
+    return compileTemplate(defaultString, templateContext);
+  }
+}
+
+export async function loadCustomTemplateString(
+  jurisdictionId: string,
+  channel: CommunicationChannels,
+  name: CommunicationTemplateNames,
+  type: CommunicationTemplateTypes,
+  templateRepository: ITemplateRepository,
+): Promise<string | null> {
+  const customTemplate = await templateRepository.findOneWhere(jurisdictionId, { channel, name, type });
+  if (customTemplate) {
+    return customTemplate.content;
+  } else {
+    return null;
+  }
+}
+
+export async function loadDefaultTemplateString(
+  channel: CommunicationChannels,
+  name: CommunicationTemplateNames,
+  type: CommunicationTemplateTypes,
+  templateContext: TemplateConfigContextAttributes,
+): Promise<string> {
+  const filename = `${__dirname}/templates/${channel}.${name}.${type}.txt`;
+  const filepath = path.resolve(filename);
 
   try {
     await fs.access(filepath, fsConstants.R_OK | fsConstants.W_OK);
@@ -50,14 +92,16 @@ export async function loadTemplate(templateName: string, templateContext: Templa
     logger.error(error);
     throw error;
   }
+
   const templateBuffer = await fs.readFile(filepath);
   const templateString = templateBuffer.toString();
-  const isEmail = templateType === "email" ? true : false;
+
+  const isEmail = channel === 'email';
+  const isBody = type === 'body';
+  const lineBreak = channel === 'email' ? '<br />': '\n';
+
   const replyEnabled = templateContext.jurisdictionReplyToServiceRequestEnabled;
   const messageType = templateContext.messageType;
-
-  let lineBreak = "\n";
-  if (isEmail) { lineBreak = '<br />'; }
 
   let replyAboveLine = '';
   let appendString = '';
@@ -74,20 +118,18 @@ export async function loadTemplate(templateName: string, templateContext: Templa
       replyAboveLine = `${emailBodySanitizeLine}${lineBreak}${lineBreak}`;
     }
 
-    const poweredByTmpl = path.resolve(`${__dirname}/templates/${templateType}.powered-by.txt`);
+    const poweredByTmpl = path.resolve(`${__dirname}/templates/${channel}.powered-by.txt`);
     const poweredByBuffer = await fs.readFile(poweredByTmpl);
     const poweredByLine = `${lineBreak}${poweredByBuffer.toString()}${lineBreak}`;
 
-    const unsubscribeTmpl = path.resolve(`${__dirname}/templates/${templateType}.unsubscribe.txt`);
+    const unsubscribeTmpl = path.resolve(`${__dirname}/templates/${channel}.unsubscribe.txt`);
     const unsubscribeBuffer = await fs.readFile(unsubscribeTmpl);
     const unsubscribeLine = `${lineBreak}${unsubscribeBuffer.toString()}${lineBreak}`;
 
     appendString = `${doNotReplyLine}${poweredByLine}${lineBreak}${unsubscribeLine}${lineBreak}`;
   }
 
-  const fullTemplateString = `${replyAboveLine}${templateString}${appendString}`;
-  const templateCompile = _.template(fullTemplateString);
-  return templateCompile({ context: templateContext });
+  return`${replyAboveLine}${templateString}${appendString}`;
 }
 
 function makePlainTextFromHtml(html: string) {
@@ -99,8 +141,9 @@ export async function dispatchMessage(
   dispatchConfig: DispatchConfigAttributes,
   templateConfig: TemplateConfigAttributes,
   CommunicationRepository: ICommunicationRepository,
-  EmailStatusRepository: IEmailStatusRepository):
-  Promise<CommunicationAttributes | null> {
+  EmailStatusRepository: IEmailStatusRepository,
+  templateRepository: ITemplateRepository,
+): Promise<CommunicationAttributes | null> {
   let dispatchResponse: ClientResponse | Record<string, string> | Record<string, unknown> | null = null;
   let dispatchPayload: DispatchPayloadAttributes;
   let subject: string;
@@ -121,14 +164,22 @@ export async function dispatchMessage(
       throw new Error(errorMsg);
     }
     subject = await loadTemplate(
-      `email.${templateConfig.name}.subject`,
+      templateConfig.context.jurisdictionId,
+      dispatchConfig.channel,
+      templateConfig.name,
+      'subject',
       templateConfig.context,
-      false
+      templateRepository,
     );
     htmlBody = await loadTemplate(
-      `email.${templateConfig.name}.body`,
-      templateConfig.context
+      templateConfig.context.jurisdictionId,
+      dispatchConfig.channel,
+      templateConfig.name,
+      'body',
+      templateConfig.context,
+      templateRepository,
     );
+
     textBody = makePlainTextFromHtml(htmlBody);
     dispatchPayload = Object.assign({}, dispatchConfig, { subject, textBody, htmlBody })
     dispatchResponse = await sendEmail(
@@ -143,9 +194,12 @@ export async function dispatchMessage(
     );
   } else if (dispatchConfig.channel === 'sms') {
     textBody = await loadTemplate(
-      `sms.${templateConfig.name}.body`,
+      templateConfig.context.jurisdictionId,
+      dispatchConfig.channel,
+      templateConfig.name,
+      'body',
       templateConfig.context,
-      true
+      templateRepository,
     );
     dispatchPayload = Object.assign({}, dispatchConfig, { textBody })
     dispatchResponse = await sendSms(

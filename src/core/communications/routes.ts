@@ -111,3 +111,50 @@ communicationsRouter.post('/create-map',
         const record = await inboundMessageService.createMap(data);
         res.status(200).send({ data: record });
     }))
+
+communicationsRouter.get('/templates',
+  wrapHandler(resolveJurisdiction()),
+  enforceJurisdictionAccess,
+  wrapHandler(async (req: Request, res: Response) => {
+    const { templateService } = res.app.services;
+    const [records, count] = await templateService.findAll(req.jurisdiction.id);
+    res.status(200).send({ data: records, count: count });
+}))
+
+communicationsRouter.get('/templates/:id',
+  wrapHandler(resolveJurisdiction()),
+  enforceJurisdictionAccess,
+  wrapHandler(async (req: Request, res: Response) => {
+    const { templateService } = res.app.services;
+    const record = await templateService.findOne(req.jurisdiction.id, req.params.id);
+    res.status(200).send({ data: record });
+}))
+
+communicationsRouter.post('/templates',
+  wrapHandler(resolveJurisdiction()),
+  enforceJurisdictionAccess,
+  wrapHandler(async (req: Request, res: Response) => {
+    const { templateService } = res.app.services;
+    const record = await templateService.create(req.body);
+    res.status(200).send({ data: record });
+}))
+
+communicationsRouter.put('/templates/:id',
+  wrapHandler(resolveJurisdiction()),
+  enforceJurisdictionAccess,
+  wrapHandler(async (req: Request, res: Response) => {
+    const { templateService } = res.app.services;
+    const { id } = req.params;
+    const record = await templateService.update(req.jurisdiction.id, id, req.body);
+    res.status(200).send({ data: record });
+}))
+
+communicationsRouter.post('/templates/delete/:id',
+  wrapHandler(resolveJurisdiction()),
+  enforceJurisdictionAccess,
+  wrapHandler(async (req: Request, res: Response) => {
+    const { templateService } = res.app.services;
+    const { id } = req.params;
+    const record = await templateService.delete(req.jurisdiction.id, id);
+    res.status(200).send({ data: record });
+  }))

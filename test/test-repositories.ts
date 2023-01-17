@@ -445,4 +445,36 @@ describe('Verify Core Repositories.', function () {
       chai.assert.equal(record.log[0][0], status.log[0][0]);
     }
   });
+
+  it('should write templates via repository', async function () {
+    const { templateRepository } = app.repositories;
+    for (const templateData of testData.templates) {
+      const record = await templateRepository.create(templateData);
+      chai.assert(record);
+      chai.assert.equal(record.id, templateData.id);
+    }
+  });
+
+  it('should update templates via repository', async function () {
+    const { templateRepository } = app.repositories;
+    for (const templateData of testData.templates) {
+      const updatedContent = "updated content";
+      const record = await templateRepository.update(
+        templateData.jurisdictionId, templateData.id, { content: updatedContent }
+      );
+      chai.assert(record);
+      chai.assert.equal(record.id, templateData.id);
+      chai.assert.equal(record.content, updatedContent);
+    }
+  });
+
+  it('should delete templates via repository', async function () {
+    const { templateRepository } = app.repositories;
+    for (const templateData of testData.templates) {
+      await templateRepository.delete(templateData.jurisdictionId, templateData.id);
+      const foundRecord = await templateRepository.findOne(templateData.jurisdictionId, templateData.id);
+      chai.assert.equal(foundRecord, null);
+    }
+  });
+
 });

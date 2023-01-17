@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import { Container } from 'inversify';
-import { CommunicationRepository, EmailStatusRepository, InboundMapRepository, MessageDisambiguationRepository, SmsStatusRepository } from '../core/communications';
-import { InboundMessageService, OutboundMessageService } from '../core/communications/services';
+import { CommunicationRepository, EmailStatusRepository, InboundMapRepository, MessageDisambiguationRepository, SmsStatusRepository, TemplateRepository } from '../core/communications';
+import { InboundMessageService, OutboundMessageService, TemplateService } from '../core/communications/services';
 import { DepartmentRepository } from '../core/departments';
 import { ServiceRequestHookRunner } from '../core/hooks';
 import { JurisdictionRepository } from '../core/jurisdictions';
@@ -9,7 +9,27 @@ import { ServiceRequestRepository, ServiceRequestService } from '../core/service
 import { ServiceRepository } from '../core/services';
 import { StaffUserRepository } from '../core/staff-users';
 import { StaffUserService } from '../core/staff-users/services';
-import type { AppConfig, ICommunicationRepository, IDepartmentRepository, IEmailStatusRepository, IInboundMapRepository, IInboundMessageService, IJurisdictionRepository, IMessageDisambiguationRepository, IServiceRepository, IServiceRequestHookRunner, IServiceRequestRepository, IServiceRequestService, ISmsStatusRepository, IStaffUserRepository, IStaffUserService, MiddlewarePlugin, Services } from '../types';
+import type {
+  AppConfig,
+  ICommunicationRepository,
+  IDepartmentRepository,
+  IEmailStatusRepository,
+  IInboundMapRepository,
+  IInboundMessageService,
+  IJurisdictionRepository,
+  IMessageDisambiguationRepository,
+  IServiceRepository,
+  IServiceRequestHookRunner,
+  IServiceRequestRepository,
+  IServiceRequestService,
+  ISmsStatusRepository,
+  IStaffUserRepository,
+  IStaffUserService,
+  ITemplateRepository,
+  ITemplateService,
+  MiddlewarePlugin,
+  Services
+} from '../types';
 import { Models, Repositories } from '../types';
 import { appIds, repositoryIds, serviceIds } from './service-identifiers';
 
@@ -48,6 +68,9 @@ function bindRepositoriesWithPlugins(
     repositoryContainer.bind<IMessageDisambiguationRepository>(repositoryIds.IMessageDisambiguationRepository).to(
         MessageDisambiguationRepository
     );
+    repositoryContainer.bind<ITemplateRepository>(repositoryIds.ITemplateRepository).to(
+      TemplateRepository
+    );
 
     // bind from plugins if we have any, to override our default bindings
     if (config.plugins?.repositories) {
@@ -79,6 +102,9 @@ function bindRepositoriesWithPlugins(
     const messageDisambiguationRepository = repositoryContainer.get<IMessageDisambiguationRepository>(
         repositoryIds.IMessageDisambiguationRepository
     );
+    const templateRepository = repositoryContainer.get<ITemplateRepository>(
+      repositoryIds.ITemplateRepository
+    );
 
     const repositories = {
         jurisdictionRepository,
@@ -90,7 +116,8 @@ function bindRepositoriesWithPlugins(
         smsStatusRepository,
         departmentRepository,
         inboundMapRepository,
-        messageDisambiguationRepository
+        messageDisambiguationRepository,
+        templateRepository
     }
     return repositories;
 }
@@ -114,6 +141,7 @@ function bindServicesWithPlugins(
     serviceContainer.bind<IInboundMessageService>(serviceIds.IInboundMessageService).to(InboundMessageService);
     serviceContainer.bind<IServiceRequestService>(serviceIds.IServiceRequestService).to(ServiceRequestService);
     serviceContainer.bind<IStaffUserService>(serviceIds.IStaffUserService).to(StaffUserService);
+    serviceContainer.bind<ITemplateService>(serviceIds.ITemplateService).to(TemplateService);
 
     // bind from plugins if we have any, to override our default bindings
     if (config.plugins?.services) {
@@ -126,11 +154,13 @@ function bindServicesWithPlugins(
     const inboundMessageService = serviceContainer.get<IInboundMessageService>(serviceIds.IInboundMessageService);
     const serviceRequestService = serviceContainer.get<IServiceRequestService>(serviceIds.IServiceRequestService);
     const staffUserService = serviceContainer.get<IStaffUserService>(serviceIds.IStaffUserService);
+    const templateService = serviceContainer.get<TemplateService>(serviceIds.ITemplateService);
 
     const services = {
         inboundMessageService,
         serviceRequestService,
-        staffUserService
+        staffUserService,
+        templateService
     }
     return services;
 }

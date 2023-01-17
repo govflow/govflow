@@ -1,7 +1,7 @@
 import { Model, ModelAttributes, ModelCtor, ModelOptions, QueryInterface, Sequelize } from "sequelize/types";
 import { Umzug } from "umzug";
 import { CommunicationAttributes, CommunicationCreateAttributes, DepartmentAttributes, DepartmentCreateAttributes, JurisdictionAttributes, JurisdictionCreateAttributes, ServiceAttributes, ServiceCreateAttributes, ServiceRequestAttributes, ServiceRequestCommentAttributes, ServiceRequestCommentCreateAttributes, ServiceRequestCreateAttributes, StaffUserAttributes, StaffUserCreateAttributes, StaffUserDepartmentAttributes, StaffUserDepartmentCreateAttributes } from ".";
-import { ChannelStatusAttributes, ChannelStatusCreateAttributes, InboundMapAttributes, InboundMapCreateAttributes, MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes } from "./data";
+import { ChannelStatusAttributes, ChannelStatusCreateAttributes, InboundMapAttributes, InboundMapCreateAttributes, MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes, TemplateAttributes, TemplateCreateAttributes } from "./data";
 
 export type DatabaseEngine = Sequelize;
 export type MigrationEngine = Umzug<QueryInterface>;
@@ -54,6 +54,8 @@ export type ChannelStatusModel = ModelCtor<Model<ChannelStatusAttributes, Channe
 
 export type MessageDisambiguationModel = ModelCtor<Model<MessageDisambiguationAttributes, MessageDisambiguationCreateAttributes>>;
 
+export type TemplateModel = ModelCtor<Model<TemplateAttributes, TemplateCreateAttributes>>;
+
 export interface Models {
     Jurisdiction: JurisdictionModel,
     StaffUser: StaffUserModel,
@@ -66,4 +68,5 @@ export interface Models {
     Department: DepartmentModel,
     ChannelStatus: ChannelStatusModel,
     MessageDisambiguation: MessageDisambiguationModel
+    Template: TemplateModel
 }
