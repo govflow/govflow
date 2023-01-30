@@ -30,4 +30,10 @@ coverage.json
 
 .env
 
+# local qa files
 client.http
+data.http
+
+# dummy data generator configuration
+/dummy-*.json
+!/dummy-data-template.json

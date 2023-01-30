@@ -1,20 +1,73 @@
 import { Application } from 'express';
 import faker from 'faker';
 import { ServiceAttributes, ServiceRequestAttributes, ServiceRequestCreateAttributes } from '../types';
-// eslint-disable-next-line
-const GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID = process.env.GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID || '';
-// eslint-disable-next-line
-const GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_SUBMITTER_EMAIL_BASE = process.env.GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_SUBMITTER_EMAIL_BASE || '';
-const YEAR = 2022;
-const RECORD_COUNT = 600; // always do 600 - need it for a simple calc in date ranges
-const MONTHS = [3, 4, 5, 6, 7, 8]; // always do 6 - need it for a simple calc in date ranges
-const OPEN_TICKET_WINDOWS = [1, 2, 3, 4, 5]; // always do 5 - need it for a simple calc in date ranges
-const SERVICE_REQUEST_STATUS = 'done';
+
+interface ServiceTypeConfig {
+  name: string;
+  group: string;
+  jurisdictionId?: string;
+}
+
+interface Config {
+  jurisdiction_id: string;
+  submitter_email_base: string;
+  record_count: number;
+  year: number;
+  months: number[];
+  service_types: ServiceTypeConfig[];
+  open_ticket_windows: number[];
+  trigger_status: string;
+}
+
+interface DateRangeSeedData {
+  window: number;
+  month: number;
+  day: number
+}
+
+interface DateRange {
+  submit: Date;
+  close: Date;
+}
 
 interface ServiceSeedData {
   name: string;
   group: string;
   jurisdictionId: string;
+}
+
+interface SubmitterSeedData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+}
+
+// here we load the config file for this dummy data run
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const config = require(process.env.GOVFLOW_DUMMY_DATA_CONFIG || '') as Config;
+
+console.log("Loaded config:");
+console.log(config);
+
+let jurisdictionId = '';
+let submitterEmailBase = '';
+let year = 0;
+let recordCount = 0;
+let months: number[] = [];
+let serviceData: ServiceTypeConfig[] = [];
+let openTicketWindows: number[] = [];
+let triggerStatus = 'done';
+
+if (config) {
+  jurisdictionId = config.jurisdiction_id;
+  submitterEmailBase = config.submitter_email_base;
+  year = config.year;
+  recordCount = config.record_count; // always do 600 - need it for a simple calc in date ranges
+  months = config.months; // must divide nicely into record count
+  serviceData = config.service_types;
+  openTicketWindows = config.open_ticket_windows;
+  triggerStatus = config.trigger_status;
 }
 
 function makeService(data: ServiceSeedData) {
@@ -30,35 +83,17 @@ function makeService(data: ServiceSeedData) {
 }
 
 function makeServices(jurisdictionId: string) {
-  const serviceNames = [
-    { jurisdictionId: jurisdictionId, name: 'Pothole', group: 'Road repairs' },
-    { jurisdictionId: jurisdictionId, name: 'Fallen tree damage', group: 'Road repairs' },
-    { jurisdictionId: jurisdictionId, name: 'Abandoned vehicle', group: 'Illegal Parking' },
-    { jurisdictionId: jurisdictionId, name: 'Access blocked', group: 'Illegal Parking' },
-    { jurisdictionId: jurisdictionId, name: 'Stray dog', group: 'Animal complaints' },
-    { jurisdictionId: jurisdictionId, name: 'Stray cat', group: 'Animal complaints' },
-    { jurisdictionId: jurisdictionId, name: 'Leaking hydrant', group: 'Water repairs' },
-    { jurisdictionId: jurisdictionId, name: 'Burst mains', group: 'Water repairs' },
-    { jurisdictionId: jurisdictionId, name: 'Graffiti removal', group: 'Public spaces' },
-    { jurisdictionId: jurisdictionId, name: 'Dumped rubbish', group: 'Public spaces' },
-    { jurisdictionId: jurisdictionId, name: 'Missed garbage pickup', group: 'Garbage collection' },
-    { jurisdictionId: jurisdictionId, name: 'Overflowing garbage', group: 'Garbage collection' },
-  ] as ServiceSeedData[]
+  const serviceNames = serviceData.map(
+    i => Object.assign({}, i, {jurisdictionId})
+  ) as ServiceSeedData[]
   return serviceNames.map(makeService)
-}
-
-interface SubmitterSeedData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
 }
 
 function makeSubmitter() {
   return {
     firstName: faker.name.firstName(),
     lastName: faker.name.lastName(),
-    email: GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_SUBMITTER_EMAIL_BASE.replace(
+    email: submitterEmailBase.replace(
       '{{id}}',
       faker.random.alpha({ count: 7, upcase: false }).toLowerCase()
     ),
@@ -67,7 +102,7 @@ function makeSubmitter() {
 }
 
 function makeSubmitters() {
-  return Array(RECORD_COUNT).fill({}).map(makeSubmitter)
+  return Array(recordCount).fill({}).map(makeSubmitter)
 }
 
 function makeServiceRequest(
@@ -81,7 +116,7 @@ function makeServiceRequest(
     lastName: submitter.lastName,
     email: submitter.email,
     phone: submitter.phone,
-    status: SERVICE_REQUEST_STATUS,
+    status: triggerStatus,
     createdAt: dateRange.submit,
     updatedAt: dateRange.close,
     closeDate: dateRange.close,
@@ -100,19 +135,8 @@ function makeServiceRequests(
   return serviceRequests;
 }
 
-interface DateRangeSeedData {
-  window: number;
-  month: number;
-  day: number
-}
-
-interface DateRange {
-  submit: Date;
-  close: Date;
-}
-
 function makeDateRange(data: DateRangeSeedData) {
-  const submit = new Date(YEAR, data.month, data.day);
+  const submit = new Date(year, data.month, data.day);
   const close = new Date(submit.getTime() + data.window * 24 * 60 * 60 * 1000);
   return {
     submit: submit,
@@ -122,10 +146,10 @@ function makeDateRange(data: DateRangeSeedData) {
 
 function makeDateRanges() {
   const dateRanges = [];
-  const perMonth = RECORD_COUNT / MONTHS.length;
-  for (const month of MONTHS) {
-    const windowLength = perMonth / OPEN_TICKET_WINDOWS.length;
-    const windows = Array(windowLength).fill(OPEN_TICKET_WINDOWS).flat();
+  const perMonth = recordCount / months.length;
+  for (const month of months) {
+    const windowLength = perMonth / openTicketWindows.length;
+    const windows = Array(windowLength).fill(openTicketWindows).flat();
     const daysContainer = Array(windows.length).fill(null);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const days = daysContainer.map(e => faker.datatype.number({ 'min': 1, 'max': 28 }));
@@ -136,12 +160,18 @@ function makeDateRanges() {
 }
 
 export async function run(app: Application) {
+
+  if (!config) return "Run failed: no config file supplied"
+
   const { serviceRepository, serviceRequestRepository } = app.repositories;
-  const services = makeServices(GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID);
+
+  const [_existing, existingServiceRequestCount] = await serviceRequestRepository.findAll(jurisdictionId);
+
+  const services = makeServices(jurisdictionId);
   const submitters = makeSubmitters();
   const dateRanges = makeDateRanges();
   const serviceRequests = makeServiceRequests(
-    GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID, submitters, services, dateRanges
+    jurisdictionId, submitters, services, dateRanges
   );
 
   for (const service of services) {
@@ -163,18 +193,16 @@ export async function run(app: Application) {
     }
   }
 
-  // DELETE TO START AGAIN
-  // const [requests, _count] = await serviceRequestRepository.findAll(GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID);
-  // console.log(GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID)
+  // UNCOMMENT TO START AGAIN by deleting all service requests in a table
+  // const [requests, _count] = await serviceRequestRepository.findAll(jurisdictionId);
+  // console.log(jurisdictionId)
   // console.log(_count)
   // for (const r of requests) {
   //   // @ts-ignore
   //   await r.destroy();
   // }
 
-  const [allServiceRequests, serviceRequestCount] = await serviceRequestRepository.findAll(
-    GOVFLOW_DUMMY_DATA_FOR_JURISDICTION_JURISDICTION_ID
-  );
-  console.log(serviceRequestCount);
-  console.log(allServiceRequests.map(r => r.id));
+  const [_serviceRequests, serviceRequestCount] = await serviceRequestRepository.findAll(jurisdictionId);
+  console.log(`Counted ${existingServiceRequestCount} Service Requests BEFORE this dummy load`);
+  console.log(`Counted ${serviceRequestCount} Service Requests AFTER this dummy load`);
 }

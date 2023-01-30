@@ -1,0 +1,72 @@
+{
+  "jurisdiction_id": "<JURISDICTION_ID>",
+  "submitter_email_base": "<LOCAL_PART>+{{id}}@<EMAIL_DOMAIN>",
+  "record_count": 600,
+  "trigger_status": "done",
+  "open_ticket_windows": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "year": 2023,
+  "months": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "service_types": [
+    {
+      "name": "Pothole",
+      "group": "Road repairs"
+    },
+    {
+      "name": "Fallen tree damage",
+      "group": "Road repairs"
+    },
+    {
+      "name": "Abandoned vehicle",
+      "group": "Illegal Parking"
+    },
+    {
+      "name": "Access blocked",
+      "group": "Illegal Parking"
+    },
+    {
+      "name": "Stray dog",
+      "group": "Animal complaints"
+    },
+    {
+      "name": "Stray cat",
+      "group": "Animal complaints"
+    },
+    {
+      "name": "Leaking hydrant",
+      "group": "Water repairs"
+    },
+    {
+      "name": "Burst mains",
+      "group": "Water repairs"
+    },
+    {
+      "name": "Graffiti removal",
+      "group": "Public spaces"
+    },
+    {
+      "name": "Dumped rubbish",
+      "group": "Public spaces"
+    },
+    {
+      "name": "Missed garbage pickup",
+      "group": "Garbage collection"
+    },
+    {
+      "name": "Overflowing garbage",
+      "group": "Garbage collection"
+    }
+  ]
+}
