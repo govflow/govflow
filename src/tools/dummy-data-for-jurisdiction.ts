@@ -178,6 +178,7 @@ export async function run(app: Application) {
     try {
       await serviceRepository.create(service);
     } catch (err) {
+      // it can be normal for this to error if the services exist
       console.log("ERROR CREATING SERVICE")
       console.log(err)
     }
