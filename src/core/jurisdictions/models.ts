@@ -17,7 +17,8 @@ export const CX_DATA_SOURCES = [
   'OrganicDataItem',
   'CivicPlusSeeClickFix',
   'CivicPlusRequestTracker',
-  'Lucity'
+  'Lucity',
+  'PublicStuff',
 ]
 
 export const JurisdictionModel: ModelDefinition = {

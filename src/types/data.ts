@@ -2,7 +2,7 @@ import type { Model } from 'sequelize';
 import { IOutboundMessageService } from './services';
 
 
-export type CXDataSource = 'OrganicDataItem' | 'CivicPlusSeeClickFix' | 'CivicPlusRequestTracker' | 'Lucity';
+export type CXDataSource = 'OrganicDataItem' | 'CivicPlusSeeClickFix' | 'CivicPlusRequestTracker' | 'Lucity' | 'PublicStuff';
 
 export type GovFlowUsageContext = '311' | '911' | 'Policing';
 
